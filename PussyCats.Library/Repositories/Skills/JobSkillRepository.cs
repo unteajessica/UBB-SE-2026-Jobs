@@ -25,6 +25,14 @@ public class JobSkillRepository : IJobSkillRepository
             .ConfigureAwait(false);
     }
 
+    public async Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken ct = default)
+    {
+        return await db.JobSkills
+            .AsNoTracking()
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Original: matchmaking JobSkillRepository.GetByJobId — straight predicate port. Read-only,
     /// includes Skill.

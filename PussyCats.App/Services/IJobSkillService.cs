@@ -1,10 +1,10 @@
 using PussyCats.Library.Domain;
 
-namespace PussyCats.Library.Repositories.Skills;
+namespace PussyCats.App.Services;
 
-public interface IJobSkillRepository
+public interface IJobSkillService
 {
-    Task<JobSkill?> GetAsync(int jobId, int skillId, CancellationToken ct = default);
+    Task<JobSkill?> GetByIdAsync(int jobId, int skillId, CancellationToken ct = default);
 
     Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken ct = default);
 

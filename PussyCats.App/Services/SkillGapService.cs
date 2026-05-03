@@ -1,0 +1,176 @@
+using PussyCats.Library.Domain;
+using PussyCats.Library.Domain.Enums;
+using PussyCats.Library.DTOs;
+using PussyCats.Library.Repositories.Matches;
+
+namespace PussyCats.App.Services;
+
+public class SkillGapService : ISkillGapService
+{
+    private readonly IMatchRepository matchRepository;
+    private readonly IJobSkillService jobSkillService;
+    private readonly IUserSkillService userSkillService;
+
+    public SkillGapService(
+        IMatchRepository matchRepository,
+        IJobSkillService jobSkillService,
+        IUserSkillService userSkillService)
+    {
+        this.matchRepository = matchRepository;
+        this.jobSkillService = jobSkillService;
+        this.userSkillService = userSkillService;
+    }
+
+    public async Task<IReadOnlyList<MissingSkillModel>> GetMissingSkillsAsync(int userId, CancellationToken ct = default)
+    {
+        var rejectedMatches = await GetRejectedMatchesAsync(userId, ct).ConfigureAwait(false);
+        if (rejectedMatches.Count == 0)
+        {
+            return new List<MissingSkillModel>();
+        }
+
+        var userSkillIds = new HashSet<int>();
+        foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, ct).ConfigureAwait(false))
+        {
+            userSkillIds.Add(userSkill.SkillId);
+        }
+
+        var missingCount = new Dictionary<string, int>();
+        foreach (var match in rejectedMatches)
+        {
+            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, ct).ConfigureAwait(false))
+            {
+                if (!userSkillIds.Contains(jobSkill.SkillId))
+                {
+                    var skillName = jobSkill.Skill.Name;
+                    if (!missingCount.ContainsKey(skillName))
+                    {
+                        missingCount[skillName] = 0;
+                    }
+
+                    missingCount[skillName]++;
+                }
+            }
+        }
+
+        var missingSkills = new List<MissingSkillModel>();
+        foreach (var missing in missingCount)
+        {
+            missingSkills.Add(new MissingSkillModel { SkillName = missing.Key, RejectedJobCount = missing.Value });
+        }
+
+        missingSkills.Sort(CompareMissingSkillCountDescending);
+        return missingSkills;
+    }
+
+    public async Task<IReadOnlyList<UnderscoredSkillModel>> GetUnderscoredSkillsAsync(int userId, CancellationToken ct = default)
+    {
+        var rejectedMatches = await GetRejectedMatchesAsync(userId, ct).ConfigureAwait(false);
+        if (rejectedMatches.Count == 0)
+        {
+            return new List<UnderscoredSkillModel>();
+        }
+
+        var userSkillMap = new Dictionary<int, UserSkill>();
+        foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, ct).ConfigureAwait(false))
+        {
+            userSkillMap[userSkill.SkillId] = userSkill;
+        }
+
+        var requiredScoresPerSkill = new Dictionary<int, (string Name, int UserScore, List<int> RequiredScores)>();
+        foreach (var match in rejectedMatches)
+        {
+            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, ct).ConfigureAwait(false))
+            {
+                if (!userSkillMap.TryGetValue(jobSkill.SkillId, out var userSkill))
+                {
+                    continue;
+                }
+
+                if (userSkill.Score >= jobSkill.RequiredLevel)
+                {
+                    continue;
+                }
+
+                if (!requiredScoresPerSkill.ContainsKey(jobSkill.SkillId))
+                {
+                    requiredScoresPerSkill[jobSkill.SkillId] = (jobSkill.Skill.Name, userSkill.Score, new List<int>());
+                }
+
+                requiredScoresPerSkill[jobSkill.SkillId].RequiredScores.Add(jobSkill.RequiredLevel);
+            }
+        }
+
+        var underscoredSkills = new List<UnderscoredSkillModel>();
+        foreach (var skill in requiredScoresPerSkill)
+        {
+            underscoredSkills.Add(new UnderscoredSkillModel
+            {
+                SkillName = skill.Value.Name,
+                UserScore = skill.Value.UserScore,
+                AverageRequiredScore = ComputeAverage(skill.Value.RequiredScores),
+            });
+        }
+
+        underscoredSkills.Sort(CompareSkillGapDescending);
+        return underscoredSkills;
+    }
+
+    public async Task<SkillGapSummaryModel> GetSummaryAsync(int userId, CancellationToken ct = default)
+    {
+        var rejectedMatches = await GetRejectedMatchesAsync(userId, ct).ConfigureAwait(false);
+        if (rejectedMatches.Count == 0)
+        {
+            return new SkillGapSummaryModel { HasRejections = false, HasSkillGaps = false };
+        }
+
+        var missing = await GetMissingSkillsAsync(userId, ct).ConfigureAwait(false);
+        var underscored = await GetUnderscoredSkillsAsync(userId, ct).ConfigureAwait(false);
+
+        return new SkillGapSummaryModel
+        {
+            HasRejections = true,
+            HasSkillGaps = missing.Count > 0 || underscored.Count > 0,
+            MissingSkillsCount = missing.Count,
+            SkillsToImproveCount = underscored.Count,
+        };
+    }
+
+    private async Task<IReadOnlyList<Match>> GetRejectedMatchesAsync(int userId, CancellationToken ct)
+    {
+        var matches = await matchRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        var rejected = new List<Match>();
+        foreach (var match in matches)
+        {
+            if (match.Status == MatchStatus.Rejected)
+            {
+                rejected.Add(match);
+            }
+        }
+
+        return rejected;
+    }
+
+    private static int CompareMissingSkillCountDescending(MissingSkillModel left, MissingSkillModel right)
+    {
+        return right.RejectedJobCount.CompareTo(left.RejectedJobCount);
+    }
+
+    private static int CompareSkillGapDescending(UnderscoredSkillModel left, UnderscoredSkillModel right)
+    {
+        var leftGap = left.AverageRequiredScore - left.UserScore;
+        var rightGap = right.AverageRequiredScore - right.UserScore;
+        return rightGap.CompareTo(leftGap);
+    }
+
+    private static int ComputeAverage(IReadOnlyList<int> values)
+    {
+        var sum = 0;
+        foreach (var value in values)
+        {
+            sum += value;
+        }
+
+        return sum / values.Count;
+    }
+}
