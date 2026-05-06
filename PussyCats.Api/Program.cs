@@ -1,16 +1,44 @@
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Library.Persistence;
+using PussyCats.Library.Repositories.Companies;
+using PussyCats.Library.Repositories.Documents;
+using PussyCats.Library.Repositories.Jobs;
+using PussyCats.Library.Repositories.Matches;
+using PussyCats.Library.Repositories.PersonalityTests;
+using PussyCats.Library.Repositories.Recommendations;
+using PussyCats.Library.Repositories.Skills;
+using PussyCats.Library.Repositories.SkillTests;
+using PussyCats.Library.Repositories.Users;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<PussyCatsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PussyCatsDb")));
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IJobRepository, JobRepository>();
+builder.Services.AddScoped<IMatchRepository, MatchRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+builder.Services.AddScoped<IJobSkillRepository, JobSkillRepository>();
+builder.Services.AddScoped<IUserSkillRepository, UserSkillRepository>();
+builder.Services.AddScoped<ISkillGroupRepository, SkillGroupRepository>();
+builder.Services.AddScoped<ISkillTestRepository, SkillTestRepository>();
+builder.Services.AddScoped<IPersonalityTestRepository, PersonalityTestRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IRecommendationRepository, RecommendationRepository>();
 
 var app = builder.Build();
 

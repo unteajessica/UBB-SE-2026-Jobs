@@ -165,17 +165,7 @@ public class MatchService : IMatchService
 
     public bool IsDecisionTransitionAllowed(Match current, MatchStatus next)
     {
-        if (current.Status == MatchStatus.Applied)
-        {
-            return next is MatchStatus.Accepted or MatchStatus.Rejected or MatchStatus.Advanced;
-        }
-
-        if (current.Status == MatchStatus.Advanced)
-        {
-            return next is MatchStatus.Accepted or MatchStatus.Rejected;
-        }
-
-        return false;
+        return MatchStatusTransitions.IsDecisionTransitionAllowed(current.Status, next);
     }
 
     private static void ValidateDecisionInput(MatchStatus decision, string feedback)
