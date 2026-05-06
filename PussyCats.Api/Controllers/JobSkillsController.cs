@@ -15,6 +15,10 @@ public class JobSkillsController : ControllerBase
         this.jobSkills = jobSkills;
     }
 
+    [HttpGet("/api/job-skills")]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+        => Ok(await jobSkills.GetAllAsync(ct));
+
     [HttpGet]
     public async Task<IActionResult> GetByJobId(int jobId, CancellationToken cancellationToken)
         => Ok(await jobSkills.GetByJobIdAsync(jobId, cancellationToken));

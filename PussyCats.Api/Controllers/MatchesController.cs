@@ -24,11 +24,18 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int? userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] int? userId, [FromQuery] int? jobId, CancellationToken ct)
     {
+        if (userId.HasValue && jobId.HasValue)
+        {
+            var match = await matches.GetByUserIdAndJobIdAsync(userId.Value, jobId.Value, ct);
+            return Ok(match is null ? Array.Empty<Match>() : new[] { match });
+        }
+
         if (userId.HasValue)
-            return Ok(await matches.GetByUserIdAsync(userId.Value, cancellationToken));
-        return Ok(await matches.GetAllAsync(cancellationToken));
+            return Ok(await matches.GetByUserIdAsync(userId.Value, ct));
+
+        return Ok(await matches.GetAllAsync(ct));
     }
 
     [HttpPost]
@@ -48,6 +55,17 @@ public class MatchesController : ControllerBase
 
         var saved = await matches.AddAsync(match, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.MatchId }, saved);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Match match, CancellationToken ct)
+    {
+        if (await matches.GetByIdAsync(id, ct) is null)
+            return NotFound();
+
+        match.MatchId = id;
+        await matches.UpdateAsync(match, ct);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
