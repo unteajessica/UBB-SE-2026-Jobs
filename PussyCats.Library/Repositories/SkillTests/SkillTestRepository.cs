@@ -21,7 +21,7 @@ public class SkillTestRepository : ISkillTestRepository
     public async Task<SkillTest?> GetByIdAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
         return await db.SkillTests
-            .FirstOrDefaultAsync(t => t.SkillTestId == skillTestId, cancellationToken)
+            .FirstOrDefaultAsync(test => test.SkillTestId == skillTestId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -33,7 +33,7 @@ public class SkillTestRepository : ISkillTestRepository
     {
         return await db.SkillTests
             .AsNoTracking()
-            .Where(t => t.UserId == userId)
+            .Where(test => test.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
