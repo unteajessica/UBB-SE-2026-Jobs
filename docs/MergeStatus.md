@@ -1,7 +1,7 @@
 # Merge Status
 
 Last updated: 2026-05-06
-Current phase: 5a done. Next phase is 5b (RepositoryProxies + App.xaml.cs DI).
+Current phase: 5b done. Next phase is 5c (view-model migration).
 
 This document tracks where the merge stands right now. The architectural
 plan is in `MergePlan.md` and is unchanged. This file records what's been
@@ -13,8 +13,8 @@ decided and built since the plan was written, plus what's left.
   Windows auth.
 - Build green across all four projects (`PussyCats.App`, `PussyCats.Library`,
   `PussyCats.Api`, `PussyCats.Tests`).
-- Phases 0, 1, 2, 3a, 3b, 3c, 4, and 5a are implemented. Phase 5b is next.
-- DI not wired in `App.xaml.cs` yet. That's Phase 5b.
+- Phases 0, 1, 2, 3a, 3b, 3c, 4, 5a, and 5b are implemented. Phase 5c is next.
+- DI is wired in `App.xaml.cs` with RepositoryProxy typed clients and a startup proxy assertion.
 - View models from both original repos have not been touched. They
   still reference original namespaces and won't build against the
   merged code. Phase 5 ports them.
@@ -591,10 +591,9 @@ End of 4b: `dotnet build` across all four projects green. Full route
 table. List all 501-stubbed endpoints. Deviations from playbook.
 Commit. Phase 4 complete.
 
-### Phase 5 — App services + RepositoryProxies + view-model migration (5a done, 5b next)
+### Phase 5 — App services + RepositoryProxies + view-model migration (5b done, 5c next)
 
-Three sessions. 5a is complete. No DI wired until 5b is complete. No
-view models touched until 5c.
+Three sessions. 5a and 5b are complete. View models stay frozen until 5c.
 
 **Design decisions locked in:**
 
@@ -736,7 +735,40 @@ End of 5a status: `dotnet build` green across all four projects.
 
 ---
 
-**5b — RepositoryProxies + App.xaml.cs DI (next; user manages git)**
+**5b — RepositoryProxies + App.xaml.cs DI (done; user manages git)**
+
+Status after 2026-05-06:
+- Added 13 App-side RepositoryProxy classes under
+  `PussyCats.App/RepositoryProxies/`: Users, Jobs, Matches, Companies,
+  Documents, Skills, JobSkills, UserSkills, SkillGroups, SkillTests,
+  PersonalityTests, Questions, and Recommendations.
+- Proxies use typed `HttpClient` registrations. `ApiConfiguration` is
+  resolved once in `App.xaml.cs`, and every proxy client gets
+  `https://localhost:7000` as `BaseAddress`.
+- Added shared proxy JSON options with web defaults,
+  `JsonStringEnumConverter`, and `ReferenceHandler.IgnoreCycles`. This
+  covers proxy outbound circular navigation graphs without removing
+  useful read-side navigation payloads from API responses.
+- Added `SessionContext` in `PussyCats.App/Configuration/SessionContext.cs`.
+- Wired `App.xaml.cs` DI for all repository interfaces, App services,
+  `IRecommendationAlgorithm`, `SessionContext`, and auto-registration
+  of any current/future `*ViewModel` classes found in the App assembly.
+- Startup now resolves every Library `I*Repository` and throws if the
+  concrete type name does not end in `Proxy`.
+- `QuestionRepositoryProxy` intentionally throws `NotSupportedException`;
+  questions remain hardcoded in `PersonalityTestService`.
+- `UserRepositoryProxy.TouchLastUpdatedAsync` is a no-op; the API patch
+  endpoints touch server-side as planned.
+- Added two small API shims required by the repository contracts:
+  `GET /api/job-skills` for `IJobSkillRepository.GetAllAsync`, and
+  `PUT /api/matches/{id}` for `IMatchRepository.UpdateAsync`.
+- `PdfExportService` remains view-scoped and is not DI-registered,
+  because its constructor requires a page-owned `WebView2` control.
+- Verification: `dotnet build "UBB-SE-2026-921-1.sln" -v:n` succeeds
+  across all four projects. Remaining warning:
+  `NETSDK1198` missing WinUI publish profile `win-x86.pubxml`.
+
+Historical playbook retained below for review context.
 
 *Step 1 — 13 RepositoryProxy classes in `PussyCats.App/RepositoryProxies/`.*
 
@@ -821,11 +853,11 @@ public static IServiceProvider Services => ((App)Current).serviceProvider;
            $"DI violation: {iface.Name} is not bound to a *Proxy implementation.");
    ```
 
-End of 5b target: `dotnet build` green. Do not auto-commit; user manages git.
+End of 5b status: `dotnet build` green. Do not auto-commit; user manages git.
 
 ---
 
-**5c — View model migration (pending; user manages git)**
+**5c — View model migration (next; user manages git)**
 
 All view models land in `PussyCats.App/ViewModels/`.
 MVVM Toolkit standard throughout.
@@ -965,20 +997,15 @@ resolved yet:
   future callers use `SimpleModelOperations.GetExperiencePoints`
   directly.
 
-- **Circular back-navigation properties on domain entities.** Every
-  child entity has a back-nav property to its parent (e.g.
-  `WorkExperience.User`, `Match.User`, `Match.Job`, `UserSkill.User`,
-  `JobSkill.Job`, likely also `Project.User`, `Document.User`,
-  `SkillTest.User`, `PersonalityTestResult.User`, etc.). The API
-  outbound side is currently covered by `ReferenceHandler.IgnoreCycles`
-  in Program.cs. The proxy outbound side (POST/PUT from App to API) is
-  not — if a VM ever manually wires back-navigation before calling save,
-  `PostAsJsonAsync` will throw a JsonException. The correct fix is
-  `[JsonIgnore]` on all back-navigation properties in Library; EF
-  ignores JSON attributes so queries are unaffected. Once that lands,
-  `ReferenceHandler.IgnoreCycles` in Program.cs can be removed (though
-  it's harmless to keep). **Planned for Phase 5b** (Library change that
-  the proxies should rely on being in place).
+- **Circular back-navigation properties on domain entities.** API
+  outbound remains covered by `ReferenceHandler.IgnoreCycles` in
+  `Program.cs`. Phase 5b also added the same cycle protection to the
+  proxy JSON options used by `PostAsJsonAsync`, `PutAsJsonAsync`, and
+  `PatchAsJsonAsync`. This avoids outbound proxy serialization failures
+  if a VM wires back-navigation properties before save. `[JsonIgnore]`
+  attributes on Library back-navigation properties are no longer
+  required for Phase 5b, but can still be considered in Phase 8 if the
+  team wants leaner JSON payloads.
 
 - `CompletenessService` case 18 deviation: original checked
   `PreferredJobRoles` (a `List<string>` on `UserProfile`). Merged

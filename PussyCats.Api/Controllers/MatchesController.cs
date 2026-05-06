@@ -57,6 +57,17 @@ public class MatchesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = saved.MatchId }, saved);
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Match match, CancellationToken ct)
+    {
+        if (await matches.GetByIdAsync(id, ct) is null)
+            return NotFound();
+
+        match.MatchId = id;
+        await matches.UpdateAsync(match, ct);
+        return NoContent();
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Remove(int id, CancellationToken ct)
     {
