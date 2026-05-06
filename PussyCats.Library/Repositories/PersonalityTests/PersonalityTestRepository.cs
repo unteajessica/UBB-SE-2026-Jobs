@@ -23,8 +23,8 @@ public class PersonalityTestRepository : IPersonalityTestRepository
     public async Task<PersonalityTestResult?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await db.PersonalityTestResults
-            .Include(r => r.TraitScores)
-            .FirstOrDefaultAsync(r => r.UserId == userId, cancellationToken)
+            .Include(result => result.TraitScores)
+            .FirstOrDefaultAsync(result => result.UserId == userId, cancellationToken)
             .ConfigureAwait(false);
     }
 

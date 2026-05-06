@@ -60,8 +60,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         // PersonalityResult is one-to-zero-or-one; cascade so the result and its trait scores
         // disappear when the user does.
         builder.HasOne(u => u.PersonalityResult)
-            .WithOne(r => r.User)
-            .HasForeignKey<PersonalityTestResult>(r => r.UserId)
+            .WithOne(result => result.User)
+            .HasForeignKey<PersonalityTestResult>(result => result.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Match navigation is configured from the Match side (restrict). Avoid configuring the

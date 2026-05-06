@@ -79,7 +79,7 @@ public class PreferenceService : IPreferenceService
             return;
         }
 
-        user.PreferredEmploymentType = string.Join(",", roles.Select(r => r.ToString()));
+        user.PreferredEmploymentType = string.Join(",", roles.Select(role => role.ToString()));
         user.WorkModePreference = workMode.ToString();
         user.LocationPreference = location;
 

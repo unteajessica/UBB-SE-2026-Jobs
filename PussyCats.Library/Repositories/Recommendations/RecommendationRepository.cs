@@ -20,7 +20,7 @@ public class RecommendationRepository : IRecommendationRepository
     public async Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         return await db.Recommendations
-            .FirstOrDefaultAsync(r => r.RecommendationId == recommendationId, cancellationToken)
+            .FirstOrDefaultAsync(recommendation => recommendation.RecommendationId == recommendationId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -41,8 +41,8 @@ public class RecommendationRepository : IRecommendationRepository
     {
         return await db.Recommendations
             .AsNoTracking()
-            .Where(r => r.UserId == userId && r.JobId == jobId)
-            .OrderByDescending(r => r.Timestamp)
+            .Where(recommendation => recommendation.UserId == userId && recommendation.JobId == jobId)
+            .OrderByDescending(recommendation => recommendation.Timestamp)
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
     }
