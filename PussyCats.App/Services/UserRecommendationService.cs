@@ -144,7 +144,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
             ?? throw new InvalidOperationException($"Company {job.CompanyId} not found.");
 
         var jobSkillRows = await jobSkillRepository.GetByJobIdAsync(job.JobId, ct).ConfigureAwait(false);
-        var topSkills = TakeTopSkills(jobSkillRows);
+        var topSkills = JobRecommendationResult.TakeTopSkills(jobSkillRows);
         var allSkillLabels = new List<string>();
         foreach (var jobSkill in jobSkillRows)
         {
@@ -291,27 +291,6 @@ public sealed class UserRecommendationService : IUserRecommendationService
         }
 
         return false;
-    }
-
-    // Inlined from matchmaking JobRecommendationResult.TakeTopSkills (the merged DTO dropped the
-    // helper). Format and default count of 3 preserved verbatim; SkillName→Skill.Name and
-    // Score→RequiredLevel reflect the merged JobSkill shape.
-    private static IReadOnlyList<string> TakeTopSkills(IReadOnlyList<JobSkill> jobSkills, int count = 3)
-    {
-        var skillLabels = new List<string>();
-        var index = 0;
-        foreach (var jobSkill in jobSkills)
-        {
-            if (index >= count)
-            {
-                break;
-            }
-
-            skillLabels.Add($"{jobSkill.Skill.Name} (min {jobSkill.RequiredLevel})");
-            index++;
-        }
-
-        return skillLabels;
     }
 
     private static int CompareRankedJobsByScoreDescending((Job Job, double Score) left, (Job Job, double Score) right)

@@ -1,7 +1,7 @@
 # Merge Status
 
 Last updated: 2026-05-06
-Current phase: 5b done. Next phase is 5c (view-model migration).
+Current phase: 5c done. Phase 5 is complete. Next phase is 6 (UI shell).
 
 This document tracks where the merge stands right now. The architectural
 plan is in `MergePlan.md` and is unchanged. This file records what's been
@@ -13,11 +13,11 @@ decided and built since the plan was written, plus what's left.
   Windows auth.
 - Build green across all four projects (`PussyCats.App`, `PussyCats.Library`,
   `PussyCats.Api`, `PussyCats.Tests`).
-- Phases 0, 1, 2, 3a, 3b, 3c, 4, 5a, and 5b are implemented. Phase 5c is next.
+- Phases 0, 1, 2, 3a, 3b, 3c, 4, 5a, 5b, and 5c are implemented. Phase 6 is next.
 - DI is wired in `App.xaml.cs` with RepositoryProxy typed clients and a startup proxy assertion.
-- View models from both original repos have not been touched. They
-  still reference original namespaces and won't build against the
-  merged code. Phase 5 ports them.
+- View models from both original repos have been migrated into
+  `PussyCats.App/ViewModels/` and now build against merged services,
+  DTOs, Library domain types, and `SessionContext`.
 - Workflow note from 2026-05-06 onward: Codex must not create commits
   or branches. The user manages git commits and branches manually.
 
@@ -591,9 +591,9 @@ End of 4b: `dotnet build` across all four projects green. Full route
 table. List all 501-stubbed endpoints. Deviations from playbook.
 Commit. Phase 4 complete.
 
-### Phase 5 — App services + RepositoryProxies + view-model migration (5b done, 5c next)
+### Phase 5 — App services + RepositoryProxies + view-model migration (done)
 
-Three sessions. 5a and 5b are complete. View models stay frozen until 5c.
+Three sessions. 5a, 5b, and 5c are complete. Phase 5 is done.
 
 **Design decisions locked in:**
 
@@ -622,16 +622,15 @@ Three sessions. 5a and 5b are complete. View models stay frozen until 5c.
   `[RelayCommand]`). Both original repos already used it; no mixed
   patterns.
 
-- **Chat and Developer VMs are deferred.** `ChatViewModel` and
+- **Chat and Developer VMs are deferred stubs.** `ChatViewModel` and
   `DeveloperViewModel` depend on services outside the merged scope
-  (§8). They are not ported. Each gets a stub file with
-  `// mock: belongs to other half, see MergePlan.md §8`.
+  (§8). They are present as buildable stub files with
+  `// mock: belongs to other half, see MergePlan.md section 8`.
 
-- **`JobRecommendationResult` display helpers restored.** The DTO
-  dropped `JobTitleLine`, `DescriptionExcerpt`, `BuildExcerpt`,
-  `TakeTopSkills` when moved to Library. These are pure computed
-  properties (no I/O). Restore them on the DTO in Library during 5c
-  so view models don't need wrapper objects.
+- **`JobRecommendationResult` display helpers restored.** The DTO now
+  has `JobTitleLine`, `DescriptionExcerpt`, `BuildExcerpt`, and
+  `TakeTopSkills` in Library. These are pure computed properties
+  (no I/O), so view models don't need wrapper objects.
 
 - **Startup DI assertion.** At the end of `App()`, iterate every
   `IXRepository` type and assert the resolved concrete type name ends
@@ -857,7 +856,32 @@ End of 5b status: `dotnet build` green. Do not auto-commit; user manages git.
 
 ---
 
-**5c — View model migration (next; user manages git)**
+**5c — View model migration (done; user manages git)**
+
+Status after 2026-05-06:
+- Added `PussyCats.App/ViewModels/` and migrated the phase-5c view
+  model set from both source repos to merged namespaces, Library
+  domain/DTO types, async service interfaces, MVVM Toolkit
+  `ObservableObject`/commands, and `SessionContext`.
+- Ported the PussyCats profile, form, personality test, skill test,
+  dashboard, preference, compatibility, match history, CV export,
+  document list/upload, and public profile view models.
+- Ported the matchmaking shell, company recommendation/status,
+  user recommendation/status, skill gap, and post card view models.
+  `ChatViewModel` and `DeveloperViewModel` are present as explicit
+  phase-8 mock stubs.
+- Removed inline repository construction from the migrated VMs. VMs
+  now receive app services and session context through DI; the
+  recommendation skill-filter catalog can be supplied to
+  `UserRecommendationViewModel.SetSkillFilterOptions(...)` by the UI
+  layer once pages are migrated.
+- Restored `JobRecommendationResult` display helpers in Library and
+  pointed `UserRecommendationService` back to the DTO helper.
+- Verification: `dotnet build "UBB-SE-2026-921-1.sln" -v:n` succeeds
+  across all four projects. Remaining warning:
+  `NETSDK1198` missing WinUI publish profile `win-x86.pubxml`.
+
+Historical playbook retained below for review context.
 
 All view models land in `PussyCats.App/ViewModels/`.
 MVVM Toolkit standard throughout.
@@ -1037,9 +1061,9 @@ resolved yet:
   or branches from 2026-05-06 onward.
 - For service-layer work: consult original repos for state machines
   and constants. Preserve verbatim. Flag deviations.
-- View models stay frozen until Phase 5. Service ports in 3b must
-  not break view-model compilation surfaces (use facades when the
-  data layer's natural shape would).
+- View models were migrated in Phase 5c. Future service ports must
+  preserve their compilation surfaces or update the VMs in the same
+  phase.
 - Push back on design issues before asking the user to commit, not after.
 - Stop and show output before destructive or irreversible actions
   (migrations, `database update`, anything mutating).
