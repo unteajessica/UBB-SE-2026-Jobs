@@ -15,7 +15,7 @@ public class JobSkillConfiguration : IEntityTypeConfiguration<JobSkill>
 
         // Cascade on Job -> JobSkill: a removed job has no remaining requirements.
         builder.HasOne(s => s.Job)
-            .WithMany(j => j.RequiredSkills)
+            .WithMany(job => job.RequiredSkills)
             .HasForeignKey(s => s.JobId)
             .OnDelete(DeleteBehavior.Cascade);
 

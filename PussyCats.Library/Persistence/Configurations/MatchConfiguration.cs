@@ -25,7 +25,7 @@ public class MatchConfiguration : IEntityTypeConfiguration<Match>
         // Restrict on Job -> Match for the same reasoning: a deleted/archived job should not
         // erase the application records of every applicant.
         builder.HasOne(m => m.Job)
-            .WithMany(j => j.Matches)
+            .WithMany(job => job.Matches)
             .HasForeignKey(m => m.JobId)
             .OnDelete(DeleteBehavior.Restrict);
 

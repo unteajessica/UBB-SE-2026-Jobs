@@ -21,7 +21,7 @@ public class MatchRepository : IMatchRepository
     {
         return await db.Matches
             .Include(m => m.User)
-            .Include(m => m.Job).ThenInclude(j => j.Company)
+            .Include(m => m.Job).ThenInclude(job => job.Company)
             .FirstOrDefaultAsync(m => m.MatchId == matchId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -30,7 +30,7 @@ public class MatchRepository : IMatchRepository
     {
         return await db.Matches
             .AsNoTracking()
-            .Include(m => m.Job).ThenInclude(j => j.Company)
+            .Include(m => m.Job).ThenInclude(job => job.Company)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -45,7 +45,7 @@ public class MatchRepository : IMatchRepository
         return await db.Matches
             .AsNoTracking()
             .Where(m => m.UserId == userId)
-            .Include(m => m.Job).ThenInclude(j => j.Company)
+            .Include(m => m.Job).ThenInclude(job => job.Company)
             .OrderByDescending(m => m.Timestamp)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);

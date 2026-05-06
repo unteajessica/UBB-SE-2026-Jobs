@@ -20,9 +20,9 @@ public class JobRepository : IJobRepository
     public async Task<Job?> GetByIdAsync(int jobId, CancellationToken cancellationToken = default)
     {
         return await db.Jobs
-            .Include(j => j.Company)
-            .Include(j => j.RequiredSkills).ThenInclude(s => s.Skill)
-            .FirstOrDefaultAsync(j => j.JobId == jobId, cancellationToken)
+            .Include(job => job.Company)
+            .Include(job => job.RequiredSkills).ThenInclude(s => s.Skill)
+            .FirstOrDefaultAsync(job => job.JobId == jobId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -34,7 +34,7 @@ public class JobRepository : IJobRepository
     {
         return await db.Jobs
             .AsNoTracking()
-            .Include(j => j.Company)
+            .Include(job => job.Company)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -47,7 +47,7 @@ public class JobRepository : IJobRepository
     {
         return await db.Jobs
             .AsNoTracking()
-            .Where(j => j.CompanyId == companyId)
+            .Where(job => job.CompanyId == companyId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
