@@ -7,21 +7,6 @@ namespace PussyCats.App.Services;
 
 public class UserProfileService : IUserProfileService
 {
-    // XP thresholds — SkillTestService.GetExperiencePoints (3b.2) uses the same values.
-    private const int GoldScoreThreshold = 90;
-    private const int SilverScoreThreshold = 70;
-    private const int BronzeScoreThreshold = 50;
-    private const int GoldExperiencePoints = 100;
-    private const int SilverExperiencePoints = 60;
-    private const int BronzeExperiencePoints = 30;
-    private const int ParticipantExperiencePoints = 10;
-
-    // Level thresholds — UserLevelService.CalculateLevel (3b.2) uses the same values.
-    private const int Level2ExperiencePoints = 100;
-    private const int Level3ExperiencePoints = 250;
-    private const int Level4ExperiencePoints = 500;
-    private const int Level5ExperiencePoints = 800;
-
     private readonly IUserRepository userRepository;
     private readonly ISkillTestRepository skillTestRepository;
 
@@ -109,57 +94,12 @@ public class UserProfileService : IUserProfileService
 
         foreach (var skillTest in skillTests)
         {
-            totalExperiencePoints += GetExperiencePoints(skillTest);
+            totalExperiencePoints += SimpleModelOperations.GetExperiencePoints(skillTest);
         }
 
         user.TotalExperiencePoints = totalExperiencePoints;
-        user.CurrentLevel = CalculateLevelNumber(totalExperiencePoints);
+        user.CurrentLevel = SimpleModelOperations.CalculateLevelNumber(totalExperiencePoints);
 
         return totalExperiencePoints;
-    }
-
-    private static int GetExperiencePoints(SkillTest skillTest)
-    {
-        if (skillTest.Score >= GoldScoreThreshold)
-        {
-            return GoldExperiencePoints;
-        }
-
-        if (skillTest.Score >= SilverScoreThreshold)
-        {
-            return SilverExperiencePoints;
-        }
-
-        if (skillTest.Score >= BronzeScoreThreshold)
-        {
-            return BronzeExperiencePoints;
-        }
-
-        return ParticipantExperiencePoints;
-    }
-
-    private static int CalculateLevelNumber(int experiencePoints)
-    {
-        if (experiencePoints >= Level5ExperiencePoints)
-        {
-            return 5;
-        }
-
-        if (experiencePoints >= Level4ExperiencePoints)
-        {
-            return 4;
-        }
-
-        if (experiencePoints >= Level3ExperiencePoints)
-        {
-            return 3;
-        }
-
-        if (experiencePoints >= Level2ExperiencePoints)
-        {
-            return 2;
-        }
-
-        return 1;
     }
 }

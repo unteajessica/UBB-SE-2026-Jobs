@@ -1,3 +1,4 @@
+using PussyCats.App.Configuration;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Repositories.Users;
@@ -85,10 +86,21 @@ public class PreferenceService : IPreferenceService
         await userRepository.UpdateAsync(user, ct).ConfigureAwait(false);
     }
 
-    public Task<IReadOnlyList<string>> SearchLocationsAsync(string query, CancellationToken ct = default)
+    public Task<IReadOnlyList<string>> SearchLocationsAsync(string locationQuery, CancellationToken ct = default)
     {
-        // Phase 3b.2 will reference PussyCats.App.Configuration.PredefinedLocations.
-        // For now, returning empty list keeps the service's contract intact.
-        return Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
+        if (string.IsNullOrWhiteSpace(locationQuery))
+        {
+            return Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
+        }
+
+        var matches = new List<string>();
+        foreach (var location in PredefinedLocations.All)
+        {
+            if (location.Contains(locationQuery, StringComparison.OrdinalIgnoreCase))
+            {
+                matches.Add(location);
+            }
+        }
+        return Task.FromResult<IReadOnlyList<string>>(matches);
     }
 }

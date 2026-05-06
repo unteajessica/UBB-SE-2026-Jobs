@@ -10,5 +10,5 @@ public interface IPreferenceService
 
     Task SavePreferencesAsync(int userId, IReadOnlyList<JobRole> roles, WorkMode workMode, string location, CancellationToken ct = default);
 
-    Task<IReadOnlyList<string>> SearchLocationsAsync(string query, CancellationToken ct = default);
+    Task<IReadOnlyList<string>> SearchLocationsAsync(string locationQuery, CancellationToken ct = default);
 }
