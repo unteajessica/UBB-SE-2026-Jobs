@@ -24,10 +24,17 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int? userId, CancellationToken ct)
+    public async Task<IActionResult> GetAll([FromQuery] int? userId, [FromQuery] int? jobId, CancellationToken ct)
     {
+        if (userId.HasValue && jobId.HasValue)
+        {
+            var match = await matches.GetByUserIdAndJobIdAsync(userId.Value, jobId.Value, ct);
+            return Ok(match is null ? Array.Empty<Match>() : new[] { match });
+        }
+
         if (userId.HasValue)
             return Ok(await matches.GetByUserIdAsync(userId.Value, ct));
+
         return Ok(await matches.GetAllAsync(ct));
     }
 
