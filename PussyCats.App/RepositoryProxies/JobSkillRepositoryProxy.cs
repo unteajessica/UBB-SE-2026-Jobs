@@ -13,46 +13,46 @@ public class JobSkillRepositoryProxy : IJobSkillRepository
         this.http = http;
     }
 
-    public async Task<JobSkill?> GetAsync(int jobId, int skillId, CancellationToken ct = default)
+    public async Task<JobSkill?> GetAsync(int jobId, int skillId, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetOrNullAsync<JobSkill>(http, $"api/jobs/{jobId}/skills/{skillId}", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetOrNullAsync<JobSkill>(http, $"api/jobs/{jobId}/skills/{skillId}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<JobSkill>(http, "api/job-skills", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<JobSkill>(http, "api/job-skills", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<JobSkill>> GetByJobIdAsync(int jobId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<JobSkill>> GetByJobIdAsync(int jobId, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<JobSkill>(http, $"api/jobs/{jobId}/skills", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<JobSkill>(http, $"api/jobs/{jobId}/skills", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<JobSkill> AddAsync(JobSkill jobSkill, CancellationToken ct = default)
+    public async Task<JobSkill> AddAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
         var requestBody = CreateRequestBody(jobSkill);
         using var response = await http.PostAsJsonAsync(
             $"api/jobs/{jobSkill.JobId}/skills",
             requestBody,
             RepositoryProxyJson.Options,
-            ct).ConfigureAwait(false);
-        return await RepositoryProxyJson.ReadRequiredAsync<JobSkill>(response, ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
+        return await RepositoryProxyJson.ReadRequiredAsync<JobSkill>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(JobSkill jobSkill, CancellationToken ct = default)
+    public async Task UpdateAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
         var requestBody = CreateRequestBody(jobSkill);
         using var response = await http.PutAsJsonAsync(
             $"api/jobs/{jobSkill.JobId}/skills/{jobSkill.SkillId}",
             requestBody,
             RepositoryProxyJson.Options,
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int jobId, int skillId, CancellationToken ct = default)
+    public async Task RemoveAsync(int jobId, int skillId, CancellationToken cancellationToken = default)
     {
-        using var response = await http.DeleteAsync($"api/jobs/{jobId}/skills/{skillId}", ct).ConfigureAwait(false);
+        using var response = await http.DeleteAsync($"api/jobs/{jobId}/skills/{skillId}", cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 

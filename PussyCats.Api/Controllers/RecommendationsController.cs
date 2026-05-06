@@ -16,38 +16,38 @@ public class RecommendationsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var recommendation = await recommendations.GetByIdAsync(id, ct);
+        var recommendation = await recommendations.GetByIdAsync(id, cancellationToken);
         return recommendation is null ? NotFound() : Ok(recommendation);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int? userId, [FromQuery] int? jobId, CancellationToken ct)
+    public async Task<IActionResult> GetAll([FromQuery] int? userId, [FromQuery] int? jobId, CancellationToken cancellationToken)
     {
         if (userId.HasValue && jobId.HasValue)
         {
-            var recommendation = await recommendations.GetLatestByUserIdAndJobIdAsync(userId.Value, jobId.Value, ct);
+            var recommendation = await recommendations.GetLatestByUserIdAndJobIdAsync(userId.Value, jobId.Value, cancellationToken);
             return Ok(recommendation);
         }
 
-        return Ok(await recommendations.GetAllAsync(ct));
+        return Ok(await recommendations.GetAllAsync(cancellationToken));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Recommendation recommendation, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Recommendation recommendation, CancellationToken cancellationToken)
     {
-        var saved = await recommendations.AddAsync(recommendation, ct);
+        var saved = await recommendations.AddAsync(recommendation, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.RecommendationId }, saved);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Remove(int id, CancellationToken ct)
+    public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {
-        if (await recommendations.GetByIdAsync(id, ct) is null)
+        if (await recommendations.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
 
-        await recommendations.RemoveAsync(id, ct);
+        await recommendations.RemoveAsync(id, cancellationToken);
         return NoContent();
     }
 }

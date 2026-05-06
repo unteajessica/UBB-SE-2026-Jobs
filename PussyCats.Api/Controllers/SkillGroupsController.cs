@@ -16,11 +16,11 @@ public class SkillGroupsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] JobRole? jobRole, CancellationToken ct)
+    public async Task<IActionResult> GetAll([FromQuery] JobRole? jobRole, CancellationToken cancellationToken)
     {
         if (jobRole.HasValue)
-            return Ok(await skillGroups.GetByJobRoleAsync(jobRole.Value, ct));
+            return Ok(await skillGroups.GetByJobRoleAsync(jobRole.Value, cancellationToken));
 
-        return Ok(await skillGroups.GetAllAsync(ct));
+        return Ok(await skillGroups.GetAllAsync(cancellationToken));
     }
 }

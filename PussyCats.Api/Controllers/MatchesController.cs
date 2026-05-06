@@ -24,18 +24,18 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int? userId, [FromQuery] int? jobId, CancellationToken ct)
+    public async Task<IActionResult> GetAll([FromQuery] int? userId, [FromQuery] int? jobId, CancellationToken cancellationToken)
     {
         if (userId.HasValue && jobId.HasValue)
         {
-            var match = await matches.GetByUserIdAndJobIdAsync(userId.Value, jobId.Value, ct);
+            var match = await matches.GetByUserIdAndJobIdAsync(userId.Value, jobId.Value, cancellationToken);
             return Ok(match is null ? Array.Empty<Match>() : new[] { match });
         }
 
         if (userId.HasValue)
-            return Ok(await matches.GetByUserIdAsync(userId.Value, ct));
+            return Ok(await matches.GetByUserIdAsync(userId.Value, cancellationToken));
 
-        return Ok(await matches.GetAllAsync(ct));
+        return Ok(await matches.GetAllAsync(cancellationToken));
     }
 
     [HttpPost]
@@ -58,13 +58,13 @@ public class MatchesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Match match, CancellationToken ct)
+    public async Task<IActionResult> Update(int id, [FromBody] Match match, CancellationToken cancellationToken)
     {
-        if (await matches.GetByIdAsync(id, ct) is null)
+        if (await matches.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
 
         match.MatchId = id;
-        await matches.UpdateAsync(match, ct);
+        await matches.UpdateAsync(match, cancellationToken);
         return NoContent();
     }
 

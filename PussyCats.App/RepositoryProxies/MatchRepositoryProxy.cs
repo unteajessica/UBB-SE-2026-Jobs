@@ -13,37 +13,37 @@ public class MatchRepositoryProxy : IMatchRepository
         this.http = http;
     }
 
-    public async Task<Match?> GetByIdAsync(int matchId, CancellationToken ct = default)
+    public async Task<Match?> GetByIdAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetOrNullAsync<Match>(http, $"api/matches/{matchId}", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetOrNullAsync<Match>(http, $"api/matches/{matchId}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Match>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Match>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<Match>(http, "api/matches", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<Match>(http, "api/matches", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<Match>(http, $"api/matches?userId={userId}", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<Match>(http, $"api/matches?userId={userId}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken ct = default)
+    public async Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
         var matches = await RepositoryProxyJson.GetListAsync<Match>(
             http,
             $"api/matches?userId={userId}&jobId={jobId}",
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
         return matches.Count == 0 ? null : matches[0];
     }
 
-    public async Task<Match> AddAsync(Match match, CancellationToken ct = default)
+    public async Task<Match> AddAsync(Match match, CancellationToken cancellationToken = default)
     {
-        using var response = await http.PostAsJsonAsync("api/matches", match, RepositoryProxyJson.Options, ct).ConfigureAwait(false);
-        return await RepositoryProxyJson.ReadRequiredAsync<Match>(response, ct).ConfigureAwait(false);
+        using var response = await http.PostAsJsonAsync("api/matches", match, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
+        return await RepositoryProxyJson.ReadRequiredAsync<Match>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(Match match, CancellationToken ct = default)
+    public async Task UpdateAsync(Match match, CancellationToken cancellationToken = default)
     {
         var requestBody = new Match
         {
@@ -55,13 +55,13 @@ public class MatchRepositoryProxy : IMatchRepository
             FeedbackMessage = match.FeedbackMessage,
         };
 
-        using var response = await http.PutAsJsonAsync($"api/matches/{match.MatchId}", requestBody, RepositoryProxyJson.Options, ct).ConfigureAwait(false);
+        using var response = await http.PutAsJsonAsync($"api/matches/{match.MatchId}", requestBody, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int matchId, CancellationToken ct = default)
+    public async Task RemoveAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        using var response = await http.DeleteAsync($"api/matches/{matchId}", ct).ConfigureAwait(false);
+        using var response = await http.DeleteAsync($"api/matches/{matchId}", cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 }
