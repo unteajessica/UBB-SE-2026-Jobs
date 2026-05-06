@@ -53,8 +53,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(u => u.Skills)
-            .WithOne(s => s.User)
-            .HasForeignKey(s => s.UserId)
+            .WithOne(skill => skill.User)
+            .HasForeignKey(skill => skill.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // PersonalityResult is one-to-zero-or-one; cascade so the result and its trait scores

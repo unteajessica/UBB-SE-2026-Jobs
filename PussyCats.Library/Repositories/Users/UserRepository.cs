@@ -24,7 +24,7 @@ public class UserRepository : IUserRepository
             .Include(u => u.WorkExperiences)
             .Include(u => u.Projects)
             .Include(u => u.ExtraCurricularActivities)
-            .Include(u => u.Skills).ThenInclude(s => s.Skill)
+            .Include(u => u.Skills).ThenInclude(skill => skill.Skill)
             .Include(u => u.PersonalityResult)!.ThenInclude(r => r!.TraitScores)
             .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
             .ConfigureAwait(false);

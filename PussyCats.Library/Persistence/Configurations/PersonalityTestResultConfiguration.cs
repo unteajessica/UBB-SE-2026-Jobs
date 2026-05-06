@@ -18,8 +18,8 @@ public class PersonalityTestResultConfiguration : IEntityTypeConfiguration<Perso
         // Cascade: deleting the result removes its trait scores. The User -> PersonalityResult
         // cascade is configured on UserConfiguration.
         builder.HasMany(r => r.TraitScores)
-            .WithOne(s => s.PersonalityTestResult)
-            .HasForeignKey(s => s.PersonalityTestResultId)
+            .WithOne(skill => skill.PersonalityTestResult)
+            .HasForeignKey(skill => skill.PersonalityTestResultId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // UserId is the natural lookup column (GetByUserIdAsync). The User -> PersonalityResult

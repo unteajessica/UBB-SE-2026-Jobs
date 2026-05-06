@@ -16,7 +16,7 @@ public class SkillRepository : ISkillRepository
     public async Task<Skill?> GetByIdAsync(int skillId, CancellationToken cancellationToken = default)
     {
         return await db.Skills
-            .FirstOrDefaultAsync(s => s.SkillId == skillId, cancellationToken)
+            .FirstOrDefaultAsync(skill => skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -27,7 +27,7 @@ public class SkillRepository : ISkillRepository
     {
         return await db.Skills
             .AsNoTracking()
-            .OrderBy(s => s.Name)
+            .OrderBy(skill => skill.Name)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }

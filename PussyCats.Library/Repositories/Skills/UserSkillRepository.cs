@@ -20,8 +20,8 @@ public class UserSkillRepository : IUserSkillRepository
     public async Task<UserSkill?> GetAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
         return await db.UserSkills
-            .Include(s => s.Skill)
-            .FirstOrDefaultAsync(s => s.UserId == userId && s.SkillId == skillId, cancellationToken)
+            .Include(skill => skill.Skill)
+            .FirstOrDefaultAsync(skill => skill.UserId == userId && skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -32,8 +32,8 @@ public class UserSkillRepository : IUserSkillRepository
     {
         return await db.UserSkills
             .AsNoTracking()
-            .Include(s => s.Skill)
-            .Where(s => s.UserId == userId)
+            .Include(skill => skill.Skill)
+            .Where(skill => skill.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -50,8 +50,8 @@ public class UserSkillRepository : IUserSkillRepository
     {
         return await db.UserSkills
             .AsNoTracking()
-            .Include(s => s.Skill)
-            .Where(s => s.UserId == userId && s.IsVerified && s.AchievedDate != null)
+            .Include(skill => skill.Skill)
+            .Where(skill => skill.UserId == userId && skill.IsVerified && skill.AchievedDate != null)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }

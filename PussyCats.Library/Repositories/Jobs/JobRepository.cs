@@ -21,7 +21,7 @@ public class JobRepository : IJobRepository
     {
         return await db.Jobs
             .Include(job => job.Company)
-            .Include(job => job.RequiredSkills).ThenInclude(s => s.Skill)
+            .Include(job => job.RequiredSkills).ThenInclude(skill => skill.Skill)
             .FirstOrDefaultAsync(job => job.JobId == jobId, cancellationToken)
             .ConfigureAwait(false);
     }
