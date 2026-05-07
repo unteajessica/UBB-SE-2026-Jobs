@@ -5,8 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:PussyCats_App.Converters"
     mc:Ignorable="d"
     Background="#F7F8FA">
+
+    <Page.Resources>
+        <converters:BoolToActiveVoteBrushConverter x:Key="BoolToActiveVoteBrush"/>
+    </Page.Resources>
 
     <ScrollViewer Padding="28,24">
         <Grid MaxWidth="980" HorizontalAlignment="Left" RowDefinitions="Auto,Auto,*">
@@ -85,14 +90,18 @@
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <Button Command="{Binding LikeCommand}">
                                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <FontIcon Glyph="&#xE8E1;" FontSize="14" />
-                                                <TextBlock Text="{Binding LikeCount}" />
+                                                <FontIcon Glyph="&#xE8E1;" FontSize="14"
+                                                          Foreground="{Binding IsLikedByCurrentUser, Converter={StaticResource BoolToActiveVoteBrush}}" />
+                                                <TextBlock Text="{Binding LikeCount}"
+                                                           Foreground="{Binding IsLikedByCurrentUser, Converter={StaticResource BoolToActiveVoteBrush}}" />
                                             </StackPanel>
                                         </Button>
                                         <Button Command="{Binding DislikeCommand}">
                                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <FontIcon Glyph="&#xE8E0;" FontSize="14" />
-                                                <TextBlock Text="{Binding DislikeCount}" />
+                                                <FontIcon Glyph="&#xE8E0;" FontSize="14"
+                                                          Foreground="{Binding IsDislikedByCurrentUser, Converter={StaticResource BoolToActiveVoteBrush}, ConverterParameter=dislike}" />
+                                                <TextBlock Text="{Binding DislikeCount}"
+                                                           Foreground="{Binding IsDislikedByCurrentUser, Converter={StaticResource BoolToActiveVoteBrush}, ConverterParameter=dislike}" />
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>
