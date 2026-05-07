@@ -29,6 +29,7 @@ public sealed class ChatService : IChatService
     private int nextChatId = 1;
     private int nextMessageId = 1;
     private bool seeded;
+    private const int MaxSearchResults = 10;
 
     public ChatService(IUserService userService, ICompanyService companyService, IJobService jobService)
     {
@@ -119,9 +120,9 @@ public sealed class ChatService : IChatService
             .ToList();
     }
 
-    public async Task<IReadOnlyList<Company>> SearchCompaniesAsync(string query, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Company>> SearchCompaniesAsync(string companyNameSearchTerm, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(query))
+        if (string.IsNullOrWhiteSpace(companyNameSearchTerm))
         {
             return Array.Empty<Company>();
         }
@@ -133,14 +134,14 @@ public sealed class ChatService : IChatService
         }
 
         return companies
-            .Where(company => company.CompanyName.Contains(query, StringComparison.OrdinalIgnoreCase))
-            .Take(10)
+            .Where(company => company.CompanyName.Contains(companyNameSearchTerm, StringComparison.OrdinalIgnoreCase))
+            .Take(MaxSearchResults)
             .ToList();
     }
 
-    public async Task<IReadOnlyList<User>> SearchUsersAsync(string query, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<User>> SearchUsersAsync(string userNameSearchTerm, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(query))
+        if (string.IsNullOrWhiteSpace(userNameSearchTerm))
         {
             return Array.Empty<User>();
         }
@@ -152,12 +153,12 @@ public sealed class ChatService : IChatService
         }
 
         return users
-            .Where(user => GetUserName(user).Contains(query, StringComparison.OrdinalIgnoreCase))
-            .Take(10)
+            .Where(user => GetUserName(user).Contains(userNameSearchTerm, StringComparison.OrdinalIgnoreCase))
+            .Take(MaxSearchResults)
             .ToList();
     }
 
-    public async Task SendMessageAsync(int chatId, string content, int senderId, MessageType type, CancellationToken cancellationToken = default)
+    public async Task SendMessageAsync(int chatId, string content, int senderId, MessageType typeOfMessage, CancellationToken cancellationToken = default)
     {
         await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrWhiteSpace(content))
@@ -167,19 +168,20 @@ public sealed class ChatService : IChatService
 
         var chat = FindChat(chatId);
         EnsureParticipant(chat, senderId);
+        const int maxTextMessageLength = 2000;
         if (chat.IsBlocked)
         {
             throw new InvalidOperationException("Cannot send a message in a blocked chat.");
         }
 
-        if (type == MessageType.Text && content.Length > 2000)
+        if (typeOfMessage == MessageType.Text && content.Length > maxTextMessageLength)
         {
-            throw new ArgumentException("Text messages cannot exceed 2000 characters.", nameof(content));
+            throw new ArgumentException($"Text messages cannot exceed {maxTextMessageLength} characters.", nameof(content));
         }
 
-        if (type != MessageType.Text)
+        if (typeOfMessage != MessageType.Text)
         {
-            ValidateAttachment(content, type);
+            ValidateAttachment(content, typeOfMessage);
         }
 
         messages.Add(new Message
@@ -189,7 +191,7 @@ public sealed class ChatService : IChatService
             SenderId = senderId,
             Content = content.Trim(),
             Timestamp = DateTime.UtcNow,
-            Type = type,
+            Type = typeOfMessage,
         });
     }
 
@@ -262,10 +264,15 @@ public sealed class ChatService : IChatService
         {
             companyNames[knownCompany.CompanyId] = knownCompany.CompanyName;
         }
+        const int seedPrimaryUserId = 1;
+        const int seedPrimaryCompanyId = 1;
+        const int seedUserToCandidateMessageOffsetHours = -3;
+        const int seedCompanyFirstMessageOffsetHours = -2;
+        const int seedUserReplyOffsetHours = -1;
 
-        var user = users.FirstOrDefault(user => user.UserId == 1) ?? users.FirstOrDefault();
+    var user = users.FirstOrDefault(user => user.UserId == seedPrimaryUserId) ?? users.FirstOrDefault();
         var secondUser = users.FirstOrDefault(candidate => user is not null && candidate.UserId != user.UserId);
-        var company = companies.FirstOrDefault(company => company.CompanyId == 1) ?? companies.FirstOrDefault();
+        var company = companies.FirstOrDefault(company => company.CompanyId == seedPrimaryCompanyId) ?? companies.FirstOrDefault();
         var job = company is null ? jobs.FirstOrDefault() : jobs.FirstOrDefault(job => job.CompanyId == company.CompanyId);
 
         if (user is null)
@@ -283,8 +290,8 @@ public sealed class ChatService : IChatService
                 JobId = job?.JobId,
             };
             chats.Add(chat);
-            AddSeedMessage(chat.ChatId, company.CompanyId, "Thanks for applying. We liked your profile and would like to schedule a short call.", -2);
-            AddSeedMessage(chat.ChatId, user.UserId, "Sounds great. I am available tomorrow afternoon.", -1);
+            AddSeedMessage(chat.ChatId, company.CompanyId, "Thanks for applying. We liked your profile and would like to schedule a short call.", seedCompanyFirstMessageOffsetHours);
+            AddSeedMessage(chat.ChatId, user.UserId, "Sounds great. I am available tomorrow afternoon.", seedUserReplyOffsetHours);
         }
 
         if (secondUser is not null)
@@ -296,7 +303,7 @@ public sealed class ChatService : IChatService
                 SecondUserId = secondUser.UserId,
             };
             chats.Add(chat);
-            AddSeedMessage(chat.ChatId, secondUser.UserId, "Good luck with the interviews. The SQL test helped me a lot.", -3);
+            AddSeedMessage(chat.ChatId, secondUser.UserId, "Good luck with the interviews. The SQL test helped me a lot.", seedUserToCandidateMessageOffsetHours);
         }
     }
 
@@ -373,9 +380,10 @@ public sealed class ChatService : IChatService
         {
             return clone;
         }
-
+        const int maxSnippetLength = 60;
+        const int snippetTruncateLength = 57; 
         clone.LastMessage = GetDisplayContent(lastMessage);
-        clone.LastMessageSnippet = clone.LastMessage.Length > 60 ? $"{clone.LastMessage[..57]}..." : clone.LastMessage;
+        clone.LastMessageSnippet = clone.LastMessage.Length > maxSnippetLength ? $"{clone.LastMessage[..snippetTruncateLength]}..." : clone.LastMessage;
         clone.LastMessageTime = lastMessage.Timestamp.ToLocalTime().Date == DateTime.Now.Date
             ? lastMessage.Timestamp.ToLocalTime().ToString("HH:mm")
             : lastMessage.Timestamp.ToLocalTime().ToString("dd MMM");

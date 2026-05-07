@@ -10,6 +10,9 @@ public class CompanyStatusService : ICompanyStatusService
     private readonly IUserService userService;
     private readonly IJobService jobService;
     private readonly IUserSkillService userSkillService;
+    private const int LocationBonusPoints = 10;
+    private const int EmploymentTypeBonusPoints = 10;
+    private const double MaxCompatibilityScore = 100;
 
     public CompanyStatusService(
         IMatchService matchService,
@@ -96,13 +99,13 @@ public class CompanyStatusService : ICompanyStatusService
 
         var averageSkillScore = ComputeAverageSkillScore(userSkills);
 
-        var locationBonus = LocationsReferToSameCity(user.City, job.Location) ? 10 : 0;
+        var locationBonus = LocationsReferToSameCity(user.City, job.Location) ? LocationBonusPoints : 0;
         var employmentTypeBonus = user.PreferredEmploymentType.Equals(job.EmploymentType, StringComparison.OrdinalIgnoreCase)
-            ? 10
+            ? EmploymentTypeBonusPoints
             : 0;
 
         var computed = averageSkillScore + locationBonus + employmentTypeBonus;
-        return computed > 100 ? 100 : computed;
+        return computed > MaxCompatibilityScore ? MaxCompatibilityScore : computed;
     }
 
     private static bool LocationsReferToSameCity(string userCity, string jobLocation)
@@ -136,19 +139,19 @@ public class CompanyStatusService : ICompanyStatusService
         return match.Status is MatchStatus.Accepted or MatchStatus.Rejected or MatchStatus.Advanced;
     }
 
-    private static int CompareByCompatibilityScoreDescending(UserApplicationResult left, UserApplicationResult right)
+    private static int CompareByCompatibilityScoreDescending(UserApplicationResult firstApplicant, UserApplicationResult secondApplicant)
     {
-        return right.CompatibilityScore.CompareTo(left.CompatibilityScore);
+        return secondApplicant.CompatibilityScore.CompareTo(firstApplicant.CompatibilityScore);
     }
 
     private static double ComputeAverageSkillScore(IReadOnlyList<UserSkill> userSkills)
     {
-        var sum = 0;
+        var totalSkillScore = 0;
         foreach (var userSkill in userSkills)
         {
-            sum += userSkill.Score;
+            totalSkillScore += userSkill.Score;
         }
 
-        return (double)sum / userSkills.Count;
+        return (double)totalSkillScore / userSkills.Count;
     }
 }

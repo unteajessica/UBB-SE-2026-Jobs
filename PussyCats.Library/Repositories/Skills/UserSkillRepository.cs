@@ -44,7 +44,7 @@ public class UserSkillRepository : IUserSkillRepository
     /// schema only stored verified rows there). The new model keeps unverified self-claims in
     /// the same UserSkill table, so the LINQ predicate also requires IsVerified = true and
     /// AchievedDate IS NOT NULL — both must hold for a skill to count as "verified", per the
-    /// AchievedDate XML doc note on UserSkill.
+    /// AchievedDate XML documentation note on UserSkill.
     /// </summary>
     public async Task<IReadOnlyList<UserSkill>> GetVerifiedByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {

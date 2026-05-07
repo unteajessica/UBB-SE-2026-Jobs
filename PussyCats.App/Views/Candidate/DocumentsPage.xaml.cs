@@ -87,12 +87,12 @@ public sealed partial class DocumentsPage : Page
 
     private async void OnDeleteClick(object sender, RoutedEventArgs eventArguments)
     {
-        if (sender is not Button { Tag: Document doc }) return;
+        if (sender is not Button { Tag: Document document }) return;
 
         var dialog = new ContentDialog
         {
             Title           = "Delete Document",
-            Content         = $"Are you sure you want to delete \"{doc.DocumentName}\"?",
+            Content         = $"Are you sure you want to delete \"{document.DocumentName}\"?",
             PrimaryButtonText = "Delete",
             CloseButtonText = "Cancel",
             XamlRoot        = XamlRoot,
@@ -102,7 +102,7 @@ public sealed partial class DocumentsPage : Page
 
         try
         {
-            await listViewModel.DeleteDocumentAsync(doc.DocumentId);
+            await listViewModel.DeleteDocumentAsync(document.DocumentId);
             LoadGrid();
         }
         catch (Exception ex)
@@ -114,10 +114,10 @@ public sealed partial class DocumentsPage : Page
 
     private async void OnViewClick(object sender, RoutedEventArgs eventArguments)
     {
-        if (sender is not Button { Tag: Document doc }) return;
+        if (sender is not Button { Tag: Document document }) return;
         statusLabel.Visibility = Visibility.Collapsed;
 
-        var fullPath = await listViewModel.GetResolvedFilePathAsync(doc.DocumentId) ?? string.Empty;
+        var fullPath = await listViewModel.GetResolvedFilePathAsync(document.DocumentId) ?? string.Empty;
         var status   = listViewModel.GetStatusMessage();
         if (!string.IsNullOrEmpty(status))
         {
@@ -137,7 +137,7 @@ public sealed partial class DocumentsPage : Page
         }
         else
         {
-            statusLabel.Text       = $"\"{doc.DocumentName}\" could not be found on disk.";
+            statusLabel.Text       = $"\"{document.DocumentName}\" could not be found on disk.";
             statusLabel.Visibility = Visibility.Visible;
         }
     }
