@@ -20,12 +20,12 @@ public sealed partial class ExportCVPage : Page
         Loaded += OnPageLoaded;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void OnPageLoaded(object sender, RoutedEventArgs e)
+    private async void OnPageLoaded(object sender, RoutedEventArgs eventArguments)
     {
         Loaded -= OnPageLoaded;
         loadingRing.IsActive = true;
@@ -49,7 +49,7 @@ public sealed partial class ExportCVPage : Page
         loadingRing.IsActive = false;
     }
 
-    private async void OnDownloadClick(object sender, RoutedEventArgs e)
+    private async void OnDownloadClick(object sender, RoutedEventArgs eventArguments)
     {
         if (viewModel is null) return;
         loadingRing.IsActive = true;

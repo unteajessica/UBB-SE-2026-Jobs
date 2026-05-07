@@ -16,8 +16,8 @@ public sealed partial class PersonalityTestPage : Page
         DataContext = viewModel;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 }

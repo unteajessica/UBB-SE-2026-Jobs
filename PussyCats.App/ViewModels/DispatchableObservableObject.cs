@@ -11,8 +11,8 @@ namespace PussyCats.App.ViewModels;
 /// </summary>
 public abstract class DispatchableObservableObject : ObservableObject
 {
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(PropertyChangedEventArgs eventArguments)
     {
-        UIDispatcher.Enqueue(() => base.OnPropertyChanged(e));
+        UIDispatcher.Enqueue(() => base.OnPropertyChanged(eventArguments));
     }
 }

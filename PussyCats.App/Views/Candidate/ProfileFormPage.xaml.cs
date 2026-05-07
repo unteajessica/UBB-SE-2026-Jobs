@@ -22,10 +22,10 @@ public sealed partial class ProfileFormPage : Page
         PopulateGraduationYears();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
-        var profile = e.Parameter as User;
+        base.OnNavigatedTo(eventArguments);
+        var profile = eventArguments.Parameter as User;
         viewModel.LoadProfile(profile);
         LoadViewFromViewModel();
     }
@@ -104,7 +104,7 @@ public sealed partial class ProfileFormPage : Page
         }
     }
 
-    private async void UploadCVButton_Click(object sender, RoutedEventArgs e)
+    private async void UploadCVButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         var picker = new FileOpenPicker();
         picker.ViewMode = PickerViewMode.List;
@@ -127,76 +127,76 @@ public sealed partial class ProfileFormPage : Page
         CVUploadInformationBar.IsOpen   = viewModel.IsInfoBarOpen;
     }
 
-    private void UniversityAutoSuggest_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs e)
+    private void UniversityAutoSuggest_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs eventArguments)
     {
-        if (e.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        if (eventArguments.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             sender.ItemsSource = viewModel.FilterUniversities(sender.Text);
     }
 
-    private void UniversityAutoSuggest_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs e)
+    private void UniversityAutoSuggest_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs eventArguments)
     {
-        if (e.ChosenSuggestion is not null)
-            sender.Text = e.ChosenSuggestion.ToString()!;
+        if (eventArguments.ChosenSuggestion is not null)
+            sender.Text = eventArguments.ChosenSuggestion.ToString()!;
     }
 
-    private void SkillsAutoSuggest_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs e)
+    private void SkillsAutoSuggest_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs eventArguments)
     {
-        if (e.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        if (eventArguments.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             sender.ItemsSource = viewModel.FilterSkillSuggestions(sender.Text);
     }
 
-    private void SkillsAutoSuggest_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs e)
+    private void SkillsAutoSuggest_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs eventArguments)
     {
-        viewModel.AddSkill(e.ChosenSuggestion?.ToString() ?? sender.Text);
+        viewModel.AddSkill(eventArguments.ChosenSuggestion?.ToString() ?? sender.Text);
         sender.Text = string.Empty;
     }
 
-    private void AddSkillButton_Click(object sender, RoutedEventArgs e)
+    private void AddSkillButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         viewModel.AddSkill(SkillsAutoSuggest.Text);
         SkillsAutoSuggest.Text = string.Empty;
     }
 
-    private void RemoveSkillButton_Click(object sender, RoutedEventArgs e)
+    private void RemoveSkillButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is Button { Tag: string skill })
             viewModel.RemoveSkill(skill);
     }
 
-    private void AddWorkExperienceButton_Click(object sender, RoutedEventArgs e)
+    private void AddWorkExperienceButton_Click(object sender, RoutedEventArgs eventArguments)
         => viewModel.AddWorkExperience();
 
-    private void RemoveWorkExperienceButton_Click(object sender, RoutedEventArgs e)
+    private void RemoveWorkExperienceButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is Button { Tag: WorkExperience we })
             viewModel.RemoveWorkExperience(we);
     }
 
-    private void AddProjectButton_Click(object sender, RoutedEventArgs e)
+    private void AddProjectButton_Click(object sender, RoutedEventArgs eventArguments)
         => viewModel.AddProject();
 
-    private void RemoveProjectButton_Click(object sender, RoutedEventArgs e)
+    private void RemoveProjectButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is Button { Tag: Project proj })
             viewModel.RemoveProject(proj);
     }
 
-    private void AddActivityButton_Click(object sender, RoutedEventArgs e)
+    private void AddActivityButton_Click(object sender, RoutedEventArgs eventArguments)
         => viewModel.AddExtraCurricularActivity();
 
-    private void RemoveActivityButton_Click(object sender, RoutedEventArgs e)
+    private void RemoveActivityButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is Button { Tag: ExtraCurricularActivity act })
             viewModel.RemoveExtraCurricularActivity(act);
     }
 
-    private void NameTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs e)
-        => e.Cancel = e.NewText.Any(char.IsDigit);
+    private void NameTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs eventArguments)
+        => eventArguments.Cancel = eventArguments.NewText.Any(char.IsDigit);
 
-    private void PhoneNumberTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs e)
-        => e.Cancel = e.NewText.Any(c => !char.IsDigit(c));
+    private void PhoneNumberTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs eventArguments)
+        => eventArguments.Cancel = eventArguments.NewText.Any(c => !char.IsDigit(c));
 
-    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         SyncViewToViewModel();
         var success = await viewModel.SaveProfileAsync();
@@ -211,13 +211,13 @@ public sealed partial class ProfileFormPage : Page
         }
     }
 
-    private void CancelButton_Click(object sender, RoutedEventArgs e)
+    private void CancelButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (Frame.CanGoBack) Frame.GoBack();
         else Frame.Navigate(typeof(UserProfilePage));
     }
 
-    private void EditPreferencesButton_Click(object sender, RoutedEventArgs e)
+    private void EditPreferencesButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         SyncViewToViewModel();
         Frame.Navigate(typeof(PreferencesPage));

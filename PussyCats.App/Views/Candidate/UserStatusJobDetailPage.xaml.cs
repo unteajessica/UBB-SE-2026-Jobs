@@ -12,11 +12,11 @@ public sealed partial class UserStatusJobDetailPage : Page
         InitializeComponent();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
 
-        if (e.Parameter is not ApplicationCardModel card)
+        if (eventArguments.Parameter is not ApplicationCardModel card)
         {
             PageTitleText.Text = "Job Details";
             return;
@@ -28,7 +28,7 @@ public sealed partial class UserStatusJobDetailPage : Page
         DescriptionText.Text = card.JobDescription;
     }
 
-    private void Close_Click(object sender, RoutedEventArgs e)
+    private void Close_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (Frame.CanGoBack) Frame.GoBack();
         else Frame.Navigate(typeof(UserStatusPage));

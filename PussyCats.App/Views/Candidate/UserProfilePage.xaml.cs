@@ -25,9 +25,9 @@ public sealed partial class UserProfilePage : Page
         viewModel.PersonalityTestRequested += () => Frame.Navigate(typeof(PersonalityTestPage));
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
         await LoadAsync();
     }
 
@@ -91,7 +91,7 @@ public sealed partial class UserProfilePage : Page
             : $"{viewModel.TotalExperiencePoints} XP — Max level!";
     }
 
-    private async void OnAvatarUploadClick(object sender, RoutedEventArgs e)
+    private async void OnAvatarUploadClick(object sender, RoutedEventArgs eventArguments)
     {
         var picker = new Windows.Storage.Pickers.FileOpenPicker();
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(App.MainAppWindow);
@@ -110,40 +110,40 @@ public sealed partial class UserProfilePage : Page
         BindLabels();
     }
 
-    private async void OnAvatarRemoveClick(object sender, RoutedEventArgs e)
+    private async void OnAvatarRemoveClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.RemoveAvatarAsync();
         BindLabels();
     }
 
-    private async void OnStatusToggle(object sender, RoutedEventArgs e)
+    private async void OnStatusToggle(object sender, RoutedEventArgs eventArguments)
     {
         if (isBusy) return;
         await viewModel.ToggleAccountStatusAsync();
         BindLabels();
     }
 
-    private void OnEditProfileClick(object sender, RoutedEventArgs e)
+    private void OnEditProfileClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(ProfileFormPage), viewModel.UserProfile);
 
-    private void OnPreviewCVClick(object sender, RoutedEventArgs e)
+    private void OnPreviewCVClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(ExportCVPage));
 
-    private void OnViewDocumentsClick(object sender, RoutedEventArgs e)
+    private void OnViewDocumentsClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(DocumentsPage));
 
-    private void OnMatchHistoryClick(object sender, RoutedEventArgs e)
+    private void OnMatchHistoryClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(MatchHistoryPage));
 
-    private void OnCompatibilityClick(object sender, RoutedEventArgs e)
+    private void OnCompatibilityClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(CompatibilityOverviewPage));
 
-    private void OnPublicProfileClick(object sender, RoutedEventArgs e)
+    private void OnPublicProfileClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(PublicProfilePage), viewModel.UserProfile?.UserId ?? 0);
 
-    private void OnSkillTestsClick(object sender, RoutedEventArgs e)
+    private void OnSkillTestsClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(TestDashboardPage), viewModel.UserProfile);
 
-    private void OnPersonalityTestClick(object sender, RoutedEventArgs e)
+    private void OnPersonalityTestClick(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(PersonalityTestPage));
 }

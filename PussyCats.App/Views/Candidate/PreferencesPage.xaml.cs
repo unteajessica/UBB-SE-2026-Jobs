@@ -33,9 +33,9 @@ public sealed partial class PreferencesPage : Page
         RolesListView.ItemsSource = RoleDisplayNames.Values.ToList();
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
         await viewModel.LoadPreferencesAsync();
         PopulateFromViewModel();
     }
@@ -67,14 +67,14 @@ public sealed partial class PreferencesPage : Page
         LocationAutoSuggestBox.Text = viewModel.GetPreferredLocation();
     }
 
-    private void RolesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void RolesListView_SelectionChanged(object sender, SelectionChangedEventArgs eventArguments)
     {
-        foreach (var item in e.AddedItems.Cast<string>())
+        foreach (var item in eventArguments.AddedItems.Cast<string>())
         {
             var role = RoleDisplayNames.First(kv => kv.Value == item).Key;
             viewModel.ToggleJobRole(role);
         }
-        foreach (var item in e.RemovedItems.Cast<string>())
+        foreach (var item in eventArguments.RemovedItems.Cast<string>())
         {
             var role = RoleDisplayNames.First(kv => kv.Value == item).Key;
             viewModel.ToggleJobRole(role);
@@ -84,23 +84,23 @@ public sealed partial class PreferencesPage : Page
         RoleWarningText.Visibility = string.IsNullOrEmpty(error) ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private async void LocationAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs e)
+    private async void LocationAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs eventArguments)
     {
-        if (e.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        if (eventArguments.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             await viewModel.SearchLocationAsync(sender.Text);
             sender.ItemsSource = viewModel.GetLocationSuggestions();
         }
     }
 
-    private void LocationAutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs e)
+    private void LocationAutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs eventArguments)
     {
-        var chosen = e.SelectedItem.ToString()!;
+        var chosen = eventArguments.SelectedItem.ToString()!;
         sender.Text = chosen;
         viewModel.SetLocation(chosen);
     }
 
-    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         var workMode = (WorkModeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString();
         if (!string.IsNullOrEmpty(workMode) && Enum.TryParse<WorkMode>(workMode, out var parsed))

@@ -18,12 +18,12 @@ public sealed partial class MatchHistoryPage : Page
         Loaded += OnLoaded;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.LoadMatchesAsync();
         await viewModel.LoadStatisticsAsync();
