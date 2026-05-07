@@ -22,11 +22,21 @@ public sealed partial class ProfileFormPage : Page
         PopulateGraduationYears();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
+    protected override async void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
         base.OnNavigatedTo(eventArguments);
+
         var profile = eventArguments.Parameter as User;
-        viewModel.LoadProfile(profile);
+
+        if (profile != null)
+        {
+            viewModel.LoadProfile(profile);
+        }
+        else
+        {
+            await viewModel.LoadCurrentUserAsync();
+        }
+
         LoadViewFromViewModel();
     }
 

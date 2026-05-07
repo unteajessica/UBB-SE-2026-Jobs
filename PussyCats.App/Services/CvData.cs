@@ -1,6 +1,6 @@
 namespace PussyCats.App.Services;
 
-internal sealed class CvData
+public class CvData
 {
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
@@ -23,7 +23,7 @@ internal sealed class CvData
     public List<CvActivity>? ExtraCurricularActivities { get; set; }
 }
 
-internal sealed class CvWorkExperience
+public class CvWorkExperience
 {
     public string? Company { get; set; }
     public string? JobTitle { get; set; }
@@ -33,7 +33,7 @@ internal sealed class CvWorkExperience
     public bool CurrentlyWorking { get; set; }
 }
 
-internal sealed class CvProject
+public class CvProject
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
@@ -41,7 +41,7 @@ internal sealed class CvProject
     public string? Url { get; set; }
 }
 
-internal sealed class CvActivity
+public class CvActivity
 {
     public string? ActivityName { get; set; }
     public string? Organization { get; set; }

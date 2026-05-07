@@ -432,4 +432,15 @@ public class ProfileFormViewModel : DispatchableObservableObject
 
         return (trimmed[..splitIndex], trimmed[(splitIndex + 1)..]);
     }
+
+    public async Task LoadCurrentUserAsync()
+    {
+        int userId = ViewModelSupport.ResolveUserId(session);
+        var currentUser = await profileService.GetProfileAsync(userId);
+
+        if (currentUser != null)
+        {
+            LoadProfile(currentUser);
+        }
+    }
 }
