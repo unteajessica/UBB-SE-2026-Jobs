@@ -79,16 +79,16 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task UploadDocumentAsync_surfaces_storage_NotImplementedException()
+    public async Task UploadDocumentAsync_surfaces_storage_exception()
     {
         fileStorage.SaveFile(Arg.Any<Stream>(), Arg.Any<string>())
-            .Throws(new NotImplementedException("Phase 5 routes uploads through /api/files"));
+            .Throws(new InvalidOperationException("File upload failed."));
 
         Func<Task> act = () => service.UploadDocumentAsync(
             new Document { UserId = 1, DocumentName = "CV" },
             tempPdfPath);
 
-        await act.Should().ThrowAsync<NotImplementedException>();
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]

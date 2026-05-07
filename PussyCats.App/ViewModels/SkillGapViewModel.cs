@@ -54,9 +54,9 @@ public class SkillGapViewModel : DispatchableObservableObject
         try
         {
             var userId = ViewModelSupport.ResolveUserId(session);
-            var summary = await skillGapService.GetSummaryAsync(userId, cancellationToken).ConfigureAwait(false);
-            var missing = await skillGapService.GetMissingSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
-            var underscored = await skillGapService.GetUnderscoredSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
+            var summary = await skillGapService.GetSummaryAsync(userId, cancellationToken);
+            var missing = await skillGapService.GetMissingSkillsAsync(userId, cancellationToken);
+            var underscored = await skillGapService.GetUnderscoredSkillsAsync(userId, cancellationToken);
 
             SkillsToImprove.Clear();
             MissingSkills.Clear();

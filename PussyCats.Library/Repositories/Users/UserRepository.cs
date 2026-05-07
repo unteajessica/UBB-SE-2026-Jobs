@@ -59,6 +59,11 @@ public class UserRepository : IUserRepository
     public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
         user.LastUpdated = DateTime.UtcNow;
+        foreach (var entry in databaseContext.ChangeTracker.Entries().ToList())
+        {
+            entry.State = EntityState.Detached;
+        }
+
         databaseContext.Users.Update(user);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }

@@ -12,6 +12,35 @@ namespace PussyCats_App;
 
 public sealed partial class MainWindow : Window
 {
+    private static readonly HashSet<string> CandidatePages =
+    [
+        "UserRecommendationPage",
+        "UserStatusPage",
+        "UserProfilePage",
+        "ProfileFormPage",
+        "TestDashboardPage",
+        "PersonalityTestPage",
+        "CompatibilityOverviewPage",
+        "DocumentsPage",
+        "ExportCVPage",
+    ];
+
+    private static readonly HashSet<string> CompanyPages =
+    [
+        "CompanyRecommendationPage",
+        "CompanyStatusPage",
+    ];
+
+    private static readonly HashSet<string> DeveloperPages =
+    [
+        "DeveloperPage",
+    ];
+
+    private static readonly HashSet<string> SharedPages =
+    [
+        "ChatPage",
+    ];
+
     private static readonly Dictionary<string, Type> PageMap = new()
     {
         ["UserRecommendationPage"]    = typeof(UserRecommendationPage),
@@ -26,6 +55,7 @@ public sealed partial class MainWindow : Window
         ["PreferencesPage"]           = typeof(PreferencesPage),
         ["CompanyRecommendationPage"] = typeof(Views.Company.CompanyRecommendationPage),
         ["CompanyStatusPage"]         = typeof(Views.Company.CompanyStatusPage),
+        ["DeveloperPage"]             = typeof(Views.Developer.DeveloperPage),
         ["ChatPage"]                  = typeof(Views.ChatPage),
     };
 
@@ -35,8 +65,17 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
         contentFrame.Navigated += ContentFrame_Navigated;
-        contentFrame.Navigate(typeof(UserRecommendationPage));
-        UpdateNavSelection("UserRecommendationPage");
+        var session = App.Services.GetRequiredService<SessionContext>();
+        modeSelector.SelectedIndex = session.Mode switch
+        {
+            AppMode.Company => 1,
+            AppMode.Developer => 2,
+            _ => 0,
+        };
+        UpdateModeVisibility();
+        var defaultPage = GetDefaultPage(session.Mode);
+        NavigateTo(defaultPage);
+        UpdateNavSelection(defaultPage);
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs eventArguments)
@@ -60,29 +99,62 @@ public sealed partial class MainWindow : Window
 
     private void NavView_PaneOpened(NavigationView sender, object args)
     {
-        modeToggle.Header = "Company mode";
-        modeToggle.Visibility = Visibility.Visible;
+        modeSelector.Header = "Mode";
+        modeSelector.Visibility = Visibility.Visible;
     }
 
     private void NavView_PaneClosed(NavigationView sender, object args)
-        => modeToggle.Visibility = Visibility.Collapsed;
+        => modeSelector.Visibility = Visibility.Collapsed;
 
-    private void ModeToggle_Toggled(object sender, RoutedEventArgs eventArguments)
+    private void ModeSelector_SelectionChanged(object sender, SelectionChangedEventArgs eventArguments)
     {
+        if (modeSelector.SelectedItem is not ComboBoxItem { Tag: string tag })
+        {
+            return;
+        }
+
         var session = App.Services.GetRequiredService<SessionContext>();
-        session.Mode = modeToggle.IsOn ? AppMode.Company : AppMode.Candidate;
+        session.Mode = tag switch
+        {
+            "Company" => AppMode.Company,
+            "Developer" => AppMode.Developer,
+            _ => AppMode.Candidate,
+        };
+
+        if (session.Mode == AppMode.Company && session.CompanyId is null)
+        {
+            session.CompanyId = 1;
+        }
+
+        if (session.Mode == AppMode.Developer && session.DeveloperId is null)
+        {
+            session.DeveloperId = 1;
+        }
+
         UpdateModeVisibility();
 
-        var defaultPage = modeToggle.IsOn ? "CompanyRecommendationPage" : "UserRecommendationPage";
+        var defaultPage = GetDefaultPage(session.Mode);
         NavigateTo(defaultPage);
         UpdateNavSelection(defaultPage);
     }
 
     private void UpdateModeVisibility()
     {
-        var isCompany = modeToggle.IsOn;
-        navReviewApplicants.Visibility = isCompany ? Visibility.Visible : Visibility.Collapsed;
-        navApplicantStatus.Visibility  = isCompany ? Visibility.Visible : Visibility.Collapsed;
+        var session = App.Services.GetRequiredService<SessionContext>();
+        foreach (var item in navView.MenuItems)
+        {
+            if (item is not NavigationViewItem nvi || nvi.Tag is not string tag)
+            {
+                continue;
+            }
+
+            var visible = SharedPages.Contains(tag)
+                || session.Mode == AppMode.Candidate && CandidatePages.Contains(tag)
+                || session.Mode == AppMode.Company && CompanyPages.Contains(tag)
+                || session.Mode == AppMode.Developer && DeveloperPages.Contains(tag);
+
+            nvi.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 
     private void NavigateTo(string tag)
@@ -110,5 +182,15 @@ public sealed partial class MainWindow : Window
                 return;
             }
         }
+    }
+
+    private static string GetDefaultPage(AppMode mode)
+    {
+        return mode switch
+        {
+            AppMode.Company => "CompanyRecommendationPage",
+            AppMode.Developer => "DeveloperPage",
+            _ => "UserRecommendationPage",
+        };
     }
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.Developer.DeveloperPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="#F4F6F8">
+
+    <Grid Padding="28" RowDefinitions="Auto,*">
+        <StackPanel Grid.Row="0" Spacing="6" Margin="0,0,0,20">
+            <TextBlock Text="{Binding ModeSummary}" FontSize="24" FontWeight="SemiBold" Foreground="#171717"/>
+            <TextBlock Text="Merged app status" FontSize="13" Foreground="#5F6368"/>
+        </StackPanel>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding Posts}" SelectionMode="None">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="White" BorderBrush="#DADCE0" BorderThickness="1" CornerRadius="8" Padding="18" Margin="0,0,0,12">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" Foreground="#202124"/>
+                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="13" Foreground="#4D5156"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>

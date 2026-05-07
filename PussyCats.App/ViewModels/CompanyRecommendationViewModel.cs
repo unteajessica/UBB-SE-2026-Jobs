@@ -174,7 +174,7 @@ public class CompanyRecommendationViewModel : DispatchableObservableObject
 
         try
         {
-            await recommendationService.LoadApplicantsAsync(session.CompanyId.Value, cancellationToken).ConfigureAwait(false);
+            await recommendationService.LoadApplicantsAsync(session.CompanyId.Value, cancellationToken);
             LoadNextApplicant();
         }
         catch (Exception exception)
@@ -195,14 +195,14 @@ public class CompanyRecommendationViewModel : DispatchableObservableObject
             return;
         }
 
-        if (!await ValidateApplicantStateAsync(cancellationToken).ConfigureAwait(false))
+        if (!await ValidateApplicantStateAsync(cancellationToken))
         {
             return;
         }
 
         try
         {
-            await matchService.AdvanceAsync(CurrentApplicant.Match.MatchId, cancellationToken).ConfigureAwait(false);
+            await matchService.AdvanceAsync(CurrentApplicant.Match.MatchId, cancellationToken);
             StoreForUndo();
             recommendationService.MoveToNext();
             LoadNextApplicant();
@@ -220,14 +220,14 @@ public class CompanyRecommendationViewModel : DispatchableObservableObject
             return;
         }
 
-        if (!await ValidateApplicantStateAsync(cancellationToken).ConfigureAwait(false))
+        if (!await ValidateApplicantStateAsync(cancellationToken))
         {
             return;
         }
 
         try
         {
-            await matchService.RejectAsync(CurrentApplicant.Match.MatchId, "Rejected on first pass", cancellationToken).ConfigureAwait(false);
+            await matchService.RejectAsync(CurrentApplicant.Match.MatchId, "Rejected on first pass", cancellationToken);
             StoreForUndo();
             recommendationService.MoveToNext();
             LoadNextApplicant();
@@ -247,7 +247,7 @@ public class CompanyRecommendationViewModel : DispatchableObservableObject
 
         try
         {
-            await matchService.RevertToAppliedAsync(lastUndoApplicant.Match.MatchId, cancellationToken).ConfigureAwait(false);
+            await matchService.RevertToAppliedAsync(lastUndoApplicant.Match.MatchId, cancellationToken);
             recommendationService.MoveToPrevious();
 
             CurrentApplicant = lastUndoApplicant;
@@ -271,7 +271,7 @@ public class CompanyRecommendationViewModel : DispatchableObservableObject
             return;
         }
 
-        ScoreBreakdown = await recommendationService.GetBreakdownAsync(CurrentApplicant, cancellationToken).ConfigureAwait(false);
+        ScoreBreakdown = await recommendationService.GetBreakdownAsync(CurrentApplicant, cancellationToken);
         IsExpanded = true;
         RaiseDerivedPropertyChanges();
     }
@@ -308,7 +308,7 @@ public class CompanyRecommendationViewModel : DispatchableObservableObject
 
     private async Task<bool> ValidateApplicantStateAsync(CancellationToken cancellationToken)
     {
-        var freshMatch = await matchService.GetByIdAsync(CurrentApplicant!.Match.MatchId, cancellationToken).ConfigureAwait(false);
+        var freshMatch = await matchService.GetByIdAsync(CurrentApplicant!.Match.MatchId, cancellationToken);
         if (freshMatch is null || freshMatch.Status != MatchStatus.Applied)
         {
             ReportError("This applicant has already been reviewed. Loading next applicant.");

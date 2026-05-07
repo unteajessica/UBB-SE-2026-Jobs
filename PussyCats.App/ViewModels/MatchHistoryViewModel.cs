@@ -45,7 +45,7 @@ public class MatchHistoryViewModel : DispatchableObservableObject
         {
             Matches = (await matchService
                 .GetMatchesForUserAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
-                .ConfigureAwait(false)).ToList();
+                ).ToList();
         }
         catch (Exception exception)
         {
@@ -60,7 +60,7 @@ public class MatchHistoryViewModel : DispatchableObservableObject
         {
             Statistics = await matchService
                 .GetMatchStatisticsAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
         catch (Exception exception)
         {

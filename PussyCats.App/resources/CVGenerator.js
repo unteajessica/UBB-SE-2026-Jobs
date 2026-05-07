@@ -125,7 +125,13 @@ const CVGenerator = (() => {
 
     function renderSkills(skills = []) {
         const buckets = {};
-        skills.map(UnTrimmedSkill => UnTrimmedSkill.trim()).forEach(skill => {
+        skills
+            .map(untrimmedSkill => typeof untrimmedSkill === 'string'
+                ? untrimmedSkill
+                : (untrimmedSkill.skill?.name || untrimmedSkill.name || untrimmedSkill.skillName || ''))
+            .filter(Boolean)
+            .map(skill => skill.trim())
+            .forEach(skill => {
             let placed = false;
             for (const [group, keywords] of Object.entries(SKILL_GROUPS)) {
                 if (group === 'Other') continue;
@@ -191,11 +197,11 @@ const CVGenerator = (() => {
         let defaultFirstName = '';
         let defaultLastName = '';
         let defaultCity = '';
-        let deafultCountry = '';
+        let defaultCountry = '';
         // ── Header ────────────────────────────────────────────────
         setText('#cv-name', `${profile.firstName || defaultFirstName} ${profile.lastName || defaultLastName}`);
         setText('#cv-email', profile.email);
-        setText('#cv-phone', profile.phoneNumber);
+        setText('#cv-phone', profile.phone);
         setText('#cv-location', `${profile.city || defaultCity} ${profile.country || defaultCountry}`);
 
         const githubElement = document.getElementById('cv-github');

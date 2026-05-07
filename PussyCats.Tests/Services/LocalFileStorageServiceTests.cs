@@ -42,14 +42,25 @@ public class LocalFileStorageServiceTests : IDisposable
     }
 
     [Fact]
-    public void SaveFile_throws_NotImplementedException_per_phase_5_decision()
+    public void SaveFile_persists_file_when_using_local_test_storage()
     {
-        // Phase 5 design: silent disk writes are masked behind /api/files.
-        using var stream = new MemoryStream();
-        Action act = () => service.SaveFile(stream, "x.pdf");
+        using var stream = new MemoryStream([1, 2, 3]);
 
-        act.Should().Throw<NotImplementedException>()
-            .WithMessage("*Phase 5 routes file uploads*");
+        var savedPath = service.SaveFile(stream, "x.pdf");
+
+        File.Exists(savedPath).Should().BeTrue();
+        Path.GetExtension(savedPath).Should().Be(".pdf");
+    }
+
+    [Fact]
+    public void DeleteFile_removes_local_test_file()
+    {
+        using var stream = new MemoryStream([1, 2, 3]);
+        var savedPath = service.SaveFile(stream, "x.pdf");
+
+        service.DeleteFile(savedPath);
+
+        File.Exists(savedPath).Should().BeFalse();
     }
 
     [Fact]

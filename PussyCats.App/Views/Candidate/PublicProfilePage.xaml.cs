@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
+using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
 
@@ -58,7 +59,10 @@ public sealed partial class PublicProfilePage : Page
         LinkedinLink.NavigateUri = GetUri(profile.LinkedIn, "https://linkedin.com");
 
         if (!string.IsNullOrEmpty(profile.ProfilePicturePath))
-            ProfilePhoto.Source = new BitmapImage(new Uri(profile.ProfilePicturePath));
+        {
+            var baseUrl = ApiConfigurationLoader.Load().BaseUrl.TrimEnd('/');
+            ProfilePhoto.Source = new BitmapImage(new Uri($"{baseUrl}/api/files/{profile.ProfilePicturePath}"));
+        }
 
         SkillTestsContainer.Children.Clear();
         foreach (var test in viewModel.Tests)

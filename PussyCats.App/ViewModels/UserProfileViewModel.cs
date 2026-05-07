@@ -94,7 +94,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
 
         try
         {
-            TotalExperiencePoints = await profileService.RecalculateLevelAsync(UserProfile, cancellationToken).ConfigureAwait(false);
+            TotalExperiencePoints = await profileService.RecalculateLevelAsync(UserProfile, cancellationToken);
             LevelUpdated?.Invoke();
         }
         catch (Exception exception)
@@ -111,7 +111,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         try
         {
             var resolvedUserId = userId ?? ViewModelSupport.ResolveUserId(session);
-            UserProfile = await profileService.GetProfileAsync(resolvedUserId, cancellationToken).ConfigureAwait(false);
+            UserProfile = await profileService.GetProfileAsync(resolvedUserId, cancellationToken);
 
             if (UserProfile is not null)
             {
@@ -138,7 +138,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         }
 
         var newStatus = !UserProfile.ActiveAccount;
-        await profileService.UpdateAccountStatusAsync(UserProfile.UserId, newStatus, cancellationToken).ConfigureAwait(false);
+        await profileService.UpdateAccountStatusAsync(UserProfile.UserId, newStatus, cancellationToken);
         UserProfile.ActiveAccount = newStatus;
         OnPropertyChanged(nameof(UserProfile));
     }
@@ -153,7 +153,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         try
         {
             var newPath = imageStorageService.SaveImage(fileStream, fileName);
-            await profileService.UpdateProfilePicturePathAsync(UserProfile.UserId, newPath, cancellationToken).ConfigureAwait(false);
+            await profileService.UpdateProfilePicturePathAsync(UserProfile.UserId, newPath, cancellationToken);
             UserProfile.ProfilePicturePath = newPath;
             OnPropertyChanged(nameof(UserProfile));
         }
@@ -171,7 +171,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         }
 
         imageStorageService.DeleteImage(UserProfile.ProfilePicturePath);
-        await profileService.RemoveProfilePicturePathAsync(UserProfile.UserId, cancellationToken).ConfigureAwait(false);
+        await profileService.RemoveProfilePicturePathAsync(UserProfile.UserId, cancellationToken);
         UserProfile.ProfilePicturePath = string.Empty;
         OnPropertyChanged(nameof(UserProfile));
     }

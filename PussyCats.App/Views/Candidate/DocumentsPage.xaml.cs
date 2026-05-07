@@ -126,8 +126,15 @@ public sealed partial class DocumentsPage : Page
             return;
         }
 
-        if (File.Exists(fullPath))
+        if (Uri.TryCreate(fullPath, UriKind.Absolute, out var uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+        {
             Process.Start(new ProcessStartInfo(fullPath) { UseShellExecute = true });
+        }
+        else if (File.Exists(fullPath))
+        {
+            Process.Start(new ProcessStartInfo(fullPath) { UseShellExecute = true });
+        }
         else
         {
             statusLabel.Text       = $"\"{doc.DocumentName}\" could not be found on disk.";

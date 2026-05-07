@@ -70,7 +70,7 @@ public class UploadDocumentViewModel : DispatchableObservableObject
             DocumentName = DocumentName.Trim(),
         };
 
-        await documentService.UploadDocumentAsync(document, SelectedFilePath, cancellationToken).ConfigureAwait(false);
+        await documentService.UploadDocumentAsync(document, SelectedFilePath, cancellationToken);
     }
 
     public string GetDocumentName() => DocumentName;

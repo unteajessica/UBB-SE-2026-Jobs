@@ -66,10 +66,10 @@ public partial class ExportCVViewModel : DispatchableObservableObject
 
         try
         {
-            var userProfile = await userProfileService.GetProfileAsync(resolvedUserId, cancellationToken).ConfigureAwait(false)
+            var userProfile = await userProfileService.GetProfileAsync(resolvedUserId, cancellationToken)
                 ?? throw new InvalidOperationException("User profile not found.");
 
-            await pdfExportService.RenderProfileAsync(userProfile).ConfigureAwait(false);
+            await pdfExportService.RenderProfileAsync(userProfile);
             StatusText = string.Empty;
         }
         catch (Exception exception)
@@ -96,7 +96,7 @@ public partial class ExportCVViewModel : DispatchableObservableObject
 
         try
         {
-            await pdfExportService.DownloadPdfAsync().ConfigureAwait(false);
+            await pdfExportService.DownloadPdfAsync();
             StatusText = "Downloaded successfully!";
         }
         catch (OperationCanceledException)

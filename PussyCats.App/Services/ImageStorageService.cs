@@ -1,4 +1,5 @@
 using System.Text.Json;
+using PussyCats.App.Configuration;
 
 namespace PussyCats.App.Services;
 
@@ -10,6 +11,8 @@ public class ImageStorageService : IImageStorageService
     private const int MaxFileSizeInMb = 20;
     private const int MaxFileSize = MaxFileSizeInMb * BytesPerMegabyte;
     private readonly HashSet<string> allowedExtensions = new() { ".jpg", ".jpeg", ".png" };
+    private readonly bool useApiStorage = true;
+    private readonly string apiBaseUrl = ApiConfigurationLoader.Load().BaseUrl.TrimEnd('/');
 
     public ImageStorageService()
     {
@@ -24,6 +27,7 @@ public class ImageStorageService : IImageStorageService
     public ImageStorageService(string basePath)
     {
         this.basePath = basePath;
+        useApiStorage = false;
 
         if (!Directory.Exists(basePath))
         {
@@ -35,12 +39,21 @@ public class ImageStorageService : IImageStorageService
         var ext = GetImageExtension(fileName);
         CheckFileSize(fileStream);
 
+        if (!useApiStorage)
+        {
+            var storedFileName = $"{Guid.NewGuid()}{ext}";
+            var fullPath = Path.Combine(basePath, storedFileName);
+            using var output = File.Create(fullPath);
+            fileStream.CopyTo(output);
+            return Path.Combine(basePath, storedFileName);
+        }
+
         using var content = new MultipartFormDataContent();
         using var streamContent = new StreamContent(fileStream);
         content.Add(streamContent, "file", $"upload{ext}");
 
         using var http = new HttpClient();
-        var response = http.PostAsync("https://localhost:7134/api/files", content).Result;
+        var response = http.PostAsync($"{apiBaseUrl}/api/files", content).Result;
 
         if (!response.IsSuccessStatusCode)
             throw new Exception("File upload failed.");
@@ -62,6 +75,13 @@ public class ImageStorageService : IImageStorageService
     {
         if (string.IsNullOrWhiteSpace(relativePath))
         {
+            return;
+        }
+
+        if (useApiStorage)
+        {
+            using var http = new HttpClient();
+            _ = http.DeleteAsync($"{apiBaseUrl}/api/files/{Uri.EscapeDataString(Path.GetFileName(relativePath))}").Result;
             return;
         }
 

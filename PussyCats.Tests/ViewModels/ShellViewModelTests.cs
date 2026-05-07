@@ -32,5 +32,11 @@ public class ShellViewModelTests
         session.Mode.Should().Be(AppMode.Company);
         viewModel.IsCompanyMode.Should().BeTrue();
         viewModel.IsCandidateMode.Should().BeFalse();
+
+        viewModel.DeveloperModeCommand.Execute(null);
+
+        session.Mode.Should().Be(AppMode.Developer);
+        viewModel.IsDeveloperMode.Should().BeTrue();
+        viewModel.IsCompanyMode.Should().BeFalse();
     }
 }

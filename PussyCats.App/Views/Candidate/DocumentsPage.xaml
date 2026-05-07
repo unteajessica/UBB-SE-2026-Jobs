@@ -17,12 +17,12 @@
                     <StackPanel Spacing="6">
                         <TextBlock Text="Document Name" Foreground="White" FontSize="14"/>
                         <TextBox x:Name="txtDocumentName"
-                                 PlaceholderText="eventArguments.g. AWS Certificate 2024"
+                                 PlaceholderText="e.g. AWS Certificate 2024"
                                  TextChanged="OnDocumentNameChanged"
                                  MaxWidth="400" HorizontalAlignment="Left"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <Button x:Name="btnBrowse" Content="Browse File…" Click="OnBrowseClick"/>
+                        <Button x:Name="btnBrowse" Content="Browse File..." Click="OnBrowseClick"/>
                         <TextBlock x:Name="selectedFileLabel" Text="No file selected"
                                    Foreground="White" VerticalAlignment="Center" FontSize="13" Opacity="0.85"/>
                     </StackPanel>

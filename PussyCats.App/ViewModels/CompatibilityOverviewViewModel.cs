@@ -44,7 +44,7 @@ public class CompatibilityOverviewViewModel : DispatchableObservableObject
         {
             RoleResults = (await compatibilityService
                 .CalculateAllAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
-                .ConfigureAwait(false)).ToList();
+                ).ToList();
             ErrorMessage = string.Empty;
         }
         catch (Exception exception)

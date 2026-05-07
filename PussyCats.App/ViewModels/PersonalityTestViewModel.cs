@@ -118,7 +118,7 @@ public partial class PersonalityTestViewModel : DispatchableObservableObject
 
         await personalityTestService
             .SaveResultAsync(ViewModelSupport.ResolveUserId(session), lastAnswers, SelectedRole.Role, cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         SaveMessage = $"Your personality test result has been updated to {SelectedRole.DisplayName}.";
     }

@@ -67,14 +67,14 @@ public class UserStatusViewModel : DispatchableObservableObject
         HasError = false;
         IsEmpty = false;
         ShowCards = false;
+        HasSkillGapMessage = false;
+        ShowSkillData = false;
+
+        var userId = ViewModelSupport.ResolveUserId(session);
 
         try
         {
-            var userId = ViewModelSupport.ResolveUserId(session);
-            var applications = await userStatusService.GetApplicationsForUserAsync(userId, cancellationToken).ConfigureAwait(false);
-            var summary = await skillGapService.GetSummaryAsync(userId, cancellationToken).ConfigureAwait(false);
-            var missingSkills = await skillGapService.GetMissingSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
-            var underscoredSkills = await skillGapService.GetUnderscoredSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
+            var applications = await userStatusService.GetApplicationsForUserAsync(userId, cancellationToken);
 
             AppliedJobs.Clear();
             foreach (var application in applications)
@@ -83,6 +83,20 @@ public class UserStatusViewModel : DispatchableObservableObject
             }
 
             ApplyFilter(CurrentFilter);
+        }
+        catch
+        {
+            HasError = true;
+            ShowCards = false;
+            IsLoading = false;
+            return;
+        }
+
+        try
+        {
+            var summary = await skillGapService.GetSummaryAsync(userId, cancellationToken);
+            var missingSkills = await skillGapService.GetMissingSkillsAsync(userId, cancellationToken);
+            var underscoredSkills = await skillGapService.GetUnderscoredSkillsAsync(userId, cancellationToken);
 
             UnderscoredSkills.Clear();
             SkillGapMissingSkills.Clear();
@@ -118,8 +132,11 @@ public class UserStatusViewModel : DispatchableObservableObject
         }
         catch
         {
-            HasError = true;
-            ShowCards = false;
+            UnderscoredSkills.Clear();
+            SkillGapMissingSkills.Clear();
+            SkillGapMessage = "Skill gap analysis is temporarily unavailable.";
+            HasSkillGapMessage = true;
+            ShowSkillData = false;
         }
         finally
         {

@@ -211,7 +211,7 @@ public class ProfileFormViewModel : DispatchableObservableObject
 
         try
         {
-            await profileService.SaveAsync(userProfile.UserId, userProfile, cancellationToken).ConfigureAwait(false);
+            await profileService.SaveAsync(userProfile.UserId, userProfile, cancellationToken);
             ShowInfoBar("Profile saved successfully!", InfoBarSeverity.Success);
             return true;
         }

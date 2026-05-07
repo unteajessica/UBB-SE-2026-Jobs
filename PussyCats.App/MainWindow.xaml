@@ -35,6 +35,9 @@
             <NavigationViewItem x:Name="navApplicantStatus"
                                 Content="Applicant Status"   Tag="CompanyStatusPage"
                                 Icon="Accept"                Visibility="Collapsed"/>
+            <!-- Developer -->
+            <NavigationViewItem Content="Developer Hub"       Tag="DeveloperPage"
+                                Icon="Setting"               Visibility="Collapsed"/>
             <!-- Shared -->
             <NavigationViewItem Content="Chat"               Tag="ChatPage"                    Icon="Message"/>
         </NavigationView.MenuItems>
@@ -44,11 +47,16 @@
         </NavigationView.FooterMenuItems>
 
         <NavigationView.PaneCustomContent>
-            <ToggleSwitch x:Name="modeToggle"
-                          Header="Company mode"
-                          Toggled="ModeToggle_Toggled"
-                          Margin="12,8"
-                          ToolTipService.ToolTip="Switch between Candidate and Company mode"/>
+            <ComboBox x:Name="modeSelector"
+                      Header="Mode"
+                      Width="180"
+                      Margin="12,8"
+                      SelectionChanged="ModeSelector_SelectionChanged"
+                      ToolTipService.ToolTip="Switch between User, Company, and Developer mode">
+                <ComboBoxItem Content="User" Tag="Candidate"/>
+                <ComboBoxItem Content="Company" Tag="Company"/>
+                <ComboBoxItem Content="Developer" Tag="Developer"/>
+            </ComboBox>
         </NavigationView.PaneCustomContent>
 
         <Frame x:Name="contentFrame"/>

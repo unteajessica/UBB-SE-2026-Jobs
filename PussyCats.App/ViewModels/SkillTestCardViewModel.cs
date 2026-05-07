@@ -52,14 +52,14 @@ public partial class SkillTestCardViewModel : DispatchableObservableObject
 
     public async Task LoadCardAsync(CancellationToken cancellationToken = default)
     {
-        await CheckRetakeEligibleAsync(cancellationToken).ConfigureAwait(false);
+        await CheckRetakeEligibleAsync(cancellationToken);
         UpdateBadge();
     }
 
     public async Task CheckRetakeEligibleAsync(CancellationToken cancellationToken = default)
     {
         IsRetakeEnabled = SkillTest.SkillTestId > 0 &&
-            await skillTestService.CanRetakeTestAsync(SkillTest.SkillTestId, cancellationToken).ConfigureAwait(false);
+            await skillTestService.CanRetakeTestAsync(SkillTest.SkillTestId, cancellationToken);
     }
 
     [RelayCommand]
@@ -71,15 +71,15 @@ public partial class SkillTestCardViewModel : DispatchableObservableObject
         }
 
         var newTestScore = Random.Shared.Next(MinimumRetakeScore, MaximumRetakeScore + 1);
-        Badge = await skillTestService.SubmitRetakeAsync(SkillTest.SkillTestId, newTestScore, cancellationToken).ConfigureAwait(false);
+        Badge = await skillTestService.SubmitRetakeAsync(SkillTest.SkillTestId, newTestScore, cancellationToken);
 
         SkillTest.AchievedDate = DateOnly.FromDateTime(DateTime.Now);
         SkillTest.Score = newTestScore;
         OnPropertyChanged(nameof(SkillTest));
 
-        await CheckRetakeEligibleAsync(cancellationToken).ConfigureAwait(false);
+        await CheckRetakeEligibleAsync(cancellationToken);
         UpdateBadge();
-        await userProfileViewModel.RecalculateLevelAsync(cancellationToken).ConfigureAwait(false);
+        await userProfileViewModel.RecalculateLevelAsync(cancellationToken);
     }
 
     public void UpdateBadge()

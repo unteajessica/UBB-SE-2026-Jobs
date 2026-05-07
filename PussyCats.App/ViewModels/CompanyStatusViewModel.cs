@@ -180,7 +180,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         {
             var results = await companyStatusService
                 .GetApplicantsForCompanyAsync(session.CompanyId.Value, cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             Applications.Clear();
             foreach (var result in results)
@@ -219,7 +219,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         {
             var result = await companyStatusService
                 .GetApplicantByMatchIdAsync(session.CompanyId.Value, matchId, cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             if (result is null)
             {
@@ -308,9 +308,9 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         {
             await matchService
                 .SubmitDecisionAsync(SelectedMatch.MatchId, SelectedDecision.Value, FeedbackMessage.Trim(), cancellationToken)
-                .ConfigureAwait(false);
+                ;
             PageMessage = "Decision saved successfully.";
-            await LoadApplicationsAsync(cancellationToken).ConfigureAwait(false);
+            await LoadApplicationsAsync(cancellationToken);
             return true;
         }
         catch (Exception exception)

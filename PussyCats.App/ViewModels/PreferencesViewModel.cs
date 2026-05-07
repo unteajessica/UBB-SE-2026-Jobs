@@ -56,7 +56,7 @@ public class PreferencesViewModel : DispatchableObservableObject
 
         var savedPreferences = await preferencesService
             .GetByUserIdAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         foreach (var preference in savedPreferences)
         {
@@ -105,7 +105,7 @@ public class PreferencesViewModel : DispatchableObservableObject
 
     public async Task SearchLocationAsync(string searchLocationQuery, CancellationToken cancellationToken = default)
     {
-        LocationSuggestions = (await preferencesService.SearchLocationsAsync(searchLocationQuery, cancellationToken).ConfigureAwait(false)).ToList();
+        LocationSuggestions = (await preferencesService.SearchLocationsAsync(searchLocationQuery, cancellationToken)).ToList();
     }
 
     public async Task SavePreferencesAsync(CancellationToken cancellationToken = default)
@@ -115,7 +115,7 @@ public class PreferencesViewModel : DispatchableObservableObject
         {
             await preferencesService
                 .SavePreferencesAsync(ViewModelSupport.ResolveUserId(session), SelectedJobRoles, SelectedWorkMode, PreferredLocation, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
         catch (Exception exception)
         {

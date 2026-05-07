@@ -45,7 +45,7 @@ public class PublicProfileViewModel : DispatchableObservableObject
     {
         try
         {
-            IsAvailable = await userProfileService.IsProfileAvailableAsync(userId, cancellationToken).ConfigureAwait(false);
+            IsAvailable = await userProfileService.IsProfileAvailableAsync(userId, cancellationToken);
             if (!IsAvailable)
             {
                 Profile = null;
@@ -53,8 +53,8 @@ public class PublicProfileViewModel : DispatchableObservableObject
                 return;
             }
 
-            Profile = await userProfileService.GetProfileAsync(userId, cancellationToken).ConfigureAwait(false);
-            Tests = (await userProfileService.GetSkillTestsForUserAsync(userId, cancellationToken).ConfigureAwait(false)).ToList();
+            Profile = await userProfileService.GetProfileAsync(userId, cancellationToken);
+            Tests = (await userProfileService.GetSkillTestsForUserAsync(userId, cancellationToken)).ToList();
         }
         catch (Exception exception)
         {

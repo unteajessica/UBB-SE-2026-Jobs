@@ -34,22 +34,22 @@ public class DocumentListViewModel : DispatchableObservableObject
     {
         Documents = (await documentService
             .GetDocumentsByUserIdAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
-            .ConfigureAwait(false)).ToList();
+            ).ToList();
     }
 
     public List<Document> GetDocuments() => Documents;
 
     public async Task DeleteDocumentAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        await documentService.DeleteDocumentAsync(documentId, cancellationToken).ConfigureAwait(false);
-        await LoadDocumentsAsync(cancellationToken).ConfigureAwait(false);
+        await documentService.DeleteDocumentAsync(documentId, cancellationToken);
+        await LoadDocumentsAsync(cancellationToken);
     }
 
     public async Task<string?> GetResolvedFilePathAsync(int documentId, CancellationToken cancellationToken = default)
     {
         try
         {
-            var fullPath = await documentService.GetDocumentAbsolutePathAsync(documentId, cancellationToken).ConfigureAwait(false);
+            var fullPath = await documentService.GetDocumentAbsolutePathAsync(documentId, cancellationToken);
             StatusMessage = string.Empty;
             return fullPath;
         }

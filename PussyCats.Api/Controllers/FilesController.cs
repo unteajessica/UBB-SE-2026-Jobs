@@ -11,11 +11,13 @@ public class FilesController : ControllerBase
     private const int MaxFileSizeInMb = 20;
     private const int MaxFileSize = MaxFileSizeInMb * BytesPerMegabyte;
 
-    private readonly string uploadsPath = Path.Combine("uploads", "avatars");
+    private readonly string uploadsPath = Path.Combine("uploads", "files");
+    private readonly string legacyAvatarPath = Path.Combine("uploads", "avatars");
 
     public FilesController()
     {
         Directory.CreateDirectory(uploadsPath);
+        Directory.CreateDirectory(legacyAvatarPath);
     }
 
     [HttpPost]
@@ -25,7 +27,7 @@ public class FilesController : ControllerBase
             return BadRequest("No file provided.");
 
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (ext is not ".jpg" and not ".jpeg" and not ".png")
+        if (ext is not ".jpg" and not ".jpeg" and not ".png" and not ".pdf")
             return BadRequest("Unsupported file type.");
 
         if (file.Length > MaxFileSize)
@@ -43,12 +45,40 @@ public class FilesController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetFile(string id)
     {
-        var fullPath = Path.Combine(uploadsPath, Path.GetFileName(id));
+        var fileName = Path.GetFileName(id);
+        var fullPath = Path.Combine(uploadsPath, fileName);
+        if (!System.IO.File.Exists(fullPath))
+        {
+            fullPath = Path.Combine(legacyAvatarPath, fileName);
+        }
+
         if (!System.IO.File.Exists(fullPath))
             return NotFound();
 
         var ext = Path.GetExtension(id).ToLowerInvariant();
-        var contentType = ext is ".png" ? "image/png" : "image/jpeg";
+        var contentType = ext switch
+        {
+            ".png" => "image/png",
+            ".pdf" => "application/pdf",
+            _ => "image/jpeg",
+        };
         return PhysicalFile(Path.GetFullPath(fullPath), contentType);
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteFile(string id)
+    {
+        var fileName = Path.GetFileName(id);
+        foreach (var root in new[] { uploadsPath, legacyAvatarPath })
+        {
+            var fullPath = Path.Combine(root, fileName);
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+                return NoContent();
+            }
+        }
+
+        return NotFound();
     }
 }

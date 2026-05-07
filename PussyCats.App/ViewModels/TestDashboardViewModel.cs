@@ -32,7 +32,7 @@ public class TestDashboardViewModel : DispatchableObservableObject
     public async Task LoadTestsAsync(User? user = null, CancellationToken cancellationToken = default)
     {
         var userId = user?.UserId > 0 ? user.UserId : ViewModelSupport.ResolveUserId(session);
-        var tests = await skillTestService.GetTestsForUserAsync(userId, cancellationToken).ConfigureAwait(false);
+        var tests = await skillTestService.GetTestsForUserAsync(userId, cancellationToken);
 
         TestCards = tests
             .Select(test => new SkillTestCardViewModel(test, skillTestService, userProfileViewModel))
@@ -40,7 +40,7 @@ public class TestDashboardViewModel : DispatchableObservableObject
 
         foreach (var card in TestCards)
         {
-            await card.LoadCardAsync(cancellationToken).ConfigureAwait(false);
+            await card.LoadCardAsync(cancellationToken);
         }
     }
 

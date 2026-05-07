@@ -19,6 +19,7 @@ public class ShellViewModel : DispatchableObservableObject
         ChatCommand = new RelayCommand(() => ActivePage = "Chat");
         CandidateModeCommand = new RelayCommand(() => Mode = AppMode.Candidate);
         CompanyModeCommand = new RelayCommand(() => Mode = AppMode.Company);
+        DeveloperModeCommand = new RelayCommand(() => Mode = AppMode.Developer);
     }
 
     public ICommand RecommendationsCommand { get; }
@@ -26,6 +27,7 @@ public class ShellViewModel : DispatchableObservableObject
     public ICommand ChatCommand { get; }
     public ICommand CandidateModeCommand { get; }
     public ICommand CompanyModeCommand { get; }
+    public ICommand DeveloperModeCommand { get; }
 
     public string ActivePage
     {
@@ -52,6 +54,7 @@ public class ShellViewModel : DispatchableObservableObject
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsCandidateMode));
                 OnPropertyChanged(nameof(IsCompanyMode));
+                OnPropertyChanged(nameof(IsDeveloperMode));
             }
         }
     }
@@ -61,4 +64,5 @@ public class ShellViewModel : DispatchableObservableObject
     public bool IsChatActive => ActivePage == "Chat";
     public bool IsCandidateMode => Mode == AppMode.Candidate;
     public bool IsCompanyMode => Mode == AppMode.Company;
+    public bool IsDeveloperMode => Mode == AppMode.Developer;
 }
