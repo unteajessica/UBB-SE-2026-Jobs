@@ -1133,7 +1133,7 @@ in the csproj so they ship to the output directory.
 End of 6c: app launches, candidate and company flows both work end-to-end
 against a live API + SQL Server. Phase 6 complete.
 
-### Phase 7 — Tests (not started, playbook below)
+### Phase 7 — Tests (7a done — pending commit; 7b/7c/7d not started, playbook below)
 
 Four sessions. The two source repos disagree on the test framework
 (matchmaking is xUnit + FluentAssertions, PussyCatsApp is MSTest), and they
@@ -1206,16 +1206,17 @@ controller integration suite in 7d if time permits.
 
 ---
 
-**7a — Test infrastructure (commit)**
+**7a — Test infrastructure (done, pending commit)**
 
 *Pre-step — package additions.*
-Add to `PussyCats.Tests.csproj`:
-- `FluentAssertions` (≥ 7.x)
-- `NSubstitute` (≥ 5.x)
+Added to `PussyCats.Tests.csproj`:
+- `FluentAssertions 7.2.0` (last 7.x — v8 went commercial)
+- `NSubstitute 5.3.0`
 
-Confirm `WindowsAppSdkSelfContained=false`,
-`WindowsAppSdkBootstrapInitialize=false` are set so tests don't try to
-boot the Windows App SDK runtime when the App project is referenced.
+`WindowsAppSdkSelfContained=false` and `WindowsAppSdkBootstrapInitialize=false`
+were **not** previously set on the test csproj (playbook said "already partially
+set; verify" — they weren't). Both flags added so `dotnet test` doesn't try to
+boot the Windows App SDK runtime via the transitive App reference.
 
 *Step 1 — `Tests/Fakes/` (13 fakes).*
 One file per aggregate. Each implements the corresponding `IXRepository`
@@ -1259,6 +1260,51 @@ plus `UserBuilder().Build()` and asserts non-null. Confirms the test project
 references resolve before any real assertion logic lands.
 
 End of 7a: `dotnet test` runs (1 passing test). Commit.
+
+*7a done summary (pending commit).* `dotnet test` green: 1 passing, 0 failed.
+
+New files:
+- `PussyCats.Tests/Fakes/FakeUserRepository.cs`
+- `PussyCats.Tests/Fakes/FakeJobRepository.cs`
+- `PussyCats.Tests/Fakes/FakeCompanyRepository.cs`
+- `PussyCats.Tests/Fakes/FakeMatchRepository.cs`
+- `PussyCats.Tests/Fakes/FakeDocumentRepository.cs`
+- `PussyCats.Tests/Fakes/FakeSkillRepository.cs`
+- `PussyCats.Tests/Fakes/FakeJobSkillRepository.cs`
+- `PussyCats.Tests/Fakes/FakeUserSkillRepository.cs`
+- `PussyCats.Tests/Fakes/FakeSkillGroupRepository.cs`
+- `PussyCats.Tests/Fakes/FakeSkillTestRepository.cs`
+- `PussyCats.Tests/Fakes/FakePersonalityTestRepository.cs`
+- `PussyCats.Tests/Fakes/FakeQuestionRepository.cs`
+- `PussyCats.Tests/Fakes/FakeRecommendationRepository.cs`
+- `PussyCats.Tests/Helpers/UserBuilder.cs`
+- `PussyCats.Tests/Helpers/JobBuilder.cs`
+- `PussyCats.Tests/Helpers/MatchBuilder.cs`
+- `PussyCats.Tests/Helpers/CompanyBuilder.cs`
+- `PussyCats.Tests/Helpers/SkillBuilder.cs`
+- `PussyCats.Tests/Helpers/SkillTestBuilder.cs`
+- `PussyCats.Tests/Helpers/PersonalityResultBuilder.cs`
+- `PussyCats.Tests/Smoke/SolutionLoadsTest.cs`
+
+Modified files:
+- `PussyCats.Tests/PussyCats.Tests.csproj` — added FluentAssertions, NSubstitute,
+  `WindowsAppSdkSelfContained=false`, `WindowsAppSdkBootstrapInitialize=false`.
+
+Deviations:
+- Fake `AddAsync` next-id strategy uses `store.Keys.Max() + 1` rather than the
+  playbook's literal `store.Count + 1`. Reason: `Count + 1` collides when seeded
+  rows leave gaps (seed id 5, then `AddAsync` picks 2 — collision). Max+1 is
+  safer and equivalent on the no-gap path the playbook had in mind.
+- `FakeUserRepository` mirrors the EF `UserRepository`'s `LastUpdated` /
+  `CreatedAt` stamping behavior on `AddAsync`/`UpdateAsync` and the soft-update
+  primitives — so service tests asserting on `LastUpdated` won't see surprises
+  vs. production.
+- `FakeRecommendationRepository.AddAsync` mirrors EF's "stamp `Timestamp` if
+  default" behavior for the same reason.
+- `WithSkills(...)` on `UserBuilder` auto-marks `IsVerified = true` and stamps
+  `AchievedDate = today` when the supplied score is > 0. Keeps tests terse;
+  callers that need an unverified self-claim can still mutate the returned
+  `UserSkill` directly.
 
 ---
 

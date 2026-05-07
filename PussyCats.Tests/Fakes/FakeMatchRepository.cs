@@ -1,0 +1,65 @@
+using PussyCats.Library.Domain;
+using PussyCats.Library.Repositories.Matches;
+
+namespace PussyCats.Tests.Fakes;
+
+public class FakeMatchRepository : IMatchRepository
+{
+    private readonly Dictionary<int, Match> store = new();
+
+    public void Seed(params Match[] matches)
+    {
+        foreach (var match in matches)
+        {
+            store[match.MatchId] = match;
+        }
+    }
+
+    public Task<Match?> GetByIdAsync(int matchId, CancellationToken ct = default)
+    {
+        store.TryGetValue(matchId, out var match);
+        return Task.FromResult(match);
+    }
+
+    public Task<IReadOnlyList<Match>> GetAllAsync(CancellationToken ct = default)
+    {
+        IReadOnlyList<Match> snapshot = store.Values.ToList();
+        return Task.FromResult(snapshot);
+    }
+
+    public Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    {
+        IReadOnlyList<Match> filtered = store.Values.Where(match => match.UserId == userId).ToList();
+        return Task.FromResult(filtered);
+    }
+
+    public Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken ct = default)
+    {
+        var match = store.Values.FirstOrDefault(m => m.UserId == userId && m.JobId == jobId);
+        return Task.FromResult(match);
+    }
+
+    public Task<Match> AddAsync(Match match, CancellationToken ct = default)
+    {
+        if (match.MatchId == 0)
+        {
+            match.MatchId = NextId();
+        }
+        store[match.MatchId] = match;
+        return Task.FromResult(match);
+    }
+
+    public Task UpdateAsync(Match match, CancellationToken ct = default)
+    {
+        store[match.MatchId] = match;
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveAsync(int matchId, CancellationToken ct = default)
+    {
+        store.Remove(matchId);
+        return Task.CompletedTask;
+    }
+
+    private int NextId() => store.Count == 0 ? 1 : store.Keys.Max() + 1;
+}
