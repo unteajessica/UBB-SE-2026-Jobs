@@ -14,7 +14,9 @@ namespace PussyCats.Tests.Integration;
 public class CompanyRecommendationViewModelTests
 {
     private readonly FakeMatchRepository matchRepo = new();
+    private readonly FakeUserRepository userRepo = new();
     private readonly FakeJobRepository jobRepo = new();
+    private readonly FakeUserSkillRepository userSkillRepo = new();
     private readonly ICompanyRecommendationService recommendationService = Substitute.For<ICompanyRecommendationService>();
     private readonly SessionContext session = new() { CompanyId = 4, Mode = AppMode.Company };
 
@@ -31,10 +33,14 @@ public class CompanyRecommendationViewModelTests
     public async Task AdvanceApplicantAsync_CommandExecuted_PersistsStatusChangeInRepository()
     {
         var matchId = 8;
-        var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: 4);
-        matchRepo.Seed(new MatchBuilder().WithId(matchId).WithStatus(MatchStatus.Applied).Build());
+        var companyId = 4;
+        var applicantResult = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Applied);
 
-        recommendationService.GetNextApplicant().Returns(applicant);
+        userRepo.Seed(applicantResult.User);
+        jobRepo.Seed(applicantResult.Job);
+        matchRepo.Seed(applicantResult.Match);
+
+        recommendationService.GetNextApplicant().Returns(applicantResult);
         await viewModel.LoadApplicantsAsync();
 
         await viewModel.AdvanceApplicantAsync();
@@ -48,10 +54,14 @@ public class CompanyRecommendationViewModelTests
     public async Task UndoLastActionAsync_AfterSkip_RestoresOriginalStatusInRepository()
     {
         var matchId = 10;
-        var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: 4);
-        matchRepo.Seed(new MatchBuilder().WithId(matchId).WithStatus(MatchStatus.Applied).Build());
+        var companyId = 4;
+        var applicantResult = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Applied);
 
-        recommendationService.GetNextApplicant().Returns(applicant);
+        userRepo.Seed(applicantResult.User);
+        jobRepo.Seed(applicantResult.Job);
+        matchRepo.Seed(applicantResult.Match);
+
+        recommendationService.GetNextApplicant().Returns(applicantResult);
         await viewModel.LoadApplicantsAsync();
 
         await viewModel.SkipApplicantAsync();
@@ -59,28 +69,40 @@ public class CompanyRecommendationViewModelTests
 
         var persistedMatch = await matchRepo.GetByIdAsync(matchId);
         persistedMatch!.Status.Should().Be(MatchStatus.Applied);
-        viewModel.CurrentApplicant.Should().BeSameAs(applicant);
+        viewModel.CurrentApplicant.Should().BeSameAs(applicantResult);
     }
 
     [Fact]
     public async Task LoadApplicantsAsync_CompanyModeActive_CorrectlySyncsStateFromServiceToViewModel()
     {
-        var applicant = ViewModelTestData.Applicant(companyId: 4);
-        recommendationService.GetNextApplicant().Returns(applicant);
+        var companyId = 4;
+        var applicantResult = ViewModelTestData.Applicant(matchId: 7, companyId: companyId, status: MatchStatus.Applied);
+
+        userRepo.Seed(applicantResult.User);
+        jobRepo.Seed(applicantResult.Job);
+        matchRepo.Seed(applicantResult.Match);
+
+        recommendationService.GetNextApplicant().Returns(applicantResult);
 
         await viewModel.LoadApplicantsAsync();
 
-        viewModel.CurrentApplicant.Should().BeSameAs(applicant);
+        viewModel.CurrentApplicant.Should().BeSameAs(applicantResult);
         viewModel.HasApplicant.Should().BeTrue();
     }
 
     [Fact]
     public async Task ExpandCardAsync_BreakdownRequested_IntegratesServiceDataIntoViewModelState()
     {
-        var applicant = ViewModelTestData.Applicant(companyId: 4);
+        var companyId = 4;
+        var applicantResult = ViewModelTestData.Applicant(matchId: 7, companyId: companyId, status: MatchStatus.Applied);
         var breakdown = new CompatibilityBreakdown { OverallScore = 85 };
-        recommendationService.GetNextApplicant().Returns(applicant);
-        recommendationService.GetBreakdownAsync(applicant, Arg.Any<CancellationToken>())
+
+        userRepo.Seed(applicantResult.User);
+        jobRepo.Seed(applicantResult.Job);
+        matchRepo.Seed(applicantResult.Match);
+
+        recommendationService.GetNextApplicant().Returns(applicantResult);
+        recommendationService.GetBreakdownAsync(applicantResult, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<CompatibilityBreakdown?>(breakdown));
 
         await viewModel.LoadApplicantsAsync();
