@@ -38,4 +38,5 @@ In order for the api to work, you may need to run this command the first time (n
 
 2. Start the app:
   - From where you normally run the app, make sure you have PussyCats.App selected and click on run
-  
+
+To test if your api works, go on the browser and type: https://localhost:7134/api/companies/1 and you should see a json with a company.
