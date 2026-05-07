@@ -27,10 +27,10 @@ public class DocumentsController : ControllerBase
         => Ok(await documents.GetByUserIdAsync(userId, cancellationToken));
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Document document, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Document document, CancellationToken cancellationToken)
     {
         document.DocumentId = 0;
-        var saved = await documents.AddAsync(document, ct);
+        var saved = await documents.AddAsync(document, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.DocumentId }, saved);
     }
 

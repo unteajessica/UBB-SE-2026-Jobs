@@ -38,10 +38,10 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Company company, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Company company, CancellationToken cancellationToken)
     {
         company.CompanyId = 0;
-        var saved = await companies.AddAsync(company, ct);
+        var saved = await companies.AddAsync(company, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.CompanyId }, saved);
     }
 

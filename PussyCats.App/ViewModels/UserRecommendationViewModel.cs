@@ -171,17 +171,17 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
     public void ExpandCard() => IsDetailOpen = true;
     public void CollapseCard() => IsDetailOpen = false;
 
-    public async Task InitializeAsync(CancellationToken ct = default)
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        await LoadDeckAsync(ct).ConfigureAwait(false);
+        await LoadDeckAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public Task LoadRecommendationsAsync(CancellationToken ct = default)
+    public Task LoadRecommendationsAsync(CancellationToken cancellationToken = default)
     {
-        return LoadDeckAsync(ct);
+        return LoadDeckAsync(cancellationToken);
     }
 
-    public async Task LikeAsync(CancellationToken ct = default)
+    public async Task LikeAsync(CancellationToken cancellationToken = default)
     {
         var job = CurrentJob;
         if (job is null || !IsCandidateSession)
@@ -194,7 +194,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         try
         {
             var userId = ViewModelSupport.ResolveUserId(session);
-            var matchId = await service.ApplyLikeAsync(userId, job, ct).ConfigureAwait(false);
+            var matchId = await service.ApplyLikeAsync(userId, job, cancellationToken).ConfigureAwait(false);
             if (!undoConsumedThisSession)
             {
                 undoSnapshot = new UndoSnapshot
@@ -207,7 +207,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
             }
 
             IsDetailOpen = false;
-            await AdvanceAfterActionAsync(userId, ct).ConfigureAwait(false);
+            await AdvanceAfterActionAsync(userId, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception)
         {
@@ -219,7 +219,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         }
     }
 
-    public async Task DismissAsync(CancellationToken ct = default)
+    public async Task DismissAsync(CancellationToken cancellationToken = default)
     {
         var job = CurrentJob;
         if (job is null || !IsCandidateSession)
@@ -232,7 +232,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         try
         {
             var userId = ViewModelSupport.ResolveUserId(session);
-            var dismissedRecommendationId = await service.ApplyDismissAsync(userId, job, ct).ConfigureAwait(false);
+            var dismissedRecommendationId = await service.ApplyDismissAsync(userId, job, cancellationToken).ConfigureAwait(false);
             if (!undoConsumedThisSession)
             {
                 undoSnapshot = new UndoSnapshot
@@ -245,7 +245,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
             }
 
             IsDetailOpen = false;
-            await AdvanceAfterActionAsync(userId, ct).ConfigureAwait(false);
+            await AdvanceAfterActionAsync(userId, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception)
         {
@@ -257,7 +257,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         }
     }
 
-    public async Task UndoAsync(CancellationToken ct = default)
+    public async Task UndoAsync(CancellationToken cancellationToken = default)
     {
         var snapshot = undoSnapshot;
         if (snapshot is null || !CanUndo)
@@ -271,11 +271,11 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         {
             if (snapshot.WasApply && snapshot.MatchId is { } matchId)
             {
-                await service.UndoLikeAsync(matchId, snapshot.Card.DisplayRecommendationId, ct).ConfigureAwait(false);
+                await service.UndoLikeAsync(matchId, snapshot.Card.DisplayRecommendationId, cancellationToken).ConfigureAwait(false);
             }
             else if (!snapshot.WasApply && snapshot.RecommendationId is { } recommendationId)
             {
-                await service.UndoDismissAsync(recommendationId, snapshot.Card.DisplayRecommendationId, ct).ConfigureAwait(false);
+                await service.UndoDismissAsync(recommendationId, snapshot.Card.DisplayRecommendationId, cancellationToken).ConfigureAwait(false);
             }
 
             CurrentJob = snapshot.Card;
@@ -293,7 +293,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         }
     }
 
-    public async Task ApplyFiltersAsync(CancellationToken ct = default)
+    public async Task ApplyFiltersAsync(CancellationToken cancellationToken = default)
     {
         appliedFilters.EmploymentTypes.Clear();
         foreach (var item in DraftEmploymentSelections.Where(item => item.IsChecked))
@@ -315,7 +315,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         }
 
         IsFilterOpen = false;
-        await LoadDeckAsync(ct).ConfigureAwait(false);
+        await LoadDeckAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public void ResetDraftFilters()
@@ -347,7 +347,7 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         }
     }
 
-    private async Task LoadDeckAsync(CancellationToken ct)
+    private async Task LoadDeckAsync(CancellationToken cancellationToken)
     {
         if (!IsCandidateSession)
         {
@@ -361,8 +361,8 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         try
         {
             var userId = ViewModelSupport.ResolveUserId(session);
-            var next = await service.GetNextCardAsync(userId, appliedFilters, ct).ConfigureAwait(false)
-                ?? await service.RecalculateTopCardIgnoringCooldownAsync(userId, appliedFilters, ct).ConfigureAwait(false);
+            var next = await service.GetNextCardAsync(userId, appliedFilters, cancellationToken).ConfigureAwait(false)
+                ?? await service.RecalculateTopCardIgnoringCooldownAsync(userId, appliedFilters, cancellationToken).ConfigureAwait(false);
 
             CurrentJob = next;
             if (next is null)
@@ -380,9 +380,9 @@ public sealed class UserRecommendationViewModel : DispatchableObservableObject
         }
     }
 
-    private async Task AdvanceAfterActionAsync(int userId, CancellationToken ct)
+    private async Task AdvanceAfterActionAsync(int userId, CancellationToken cancellationToken)
     {
-        CurrentJob = await service.GetNextCardAsync(userId, appliedFilters, ct).ConfigureAwait(false);
+        CurrentJob = await service.GetNextCardAsync(userId, appliedFilters, cancellationToken).ConfigureAwait(false);
     }
 
     private void RaiseCommands()

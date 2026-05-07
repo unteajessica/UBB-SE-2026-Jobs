@@ -49,13 +49,13 @@ public class PreferencesViewModel : DispatchableObservableObject
         private set => SetProperty(ref errorMessage, value);
     }
 
-    public async Task LoadPreferencesAsync(CancellationToken ct = default)
+    public async Task LoadPreferencesAsync(CancellationToken cancellationToken = default)
     {
         SelectedJobRoles.Clear();
         ErrorMessage = string.Empty;
 
         var savedPreferences = await preferencesService
-            .GetByUserIdAsync(ViewModelSupport.ResolveUserId(session), ct)
+            .GetByUserIdAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
             .ConfigureAwait(false);
 
         foreach (var preference in savedPreferences)
@@ -103,18 +103,18 @@ public class PreferencesViewModel : DispatchableObservableObject
 
     public void SetLocation(string location) => PreferredLocation = location;
 
-    public async Task SearchLocationAsync(string searchLocationQuery, CancellationToken ct = default)
+    public async Task SearchLocationAsync(string searchLocationQuery, CancellationToken cancellationToken = default)
     {
-        LocationSuggestions = (await preferencesService.SearchLocationsAsync(searchLocationQuery, ct).ConfigureAwait(false)).ToList();
+        LocationSuggestions = (await preferencesService.SearchLocationsAsync(searchLocationQuery, cancellationToken).ConfigureAwait(false)).ToList();
     }
 
-    public async Task SavePreferencesAsync(CancellationToken ct = default)
+    public async Task SavePreferencesAsync(CancellationToken cancellationToken = default)
     {
         ErrorMessage = string.Empty;
         try
         {
             await preferencesService
-                .SavePreferencesAsync(ViewModelSupport.ResolveUserId(session), SelectedJobRoles, SelectedWorkMode, PreferredLocation, ct)
+                .SavePreferencesAsync(ViewModelSupport.ResolveUserId(session), SelectedJobRoles, SelectedWorkMode, PreferredLocation, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception exception)

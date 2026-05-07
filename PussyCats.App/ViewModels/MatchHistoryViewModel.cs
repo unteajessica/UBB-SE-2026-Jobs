@@ -38,13 +38,13 @@ public class MatchHistoryViewModel : DispatchableObservableObject
         private set => SetProperty(ref errorMessage, value);
     }
 
-    public async Task LoadMatchesAsync(CancellationToken ct = default)
+    public async Task LoadMatchesAsync(CancellationToken cancellationToken = default)
     {
         ErrorMessage = string.Empty;
         try
         {
             Matches = (await matchService
-                .GetMatchesForUserAsync(ViewModelSupport.ResolveUserId(session), ct)
+                .GetMatchesForUserAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
                 .ConfigureAwait(false)).ToList();
         }
         catch (Exception exception)
@@ -53,13 +53,13 @@ public class MatchHistoryViewModel : DispatchableObservableObject
         }
     }
 
-    public async Task LoadStatisticsAsync(CancellationToken ct = default)
+    public async Task LoadStatisticsAsync(CancellationToken cancellationToken = default)
     {
         ErrorMessage = string.Empty;
         try
         {
             Statistics = await matchService
-                .GetMatchStatisticsAsync(ViewModelSupport.ResolveUserId(session), ct)
+                .GetMatchStatisticsAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception exception)

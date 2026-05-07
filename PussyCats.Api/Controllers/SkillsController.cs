@@ -27,10 +27,10 @@ public class SkillsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Skill skill, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Skill skill, CancellationToken cancellationToken)
     {
         skill.SkillId = 0;
-        var saved = await skills.AddAsync(skill, ct);
+        var saved = await skills.AddAsync(skill, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.SkillId }, saved);
     }
 

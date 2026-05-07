@@ -49,7 +49,7 @@ public partial class ExportCVViewModel : DispatchableObservableObject
         pdfExportService = exportService;
     }
 
-    public async Task LoadAndRenderCVAsync(CancellationToken ct = default)
+    public async Task LoadAndRenderCVAsync(CancellationToken cancellationToken = default)
     {
         if (pdfExportService is null)
         {
@@ -66,7 +66,7 @@ public partial class ExportCVViewModel : DispatchableObservableObject
 
         try
         {
-            var userProfile = await userProfileService.GetProfileAsync(resolvedUserId, ct).ConfigureAwait(false)
+            var userProfile = await userProfileService.GetProfileAsync(resolvedUserId, cancellationToken).ConfigureAwait(false)
                 ?? throw new InvalidOperationException("User profile not found.");
 
             await pdfExportService.RenderProfileAsync(userProfile).ConfigureAwait(false);

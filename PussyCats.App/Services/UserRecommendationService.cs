@@ -138,12 +138,12 @@ public sealed class UserRecommendationService : IUserRecommendationService
         return await CreateCardAsync(job, score, saved.RecommendationId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<JobRecommendationResult> CreateCardAsync(Job job, double score, int? displayRecommendationId, CancellationToken ct)
+    private async Task<JobRecommendationResult> CreateCardAsync(Job job, double score, int? displayRecommendationId, CancellationToken cancellationToken)
     {
-        var company = await companyRepository.GetByIdAsync(job.CompanyId, ct).ConfigureAwait(false)
+        var company = await companyRepository.GetByIdAsync(job.CompanyId, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException($"Company {job.CompanyId} not found.");
 
-        var jobSkillRows = await jobSkillRepository.GetByJobIdAsync(job.JobId, ct).ConfigureAwait(false);
+        var jobSkillRows = await jobSkillRepository.GetByJobIdAsync(job.JobId, cancellationToken).ConfigureAwait(false);
         var topSkills = JobRecommendationResult.TakeTopSkills(jobSkillRows);
         var allSkillLabels = new List<string>();
         foreach (var jobSkill in jobSkillRows)

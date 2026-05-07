@@ -31,10 +31,10 @@ public class JobsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Job job, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Job job, CancellationToken cancellationToken)
     {
         job.JobId = 0;
-        var saved = await jobs.AddAsync(job, ct);
+        var saved = await jobs.AddAsync(job, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.JobId }, saved);
     }
 

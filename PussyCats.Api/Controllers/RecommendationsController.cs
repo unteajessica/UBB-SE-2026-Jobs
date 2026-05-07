@@ -35,10 +35,10 @@ public class RecommendationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Recommendation recommendation, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Recommendation recommendation, CancellationToken cancellationToken)
     {
         recommendation.RecommendationId = 0;
-        var saved = await recommendations.AddAsync(recommendation, ct);
+        var saved = await recommendations.AddAsync(recommendation, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.RecommendationId }, saved);
     }
 

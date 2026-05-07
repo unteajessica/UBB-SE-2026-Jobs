@@ -198,7 +198,7 @@ public class ProfileFormViewModel : DispatchableObservableObject
 
     public void RemoveExtraCurricularActivity(ExtraCurricularActivity activity) => ExtraCurricularActivities.Remove(activity);
 
-    public async Task<bool> SaveProfileAsync(CancellationToken ct = default)
+    public async Task<bool> SaveProfileAsync(CancellationToken cancellationToken = default)
     {
         var errors = ValidateForm();
         if (errors.Count > 0)
@@ -211,7 +211,7 @@ public class ProfileFormViewModel : DispatchableObservableObject
 
         try
         {
-            await profileService.SaveAsync(userProfile.UserId, userProfile, ct).ConfigureAwait(false);
+            await profileService.SaveAsync(userProfile.UserId, userProfile, cancellationToken).ConfigureAwait(false);
             ShowInfoBar("Profile saved successfully!", InfoBarSeverity.Success);
             return true;
         }
