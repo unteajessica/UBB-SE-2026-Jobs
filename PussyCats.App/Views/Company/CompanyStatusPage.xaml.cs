@@ -25,12 +25,12 @@ public sealed partial class CompanyStatusPage : Page
         Loaded += OnLoaded;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs eventArguments)
     {
         var session = App.Services.GetRequiredService<SessionContext>();
         if (session.Mode != AppMode.Company || session.CompanyId is null) return;
@@ -40,7 +40,7 @@ public sealed partial class CompanyStatusPage : Page
         ResetValidationVisuals();
     }
 
-    private async void OnReviewApplicantClick(object sender, RoutedEventArgs e)
+    private async void OnReviewApplicantClick(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is not Button { Tag: int matchId }) return;
         var loaded = await viewModel.LoadEvaluationAsync(matchId);
@@ -48,7 +48,7 @@ public sealed partial class CompanyStatusPage : Page
         else ShowApplicantList();
     }
 
-    private async void OnSubmitDecisionClick(object sender, RoutedEventArgs e)
+    private async void OnSubmitDecisionClick(object sender, RoutedEventArgs eventArguments)
     {
         ResetValidationVisuals();
         var saved = await viewModel.SubmitDecisionAsync();
@@ -70,7 +70,7 @@ public sealed partial class CompanyStatusPage : Page
         ShowApplicantList();
     }
 
-    private async void OnCancelEvaluationClick(object sender, RoutedEventArgs e)
+    private async void OnCancelEvaluationClick(object sender, RoutedEventArgs eventArguments)
     {
         var confirmed = await ShowConfirmationAsync("Cancel", "Are you sure you want to cancel the evaluation?");
         if (!confirmed) return;

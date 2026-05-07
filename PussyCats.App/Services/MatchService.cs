@@ -21,14 +21,14 @@ public class MatchService : IMatchService
         this.jobService = jobService;
     }
 
-    public async Task<IReadOnlyList<Match>> GetMatchesForUserAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Match>> GetMatchesForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await matchRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        return await matchRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<MatchStatistics> GetMatchStatisticsAsync(int userId, CancellationToken ct = default)
+    public async Task<MatchStatistics> GetMatchStatisticsAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var matches = await matchRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        var matches = await matchRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
         var matchStatistics = new MatchStatistics();
 
         matchStatistics.TotalMatches = matches.Count;
@@ -40,19 +40,19 @@ public class MatchService : IMatchService
         return matchStatistics;
     }
 
-    public async Task<Match?> GetByIdAsync(int matchId, CancellationToken ct = default)
+    public async Task<Match?> GetByIdAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        return await matchRepository.GetByIdAsync(matchId, ct).ConfigureAwait(false);
+        return await matchRepository.GetByIdAsync(matchId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken ct = default)
+    public async Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        return await matchRepository.GetByUserIdAndJobIdAsync(userId, jobId, ct).ConfigureAwait(false);
+        return await matchRepository.GetByUserIdAndJobIdAsync(userId, jobId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<int> CreatePendingApplicationAsync(int userId, int jobId, CancellationToken ct = default)
+    public async Task<int> CreatePendingApplicationAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        if (await GetByUserIdAndJobIdAsync(userId, jobId, ct).ConfigureAwait(false) is not null)
+        if (await GetByUserIdAndJobIdAsync(userId, jobId, cancellationToken).ConfigureAwait(false) is not null)
         {
             throw new InvalidOperationException("A match already exists for this user and job.");
         }
@@ -66,24 +66,24 @@ public class MatchService : IMatchService
             FeedbackMessage = string.Empty,
         };
 
-        var saved = await matchRepository.AddAsync(match, ct).ConfigureAwait(false);
+        var saved = await matchRepository.AddAsync(match, cancellationToken).ConfigureAwait(false);
         return saved.MatchId;
     }
 
-    public async Task RemoveApplicationAsync(int matchId, CancellationToken ct = default)
+    public async Task RemoveApplicationAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        await matchRepository.RemoveAsync(matchId, ct).ConfigureAwait(false);
+        await matchRepository.RemoveAsync(matchId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Match>> GetAllMatchesAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Match>> GetAllMatchesAsync(CancellationToken cancellationToken = default)
     {
-        return await matchRepository.GetAllAsync(ct).ConfigureAwait(false);
+        return await matchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Match>> GetByCompanyIdAsync(int companyId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Match>> GetByCompanyIdAsync(int companyId, CancellationToken cancellationToken = default)
     {
         var companyJobIds = new HashSet<int>();
-        foreach (var job in await jobService.GetByCompanyIdAsync(companyId, ct).ConfigureAwait(false))
+        foreach (var job in await jobService.GetByCompanyIdAsync(companyId, cancellationToken).ConfigureAwait(false))
         {
             companyJobIds.Add(job.JobId);
         }
@@ -94,7 +94,7 @@ public class MatchService : IMatchService
         }
 
         var matches = new List<Match>();
-        foreach (var match in await matchRepository.GetAllAsync(ct).ConfigureAwait(false))
+        foreach (var match in await matchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false))
         {
             if (companyJobIds.Contains(match.JobId))
             {
@@ -107,9 +107,9 @@ public class MatchService : IMatchService
         return matches;
     }
 
-    public async Task SubmitDecisionAsync(int matchId, MatchStatus decision, string feedback, CancellationToken ct = default)
+    public async Task SubmitDecisionAsync(int matchId, MatchStatus decision, string feedback, CancellationToken cancellationToken = default)
     {
-        var match = await matchRepository.GetByIdAsync(matchId, ct).ConfigureAwait(false)
+        var match = await matchRepository.GetByIdAsync(matchId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Match with id {matchId} was not found.");
 
         ValidateDecisionInput(decision, feedback);
@@ -123,22 +123,22 @@ public class MatchService : IMatchService
         match.Status = decision;
         match.FeedbackMessage = feedback.Trim();
         match.Timestamp = DateTime.UtcNow;
-        await matchRepository.UpdateAsync(match, ct).ConfigureAwait(false);
+        await matchRepository.UpdateAsync(match, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task AcceptAsync(int matchId, string feedback, CancellationToken ct = default)
+    public async Task AcceptAsync(int matchId, string feedback, CancellationToken cancellationToken = default)
     {
-        await SubmitDecisionAsync(matchId, MatchStatus.Accepted, feedback, ct).ConfigureAwait(false);
+        await SubmitDecisionAsync(matchId, MatchStatus.Accepted, feedback, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RejectAsync(int matchId, string feedback, CancellationToken ct = default)
+    public async Task RejectAsync(int matchId, string feedback, CancellationToken cancellationToken = default)
     {
-        await SubmitDecisionAsync(matchId, MatchStatus.Rejected, feedback, ct).ConfigureAwait(false);
+        await SubmitDecisionAsync(matchId, MatchStatus.Rejected, feedback, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task AdvanceAsync(int matchId, CancellationToken ct = default)
+    public async Task AdvanceAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        var match = await matchRepository.GetByIdAsync(matchId, ct).ConfigureAwait(false)
+        var match = await matchRepository.GetByIdAsync(matchId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Match with id {matchId} was not found.");
 
         if (match.Status != MatchStatus.Applied)
@@ -149,18 +149,18 @@ public class MatchService : IMatchService
 
         match.Status = MatchStatus.Advanced;
         match.Timestamp = DateTime.UtcNow;
-        await matchRepository.UpdateAsync(match, ct).ConfigureAwait(false);
+        await matchRepository.UpdateAsync(match, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RevertToAppliedAsync(int matchId, CancellationToken ct = default)
+    public async Task RevertToAppliedAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        var match = await matchRepository.GetByIdAsync(matchId, ct).ConfigureAwait(false)
+        var match = await matchRepository.GetByIdAsync(matchId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Match with id {matchId} was not found.");
 
         match.Status = MatchStatus.Applied;
         match.FeedbackMessage = string.Empty;
         match.Timestamp = DateTime.UtcNow;
-        await matchRepository.UpdateAsync(match, ct).ConfigureAwait(false);
+        await matchRepository.UpdateAsync(match, cancellationToken).ConfigureAwait(false);
     }
 
     public bool IsDecisionTransitionAllowed(Match current, MatchStatus next)

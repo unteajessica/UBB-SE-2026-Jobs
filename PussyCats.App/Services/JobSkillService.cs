@@ -12,33 +12,33 @@ public class JobSkillService : IJobSkillService
         this.jobSkillRepository = jobSkillRepository;
     }
 
-    public async Task<JobSkill?> GetByIdAsync(int jobId, int skillId, CancellationToken ct = default)
+    public async Task<JobSkill?> GetByIdAsync(int jobId, int skillId, CancellationToken cancellationToken = default)
     {
-        return await jobSkillRepository.GetAsync(jobId, skillId, ct).ConfigureAwait(false);
+        return await jobSkillRepository.GetAsync(jobId, skillId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await jobSkillRepository.GetAllAsync(ct).ConfigureAwait(false);
+        return await jobSkillRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<JobSkill>> GetByJobIdAsync(int jobId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<JobSkill>> GetByJobIdAsync(int jobId, CancellationToken cancellationToken = default)
     {
-        return await jobSkillRepository.GetByJobIdAsync(jobId, ct).ConfigureAwait(false);
+        return await jobSkillRepository.GetByJobIdAsync(jobId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<JobSkill> AddAsync(JobSkill jobSkill, CancellationToken ct = default)
+    public async Task<JobSkill> AddAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
-        return await jobSkillRepository.AddAsync(jobSkill, ct).ConfigureAwait(false);
+        return await jobSkillRepository.AddAsync(jobSkill, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(JobSkill jobSkill, CancellationToken ct = default)
+    public async Task UpdateAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
-        await jobSkillRepository.UpdateAsync(jobSkill, ct).ConfigureAwait(false);
+        await jobSkillRepository.UpdateAsync(jobSkill, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int jobId, int skillId, CancellationToken ct = default)
+    public async Task RemoveAsync(int jobId, int skillId, CancellationToken cancellationToken = default)
     {
-        await jobSkillRepository.RemoveAsync(jobId, skillId, ct).ConfigureAwait(false);
+        await jobSkillRepository.RemoveAsync(jobId, skillId, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -16,30 +16,30 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var document = await documents.GetByIdAsync(id, ct);
+        var document = await documents.GetByIdAsync(id, cancellationToken);
         return document is null ? NotFound() : Ok(document);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken ct)
-        => Ok(await documents.GetByUserIdAsync(userId, ct));
+    public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken cancellationToken)
+        => Ok(await documents.GetByUserIdAsync(userId, cancellationToken));
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Document document, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Document document, CancellationToken cancellationToken)
     {
         document.DocumentId = 0;
-        var saved = await documents.AddAsync(document, ct);
+        var saved = await documents.AddAsync(document, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.DocumentId }, saved);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Remove(int id, CancellationToken ct)
+    public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {
-        if (await documents.GetByIdAsync(id, ct) is null)
+        if (await documents.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await documents.RemoveAsync(id, ct);
+        await documents.RemoveAsync(id, cancellationToken);
         return NoContent();
     }
 }

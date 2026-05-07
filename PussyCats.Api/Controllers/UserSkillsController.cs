@@ -16,54 +16,54 @@ public class UserSkillsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetByUserId(int userId, CancellationToken ct)
-        => Ok(await userSkills.GetByUserIdAsync(userId, ct));
+    public async Task<IActionResult> GetByUserId(int userId, CancellationToken cancellationToken)
+        => Ok(await userSkills.GetByUserIdAsync(userId, cancellationToken));
 
     [HttpGet("verified")]
-    public async Task<IActionResult> GetVerifiedByUserId(int userId, CancellationToken ct)
-        => Ok(await userSkills.GetVerifiedByUserIdAsync(userId, ct));
+    public async Task<IActionResult> GetVerifiedByUserId(int userId, CancellationToken cancellationToken)
+        => Ok(await userSkills.GetVerifiedByUserIdAsync(userId, cancellationToken));
 
     [HttpGet("{skillId}")]
-    public async Task<IActionResult> GetBySkillId(int userId, int skillId, CancellationToken ct)
+    public async Task<IActionResult> GetBySkillId(int userId, int skillId, CancellationToken cancellationToken)
     {
-        var userSkill = await userSkills.GetAsync(userId, skillId, ct);
+        var userSkill = await userSkills.GetAsync(userId, skillId, cancellationToken);
         return userSkill is null ? NotFound() : Ok(userSkill);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(int userId, [FromBody] UserSkill userSkill, CancellationToken ct)
+    public async Task<IActionResult> Add(int userId, [FromBody] UserSkill userSkill, CancellationToken cancellationToken)
     {
         userSkill.UserId = userId;
-        var saved = await userSkills.AddAsync(userSkill, ct);
+        var saved = await userSkills.AddAsync(userSkill, cancellationToken);
         return CreatedAtAction(nameof(GetBySkillId), new { userId, skillId = saved.SkillId }, saved);
     }
 
     [HttpPut("{skillId}")]
-    public async Task<IActionResult> Update(int userId, int skillId, [FromBody] UserSkill userSkill, CancellationToken ct)
+    public async Task<IActionResult> Update(int userId, int skillId, [FromBody] UserSkill userSkill, CancellationToken cancellationToken)
     {
-        if (await userSkills.GetAsync(userId, skillId, ct) is null)
+        if (await userSkills.GetAsync(userId, skillId, cancellationToken) is null)
             return NotFound();
         userSkill.UserId = userId;
         userSkill.SkillId = skillId;
-        await userSkills.UpdateAsync(userSkill, ct);
+        await userSkills.UpdateAsync(userSkill, cancellationToken);
         return NoContent();
     }
 
     [HttpPatch("{skillId}/score")]
-    public async Task<IActionResult> UpdateScore(int userId, int skillId, [FromBody] UpdateScoreRequest body, CancellationToken ct)
+    public async Task<IActionResult> UpdateScore(int userId, int skillId, [FromBody] UpdateScoreRequest body, CancellationToken cancellationToken)
     {
-        if (await userSkills.GetAsync(userId, skillId, ct) is null)
+        if (await userSkills.GetAsync(userId, skillId, cancellationToken) is null)
             return NotFound();
-        await userSkills.UpdateScoreAsync(userId, skillId, body.Score, ct);
+        await userSkills.UpdateScoreAsync(userId, skillId, body.Score, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{skillId}")]
-    public async Task<IActionResult> Remove(int userId, int skillId, CancellationToken ct)
+    public async Task<IActionResult> Remove(int userId, int skillId, CancellationToken cancellationToken)
     {
-        if (await userSkills.GetAsync(userId, skillId, ct) is null)
+        if (await userSkills.GetAsync(userId, skillId, cancellationToken) is null)
             return NotFound();
-        await userSkills.RemoveAsync(userId, skillId, ct);
+        await userSkills.RemoveAsync(userId, skillId, cancellationToken);
         return NoContent();
     }
 

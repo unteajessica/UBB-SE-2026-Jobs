@@ -10,12 +10,12 @@ public class QuestionRepositoryProxy : IQuestionRepository
         _ = http;
     }
 
-    public Task<Question?> GetByIdAsync(int questionId, CancellationToken ct = default)
+    public Task<Question?> GetByIdAsync(int questionId, CancellationToken cancellationToken = default)
     {
         throw new NotSupportedException("Questions are hardcoded in PersonalityTestService; see MergePlan.md section 4.");
     }
 
-    public Task<IReadOnlyList<Question>> GetAllOrderedAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<Question>> GetAllOrderedAsync(CancellationToken cancellationToken = default)
     {
         throw new NotSupportedException("Questions are hardcoded in PersonalityTestService; see MergePlan.md section 4.");
     }

@@ -20,14 +20,14 @@ public sealed partial class CompatibilityDetailPage : Page
         viewModel = App.Services.GetRequiredService<CompatibilityDetailViewModel>();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
-        if (e.Parameter is RoleResult result)
+        base.OnNavigatedTo(eventArguments);
+        if (eventArguments.Parameter is RoleResult result)
             viewModel.LoadResult(result);
     }
 
-    private void Page_Loaded(object sender, RoutedEventArgs e)
+    private void Page_Loaded(object sender, RoutedEventArgs eventArguments)
     {
         roleNameLabel.Text = viewModel.GetRoleName();
         var score = viewModel.GetMatchScore();
@@ -59,7 +59,7 @@ public sealed partial class CompatibilityDetailPage : Page
         noSuggestionsLabel.Visibility = Visibility.Collapsed;
     }
 
-    private void ButtonBack_Click(object sender, RoutedEventArgs e)
+    private void ButtonBack_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (Frame.CanGoBack) Frame.GoBack();
     }

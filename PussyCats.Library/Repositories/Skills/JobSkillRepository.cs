@@ -6,30 +6,30 @@ namespace PussyCats.Library.Repositories.Skills;
 
 public class JobSkillRepository : IJobSkillRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public JobSkillRepository(PussyCatsDbContext db)
+    public JobSkillRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
     /// Tracked single-row lookup keyed by (JobId, SkillId). Includes Skill so the caller can
     /// render the catalog name without a second query.
     /// </summary>
-    public async Task<JobSkill?> GetAsync(int jobId, int skillId, CancellationToken ct = default)
+    public async Task<JobSkill?> GetAsync(int jobId, int skillId, CancellationToken cancellationToken = default)
     {
-        return await db.JobSkills
-            .Include(s => s.Skill)
-            .FirstOrDefaultAsync(s => s.JobId == jobId && s.SkillId == skillId, ct)
+        return await databaseContext.JobSkills
+            .Include(skill => skill.Skill)
+            .FirstOrDefaultAsync(skill => skill.JobId == jobId && skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<JobSkill>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await db.JobSkills
+        return await databaseContext.JobSkills
             .AsNoTracking()
-            .ToListAsync(ct)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -37,37 +37,37 @@ public class JobSkillRepository : IJobSkillRepository
     /// Original: matchmaking JobSkillRepository.GetByJobId — straight predicate port. Read-only,
     /// includes Skill.
     /// </summary>
-    public async Task<IReadOnlyList<JobSkill>> GetByJobIdAsync(int jobId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<JobSkill>> GetByJobIdAsync(int jobId, CancellationToken cancellationToken = default)
     {
-        return await db.JobSkills
+        return await databaseContext.JobSkills
             .AsNoTracking()
-            .Include(s => s.Skill)
-            .Where(s => s.JobId == jobId)
-            .ToListAsync(ct)
+            .Include(skill => skill.Skill)
+            .Where(skill => skill.JobId == jobId)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<JobSkill> AddAsync(JobSkill jobSkill, CancellationToken ct = default)
+    public async Task<JobSkill> AddAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
-        db.JobSkills.Add(jobSkill);
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        databaseContext.JobSkills.Add(jobSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return jobSkill;
     }
 
-    public async Task UpdateAsync(JobSkill jobSkill, CancellationToken ct = default)
+    public async Task UpdateAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
-        db.JobSkills.Update(jobSkill);
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        databaseContext.JobSkills.Update(jobSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int jobId, int skillId, CancellationToken ct = default)
+    public async Task RemoveAsync(int jobId, int skillId, CancellationToken cancellationToken = default)
     {
-        var jobSkill = await db.JobSkills.FindAsync(new object?[] { jobId, skillId }, ct).ConfigureAwait(false);
+        var jobSkill = await databaseContext.JobSkills.FindAsync(new object?[] { jobId, skillId }, cancellationToken).ConfigureAwait(false);
         if (jobSkill is null)
         {
             return;
         }
-        db.JobSkills.Remove(jobSkill);
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        databaseContext.JobSkills.Remove(jobSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

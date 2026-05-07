@@ -12,19 +12,19 @@ public class UserSkillConfiguration : IEntityTypeConfiguration<UserSkill>
 
         // Composite natural key (UserId, SkillId) — there is no single surrogate id, and the
         // unique-composite-index requirement collapses naturally into the primary key.
-        builder.HasKey(s => new { s.UserId, s.SkillId });
+        builder.HasKey(skill => new { skill.UserId, skill.SkillId });
 
         // Cascade on User -> UserSkill (configured on UserConfiguration). When a user is hard
         // deleted (rare — soft delete is preferred), their per-skill scores go with them.
         // Restrict on Skill -> UserSkill: the catalog is foundational, you can't drop a skill
         // that users still claim. Retire via IsActive instead in a future phase.
-        builder.HasOne(s => s.Skill)
+        builder.HasOne(skill => skill.Skill)
             .WithMany()
-            .HasForeignKey(s => s.SkillId)
+            .HasForeignKey(skill => skill.SkillId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Useful filters: (UserId) is covered by the PK; SkillId still needs its own index for
         // "who has this skill?" lookups (applicant search by skill).
-        builder.HasIndex(s => s.SkillId);
+        builder.HasIndex(skill => skill.SkillId);
     }
 }

@@ -4,13 +4,13 @@ namespace PussyCats.Library.Repositories.Companies;
 
 public interface ICompanyRepository
 {
-    Task<Company?> GetByIdAsync(int companyId, CancellationToken ct = default);
+    Task<Company?> GetByIdAsync(int companyId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<Company> AddAsync(Company company, CancellationToken ct = default);
+    Task<Company> AddAsync(Company company, CancellationToken cancellationToken = default);
 
-    Task UpdateAsync(Company company, CancellationToken ct = default);
+    Task UpdateAsync(Company company, CancellationToken cancellationToken = default);
 
-    Task RemoveAsync(int companyId, CancellationToken ct = default);
+    Task RemoveAsync(int companyId, CancellationToken cancellationToken = default);
 }

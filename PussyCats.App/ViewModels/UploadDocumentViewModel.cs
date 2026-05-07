@@ -57,7 +57,7 @@ public class UploadDocumentViewModel : DispatchableObservableObject
         return true;
     }
 
-    public async Task UploadDocumentAsync(CancellationToken ct = default)
+    public async Task UploadDocumentAsync(CancellationToken cancellationToken = default)
     {
         if (!ValidateDocumentInput())
         {
@@ -70,7 +70,7 @@ public class UploadDocumentViewModel : DispatchableObservableObject
             DocumentName = DocumentName.Trim(),
         };
 
-        await documentService.UploadDocumentAsync(document, SelectedFilePath, ct).ConfigureAwait(false);
+        await documentService.UploadDocumentAsync(document, SelectedFilePath, cancellationToken).ConfigureAwait(false);
     }
 
     public string GetDocumentName() => DocumentName;

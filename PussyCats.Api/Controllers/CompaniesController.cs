@@ -19,48 +19,48 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
-        => Ok(await companies.GetAllAsync(ct));
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        => Ok(await companies.GetAllAsync(cancellationToken));
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var company = await companies.GetByIdAsync(id, ct);
+        var company = await companies.GetByIdAsync(id, cancellationToken);
         return company is null ? NotFound() : Ok(company);
     }
 
     [HttpGet("{id}/jobs")]
-    public async Task<IActionResult> GetJobs(int id, CancellationToken ct)
+    public async Task<IActionResult> GetJobs(int id, CancellationToken cancellationToken)
     {
-        if (await companies.GetByIdAsync(id, ct) is null)
+        if (await companies.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        return Ok(await jobs.GetByCompanyIdAsync(id, ct));
+        return Ok(await jobs.GetByCompanyIdAsync(id, cancellationToken));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Company company, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] Company company, CancellationToken cancellationToken)
     {
         company.CompanyId = 0;
-        var saved = await companies.AddAsync(company, ct);
+        var saved = await companies.AddAsync(company, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.CompanyId }, saved);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Company company, CancellationToken ct)
+    public async Task<IActionResult> Update(int id, [FromBody] Company company, CancellationToken cancellationToken)
     {
-        if (await companies.GetByIdAsync(id, ct) is null)
+        if (await companies.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
         company.CompanyId = id;
-        await companies.UpdateAsync(company, ct);
+        await companies.UpdateAsync(company, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Remove(int id, CancellationToken ct)
+    public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {
-        if (await companies.GetByIdAsync(id, ct) is null)
+        if (await companies.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await companies.RemoveAsync(id, ct);
+        await companies.RemoveAsync(id, cancellationToken);
         return NoContent();
     }
 }

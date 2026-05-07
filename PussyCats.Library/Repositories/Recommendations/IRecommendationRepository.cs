@@ -4,13 +4,13 @@ namespace PussyCats.Library.Repositories.Recommendations;
 
 public interface IRecommendationRepository
 {
-    Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken ct = default);
+    Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken ct = default);
+    Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default);
 
-    Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken ct = default);
+    Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken cancellationToken = default);
 
-    Task RemoveAsync(int recommendationId, CancellationToken ct = default);
+    Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default);
 }

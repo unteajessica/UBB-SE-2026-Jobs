@@ -30,26 +30,26 @@ public class DocumentListViewModel : DispatchableObservableObject
         private set => SetProperty(ref statusMessage, value);
     }
 
-    public async Task LoadDocumentsAsync(CancellationToken ct = default)
+    public async Task LoadDocumentsAsync(CancellationToken cancellationToken = default)
     {
         Documents = (await documentService
-            .GetDocumentsByUserIdAsync(ViewModelSupport.ResolveUserId(session), ct)
+            .GetDocumentsByUserIdAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
             .ConfigureAwait(false)).ToList();
     }
 
     public List<Document> GetDocuments() => Documents;
 
-    public async Task DeleteDocumentAsync(int documentId, CancellationToken ct = default)
+    public async Task DeleteDocumentAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        await documentService.DeleteDocumentAsync(documentId, ct).ConfigureAwait(false);
-        await LoadDocumentsAsync(ct).ConfigureAwait(false);
+        await documentService.DeleteDocumentAsync(documentId, cancellationToken).ConfigureAwait(false);
+        await LoadDocumentsAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<string?> GetResolvedFilePathAsync(int documentId, CancellationToken ct = default)
+    public async Task<string?> GetResolvedFilePathAsync(int documentId, CancellationToken cancellationToken = default)
     {
         try
         {
-            var fullPath = await documentService.GetDocumentAbsolutePathAsync(documentId, ct).ConfigureAwait(false);
+            var fullPath = await documentService.GetDocumentAbsolutePathAsync(documentId, cancellationToken).ConfigureAwait(false);
             StatusMessage = string.Empty;
             return fullPath;
         }

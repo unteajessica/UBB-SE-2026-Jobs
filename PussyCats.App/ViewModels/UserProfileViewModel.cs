@@ -85,7 +85,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         private set => SetProperty(ref totalExperiencePoints, value);
     }
 
-    public async Task RecalculateLevelAsync(CancellationToken ct = default)
+    public async Task RecalculateLevelAsync(CancellationToken cancellationToken = default)
     {
         if (UserProfile is null)
         {
@@ -94,7 +94,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
 
         try
         {
-            TotalExperiencePoints = await profileService.RecalculateLevelAsync(UserProfile, ct).ConfigureAwait(false);
+            TotalExperiencePoints = await profileService.RecalculateLevelAsync(UserProfile, cancellationToken).ConfigureAwait(false);
             LevelUpdated?.Invoke();
         }
         catch (Exception exception)
@@ -103,7 +103,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         }
     }
 
-    public async Task LoadUserAsync(int? userId = null, CancellationToken ct = default)
+    public async Task LoadUserAsync(int? userId = null, CancellationToken cancellationToken = default)
     {
         ErrorMessage = string.Empty;
         IsLoading = true;
@@ -111,7 +111,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         try
         {
             var resolvedUserId = userId ?? ViewModelSupport.ResolveUserId(session);
-            UserProfile = await profileService.GetProfileAsync(resolvedUserId, ct).ConfigureAwait(false);
+            UserProfile = await profileService.GetProfileAsync(resolvedUserId, cancellationToken).ConfigureAwait(false);
 
             if (UserProfile is not null)
             {
@@ -130,7 +130,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         }
     }
 
-    public async Task ToggleAccountStatusAsync(CancellationToken ct = default)
+    public async Task ToggleAccountStatusAsync(CancellationToken cancellationToken = default)
     {
         if (UserProfile is null)
         {
@@ -138,12 +138,12 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         }
 
         var newStatus = !UserProfile.ActiveAccount;
-        await profileService.UpdateAccountStatusAsync(UserProfile.UserId, newStatus, ct).ConfigureAwait(false);
+        await profileService.UpdateAccountStatusAsync(UserProfile.UserId, newStatus, cancellationToken).ConfigureAwait(false);
         UserProfile.ActiveAccount = newStatus;
         OnPropertyChanged(nameof(UserProfile));
     }
 
-    public async Task UploadAvatarAsync(Stream fileStream, string fileName, CancellationToken ct = default)
+    public async Task UploadAvatarAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default)
     {
         if (UserProfile is null)
         {
@@ -153,7 +153,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         try
         {
             var newPath = imageStorageService.SaveImage(fileStream, fileName);
-            await profileService.UpdateProfilePicturePathAsync(UserProfile.UserId, newPath, ct).ConfigureAwait(false);
+            await profileService.UpdateProfilePicturePathAsync(UserProfile.UserId, newPath, cancellationToken).ConfigureAwait(false);
             UserProfile.ProfilePicturePath = newPath;
             OnPropertyChanged(nameof(UserProfile));
         }
@@ -163,7 +163,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         }
     }
 
-    public async Task RemoveAvatarAsync(CancellationToken ct = default)
+    public async Task RemoveAvatarAsync(CancellationToken cancellationToken = default)
     {
         if (UserProfile is null || string.IsNullOrEmpty(UserProfile.ProfilePicturePath))
         {
@@ -171,7 +171,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
         }
 
         imageStorageService.DeleteImage(UserProfile.ProfilePicturePath);
-        await profileService.RemoveProfilePicturePathAsync(UserProfile.UserId, ct).ConfigureAwait(false);
+        await profileService.RemoveProfilePicturePathAsync(UserProfile.UserId, cancellationToken).ConfigureAwait(false);
         UserProfile.ProfilePicturePath = string.Empty;
         OnPropertyChanged(nameof(UserProfile));
     }

@@ -21,20 +21,20 @@ public sealed partial class CompanyRecommendationPage : Page
         Loaded += OnLoaded;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.LoadApplicantsAsync();
         UpdateView();
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs eventArguments)
     {
-        if (e.PropertyName is nameof(CompanyRecommendationViewModel.IsLoading)
+        if (eventArguments.PropertyName is nameof(CompanyRecommendationViewModel.IsLoading)
                            or nameof(CompanyRecommendationViewModel.HasApplicant)
                            or nameof(CompanyRecommendationViewModel.IsExpanded)
                            or nameof(CompanyRecommendationViewModel.CanUndo)
@@ -44,37 +44,37 @@ public sealed partial class CompanyRecommendationPage : Page
         }
     }
 
-    private async void OnAdvanceClick(object sender, RoutedEventArgs e)
+    private async void OnAdvanceClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.AdvanceApplicantAsync();
         UpdateView();
     }
 
-    private async void OnSkipClick(object sender, RoutedEventArgs e)
+    private async void OnSkipClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.SkipApplicantAsync();
         UpdateView();
     }
 
-    private async void OnUndoClick(object sender, RoutedEventArgs e)
+    private async void OnUndoClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.UndoLastActionAsync();
         UpdateView();
     }
 
-    private async void OnExpandClick(object sender, RoutedEventArgs e)
+    private async void OnExpandClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.ExpandCardAsync();
         UpdateView();
     }
 
-    private void OnCollapseClick(object sender, RoutedEventArgs e)
+    private void OnCollapseClick(object sender, RoutedEventArgs eventArguments)
     {
         viewModel.CollapseCard();
         UpdateView();
     }
 
-    private async void OnRefreshClick(object sender, RoutedEventArgs e)
+    private async void OnRefreshClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.LoadApplicantsAsync();
         UpdateView();

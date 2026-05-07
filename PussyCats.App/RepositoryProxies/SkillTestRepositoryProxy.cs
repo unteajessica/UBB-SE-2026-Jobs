@@ -13,45 +13,45 @@ public class SkillTestRepositoryProxy : ISkillTestRepository
         this.http = http;
     }
 
-    public async Task<SkillTest?> GetByIdAsync(int skillTestId, CancellationToken ct = default)
+    public async Task<SkillTest?> GetByIdAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetOrNullAsync<SkillTest>(http, $"api/skill-tests/{skillTestId}", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetOrNullAsync<SkillTest>(http, $"api/skill-tests/{skillTestId}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<SkillTest>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<SkillTest>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<SkillTest>(http, $"api/skill-tests?userId={userId}", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<SkillTest>(http, $"api/skill-tests?userId={userId}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<SkillTest> AddAsync(SkillTest skillTest, CancellationToken ct = default)
+    public async Task<SkillTest> AddAsync(SkillTest skillTest, CancellationToken cancellationToken = default)
     {
-        using var response = await http.PostAsJsonAsync("api/skill-tests", skillTest, RepositoryProxyJson.Options, ct).ConfigureAwait(false);
-        return await RepositoryProxyJson.ReadRequiredAsync<SkillTest>(response, ct).ConfigureAwait(false);
+        using var response = await http.PostAsJsonAsync("api/skill-tests", skillTest, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
+        return await RepositoryProxyJson.ReadRequiredAsync<SkillTest>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateScoreAsync(int skillTestId, int score, CancellationToken ct = default)
+    public async Task UpdateScoreAsync(int skillTestId, int score, CancellationToken cancellationToken = default)
     {
         using var response = await http.PatchAsJsonAsync(
             $"api/skill-tests/{skillTestId}/score",
             new { score },
             RepositoryProxyJson.Options,
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public async Task UpdateAchievedDateAsync(int skillTestId, DateOnly achievedDate, CancellationToken ct = default)
+    public async Task UpdateAchievedDateAsync(int skillTestId, DateOnly achievedDate, CancellationToken cancellationToken = default)
     {
         using var response = await http.PatchAsJsonAsync(
             $"api/skill-tests/{skillTestId}/date",
             new { achievedDate },
             RepositoryProxyJson.Options,
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int skillTestId, CancellationToken ct = default)
+    public async Task RemoveAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        using var response = await http.DeleteAsync($"api/skill-tests/{skillTestId}", ct).ConfigureAwait(false);
+        using var response = await http.DeleteAsync($"api/skill-tests/{skillTestId}", cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 }

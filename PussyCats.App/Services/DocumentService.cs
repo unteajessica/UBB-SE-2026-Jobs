@@ -15,12 +15,12 @@ public class DocumentService : IDocumentService
         this.fileStorage = fileStorage;
     }
 
-    public async Task<IReadOnlyList<Document>> GetDocumentsByUserIdAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Document>> GetDocumentsByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await documentRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        return await documentRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Document> UploadDocumentAsync(Document document, string filePath, CancellationToken ct = default)
+    public async Task<Document> UploadDocumentAsync(Document document, string filePath, CancellationToken cancellationToken = default)
     {
         string extension = Path.GetExtension(filePath);
 
@@ -36,12 +36,12 @@ public class DocumentService : IDocumentService
         document.FilePath = relativePath;
         document.UploadDate = DateTime.Now;
 
-        return await documentRepository.AddAsync(document, ct).ConfigureAwait(false);
+        return await documentRepository.AddAsync(document, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task DeleteDocumentAsync(int documentId, CancellationToken ct = default)
+    public async Task DeleteDocumentAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        var document = await documentRepository.GetByIdAsync(documentId, ct).ConfigureAwait(false);
+        var document = await documentRepository.GetByIdAsync(documentId, cancellationToken).ConfigureAwait(false);
 
         if (document is null)
         {
@@ -53,12 +53,12 @@ public class DocumentService : IDocumentService
             fileStorage.DeleteFile(document.FilePath);
         }
 
-        await documentRepository.RemoveAsync(documentId, ct).ConfigureAwait(false);
+        await documentRepository.RemoveAsync(documentId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<string> GetDocumentAbsolutePathAsync(int documentId, CancellationToken ct = default)
+    public async Task<string> GetDocumentAbsolutePathAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        var document = await documentRepository.GetByIdAsync(documentId, ct).ConfigureAwait(false);
+        var document = await documentRepository.GetByIdAsync(documentId, cancellationToken).ConfigureAwait(false);
 
         if (document is null)
         {

@@ -13,13 +13,13 @@ public class SkillGroupRepositoryProxy : ISkillGroupRepository
         this.http = http;
     }
 
-    public async Task<IReadOnlyList<SkillGroup>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<SkillGroup>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<SkillGroup>(http, "api/skill-groups", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<SkillGroup>(http, "api/skill-groups", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<SkillGroup>> GetByJobRoleAsync(JobRole jobRole, CancellationToken ct = default)
+    public async Task<IReadOnlyList<SkillGroup>> GetByJobRoleAsync(JobRole jobRole, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<SkillGroup>(http, $"api/skill-groups?jobRole={jobRole}", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<SkillGroup>(http, $"api/skill-groups?jobRole={jobRole}", cancellationToken).ConfigureAwait(false);
     }
 }

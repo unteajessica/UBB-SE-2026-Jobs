@@ -9,12 +9,12 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
     public void Configure(EntityTypeBuilder<Company> builder)
     {
         builder.ToTable("Companies");
-        builder.HasKey(c => c.CompanyId);
+        builder.HasKey(company => company.CompanyId);
 
-        builder.Property(c => c.CompanyName).HasMaxLength(200).IsRequired();
-        builder.Property(c => c.LogoText).HasMaxLength(20);
-        builder.Property(c => c.Email).HasMaxLength(256);
-        builder.Property(c => c.Phone).HasMaxLength(40);
+        builder.Property(company => company.CompanyName).HasMaxLength(200).IsRequired();
+        builder.Property(company => company.LogoText).HasMaxLength(20);
+        builder.Property(company => company.Email).HasMaxLength(256);
+        builder.Property(company => company.Phone).HasMaxLength(40);
 
         // Company -> Job is configured from the Job side as Restrict — deleting a company should
         // not silently nuke its postings; archive instead.

@@ -9,15 +9,15 @@ public class ExtraCurricularActivityConfiguration : IEntityTypeConfiguration<Ext
     public void Configure(EntityTypeBuilder<ExtraCurricularActivity> builder)
     {
         builder.ToTable("ExtraCurricularActivities");
-        builder.HasKey(a => a.ExtraCurricularActivityId);
+        builder.HasKey(activity => activity.ExtraCurricularActivityId);
 
-        builder.Property(a => a.ActivityName).HasMaxLength(200);
-        builder.Property(a => a.Organization).HasMaxLength(200);
-        builder.Property(a => a.Role).HasMaxLength(200);
-        builder.Property(a => a.Period).HasMaxLength(100);
-        builder.Property(a => a.Description).HasMaxLength(2000);
+        builder.Property(activity => activity.ActivityName).HasMaxLength(200);
+        builder.Property(activity => activity.Organization).HasMaxLength(200);
+        builder.Property(activity => activity.Role).HasMaxLength(200);
+        builder.Property(activity => activity.Period).HasMaxLength(100);
+        builder.Property(activity => activity.Description).HasMaxLength(2000);
 
         // Cascade configured on UserConfiguration (User -> ExtraCurricularActivities).
-        builder.HasIndex(a => a.UserId);
+        builder.HasIndex(activity => activity.UserId);
     }
 }

@@ -23,24 +23,24 @@ public sealed partial class DocumentsPage : Page
         uploadViewModel = App.Services.GetRequiredService<UploadDocumentViewModel>();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
         LoadGrid();
     }
 
     private async void LoadGrid()
     {
         await listViewModel.LoadDocumentsAsync();
-        var docs = listViewModel.GetDocuments();
-        listViewDocuments.ItemsSource = docs;
-        noDocumentsLabel.Visibility = docs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var documents = listViewModel.GetDocuments();
+        listViewDocuments.ItemsSource = documents;
+        noDocumentsLabel.Visibility = documents.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void OnDocumentNameChanged(object sender, TextChangedEventArgs e)
+    private void OnDocumentNameChanged(object sender, TextChangedEventArgs eventArguments)
         => uploadViewModel.SetDocumentName(txtDocumentName.Text);
 
-    private async void OnBrowseClick(object sender, RoutedEventArgs e)
+    private async void OnBrowseClick(object sender, RoutedEventArgs eventArguments)
     {
         var picker = new FileOpenPicker();
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(App.MainAppWindow);
@@ -58,7 +58,7 @@ public sealed partial class DocumentsPage : Page
         selectedFileLabel.Text = file.Name;
     }
 
-    private async void OnUploadClick(object sender, RoutedEventArgs e)
+    private async void OnUploadClick(object sender, RoutedEventArgs eventArguments)
     {
         uploadErrorLabel.Visibility = Visibility.Collapsed;
         try
@@ -85,7 +85,7 @@ public sealed partial class DocumentsPage : Page
         }
     }
 
-    private async void OnDeleteClick(object sender, RoutedEventArgs e)
+    private async void OnDeleteClick(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is not Button { Tag: Document doc }) return;
 
@@ -112,7 +112,7 @@ public sealed partial class DocumentsPage : Page
         }
     }
 
-    private async void OnViewClick(object sender, RoutedEventArgs e)
+    private async void OnViewClick(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is not Button { Tag: Document doc }) return;
         statusLabel.Visibility = Visibility.Collapsed;

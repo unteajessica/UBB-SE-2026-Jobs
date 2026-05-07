@@ -16,45 +16,45 @@ public class JobSkillsController : ControllerBase
     }
 
     [HttpGet("/api/job-skills")]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
-        => Ok(await jobSkills.GetAllAsync(ct));
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        => Ok(await jobSkills.GetAllAsync(cancellationToken));
 
     [HttpGet]
-    public async Task<IActionResult> GetByJobId(int jobId, CancellationToken ct)
-        => Ok(await jobSkills.GetByJobIdAsync(jobId, ct));
+    public async Task<IActionResult> GetByJobId(int jobId, CancellationToken cancellationToken)
+        => Ok(await jobSkills.GetByJobIdAsync(jobId, cancellationToken));
 
     [HttpGet("{skillId}")]
-    public async Task<IActionResult> GetBySkillId(int jobId, int skillId, CancellationToken ct)
+    public async Task<IActionResult> GetBySkillId(int jobId, int skillId, CancellationToken cancellationToken)
     {
-        var jobSkill = await jobSkills.GetAsync(jobId, skillId, ct);
+        var jobSkill = await jobSkills.GetAsync(jobId, skillId, cancellationToken);
         return jobSkill is null ? NotFound() : Ok(jobSkill);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(int jobId, [FromBody] JobSkill jobSkill, CancellationToken ct)
+    public async Task<IActionResult> Add(int jobId, [FromBody] JobSkill jobSkill, CancellationToken cancellationToken)
     {
         jobSkill.JobId = jobId;
-        var saved = await jobSkills.AddAsync(jobSkill, ct);
+        var saved = await jobSkills.AddAsync(jobSkill, cancellationToken);
         return CreatedAtAction(nameof(GetBySkillId), new { jobId, skillId = saved.SkillId }, saved);
     }
 
     [HttpPut("{skillId}")]
-    public async Task<IActionResult> Update(int jobId, int skillId, [FromBody] JobSkill jobSkill, CancellationToken ct)
+    public async Task<IActionResult> Update(int jobId, int skillId, [FromBody] JobSkill jobSkill, CancellationToken cancellationToken)
     {
-        if (await jobSkills.GetAsync(jobId, skillId, ct) is null)
+        if (await jobSkills.GetAsync(jobId, skillId, cancellationToken) is null)
             return NotFound();
         jobSkill.JobId = jobId;
         jobSkill.SkillId = skillId;
-        await jobSkills.UpdateAsync(jobSkill, ct);
+        await jobSkills.UpdateAsync(jobSkill, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{skillId}")]
-    public async Task<IActionResult> Remove(int jobId, int skillId, CancellationToken ct)
+    public async Task<IActionResult> Remove(int jobId, int skillId, CancellationToken cancellationToken)
     {
-        if (await jobSkills.GetAsync(jobId, skillId, ct) is null)
+        if (await jobSkills.GetAsync(jobId, skillId, cancellationToken) is null)
             return NotFound();
-        await jobSkills.RemoveAsync(jobId, skillId, ct);
+        await jobSkills.RemoveAsync(jobId, skillId, cancellationToken);
         return NoContent();
     }
 }

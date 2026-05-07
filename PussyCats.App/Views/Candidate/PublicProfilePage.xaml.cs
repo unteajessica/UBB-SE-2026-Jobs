@@ -19,10 +19,10 @@ public sealed partial class PublicProfilePage : Page
         viewModel = App.Services.GetRequiredService<PublicProfileViewModel>();
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
-        var userId = e.Parameter is int id ? id : e.Parameter is User u ? u.UserId : 0;
+        base.OnNavigatedTo(eventArguments);
+        var userId = eventArguments.Parameter is int id ? id : eventArguments.Parameter is User user ? user.UserId : 0;
         if (userId == 0) return;
 
         await viewModel.LoadPublicProfileAsync(userId);

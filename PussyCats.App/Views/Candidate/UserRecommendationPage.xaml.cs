@@ -21,20 +21,20 @@ public sealed partial class UserRecommendationPage : Page
         Loaded += OnLoaded;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.InitializeAsync();
         UpdateView();
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs eventArguments)
     {
-        if (e.PropertyName is nameof(UserRecommendationViewModel.IsLoading)
+        if (eventArguments.PropertyName is nameof(UserRecommendationViewModel.IsLoading)
                            or nameof(UserRecommendationViewModel.CurrentJob)
                            or nameof(UserRecommendationViewModel.IsDetailOpen)
                            or nameof(UserRecommendationViewModel.CanUndo)
@@ -46,49 +46,49 @@ public sealed partial class UserRecommendationPage : Page
         }
     }
 
-    private async void OnApplyFiltersClick(object sender, RoutedEventArgs e)
+    private async void OnApplyFiltersClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.ApplyFiltersAsync();
         UpdateView();
     }
 
-    private void OnResetDraftFiltersClick(object sender, RoutedEventArgs e)
+    private void OnResetDraftFiltersClick(object sender, RoutedEventArgs eventArguments)
         => viewModel.ResetDraftFilters();
 
-    private void OnOpenFiltersClick(object sender, RoutedEventArgs e)
+    private void OnOpenFiltersClick(object sender, RoutedEventArgs eventArguments)
         => viewModel.IsFilterOpen = true;
 
-    private void OnRefreshClick(object sender, RoutedEventArgs e)
+    private void OnRefreshClick(object sender, RoutedEventArgs eventArguments)
     {
         viewModel.LoadRecommendationsAsync();
         UpdateView();
     }
 
-    private void OnExpandClick(object sender, RoutedEventArgs e)
+    private void OnExpandClick(object sender, RoutedEventArgs eventArguments)
     {
         viewModel.ExpandCard();
         UpdateView();
     }
 
-    private void OnCollapseClick(object sender, RoutedEventArgs e)
+    private void OnCollapseClick(object sender, RoutedEventArgs eventArguments)
     {
         viewModel.CollapseCard();
         UpdateView();
     }
 
-    private async void OnLikeClick(object sender, RoutedEventArgs e)
+    private async void OnLikeClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.LikeAsync();
         UpdateView();
     }
 
-    private async void OnDismissClick(object sender, RoutedEventArgs e)
+    private async void OnDismissClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.DismissAsync();
         UpdateView();
     }
 
-    private async void OnUndoClick(object sender, RoutedEventArgs e)
+    private async void OnUndoClick(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.UndoAsync();
         UpdateView();

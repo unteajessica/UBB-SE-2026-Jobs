@@ -35,9 +35,9 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         this.algorithm = algorithm;
     }
 
-    public async Task LoadApplicantsAsync(int companyId, CancellationToken ct = default)
+    public async Task LoadApplicantsAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        var companyJobs = await jobService.GetByCompanyIdAsync(companyId, ct).ConfigureAwait(false);
+        var companyJobs = await jobService.GetByCompanyIdAsync(companyId, cancellationToken).ConfigureAwait(false);
         var companyJobIds = GetJobIds(companyJobs);
 
         if (companyJobIds.Count == 0)
@@ -47,7 +47,7 @@ public class CompanyRecommendationService : ICompanyRecommendationService
             return;
         }
 
-        var allMatches = await matchService.GetAllMatchesAsync(ct).ConfigureAwait(false);
+        var allMatches = await matchService.GetAllMatchesAsync(cancellationToken).ConfigureAwait(false);
         var appliedMatches = new List<Match>();
         foreach (var match in allMatches)
         {
@@ -60,15 +60,15 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         var results = new List<UserApplicationResult>();
         foreach (var match in appliedMatches)
         {
-            var user = await userService.GetByIdAsync(match.UserId, ct).ConfigureAwait(false);
-            var job = await jobService.GetByIdAsync(match.JobId, ct).ConfigureAwait(false);
+            var user = await userService.GetByIdAsync(match.UserId, cancellationToken).ConfigureAwait(false);
+            var job = await jobService.GetByIdAsync(match.JobId, cancellationToken).ConfigureAwait(false);
             if (user is null || job is null)
             {
                 continue;
             }
 
-            var userSkills = await userSkillService.GetByUserIdAsync(user.UserId, ct).ConfigureAwait(false);
-            var jobSkills = await jobSkillService.GetByJobIdAsync(job.JobId, ct).ConfigureAwait(false);
+            var userSkills = await userSkillService.GetByUserIdAsync(user.UserId, cancellationToken).ConfigureAwait(false);
+            var jobSkills = await jobSkillService.GetByJobIdAsync(job.JobId, cancellationToken).ConfigureAwait(false);
 
             var score = algorithm.CalculateCompatibilityScore(user, job, userSkills, jobSkills);
 
@@ -113,9 +113,9 @@ public class CompanyRecommendationService : ICompanyRecommendationService
 
     public bool HasMore => currentIndex < queue.Count;
 
-    public async Task<CompatibilityBreakdown?> GetBreakdownAsync(UserApplicationResult applicant, CancellationToken ct = default)
+    public async Task<CompatibilityBreakdown?> GetBreakdownAsync(UserApplicationResult applicant, CancellationToken cancellationToken = default)
     {
-        var jobSkills = await jobSkillService.GetByJobIdAsync(applicant.Job.JobId, ct).ConfigureAwait(false);
+        var jobSkills = await jobSkillService.GetByJobIdAsync(applicant.Job.JobId, cancellationToken).ConfigureAwait(false);
 
         return algorithm.CalculateScoreBreakdown(
             applicant.User,

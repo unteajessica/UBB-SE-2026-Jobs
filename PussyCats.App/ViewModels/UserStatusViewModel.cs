@@ -61,7 +61,7 @@ public class UserStatusViewModel : DispatchableObservableObject
     public bool HasSidebarMissingSkills => SkillGapMissingSkills.Count > 0;
     public ICommand RefreshCommand { get; }
 
-    public async Task LoadMatchesAsync(CancellationToken ct = default)
+    public async Task LoadMatchesAsync(CancellationToken cancellationToken = default)
     {
         IsLoading = true;
         HasError = false;
@@ -71,10 +71,10 @@ public class UserStatusViewModel : DispatchableObservableObject
         try
         {
             var userId = ViewModelSupport.ResolveUserId(session);
-            var applications = await userStatusService.GetApplicationsForUserAsync(userId, ct).ConfigureAwait(false);
-            var summary = await skillGapService.GetSummaryAsync(userId, ct).ConfigureAwait(false);
-            var missingSkills = await skillGapService.GetMissingSkillsAsync(userId, ct).ConfigureAwait(false);
-            var underscoredSkills = await skillGapService.GetUnderscoredSkillsAsync(userId, ct).ConfigureAwait(false);
+            var applications = await userStatusService.GetApplicationsForUserAsync(userId, cancellationToken).ConfigureAwait(false);
+            var summary = await skillGapService.GetSummaryAsync(userId, cancellationToken).ConfigureAwait(false);
+            var missingSkills = await skillGapService.GetMissingSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
+            var underscoredSkills = await skillGapService.GetUnderscoredSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
 
             AppliedJobs.Clear();
             foreach (var application in applications)

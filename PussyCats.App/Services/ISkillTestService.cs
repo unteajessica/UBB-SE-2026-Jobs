@@ -4,11 +4,11 @@ namespace PussyCats.App.Services;
 
 public interface ISkillTestService
 {
-    Task<IReadOnlyList<SkillTest>> GetTestsForUserAsync(int userId, CancellationToken ct = default);
+    Task<IReadOnlyList<SkillTest>> GetTestsForUserAsync(int userId, CancellationToken cancellationToken = default);
 
-    Task<bool> CanRetakeTestAsync(int skillTestId, CancellationToken ct = default);
+    Task<bool> CanRetakeTestAsync(int skillTestId, CancellationToken cancellationToken = default);
 
-    Task<Badge> SubmitRetakeAsync(int skillTestId, int newScore, CancellationToken ct = default);
+    Task<Badge> SubmitRetakeAsync(int skillTestId, int newScore, CancellationToken cancellationToken = default);
 
-    Task<SkillTest?> GetSkillTestByIdAsync(int skillTestId, CancellationToken ct = default);
+    Task<SkillTest?> GetSkillTestByIdAsync(int skillTestId, CancellationToken cancellationToken = default);
 }

@@ -38,12 +38,12 @@ public class CompatibilityOverviewViewModel : DispatchableObservableObject
         private set => SetProperty(ref errorMessage, value);
     }
 
-    public async Task LoadAllRolesAsync(CancellationToken ct = default)
+    public async Task LoadAllRolesAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             RoleResults = (await compatibilityService
-                .CalculateAllAsync(ViewModelSupport.ResolveUserId(session), ct)
+                .CalculateAllAsync(ViewModelSupport.ResolveUserId(session), cancellationToken)
                 .ConfigureAwait(false)).ToList();
             ErrorMessage = string.Empty;
         }

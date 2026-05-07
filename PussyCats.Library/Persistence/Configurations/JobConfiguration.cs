@@ -10,20 +10,20 @@ public class JobConfiguration : IEntityTypeConfiguration<Job>
     public void Configure(EntityTypeBuilder<Job> builder)
     {
         builder.ToTable("Jobs");
-        builder.HasKey(j => j.JobId);
+        builder.HasKey(job => job.JobId);
 
-        builder.Property(j => j.JobTitle).HasMaxLength(200).IsRequired();
-        builder.Property(j => j.JobDescription).HasMaxLength(4000);
-        builder.Property(j => j.Location).HasMaxLength(100);
-        builder.Property(j => j.EmploymentType).HasMaxLength(40);
+        builder.Property(job => job.JobTitle).HasMaxLength(200).IsRequired();
+        builder.Property(job => job.JobDescription).HasMaxLength(4000);
+        builder.Property(job => job.Location).HasMaxLength(100);
+        builder.Property(job => job.EmploymentType).HasMaxLength(40);
 
         // Stored as int by EF convention; no HasConversion needed.
-        builder.Property(j => j.JobRole);
+        builder.Property(job => job.JobRole);
 
         // Restrict: deleting a company should not nuke its job postings. Archive instead.
-        builder.HasOne(j => j.Company)
-            .WithMany(c => c.Jobs)
-            .HasForeignKey(j => j.CompanyId)
+        builder.HasOne(job => job.Company)
+            .WithMany(company => company.Jobs)
+            .HasForeignKey(job => job.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // JobSkill cascade: when a job is removed its skill requirements go too (configured on
@@ -31,10 +31,10 @@ public class JobConfiguration : IEntityTypeConfiguration<Job>
         // MatchConfiguration) so historical applications survive job archival.
 
         // Indexes for common API filters: GET /api/jobs?location=&type=
-        builder.HasIndex(j => j.Location);
-        builder.HasIndex(j => j.EmploymentType);
+        builder.HasIndex(job => job.Location);
+        builder.HasIndex(job => job.EmploymentType);
         // CompanyId is heavily filtered on (GetByCompanyIdAsync) — explicit non-unique index.
-        builder.HasIndex(j => j.CompanyId);
+        builder.HasIndex(job => job.CompanyId);
 
         builder.HasData(
             new Job

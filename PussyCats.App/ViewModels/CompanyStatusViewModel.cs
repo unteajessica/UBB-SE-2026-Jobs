@@ -163,7 +163,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
 
     private bool CanRevealContact => SelectedMatch?.Status == MatchStatus.Accepted;
 
-    public async Task LoadApplicationsAsync(CancellationToken ct = default)
+    public async Task LoadApplicationsAsync(CancellationToken cancellationToken = default)
     {
         if (session.Mode != AppMode.Company || session.CompanyId is null)
         {
@@ -179,7 +179,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         try
         {
             var results = await companyStatusService
-                .GetApplicantsForCompanyAsync(session.CompanyId.Value, ct)
+                .GetApplicantsForCompanyAsync(session.CompanyId.Value, cancellationToken)
                 .ConfigureAwait(false);
 
             Applications.Clear();
@@ -207,7 +207,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         RaiseCommandStates();
     }
 
-    public async Task<bool> LoadEvaluationAsync(int matchId, CancellationToken ct = default)
+    public async Task<bool> LoadEvaluationAsync(int matchId, CancellationToken cancellationToken = default)
     {
         if (session.CompanyId is null)
         {
@@ -218,7 +218,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         try
         {
             var result = await companyStatusService
-                .GetApplicantByMatchIdAsync(session.CompanyId.Value, matchId, ct)
+                .GetApplicantByMatchIdAsync(session.CompanyId.Value, matchId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (result is null)
@@ -291,7 +291,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         return !HasValidationErrors;
     }
 
-    public async Task<bool> SubmitDecisionAsync(CancellationToken ct = default)
+    public async Task<bool> SubmitDecisionAsync(CancellationToken cancellationToken = default)
     {
         if (SelectedMatch is null || SelectedDecision is null)
         {
@@ -307,10 +307,10 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         try
         {
             await matchService
-                .SubmitDecisionAsync(SelectedMatch.MatchId, SelectedDecision.Value, FeedbackMessage.Trim(), ct)
+                .SubmitDecisionAsync(SelectedMatch.MatchId, SelectedDecision.Value, FeedbackMessage.Trim(), cancellationToken)
                 .ConfigureAwait(false);
             PageMessage = "Decision saved successfully.";
-            await LoadApplicationsAsync(ct).ConfigureAwait(false);
+            await LoadApplicationsAsync(cancellationToken).ConfigureAwait(false);
             return true;
         }
         catch (Exception exception)
@@ -333,9 +333,9 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         RaiseContactVisibilityProperties();
     }
 
-    public Task RefreshAsync(CancellationToken ct = default)
+    public Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        return LoadApplicationsAsync(ct);
+        return LoadApplicationsAsync(cancellationToken);
     }
 
     private TestResult? LoadLatestTestResult(UserApplicationResult applicant)

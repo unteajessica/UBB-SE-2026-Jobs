@@ -144,7 +144,7 @@ public class PersonalityTestService : IPersonalityTestService
             .ToDictionary(roleWithScore => roleWithScore.Key, roleWithScore => roleWithScore.Value);
     }
 
-    public async Task SaveResultAsync(int userId, IReadOnlyDictionary<Question, AnswerValue> answers, JobRole selectedRole, CancellationToken ct = default)
+    public async Task SaveResultAsync(int userId, IReadOnlyDictionary<Question, AnswerValue> answers, JobRole selectedRole, CancellationToken cancellationToken = default)
     {
         var traitScores = CalculateTraitScores(answers);
 
@@ -164,15 +164,15 @@ public class PersonalityTestService : IPersonalityTestService
             TraitScores = traitScoreEntities,
         };
 
-        var existing = await personalityTestRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        var existing = await personalityTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
         if (existing is null)
         {
-            await personalityTestRepository.AddAsync(result, ct).ConfigureAwait(false);
+            await personalityTestRepository.AddAsync(result, cancellationToken).ConfigureAwait(false);
         }
         else
         {
             result.PersonalityTestResultId = existing.PersonalityTestResultId;
-            await personalityTestRepository.UpdateAsync(result, ct).ConfigureAwait(false);
+            await personalityTestRepository.UpdateAsync(result, cancellationToken).ConfigureAwait(false);
         }
     }
 

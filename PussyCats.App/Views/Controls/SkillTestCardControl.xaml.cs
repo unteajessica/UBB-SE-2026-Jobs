@@ -43,7 +43,7 @@ public sealed partial class SkillTestCardControl : UserControl
         RetakeButton.Opacity = viewModel.IsRetakeEnabled ? 1.0 : 0.4;
     }
 
-    private async void RetakeButton_Click(object sender, RoutedEventArgs e)
+    private async void RetakeButton_Click(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.RetakeCommand.ExecuteAsync(null);
         LoadCard();

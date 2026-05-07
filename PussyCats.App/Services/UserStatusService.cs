@@ -26,22 +26,22 @@ public class UserStatusService : IUserStatusService
         this.jobSkillService = jobSkillService;
     }
 
-    public async Task<IReadOnlyList<ApplicationCardModel>> GetApplicationsForUserAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<ApplicationCardModel>> GetApplicationsForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var matches = await matchRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
-        var userSkills = await userSkillService.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        var matches = await matchRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        var userSkills = await userSkillService.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
         var result = new List<ApplicationCardModel>();
 
         foreach (var match in matches)
         {
-            var matchedJob = await jobService.GetByIdAsync(match.JobId, ct).ConfigureAwait(false);
+            var matchedJob = await jobService.GetByIdAsync(match.JobId, cancellationToken).ConfigureAwait(false);
             if (matchedJob is null)
             {
                 continue;
             }
 
-            var company = await companyService.GetByIdAsync(matchedJob.CompanyId, ct).ConfigureAwait(false);
-            var jobSkills = await jobSkillService.GetByJobIdAsync(match.JobId, ct).ConfigureAwait(false);
+            var company = await companyService.GetByIdAsync(matchedJob.CompanyId, cancellationToken).ConfigureAwait(false);
+            var jobSkills = await jobSkillService.GetByJobIdAsync(match.JobId, cancellationToken).ConfigureAwait(false);
             var score = CalculateCompatibilityScore(userSkills, jobSkills);
 
             result.Add(new ApplicationCardModel
