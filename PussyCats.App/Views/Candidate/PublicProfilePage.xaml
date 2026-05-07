@@ -6,11 +6,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="#1F1F1F">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Padding="40">
         <TextBlock x:Name="ProfileUnavailableTextBlock"
-                   Text="Profile unavailable" Foreground="White"
+                   Text="Profile unavailable"
                    FontSize="32" FontWeight="Bold"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    Visibility="Collapsed"/>
@@ -24,16 +24,18 @@
 
                 <StackPanel Grid.Column="0" Spacing="20">
                     <Border CornerRadius="100" Width="200" Height="200"
-                            HorizontalAlignment="Center" BorderBrush="White" BorderThickness="2">
+                            HorizontalAlignment="Center"
+                            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                            BorderThickness="2">
                         <Image x:Name="ProfilePhoto" Stretch="UniformToFill"/>
                     </Border>
                     <TextBlock x:Name="LevelLabel" Text="Level --"
-                               Foreground="White" FontSize="24" FontWeight="Bold"
+                               FontSize="24" FontWeight="Bold"
                                HorizontalAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Spacing="25">
-                    <TextBlock Text="User Details" Foreground="White" FontSize="22" FontWeight="SemiBold"/>
+                    <TextBlock Text="User Details" FontSize="22" FontWeight="SemiBold"/>
                     <Grid ColumnSpacing="20" RowSpacing="15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -47,43 +49,43 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Grid.Column="0">
-                            <TextBlock Text="First Name" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="FirstNameLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="First Name" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="FirstNameLabel" FontSize="16"/>
                         </StackPanel>
                         <StackPanel Grid.Row="0" Grid.Column="1">
-                            <TextBlock Text="Last Name" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="LastNameLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Last Name" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="LastNameLabel" FontSize="16"/>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Grid.Column="0">
-                            <TextBlock Text="Email" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="EmailLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Email" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="EmailLabel" FontSize="16"/>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Grid.Column="1">
-                            <TextBlock Text="Phone" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="PhoneLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Phone" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="PhoneLabel" FontSize="16"/>
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="0">
-                            <TextBlock Text="Gender" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="GenderLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Gender" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="GenderLabel" FontSize="16"/>
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="1">
-                            <TextBlock Text="Country" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="CountryLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Country" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="CountryLabel" FontSize="16"/>
                         </StackPanel>
                         <StackPanel Grid.Row="3" Grid.Column="0">
-                            <TextBlock Text="University" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="UniversityLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="University" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="UniversityLabel" FontSize="16"/>
                         </StackPanel>
                         <StackPanel Grid.Row="3" Grid.Column="1">
-                            <TextBlock Text="Graduation Year" Foreground="#BDA4CC" FontSize="12"/>
-                            <TextBlock x:Name="GradYearLabel" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Graduation Year" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" FontSize="12"/>
+                            <TextBlock x:Name="GradYearLabel" FontSize="16"/>
                         </StackPanel>
                     </Grid>
                     <StackPanel Orientation="Horizontal" Spacing="20">
-                        <HyperlinkButton x:Name="GithubLink"  Content="GitHub"   Foreground="#A0CFFF"/>
-                        <HyperlinkButton x:Name="LinkedinLink" Content="LinkedIn" Foreground="#A0CFFF"/>
+                        <HyperlinkButton x:Name="GithubLink"  Content="GitHub"/>
+                        <HyperlinkButton x:Name="LinkedinLink" Content="LinkedIn"/>
                     </StackPanel>
-                    <TextBlock Text="Skill Test Results" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="0,20,0,0"/>
+                    <TextBlock Text="Skill Test Results" FontSize="20" FontWeight="SemiBold" Margin="0,20,0,0"/>
                     <StackPanel x:Name="SkillTestsContainer" Spacing="8"/>
                 </StackPanel>
             </Grid>

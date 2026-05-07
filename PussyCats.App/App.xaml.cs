@@ -3,10 +3,12 @@ using Microsoft.UI.Xaml;
 using PussyCats.App.Configuration;
 using PussyCats.App.RepositoryProxies;
 using PussyCats.App.Services;
+using PussyCats.Library.Repositories.Chats;
 using PussyCats.Library.Repositories.Companies;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Repositories.Jobs;
 using PussyCats.Library.Repositories.Matches;
+using PussyCats.Library.Repositories.Messages;
 using PussyCats.Library.Repositories.PersonalityTests;
 using PussyCats.Library.Repositories.Recommendations;
 using PussyCats.Library.Repositories.Skills;
@@ -74,11 +76,13 @@ public partial class App : Application
         RegisterRepositoryProxy<ISkillTestRepository, SkillTestRepositoryProxy>(services, apiConfiguration);
         RegisterRepositoryProxy<IPersonalityTestRepository, PersonalityTestRepositoryProxy>(services, apiConfiguration);
         RegisterRepositoryProxy<IRecommendationRepository, RecommendationRepositoryProxy>(services, apiConfiguration);
+        RegisterRepositoryProxy<IChatRepository, ChatRepositoryProxy>(services, apiConfiguration);
+        RegisterRepositoryProxy<IMessageRepository, MessageRepositoryProxy>(services, apiConfiguration);
 
         services.AddHttpClient<IFilesProxy, FilesProxy>(client =>
             client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
 
-        services.AddSingleton<IChatService, ChatService>();
+        services.AddTransient<IChatService, ChatService>();
         services.AddSingleton<IDeveloperService, DeveloperService>();
 
         services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();

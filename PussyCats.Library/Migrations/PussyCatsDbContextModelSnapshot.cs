@@ -22,6 +22,51 @@ namespace PussyCats.Library.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PussyCats.Library.Domain.Chat", b =>
+                {
+                    b.Property<int>("ChatId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChatId"));
+
+                    b.Property<int?>("BlockedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAtBySecondParty")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAtByUser")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SecondUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ChatId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("SecondUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Chats", (string)null);
+                });
+
             modelBuilder.Entity("PussyCats.Library.Domain.Company", b =>
                 {
                     b.Property<int>("CompanyId")
@@ -330,6 +375,46 @@ namespace PussyCats.Library.Migrations
                     b.HasIndex("UserId", "JobId");
 
                     b.ToTable("Matches", (string)null);
+                });
+
+            modelBuilder.Entity("PussyCats.Library.Domain.Message", b =>
+                {
+                    b.Property<int>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageId"));
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("PussyCats.Library.Domain.PersonalityTestResult", b =>
@@ -2826,6 +2911,30 @@ namespace PussyCats.Library.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PussyCats.Library.Domain.Chat", b =>
+                {
+                    b.HasOne("PussyCats.Library.Domain.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PussyCats.Library.Domain.Job", null)
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PussyCats.Library.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("SecondUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PussyCats.Library.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PussyCats.Library.Domain.Document", b =>
                 {
                     b.HasOne("PussyCats.Library.Domain.User", "User")
@@ -2895,6 +3004,15 @@ namespace PussyCats.Library.Migrations
                     b.Navigation("Job");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PussyCats.Library.Domain.Message", b =>
+                {
+                    b.HasOne("PussyCats.Library.Domain.Chat", null)
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PussyCats.Library.Domain.PersonalityTestResult", b =>

@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Library.Persistence;
 using Scalar.AspNetCore;
+using PussyCats.Library.Repositories.Chats;
 using PussyCats.Library.Repositories.Companies;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Repositories.Jobs;
 using PussyCats.Library.Repositories.Matches;
+using PussyCats.Library.Repositories.Messages;
 using PussyCats.Library.Repositories.PersonalityTests;
 using PussyCats.Library.Repositories.Recommendations;
 using PussyCats.Library.Repositories.Skills;
@@ -31,6 +33,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<PussyCatsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PussyCatsDb")));
 
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJobRepository, JobRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();

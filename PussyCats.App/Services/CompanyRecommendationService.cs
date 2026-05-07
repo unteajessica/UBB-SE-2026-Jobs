@@ -5,7 +5,7 @@ using PussyCats.Library.Services;
 
 namespace PussyCats.App.Services;
 
-// Holds per-session state (queue, currentIndex). Must be registered as
+// Holds per-session state (rankedApplicants, currentApplicantIndex). Must be registered as
 // Transient or per-view-model in DI — see Phase 5. Sharing across users
 // would leak applicants between sessions.
 public class CompanyRecommendationService : ICompanyRecommendationService
@@ -17,8 +17,8 @@ public class CompanyRecommendationService : ICompanyRecommendationService
     private readonly IJobSkillService jobSkillService;
     private readonly IRecommendationAlgorithm algorithm;
 
-    private List<UserApplicationResult> queue = new List<UserApplicationResult>();
-    private int currentIndex;
+    private List<UserApplicationResult> rankedApplicants = new List<UserApplicationResult>();
+    private int currentApplicantIndex;
 
     public CompanyRecommendationService(
         IMatchService matchService,
@@ -43,8 +43,8 @@ public class CompanyRecommendationService : ICompanyRecommendationService
 
         if (companyJobIds.Count == 0)
         {
-            queue = new List<UserApplicationResult>();
-            currentIndex = 0;
+            rankedApplicants = new List<UserApplicationResult>();
+            currentApplicantIndex = 0;
             return;
         }
 
@@ -85,34 +85,34 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         }
 
         results.Sort(CompareByCompatibilityScoreDescending);
-        queue = results;
-        currentIndex = 0;
+        rankedApplicants = results;
+        currentApplicantIndex = 0;
     }
 
     public UserApplicationResult? GetNextApplicant()
     {
-        if (currentIndex >= queue.Count)
+        if (currentApplicantIndex >= rankedApplicants.Count)
         {
             return null;
         }
 
-        return queue[currentIndex];
+        return rankedApplicants[currentApplicantIndex];
     }
 
     public void MoveToNext()
     {
-        currentIndex++;
+        currentApplicantIndex++;
     }
 
     public void MoveToPrevious()
     {
-        if (currentIndex > 0)
+        if (currentApplicantIndex > 0)
         {
-            currentIndex--;
+            currentApplicantIndex--;
         }
     }
 
-    public bool HasMore => currentIndex < queue.Count;
+    public bool HasMore => currentApplicantIndex < rankedApplicants.Count;
 
     public async Task<CompatibilityBreakdown?> GetBreakdownAsync(UserApplicationResult applicant, CancellationToken cancellationToken = default)
     {
@@ -136,8 +136,8 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         return jobIds;
     }
 
-    private static int CompareByCompatibilityScoreDescending(UserApplicationResult left, UserApplicationResult right)
+    private static int CompareByCompatibilityScoreDescending(UserApplicationResult firstApplicant, UserApplicationResult secondApplicant)
     {
-        return right.CompatibilityScore.CompareTo(left.CompatibilityScore);
+        return secondApplicant.CompatibilityScore.CompareTo(firstApplicant.CompatibilityScore);
     }
 }

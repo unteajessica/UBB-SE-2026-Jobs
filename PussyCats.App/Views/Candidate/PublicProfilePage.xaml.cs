@@ -69,9 +69,8 @@ public sealed partial class PublicProfilePage : Page
         {
             SkillTestsContainer.Children.Add(new TextBlock
             {
-                Text      = $"• {test.Name}: {test.Score}%",
-                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White),
-                Margin    = new Thickness(0, 5, 0, 5),
+                Text   = $"• {test.Name}: {test.Score}%",
+                Margin = new Thickness(0, 5, 0, 5),
             });
         }
     }

@@ -21,6 +21,11 @@ public class LocalFileStorageService : ILocalFileStorageService
         return filesProxy.DeleteAsync(relativePath, cancellationToken);
     }
 
+    public Task<Stream> OpenReadAsync(string relativePath, CancellationToken cancellationToken = default)
+    {
+        return filesProxy.DownloadAsync(relativePath, cancellationToken);
+    }
+
     public string GetFilePath(string relativePath)
     {
         if (relativePath == null)
