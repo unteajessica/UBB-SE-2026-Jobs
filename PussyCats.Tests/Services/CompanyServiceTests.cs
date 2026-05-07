@@ -16,7 +16,7 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_returns_company()
+    public async Task GetByIdAsync_CompanyExists_ReturnsCompany()
     {
         repo.Seed(new CompanyBuilder().WithId(1).WithName("Acme").Build());
 
@@ -27,7 +27,7 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_returns_every_company()
+    public async Task GetAllAsync_MultipleCompaniesExist_ReturnsEveryCompany()
     {
         repo.Seed(
             new CompanyBuilder().WithId(1).Build(),
@@ -37,7 +37,7 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task AddAsync_persists_and_assigns_id()
+    public async Task AddAsync_ValidCompanyProvided_PersistsAndAssignsId()
     {
         var company = new CompanyBuilder().WithId(0).Build();
 
@@ -47,7 +47,7 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_replaces_company()
+    public async Task UpdateAsync_ExistingCompanyModified_ReplacesCompanyInStore()
     {
         var company = new CompanyBuilder().WithId(1).WithName("Old").Build();
         repo.Seed(company);
@@ -59,7 +59,7 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task RemoveAsync_deletes_company()
+    public async Task RemoveAsync_CompanyExists_DeletesCompanyFromStore()
     {
         repo.Seed(new CompanyBuilder().WithId(1).Build());
 
@@ -67,4 +67,4 @@ public class CompanyServiceTests
 
         (await service.GetByIdAsync(1)).Should().BeNull();
     }
-}
+}s

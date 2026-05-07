@@ -32,20 +32,20 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetDocumentsByUserIdAsync_returns_user_documents()
+    public async Task GetDocumentsByUserIdAsync_UserHasDocuments_ReturnsUserDocuments()
     {
         repo.Seed(
             new Document { DocumentId = 1, UserId = 1, DocumentName = "CV.pdf" },
             new Document { DocumentId = 2, UserId = 2, DocumentName = "Other.pdf" });
 
-        var result = await service.GetDocumentsByUserIdAsync(1);
+        var returnedDocuments = await service.GetDocumentsByUserIdAsync(1);
 
-        result.Should().HaveCount(1);
-        result[0].DocumentName.Should().Be("CV.pdf");
+        returnedDocuments.Should().HaveCount(1);
+        returnedDocuments[0].DocumentName.Should().Be("CV.pdf");
     }
 
     [Fact]
-    public async Task UploadDocumentAsync_rejects_unsupported_extension()
+    public async Task UploadDocumentAsync_UnsupportedExtensionProvided_RejectsUpload()
     {
         var badPath = Path.Combine(Path.GetTempPath(), $"bad-{Guid.NewGuid():N}.exe");
         File.WriteAllText(badPath, "x");
@@ -66,7 +66,7 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task UploadDocumentAsync_persists_metadata_with_storage_path()
+    public async Task UploadDocumentAsync_ValidDocumentProvided_PersistsMetadataWithStoragePath()
     {
         fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns("uploads/1.pdf");
         var document = new Document { UserId = 1, DocumentName = "CV" };
@@ -79,7 +79,7 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task UploadDocumentAsync_surfaces_storage_exception()
+    public async Task UploadDocumentAsync_StorageServiceFails_SurfacesStorageException()
     {
         fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Throws(new InvalidOperationException("File upload failed."));
@@ -92,7 +92,7 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteDocumentAsync_removes_file_and_metadata()
+    public async Task DeleteDocumentAsync_DocumentExists_RemovesFileAndMetadata()
     {
         repo.Seed(new Document { DocumentId = 5, UserId = 1, FilePath = "uploads/x.pdf" });
 
@@ -103,7 +103,7 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteDocumentAsync_throws_when_document_missing()
+    public async Task DeleteDocumentAsync_DocumentIsMissing_ThrowsNotFoundException()
     {
         Func<Task> act = () => service.DeleteDocumentAsync(404);
 
@@ -112,7 +112,7 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteDocumentAsync_skips_storage_call_for_blank_path()
+    public async Task DeleteDocumentAsync_FilePathIsBlank_SkipsStorageCall()
     {
         repo.Seed(new Document { DocumentId = 5, UserId = 1, FilePath = string.Empty });
 
@@ -122,7 +122,7 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetDocumentAbsolutePathAsync_returns_storage_path()
+    public async Task GetDocumentAbsolutePathAsync_DocumentExists_ReturnsStoragePath()
     {
         repo.Seed(new Document { DocumentId = 5, UserId = 1, FilePath = "uploads/x.pdf" });
         fileStorage.GetFilePath("uploads/x.pdf").Returns(@"C:\files\uploads\x.pdf");
@@ -133,7 +133,7 @@ public class DocumentServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetDocumentAbsolutePathAsync_throws_when_document_missing()
+    public async Task GetDocumentAbsolutePathAsync_DocumentIsMissing_ThrowsNotFoundException()
     {
         Func<Task> act = () => service.GetDocumentAbsolutePathAsync(404);
 

@@ -17,7 +17,7 @@ public class PersonalityTestServiceTests
     }
 
     [Fact]
-    public void LoadQuestions_returns_24_questions_in_sort_order()
+    public void LoadQuestions_Called_Returns24QuestionsInSortOrder()
     {
         var questions = PersonalityTestService.LoadQuestions();
 
@@ -27,17 +27,17 @@ public class PersonalityTestServiceTests
     }
 
     [Fact]
-    public void LoadQuestions_covers_all_six_traits_evenly()
+    public void LoadQuestions_Called_CoversAllSixTraitsEvenly()
     {
         var questions = PersonalityTestService.LoadQuestions();
-        var perTrait = questions.GroupBy(q => q.Trait).ToDictionary(g => g.Key, g => g.Count());
+        var perTrait = questions.GroupBy(q => q.Trait).ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
 
         perTrait.Should().HaveCount(6);
         perTrait.Values.Should().AllBeEquivalentTo(4);
     }
 
     [Fact]
-    public void CalculateTraitScores_averages_per_trait()
+    public void CalculateTraitScores_AnswersProvided_AveragesScoresPerTrait()
     {
         var q1 = new Question { QuestionText = "x", Trait = TraitType.Visibility, SortOrder = 1 };
         var q2 = new Question { QuestionText = "y", Trait = TraitType.Visibility, SortOrder = 2 };
@@ -57,7 +57,7 @@ public class PersonalityTestServiceTests
     }
 
     [Fact]
-    public void CalculateRoleScores_returns_score_for_every_role()
+    public void CalculateRoleScores_TraitScoresProvided_ReturnsScoreForEveryRole()
     {
         var traitScores = new Dictionary<TraitType, double>
         {
@@ -76,7 +76,7 @@ public class PersonalityTestServiceTests
     }
 
     [Fact]
-    public void GetTopRoles_returns_highest_scoring_roles_in_descending_order()
+    public void GetTopRoles_RoleScoresProvided_ReturnsHighestScoringRolesInDescendingOrder()
     {
         var scores = new Dictionary<JobRole, double>
         {
@@ -93,7 +93,7 @@ public class PersonalityTestServiceTests
     }
 
     [Fact]
-    public async Task SaveResultAsync_persists_with_selected_role_and_rounded_trait_scores()
+    public async Task SaveResultAsync_ValidAnswersAndRole_PersistsWithSelectedRoleAndRoundedTraitScores()
     {
         var q1 = new Question { Trait = TraitType.Depth, SortOrder = 1 };
         var q2 = new Question { Trait = TraitType.Depth, SortOrder = 2 };
@@ -115,7 +115,7 @@ public class PersonalityTestServiceTests
     }
 
     [Fact]
-    public async Task SaveResultAsync_updates_existing_result_keeping_id()
+    public async Task SaveResultAsync_ResultAlreadyExistsForUser_UpdatesExistingResultKeepingId()
     {
         repo.Seed(new PersonalityTestResult
         {

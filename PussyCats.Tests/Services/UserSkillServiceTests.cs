@@ -17,7 +17,7 @@ public class UserSkillServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_returns_seeded_entry()
+    public async Task GetByIdAsync_EntryExists_ReturnsSeededEntry()
     {
         repo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 85 });
 
@@ -28,7 +28,7 @@ public class UserSkillServiceTests
     }
 
     [Fact]
-    public async Task GetByUserIdAsync_filters_by_user()
+    public async Task GetByUserIdAsync_MultipleUsersExist_FiltersByUserId()
     {
         repo.Seed(
             new UserSkill { UserId = 1, SkillId = 1, Score = 80 },
@@ -42,7 +42,7 @@ public class UserSkillServiceTests
     }
 
     [Fact]
-    public async Task AddAsync_persists_entry_and_returns_it()
+    public async Task AddAsync_ValidEntryProvided_PersistsEntryAndReturnsIt()
     {
         var entry = new UserSkill { UserId = 1, SkillId = 1, Score = 75 };
 
@@ -53,7 +53,7 @@ public class UserSkillServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_replaces_existing_entry()
+    public async Task UpdateAsync_ExistingEntryModified_ReplacesExistingEntry()
     {
         repo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 50 });
 
@@ -63,7 +63,7 @@ public class UserSkillServiceTests
     }
 
     [Fact]
-    public async Task RemoveAsync_deletes_entry()
+    public async Task RemoveAsync_UserSkillExists_DeletesUserSkill()
     {
         repo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 70 });
 

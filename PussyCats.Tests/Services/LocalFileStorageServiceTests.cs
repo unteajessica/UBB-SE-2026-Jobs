@@ -16,7 +16,7 @@ public class LocalFileStorageServiceTests
     }
 
     [Fact]
-    public async Task SaveFileAsync_delegates_upload_to_files_proxy()
+    public async Task SaveFileAsync_ValidStreamProvided_DelegatesUploadToFilesProxy()
     {
         filesProxy.UploadAsync(Arg.Any<Stream>(), "x.pdf", Arg.Any<CancellationToken>())
             .Returns("uploads/x.pdf");
@@ -29,7 +29,7 @@ public class LocalFileStorageServiceTests
     }
 
     [Fact]
-    public async Task DeleteFileAsync_delegates_to_files_proxy()
+    public async Task DeleteFileAsync_FilePathProvided_DelegatesToFilesProxy()
     {
         await service.DeleteFileAsync("uploads/x.pdf");
 
@@ -37,7 +37,7 @@ public class LocalFileStorageServiceTests
     }
 
     [Fact]
-    public void GetFilePath_returns_proxy_resolved_url()
+    public void GetFilePath_RelativePathProvided_ReturnsProxyResolvedUrl()
     {
         filesProxy.GetUrl("uploads/x.pdf").Returns("https://api/api/files/x.pdf");
 
@@ -45,7 +45,7 @@ public class LocalFileStorageServiceTests
     }
 
     [Fact]
-    public void GetFilePath_throws_for_null_path()
+    public void GetFilePath_PathIsNull_ThrowsArgumentNullException()
     {
         Action act = () => service.GetFilePath(null!);
 

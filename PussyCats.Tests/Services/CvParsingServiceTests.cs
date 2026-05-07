@@ -8,7 +8,7 @@ public class CvParsingServiceTests
     private readonly CvParsingService service = new();
 
     [Fact]
-    public void ParseCvFile_throws_for_unsupported_extension()
+    public void ParseCvFile_UnsupportedExtensionProvided_ThrowsException()
     {
         Action act = () => service.ParseCvFile("ignored", ".txt");
 
@@ -16,7 +16,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_parses_valid_json()
+    public void ParseCvFile_ValidJsonProvided_ParsesFieldsCorrectly()
     {
         var json = """
         {
@@ -51,7 +51,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_zeros_age_outside_valid_range()
+    public void ParseCvFile_AgeOutsideValidRange_ZerosAgeField()
     {
         var json = """{ "FirstName": "X", "Age": 5 }""";
 
@@ -61,7 +61,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_zeros_graduation_year_too_far_in_future()
+    public void ParseCvFile_GraduationYearTooFarInFuture_ZerosGraduationYearField()
     {
         var json = """{ "FirstName": "X", "ExpectedGraduationYear": 9999 }""";
 
@@ -71,7 +71,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_caps_skill_count_at_30()
+    public void ParseCvFile_TooManySkillsProvided_CapsSkillCountAt30()
     {
         var skillsArray = string.Join(",", Enumerable.Range(1, 50).Select(i => $"\"Skill{i}\""));
         var json = $"{{ \"FirstName\": \"X\", \"Skills\": [{skillsArray}] }}";
@@ -82,7 +82,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_truncates_motivation_at_1000_chars()
+    public void ParseCvFile_MotivationExceedsLimit_TruncatesMotivationAt1000Chars()
     {
         var motivation = new string('x', 1500);
         var json = $"{{ \"FirstName\": \"X\", \"Motivation\": \"{motivation}\" }}";
@@ -93,7 +93,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_blanks_invalid_email()
+    public void ParseCvFile_InvalidEmailProvided_BlanksEmailField()
     {
         var json = """{ "FirstName": "X", "Email": "not-an-email" }""";
 
@@ -103,7 +103,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_normalizes_short_gender_codes()
+    public void ParseCvFile_ShortGenderCodesProvided_NormalizesGenderStrings()
     {
         var maleJson = """{ "FirstName": "X", "Gender": "M" }""";
         var femaleJson = """{ "FirstName": "X", "Gender": "F" }""";
@@ -115,7 +115,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_throws_on_malformed_json()
+    public void ParseCvFile_MalformedJsonProvided_ThrowsException()
     {
         Action act = () => service.ParseCvFile("{ not json", ".json");
 
@@ -123,7 +123,7 @@ public class CvParsingServiceTests
     }
 
     [Fact]
-    public void ParseCvFile_throws_for_xml()
+    public void ParseCvFile_XmlFormatProvided_ThrowsUnsupportedException()
     {
         Action act = () => service.ParseCvFile("<CvData />", ".xml");
 

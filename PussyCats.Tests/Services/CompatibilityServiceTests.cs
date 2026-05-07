@@ -20,19 +20,19 @@ public class CompatibilityServiceTests
     }
 
     [Fact]
-    public async Task CalculateForRoleAsync_returns_invalid_score_when_role_has_no_groups()
+    public async Task CalculateForRoleAsync_RoleHasNoGroups_ReturnsInvalidScore()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
 
-        var result = await service.CalculateForRoleAsync(1, JobRole.BackendDeveloper);
+        var expectedRoleResult = await service.CalculateForRoleAsync(1, JobRole.BackendDeveloper);
 
-        result.JobRole.Should().Be(JobRole.BackendDeveloper);
-        result.MatchScore.Should().Be(-1);
-        result.Suggestions.Should().BeEmpty();
+        expectedRoleResult.JobRole.Should().Be(JobRole.BackendDeveloper);
+        expectedRoleResult.MatchScore.Should().Be(-1);
+        expectedRoleResult.Suggestions.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task CalculateForRoleAsync_scores_against_user_verified_skills()
+    public async Task CalculateForRoleAsync_UserHasVerifiedSkills_ScoresAgainstVerifiedSkills()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         userSkillRepo.Seed(new UserSkill
@@ -53,13 +53,13 @@ public class CompatibilityServiceTests
             Skills = new List<Skill> { new() { SkillId = 1, Name = "C#" } },
         });
 
-        var result = await service.CalculateForRoleAsync(1, JobRole.BackendDeveloper);
+        var expectedRoleResult = await service.CalculateForRoleAsync(1, JobRole.BackendDeveloper);
 
-        result.MatchScore.Should().Be(80);
+        expectedRoleResult.MatchScore.Should().Be(80);
     }
 
     [Fact]
-    public async Task CalculateForRoleAsync_considers_unverified_cv_skills()
+    public async Task CalculateForRoleAsync_UserHasUnverifiedCvSkills_ConsidersUnverifiedSkills()
     {
         var user = new UserBuilder().WithId(1).Build();
         // ParsedCv format: line 0 = name, line 1 = university, line 2 = comma-separated skill list
@@ -73,14 +73,14 @@ public class CompatibilityServiceTests
             Skills = new List<Skill> { new() { SkillId = 1, Name = "C#" } },
         });
 
-        var result = await service.CalculateForRoleAsync(1, JobRole.BackendDeveloper);
+        var expectedRoleResult = await service.CalculateForRoleAsync(1, JobRole.BackendDeveloper);
 
         // unverified skill scores at 0.5 -> 50 after normalization
-        result.MatchScore.Should().Be(50);
+        expectedRoleResult.MatchScore.Should().Be(50);
     }
 
     [Fact]
-    public async Task CalculateForRoleAsync_caps_suggestions_at_three()
+    public async Task CalculateForRoleAsync_ManyGroupsExist_CapsSuggestionsAtThree()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         var groups = new List<SkillGroup>();
@@ -103,7 +103,7 @@ public class CompatibilityServiceTests
     }
 
     [Fact]
-    public async Task CalculateAllAsync_returns_one_result_per_role()
+    public async Task CalculateAllAsync_Called_ReturnsOneResultPerRole()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
 
@@ -113,7 +113,7 @@ public class CompatibilityServiceTests
     }
 
     [Fact]
-    public void GetSuggestions_returns_role_result_suggestions()
+    public void GetSuggestions_RoleResultProvided_ReturnsRoleResultSuggestions()
     {
         var roleResult = new PussyCats.Library.DTOs.RoleResult
         {

@@ -16,7 +16,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_returns_seeded_user()
+    public async Task GetByIdAsync_UserExists_ReturnsCorrectUser()
     {
         repo.Seed(new UserBuilder().WithId(1).WithEmail("a@b.test").Build());
 
@@ -27,13 +27,13 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_returns_null_when_missing()
+    public async Task GetByIdAsync_UserIsMissing_ReturnsNull()
     {
         (await service.GetByIdAsync(99)).Should().BeNull();
     }
 
     [Fact]
-    public async Task GetAllAsync_returns_every_user()
+    public async Task GetAllAsync_MultipleUsersExist_ReturnsEveryUser()
     {
         repo.Seed(
             new UserBuilder().WithId(1).Build(),
@@ -44,7 +44,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task AddAsync_persists_user_and_assigns_id()
+    public async Task AddAsync_NewUserProvided_PersistsUserAndAssignsId()
     {
         var user = new UserBuilder().WithId(0).WithEmail("new@user.test").Build();
 
@@ -55,7 +55,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_replaces_existing_user()
+    public async Task UpdateAsync_ExistingUserModified_ReplacesUserInStore()
     {
         var user = new UserBuilder().WithId(1).WithEmail("old@test.com").Build();
         repo.Seed(user);
@@ -67,7 +67,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task RemoveAsync_deletes_user()
+    public async Task RemoveAsync_UserExists_DeletesUserFromStore()
     {
         repo.Seed(new UserBuilder().WithId(1).Build());
 

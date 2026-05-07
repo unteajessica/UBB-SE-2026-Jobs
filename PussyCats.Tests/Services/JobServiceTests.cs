@@ -16,7 +16,7 @@ public class JobServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_returns_job()
+    public async Task GetByIdAsync_JobExists_ReturnsJob()
     {
         repo.Seed(new JobBuilder().WithId(1).WithTitle("Backend Engineer").Build());
 
@@ -27,7 +27,7 @@ public class JobServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_returns_every_job()
+    public async Task GetAllAsync_MultipleJobsExist_ReturnsEveryJob()
     {
         repo.Seed(
             new JobBuilder().WithId(1).Build(),
@@ -37,7 +37,7 @@ public class JobServiceTests
     }
 
     [Fact]
-    public async Task GetByCompanyIdAsync_filters_by_company()
+    public async Task GetByCompanyIdAsync_FilteredByCompanyId_ReturnsOnlyJobsForThatCompany()
     {
         repo.Seed(
             new JobBuilder().WithId(1).WithCompanyId(10).Build(),
@@ -51,7 +51,7 @@ public class JobServiceTests
     }
 
     [Fact]
-    public async Task AddAsync_persists_and_assigns_id()
+    public async Task AddAsync_ValidJobProvided_PersistsAndAssignsId()
     {
         var job = new JobBuilder().WithId(0).Build();
 
@@ -61,7 +61,7 @@ public class JobServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_replaces_job()
+    public async Task UpdateAsync_ExistingJobModified_ReplacesJobInStore()
     {
         var job = new JobBuilder().WithId(1).WithTitle("Old").Build();
         repo.Seed(job);
@@ -73,7 +73,7 @@ public class JobServiceTests
     }
 
     [Fact]
-    public async Task RemoveAsync_deletes_job()
+    public async Task RemoveAsync_JobExists_DeletesJobFromStore()
     {
         repo.Seed(new JobBuilder().WithId(1).Build());
 

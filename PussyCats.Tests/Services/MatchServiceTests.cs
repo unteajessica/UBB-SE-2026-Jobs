@@ -1,6 +1,5 @@
 using FluentAssertions;
 using PussyCats.App.Services;
-using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
@@ -33,7 +32,7 @@ public class MatchServiceTests
     [InlineData(MatchStatus.Rejected, MatchStatus.Accepted, false)]
     [InlineData(MatchStatus.Rejected, MatchStatus.Advanced, false)]
     [InlineData(MatchStatus.Rejected, MatchStatus.Applied, false)]
-    public void IsDecisionTransitionAllowed_matches_state_machine(MatchStatus from, MatchStatus to, bool allowed)
+    public void IsDecisionTransitionAllowed_StateTransitionRequested_MatchesStateMachine(MatchStatus from, MatchStatus to, bool allowed)
     {
         var match = new MatchBuilder().WithStatus(from).Build();
 
@@ -41,7 +40,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task CreatePendingApplicationAsync_creates_match_in_Applied_state()
+    public async Task CreatePendingApplicationAsync_ValidInputs_CreatesMatchInAppliedState()
     {
         var matchId = await service.CreatePendingApplicationAsync(userId: 1, jobId: 10);
 
@@ -53,7 +52,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task CreatePendingApplicationAsync_throws_when_match_already_exists()
+    public async Task CreatePendingApplicationAsync_MatchAlreadyExists_ThrowsInvalidOperationException()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).Build());
 
@@ -64,7 +63,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task SubmitDecisionAsync_accepts_applied_match()
+    public async Task SubmitDecisionAsync_StatusIsApplied_AcceptsMatch()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
 
@@ -76,7 +75,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task SubmitDecisionAsync_rejects_applied_match_with_feedback()
+    public async Task SubmitDecisionAsync_StatusIsAppliedAndFeedbackProvided_RejectsMatchWithFeedback()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
 
@@ -86,7 +85,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task SubmitDecisionAsync_throws_when_rejecting_without_feedback()
+    public async Task SubmitDecisionAsync_RejectingWithoutFeedback_ThrowsArgumentException()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
 
@@ -97,7 +96,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task SubmitDecisionAsync_throws_for_invalid_decision_status()
+    public async Task SubmitDecisionAsync_TargetStatusIsInvalid_ThrowsArgumentException()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
 
@@ -107,7 +106,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task SubmitDecisionAsync_throws_when_transition_not_allowed()
+    public async Task SubmitDecisionAsync_TransitionNotAllowed_ThrowsInvalidOperationException()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Accepted).Build());
 
@@ -117,7 +116,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task SubmitDecisionAsync_throws_when_match_missing()
+    public async Task SubmitDecisionAsync_MatchIsMissing_ThrowsKeyNotFoundException()
     {
         Func<Task> act = () => service.SubmitDecisionAsync(404, MatchStatus.Accepted, "x");
 
@@ -125,7 +124,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task AdvanceAsync_moves_applied_to_advanced()
+    public async Task AdvanceAsync_StatusIsApplied_MovesToAdvanced()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
 
@@ -135,7 +134,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task AdvanceAsync_throws_when_not_applied()
+    public async Task AdvanceAsync_StatusIsNotApplied_ThrowsInvalidOperationException()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Advanced).Build());
 
@@ -145,7 +144,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task RevertToAppliedAsync_resets_status_and_feedback()
+    public async Task RevertToAppliedAsync_Called_ResetsStatusAndFeedback()
     {
         matchRepo.Seed(new MatchBuilder()
             .WithId(1)
@@ -161,7 +160,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task GetByCompanyIdAsync_filters_via_jobs_owned_by_company()
+    public async Task GetByCompanyIdAsync_CompanyHasJobs_FiltersViaJobsOwnedByCompany()
     {
         jobRepo.Seed(
             new JobBuilder().WithId(10).WithCompanyId(5).Build(),
@@ -179,7 +178,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task GetByCompanyIdAsync_returns_empty_when_company_has_no_jobs()
+    public async Task GetByCompanyIdAsync_CompanyHasNoJobs_ReturnsEmpty()
     {
         var matches = await service.GetByCompanyIdAsync(99);
 
@@ -187,14 +186,14 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task GetMatchStatisticsAsync_counts_within_each_window()
+    public async Task GetMatchStatisticsAsync_MatchesExistAcrossTimeRanges_CountsWithinEachWindow()
     {
-        var now = DateTime.Now;
+        var currentDate = DateTime.Now;
         matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, 10).WithTimestamp(now.AddDays(-10)).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(1, 11).WithTimestamp(now.AddMonths(-3)).Build(),
-            new MatchBuilder().WithId(3).AppliedFor(1, 12).WithTimestamp(now.AddMonths(-9)).Build(),
-            new MatchBuilder().WithId(4).AppliedFor(1, 13).WithTimestamp(now.AddYears(-2)).Build());
+            new MatchBuilder().WithId(1).AppliedFor(1, 10).WithTimestamp(currentDate.AddDays(-10)).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(1, 11).WithTimestamp(currentDate.AddMonths(-3)).Build(),
+            new MatchBuilder().WithId(3).AppliedFor(1, 12).WithTimestamp(currentDate.AddMonths(-9)).Build(),
+            new MatchBuilder().WithId(4).AppliedFor(1, 13).WithTimestamp(currentDate.AddYears(-2)).Build());
 
         var stats = await service.GetMatchStatisticsAsync(1);
 
@@ -205,7 +204,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task GetMatchStatisticsAsync_groups_matches_by_position_label()
+    public async Task GetMatchStatisticsAsync_MatchesExistForDifferentRoles_GroupsMatchesByPositionLabel()
     {
         var match1 = new MatchBuilder().WithId(1).AppliedFor(1, 10).Build();
         match1.Job = new JobBuilder().WithId(10).WithRole(JobRole.BackendDeveloper).Build();
@@ -220,7 +219,7 @@ public class MatchServiceTests
     }
 
     [Fact]
-    public async Task GetMatchesForUserAsync_returns_user_matches()
+    public async Task GetMatchesForUserAsync_UserHasMatches_ReturnsUserMatches()
     {
         matchRepo.Seed(
             new MatchBuilder().WithId(1).AppliedFor(1, 10).Build(),

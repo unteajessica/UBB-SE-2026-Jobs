@@ -17,7 +17,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task GetByUserIdAsync_returns_empty_for_missing_user()
+    public async Task GetByUserIdAsync_UserIsMissing_ReturnsEmptyPreferences()
     {
         var result = await service.GetByUserIdAsync(99);
 
@@ -27,7 +27,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task GetByUserIdAsync_translates_user_fields_into_user_preferences()
+    public async Task GetByUserIdAsync_UserExists_TranslatesUserFieldsIntoUserPreferences()
     {
         var user = new UserBuilder().WithId(1).Build();
         user.PreferredEmploymentType = "BackendDeveloper,FrontendDeveloper";
@@ -43,7 +43,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task GetByUserIdAsync_skips_blank_fields()
+    public async Task GetByUserIdAsync_FieldsAreBlank_SkipsBlankFields()
     {
         var user = new UserBuilder().WithId(1).Build();
         user.PreferredEmploymentType = string.Empty;
@@ -59,7 +59,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task SavePreferencesAsync_writes_combined_role_string()
+    public async Task SavePreferencesAsync_ValidPreferencesProvided_WritesCombinedRoleString()
     {
         repo.Seed(new UserBuilder().WithId(1).Build());
 
@@ -76,7 +76,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task SavePreferencesAsync_throws_when_too_few_roles()
+    public async Task SavePreferencesAsync_TooFewRolesProvided_ThrowsArgumentException()
     {
         Func<Task> act = () => service.SavePreferencesAsync(
             1,
@@ -88,7 +88,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task SavePreferencesAsync_throws_when_too_many_roles()
+    public async Task SavePreferencesAsync_TooManyRolesProvided_ThrowsArgumentException()
     {
         Func<Task> act = () => service.SavePreferencesAsync(
             1,
@@ -106,7 +106,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task SavePreferencesAsync_silently_returns_when_user_missing()
+    public async Task SavePreferencesAsync_UserIsMissing_SilentlyReturns()
     {
         Func<Task> act = () => service.SavePreferencesAsync(
             99,
@@ -118,14 +118,14 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public async Task SearchLocationsAsync_returns_empty_for_blank_query()
+    public async Task SearchLocationsAsync_QueryIsBlank_ReturnsEmptyList()
     {
         (await service.SearchLocationsAsync("")).Should().BeEmpty();
         (await service.SearchLocationsAsync("   ")).Should().BeEmpty();
     }
 
     [Fact]
-    public async Task SearchLocationsAsync_matches_case_insensitively()
+    public async Task SearchLocationsAsync_ValidQueryProvided_MatchesCaseInsensitively()
     {
         var matches = await service.SearchLocationsAsync("cluj");
 

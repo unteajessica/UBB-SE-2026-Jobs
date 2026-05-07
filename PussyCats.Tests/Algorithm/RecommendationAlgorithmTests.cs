@@ -9,7 +9,7 @@ public class RecommendationAlgorithmTests
     private readonly RecommendationAlgorithm algorithm = new();
 
     [Fact]
-    public void CalculateCompatibilityScore_perfect_match_returns_100()
+    public void CalculateCompatibilityScore_PerfectMatch_Returns100()
     {
         var user = BuildUser(locationPreference: "Cluj-Napoca", employmentType: "Full-time", parsedCv: "C# SQL");
         var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: "C# SQL", promotionLevel: 100);
@@ -30,7 +30,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact]
-    public void CalculateCompatibilityScore_uses_default_equal_weights()
+    public void CalculateCompatibilityScore_DefaultEqualWeights_ReturnsApproximateScore()
     {
         var user = BuildUser(locationPreference: "Cluj-Napoca", employmentType: "Part-time", parsedCv: "csharp sql azure");
         var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: "csharp docker", promotionLevel: 40);
@@ -50,7 +50,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact]
-    public void CalculateScoreBreakdown_returns_component_scores_and_rounded_overall_score()
+    public void CalculateScoreBreakdown_ValidInputs_ReturnsComponentScoresAndRoundedOverallScore()
     {
         var user = BuildUser(locationPreference: "Cluj-Napoca", employmentType: "Part-time", parsedCv: "csharp sql azure");
         var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: "csharp docker", promotionLevel: 40);
@@ -74,7 +74,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact]
-    public void CalculateCompatibilityScore_matches_skills_by_name_when_ids_differ()
+    public void CalculateCompatibilityScore_SkillsIdsDifferButNamesMatch_Returns100()
     {
         var user = BuildUser(parsedCv: "python", locationPreference: "Remote", employmentType: "Full-time");
         var job = BuildJob(description: "python", location: "Remote", employmentType: "Full-time", promotionLevel: 100);
@@ -93,7 +93,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact]
-    public void CalculateScoreBreakdown_clamps_components_to_percentage_range()
+    public void CalculateScoreBreakdown_ComponentsExceedThreshold_ClampsToPercentageRange()
     {
         var user = BuildUser(parsedCv: "go", locationPreference: "Remote", employmentType: "Contract");
         var job = BuildJob(description: "go", location: "Remote", employmentType: "Contract", promotionLevel: 150);
@@ -113,7 +113,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact]
-    public void CalculateCompatibilityScore_returns_zero_skill_score_when_job_has_no_required_skills()
+    public void CalculateCompatibilityScore_JobHasNoRequiredSkills_ReturnsZeroSkillScore()
     {
         var user = BuildUser(parsedCv: "java", locationPreference: "Remote", employmentType: "Full-time");
         var job = BuildJob(description: "java", location: "Remote", employmentType: "Full-time", promotionLevel: 100);
@@ -125,7 +125,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact(Skip = "Dynamic weights deferred per MergePlan section 8.")]
-    public void Dynamic_constructor_uses_interaction_history_to_reweight_components()
+    public void RecommendationAlgorithm_InteractionHistoryProvided_ReweightsComponents()
     {
         _ = new RecommendationAlgorithm(new object(), new object());
     }

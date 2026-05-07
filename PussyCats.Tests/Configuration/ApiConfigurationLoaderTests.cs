@@ -8,7 +8,7 @@ public class ApiConfigurationLoaderTests : IDisposable
     private readonly string tempDirectory = Directory.CreateTempSubdirectory("pussycats-api-config-").FullName;
 
     [Fact]
-    public void Load_returns_default_base_url_when_no_config_exists()
+    public void Load_NoConfigExists_ReturnsDefaultBaseUrl()
     {
         var configuration = ApiConfigurationLoader.Load(tempDirectory);
 
@@ -16,7 +16,7 @@ public class ApiConfigurationLoaderTests : IDisposable
     }
 
     [Fact]
-    public void Load_reads_bundled_appsettings_file()
+    public void Load_BundledAppSettingsFileExists_ReadsBaseUrl()
     {
         File.WriteAllText(
             Path.Combine(tempDirectory, "appsettings.json"),
@@ -34,7 +34,7 @@ public class ApiConfigurationLoaderTests : IDisposable
     }
 
     [Fact]
-    public void Load_prefers_local_appsettings_file()
+    public void Load_LocalAppSettingsFileExists_PrefersLocalFile()
     {
         File.WriteAllText(
             Path.Combine(tempDirectory, "appsettings.json"),

@@ -16,7 +16,7 @@ public class ImageStorageServiceTests
     }
 
     [Fact]
-    public async Task SaveImageAsync_rejects_unsupported_extension_before_uploading()
+    public async Task SaveImageAsync_UnsupportedExtensionProvided_RejectsExtensionBeforeUploading()
     {
         using var stream = new MemoryStream();
 
@@ -28,7 +28,7 @@ public class ImageStorageServiceTests
     }
 
     [Fact]
-    public async Task SaveImageAsync_uploads_through_files_proxy_with_normalized_name()
+    public async Task SaveImageAsync_ValidStreamProvided_UploadsThroughFilesProxyWithNormalizedName()
     {
         filesProxy.UploadAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns("uploads/upload.png");
@@ -41,7 +41,7 @@ public class ImageStorageServiceTests
     }
 
     [Fact]
-    public async Task DeleteImageAsync_delegates_to_files_proxy()
+    public async Task DeleteImageAsync_ImagePathProvided_DelegatesToFilesProxy()
     {
         await service.DeleteImageAsync("uploads/x.png");
 
@@ -49,7 +49,7 @@ public class ImageStorageServiceTests
     }
 
     [Fact]
-    public async Task SaveImageAsync_throws_when_stream_exceeds_20mb()
+    public async Task SaveImageAsync_StreamExceedsMaxSize_ThrowsInvalidOperationException()
     {
         using var stream = new MemoryStream(new byte[20 * 1024 * 1024 + 1]);
 
@@ -60,7 +60,7 @@ public class ImageStorageServiceTests
     }
 
     [Fact]
-    public void CheckFileSize_passes_when_stream_under_20mb()
+    public void CheckFileSize_StreamUnderLimit_PassesValidation()
     {
         using var stream = new MemoryStream(new byte[10 * 1024 * 1024]);
 

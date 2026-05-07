@@ -17,7 +17,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public async Task GetTestsForUserAsync_returns_user_tests()
+    public async Task GetTestsForUserAsync_UserHasTests_ReturnsUserTests()
     {
         repo.Seed(
             new SkillTestBuilder().WithId(1).ForUser(1).Build(),
@@ -30,7 +30,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public async Task CanRetakeTestAsync_returns_true_when_test_older_than_eligibility_window()
+    public async Task CanRetakeTestAsync_TestOlderThanEligibilityWindow_ReturnsTrue()
     {
         repo.Seed(new SkillTestBuilder()
             .WithId(1)
@@ -41,7 +41,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public async Task CanRetakeTestAsync_returns_false_when_test_inside_eligibility_window()
+    public async Task CanRetakeTestAsync_TestInsideEligibilityWindow_ReturnsFalse()
     {
         repo.Seed(new SkillTestBuilder()
             .WithId(1)
@@ -52,7 +52,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public async Task CanRetakeTestAsync_throws_when_test_missing()
+    public async Task CanRetakeTestAsync_TestIsMissing_ThrowsException()
     {
         Func<Task> act = () => service.CanRetakeTestAsync(404);
 
@@ -61,7 +61,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public async Task SubmitRetakeAsync_updates_score_and_date_and_returns_badge()
+    public async Task SubmitRetakeAsync_UserIsEligible_UpdatesScoreAndDateAndReturnsBadge()
     {
         repo.Seed(new SkillTestBuilder()
             .WithId(1)
@@ -79,7 +79,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public async Task SubmitRetakeAsync_throws_when_not_eligible()
+    public async Task SubmitRetakeAsync_UserIsNotYetEligible_ThrowsException()
     {
         repo.Seed(new SkillTestBuilder()
             .WithId(1)
@@ -93,7 +93,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public async Task GetSkillTestByIdAsync_returns_test()
+    public async Task GetSkillTestByIdAsync_TestExists_ReturnsTest()
     {
         repo.Seed(new SkillTestBuilder().WithId(7).WithName("Algorithms").Build());
 
@@ -101,7 +101,7 @@ public class SkillTestServiceTests
     }
 
     [Fact]
-    public void IsRetakeEligible_uses_3_month_window_static()
+    public void IsRetakeEligible_TestDatesProvided_EnforcesThreeMonthWindow()
     {
         var oldEnough = new SkillTestBuilder()
             .WithAchievedDate(DateOnly.FromDateTime(DateTime.Now.AddMonths(-4)))

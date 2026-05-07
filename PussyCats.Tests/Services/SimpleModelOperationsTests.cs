@@ -16,7 +16,7 @@ public class SimpleModelOperationsTests
     [InlineData((int)SimpleModelOperations.BronzeScoreThreshold, SimpleModelOperations.BronzeExperiencePoints)]
     [InlineData(49, SimpleModelOperations.ParticipantExperiencePoints)]
     [InlineData(0, SimpleModelOperations.ParticipantExperiencePoints)]
-    public void GetExperiencePoints_returns_tier_xp_for_score(int score, int expectedXp)
+    public void GetExperiencePoints_ScoreProvided_ReturnsTierXpForScore(int score, int expectedXp)
     {
         var skillTest = new SkillTest { Score = score };
 
@@ -34,7 +34,7 @@ public class SimpleModelOperationsTests
     [InlineData(799, 4)]
     [InlineData(800, 5)]
     [InlineData(10_000, 5)]
-    public void CalculateLevelNumber_maps_xp_to_level(int xp, int expectedLevel)
+    public void CalculateLevelNumber_ExperiencePointsProvided_MapsXpToLevel(int xp, int expectedLevel)
     {
         SimpleModelOperations.CalculateLevelNumber(xp).Should().Be(expectedLevel);
     }
@@ -48,7 +48,7 @@ public class SimpleModelOperationsTests
     [InlineData(50f, BadgeTier.Bronze, SimpleModelOperations.BronzeExperiencePoints)]
     [InlineData(49f, BadgeTier.Participant, SimpleModelOperations.ParticipantExperiencePoints)]
     [InlineData(0f, BadgeTier.Participant, SimpleModelOperations.ParticipantExperiencePoints)]
-    public void AssignTier_classifies_score_into_badge(float score, BadgeTier expectedTier, int expectedXp)
+    public void AssignTier_ScoreProvided_ClassifiesScoreIntoBadge(float score, BadgeTier expectedTier, int expectedXp)
     {
         var badge = SimpleModelOperations.AssignTier(score);
 
@@ -58,7 +58,7 @@ public class SimpleModelOperationsTests
     }
 
     [Fact]
-    public void Tier_thresholds_are_strictly_ordered()
+    public void TierThresholds_ConstantsDefined_AreStrictlyOrdered()
     {
         SimpleModelOperations.GoldScoreThreshold.Should().BeGreaterThan(SimpleModelOperations.SilverScoreThreshold);
         SimpleModelOperations.SilverScoreThreshold.Should().BeGreaterThan(SimpleModelOperations.BronzeScoreThreshold);
@@ -66,7 +66,7 @@ public class SimpleModelOperationsTests
     }
 
     [Fact]
-    public void Level_thresholds_are_strictly_ordered()
+    public void LevelThresholds_ConstantsDefined_AreStrictlyOrdered()
     {
         SimpleModelOperations.Level1ExperiencePoints.Should().Be(0);
         SimpleModelOperations.Level2ExperiencePoints.Should().BeGreaterThan(SimpleModelOperations.Level1ExperiencePoints);

@@ -22,7 +22,7 @@ public class SkillGapServiceTests
     }
 
     [Fact]
-    public async Task GetMissingSkillsAsync_returns_empty_when_no_rejections()
+    public async Task GetMissingSkillsAsync_NoRejectionsExist_ReturnsEmptyList()
     {
         matchRepo.Seed(new Match { MatchId = 1, UserId = 1, JobId = 1, Status = MatchStatus.Applied });
 
@@ -32,7 +32,7 @@ public class SkillGapServiceTests
     }
 
     [Fact]
-    public async Task GetMissingSkillsAsync_aggregates_skills_user_lacks_across_rejected_jobs()
+    public async Task GetMissingSkillsAsync_RejectionsExist_AggregatesSkillsUserLacksAcrossRejectedJobs()
     {
         matchRepo.Seed(
             new Match { MatchId = 1, UserId = 1, JobId = 10, Status = MatchStatus.Rejected },
@@ -53,7 +53,7 @@ public class SkillGapServiceTests
     }
 
     [Fact]
-    public async Task GetUnderscoredSkillsAsync_skips_skills_meeting_required_level()
+    public async Task GetUnderscoredSkillsAsync_UserMeetsRequiredLevel_SkipsThoseSkills()
     {
         matchRepo.Seed(new Match { MatchId = 1, UserId = 1, JobId = 10, Status = MatchStatus.Rejected });
         userSkillRepo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 80 });
@@ -71,7 +71,7 @@ public class SkillGapServiceTests
     }
 
     [Fact]
-    public async Task GetUnderscoredSkillsAsync_returns_average_required_score()
+    public async Task GetUnderscoredSkillsAsync_UserBelowRequiredLevel_ReturnsAverageRequiredScore()
     {
         matchRepo.Seed(
             new Match { MatchId = 1, UserId = 1, JobId = 10, Status = MatchStatus.Rejected },
@@ -90,7 +90,7 @@ public class SkillGapServiceTests
     }
 
     [Fact]
-    public async Task GetSummaryAsync_reports_no_rejections_when_user_has_none()
+    public async Task GetSummaryAsync_UserHasNoRejections_ReportsNoRejections()
     {
         var summary = await service.GetSummaryAsync(1);
 
@@ -99,7 +99,7 @@ public class SkillGapServiceTests
     }
 
     [Fact]
-    public async Task GetSummaryAsync_reports_gap_counts_when_user_has_rejections()
+    public async Task GetSummaryAsync_UserHasRejections_ReportsGapCounts()
     {
         matchRepo.Seed(new Match { MatchId = 1, UserId = 1, JobId = 10, Status = MatchStatus.Rejected });
         userSkillRepo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 30 });

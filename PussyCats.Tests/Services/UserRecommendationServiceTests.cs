@@ -39,7 +39,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task GetNextCardAsync_throws_when_user_missing()
+    public async Task GetNextCardAsync_UserIsMissing_ThrowsInvalidOperationException()
     {
         var service = BuildService();
 
@@ -50,7 +50,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task GetNextCardAsync_returns_null_when_no_jobs_match()
+    public async Task GetNextCardAsync_NoJobsMatchFilters_ReturnsNull()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
 
@@ -61,7 +61,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task GetNextCardAsync_returns_top_scored_job_card()
+    public async Task GetNextCardAsync_MultipleJobsAvailable_ReturnsTopScoredJobCard()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
@@ -81,7 +81,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task GetNextCardAsync_skips_already_applied_jobs()
+    public async Task GetNextCardAsync_UserAlreadyApplied_SkipsAlreadyAppliedJobs()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
@@ -98,7 +98,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task GetNextCardAsync_skips_jobs_in_cooldown_window()
+    public async Task GetNextCardAsync_JobRecentlySeen_SkipsJobsInCooldownWindow()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
@@ -121,7 +121,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task RecalculateTopCardIgnoringCooldownAsync_includes_jobs_in_cooldown()
+    public async Task RecalculateTopCardIgnoringCooldownAsync_JobInCooldown_IncludesJobsInCooldown()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
@@ -143,7 +143,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task ApplyLikeAsync_creates_match_in_applied_state()
+    public async Task ApplyLikeAsync_ValidCardProvided_CreatesMatchInAppliedState()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
@@ -160,7 +160,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task ApplyLikeAsync_throws_when_already_applied()
+    public async Task ApplyLikeAsync_MatchExists_ThrowsInvalidOperationException()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
@@ -181,7 +181,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task ApplyDismissAsync_records_recommendation()
+    public async Task ApplyDismissAsync_ValidCardProvided_RecordsRecommendation()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
@@ -200,7 +200,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task UndoLikeAsync_removes_match_and_recommendation()
+    public async Task UndoLikeAsync_IdsProvided_RemovesMatchAndRecommendation()
     {
         matchRepo.Seed(new MatchBuilder().WithId(5).AppliedFor(1, 10).Build());
         recommendationRepo.Seed(new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 });
@@ -213,7 +213,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task UndoLikeAsync_skips_recommendation_when_id_null()
+    public async Task UndoLikeAsync_RecommendationIdIsNull_SkipsRecommendationRemoval()
     {
         matchRepo.Seed(new MatchBuilder().WithId(5).Build());
         recommendationRepo.Seed(new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 });
@@ -225,7 +225,7 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task UndoDismissAsync_removes_dismiss_and_display_when_distinct()
+    public async Task UndoDismissAsync_DistinctIdsProvided_RemovesDismissAndDisplayRecommendations()
     {
         recommendationRepo.Seed(
             new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 },
@@ -239,14 +239,13 @@ public class UserRecommendationServiceTests
     }
 
     [Fact]
-    public async Task UndoDismissAsync_does_not_remove_when_dismiss_equals_display()
+    public async Task UndoDismissAsync_IdenticalIdsProvided_RemovesSingleRecommendation()
     {
         recommendationRepo.Seed(new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 });
 
         var service = BuildService();
         await service.UndoDismissAsync(7, 7);
 
-        // single Remove call — already happened — second Remove call would be a no-op anyway
         (await recommendationRepo.GetByIdAsync(7)).Should().BeNull();
     }
 
@@ -261,7 +260,7 @@ public class UserRecommendationServiceTests
     [InlineData(9, "Director")]
     [InlineData(10, "Executive")]
     [InlineData(25, "Executive")]
-    public void MapUserYearsToExperienceBucket_classifies_year_count(int years, string expected)
+    public void MapUserYearsToExperienceBucket_YearsProvided_ClassifiesYearCountIntoCorrectBucket(int years, string expected)
     {
         UserRecommendationService.MapUserYearsToExperienceBucket(years).Should().Be(expected);
     }

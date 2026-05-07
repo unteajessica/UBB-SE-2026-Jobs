@@ -27,7 +27,7 @@ public class UserStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicationsForUserAsync_returns_empty_when_user_has_no_matches()
+    public async Task GetApplicationsForUserAsync_UserHasNoMatches_ReturnsEmptyList()
     {
         var result = await service.GetApplicationsForUserAsync(1);
 
@@ -35,7 +35,7 @@ public class UserStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicationsForUserAsync_skips_matches_with_missing_job()
+    public async Task GetApplicationsForUserAsync_MatchHasMissingJob_SkipsInvalidMatches()
     {
         matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 999).Build());
 
@@ -45,7 +45,7 @@ public class UserStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicationsForUserAsync_returns_application_card_with_company_and_score()
+    public async Task GetApplicationsForUserAsync_ValidMatchExists_ReturnsApplicationCardWithCorrectCompanyAndScore()
     {
         companyRepo.Seed(new CompanyBuilder().WithId(5).WithName("Acme").Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -67,7 +67,7 @@ public class UserStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicationsForUserAsync_returns_full_score_when_job_has_no_required_skills()
+    public async Task GetApplicationsForUserAsync_JobHasNoRequiredSkills_ReturnsFullCompatibilityScore()
     {
         companyRepo.Seed(new CompanyBuilder().WithId(5).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -79,7 +79,7 @@ public class UserStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicationsForUserAsync_falls_back_to_unknown_when_company_missing()
+    public async Task GetApplicationsForUserAsync_CompanyIsMissing_FallsBackToUnknownCompanyName()
     {
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(99).Build());
         matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).Build());

@@ -26,7 +26,7 @@ public class CompanyStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicantsForCompanyAsync_returns_only_decided_matches()
+    public async Task GetApplicantsForCompanyAsync_MatchesAreNotYetDecided_ReturnsOnlyDecidedMatches()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build(), new UserBuilder().WithId(2).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -41,7 +41,7 @@ public class CompanyStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicantsForCompanyAsync_includes_advanced_and_rejected_matches()
+    public async Task GetApplicantsForCompanyAsync_MatchesAreAdvancedOrRejected_IncludesAdvancedAndRejectedMatches()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build(), new UserBuilder().WithId(2).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -55,7 +55,7 @@ public class CompanyStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicantsForCompanyAsync_skips_matches_with_missing_user_or_job()
+    public async Task GetApplicantsForCompanyAsync_UserOrJobIsMissing_SkipsMatchesWithMissingData()
     {
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
         matchRepo.Seed(new MatchBuilder()
@@ -70,7 +70,7 @@ public class CompanyStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicantsForCompanyAsync_sorts_descending_by_compatibility_score()
+    public async Task GetApplicantsForCompanyAsync_MultipleApplicantsExist_SortsDescendingByCompatibilityScore()
     {
         userRepo.Seed(
             new UserBuilder().WithId(1).WithCity("Bucharest").Build(),
@@ -90,7 +90,7 @@ public class CompanyStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicantsForCompanyAsync_applies_location_bonus_when_job_location_includes_country()
+    public async Task GetApplicantsForCompanyAsync_JobLocationIncludesCountry_AppliesLocationBonus()
     {
         userRepo.Seed(new UserBuilder().WithId(1).WithCity("Bucharest").Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).WithLocation("Bucharest, Romania").Build());
@@ -103,7 +103,7 @@ public class CompanyStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicantByMatchIdAsync_returns_specific_applicant()
+    public async Task GetApplicantByMatchIdAsync_MatchExists_ReturnsSpecificApplicant()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -116,7 +116,7 @@ public class CompanyStatusServiceTests
     }
 
     [Fact]
-    public async Task GetApplicantByMatchIdAsync_returns_null_when_match_missing()
+    public async Task GetApplicantByMatchIdAsync_MatchIsMissing_ReturnsNull()
     {
         var result = await service.GetApplicantByMatchIdAsync(5, 999);
 

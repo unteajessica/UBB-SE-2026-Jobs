@@ -18,7 +18,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task GetProfileAsync_returns_user()
+    public async Task GetProfileAsync_UserExists_ReturnsUser()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
 
@@ -26,7 +26,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task IsProfileAvailableAsync_throws_when_user_missing()
+    public async Task IsProfileAvailableAsync_UserIsMissing_ThrowsException()
     {
         Func<Task> act = () => service.IsProfileAvailableAsync(99);
 
@@ -35,7 +35,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task IsProfileAvailableAsync_returns_active_account_flag()
+    public async Task IsProfileAvailableAsync_ProfileExists_ReturnsActiveAccountFlag()
     {
         userRepo.Seed(new UserBuilder().WithId(1).WithActiveAccount(false).Build());
 
@@ -43,7 +43,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task UpdateAccountStatusAsync_persists_status_and_touches_LastUpdated()
+    public async Task UpdateAccountStatusAsync_StatusChanged_PersistsStatusAndTouchesLastUpdated()
     {
         userRepo.Seed(new UserBuilder().WithId(1).WithActiveAccount(true).Build());
 
@@ -55,7 +55,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task UpdateProfilePicturePathAsync_writes_path()
+    public async Task UpdateProfilePicturePathAsync_PathProvided_WritesPathToUser()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
 
@@ -65,7 +65,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task UpdateProfilePicturePathAsync_handles_null_path_as_empty()
+    public async Task UpdateProfilePicturePathAsync_PathIsNull_HandlesAsEmptyString()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
 
@@ -75,7 +75,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task RemoveProfilePicturePathAsync_clears_path()
+    public async Task RemoveProfilePicturePathAsync_UserHasPicture_ClearsPath()
     {
         var user = new UserBuilder().WithId(1).Build();
         user.ProfilePicturePath = "old.png";
@@ -87,7 +87,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task SaveAsync_adds_when_user_missing()
+    public async Task SaveAsync_UserIsMissing_AddsNewUser()
     {
         var user = new UserBuilder().WithId(0).Build();
 
@@ -97,7 +97,7 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task SaveAsync_updates_when_user_exists()
+    public async Task SaveAsync_UserExists_UpdatesExistingUser()
     {
         userRepo.Seed(new UserBuilder().WithId(1).WithEmail("old@x.com").Build());
         var updated = new UserBuilder().WithId(1).WithEmail("new@x.com").Build();
@@ -108,13 +108,13 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public void GenerateParsedCvText_returns_empty_for_null_user()
+    public void GenerateParsedCvText_UserIsNull_ReturnsEmptyString()
     {
         service.GenerateParsedCvText(null!).Should().BeEmpty();
     }
 
     [Fact]
-    public void GenerateParsedCvText_combines_name_university_and_skill_names()
+    public void GenerateParsedCvText_ValidUserProvided_CombinesNameUniversityAndSkillNames()
     {
         var user = new UserBuilder().WithId(1).WithName("Ada", "Lovelace").Build();
         user.University = "Cambridge";
@@ -132,13 +132,13 @@ public class UserProfileServiceTests
     }
 
     [Fact]
-    public async Task RecalculateLevelAsync_returns_zero_for_null_user()
+    public async Task RecalculateLevelAsync_UserIsNull_ReturnsZero()
     {
         (await service.RecalculateLevelAsync(null!)).Should().Be(0);
     }
 
     [Fact]
-    public async Task RecalculateLevelAsync_sums_xp_from_skill_tests_and_sets_level()
+    public async Task RecalculateLevelAsync_UserHasSkillTests_SumsXpFromTestsAndSetsLevel()
     {
         var user = new UserBuilder().WithId(1).Build();
         userRepo.Seed(user);

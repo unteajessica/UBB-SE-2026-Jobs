@@ -11,13 +11,13 @@ public class CompletenessServiceTests
     private readonly CompletenessService service = new();
 
     [Fact]
-    public void CalculateCompleteness_returns_zero_for_null_user()
+    public void CalculateCompleteness_UserIsNull_ReturnsZero()
     {
         service.CalculateCompleteness(null).Should().Be(0);
     }
 
     [Fact]
-    public void CalculateCompleteness_returns_zero_for_blank_user()
+    public void CalculateCompleteness_UserHasNoFieldsFilled_ReturnsZero()
     {
         var user = new User();
 
@@ -25,7 +25,7 @@ public class CompletenessServiceTests
     }
 
     [Fact]
-    public void CalculateCompleteness_returns_one_hundred_when_all_21_fields_filled()
+    public void CalculateCompleteness_AllFieldsFilled_ReturnsOneHundred()
     {
         var user = BuildFullyFilledUser();
 
@@ -33,7 +33,7 @@ public class CompletenessServiceTests
     }
 
     [Fact]
-    public void CalculateCompleteness_uses_21_fields_total()
+    public void CalculateCompleteness_SingleFieldFilled_ReturnsFivePercent()
     {
         // 1 of 21 ≈ 5%
         var user = new User { FirstName = "Ada" };
@@ -42,27 +42,27 @@ public class CompletenessServiceTests
     }
 
     [Fact]
-    public void GetNextEmptyFieldPrompt_returns_empty_for_null_user()
+    public void GetNextEmptyFieldPrompt_UserIsNull_ReturnsEmptyString()
     {
         service.GetNextEmptyFieldPrompt(null).Should().BeEmpty();
     }
 
     [Fact]
-    public void GetNextEmptyFieldPrompt_first_empty_field_is_first_name_for_blank_user()
+    public void GetNextEmptyFieldPrompt_UserIsBlank_ReturnsFirstNamePrompt()
     {
         service.GetNextEmptyFieldPrompt(new User()).Should().Contain("First Name");
     }
 
     [Fact]
-    public void GetNextEmptyFieldPrompt_returns_complete_message_when_all_filled()
+    public void GetNextEmptyFieldPrompt_ProfileIsFullyFilled_ReturnsCompleteMessage()
     {
-        var user = BuildFullyFilledUser();
+        var fullyFilledUser = BuildFullyFilledUser();
 
-        service.GetNextEmptyFieldPrompt(user).Should().Be("Your profile is 100% complete!");
+        service.GetNextEmptyFieldPrompt(fullyFilledUser).Should().Be("Your profile is 100% complete!");
     }
 
     [Fact]
-    public void GetNextEmptyFieldPrompt_walks_through_fields_in_label_order()
+    public void GetNextEmptyFieldPrompt_SomeFieldsFilled_ReturnsNextFieldInOrder()
     {
         var user = new User
         {
@@ -74,10 +74,8 @@ public class CompletenessServiceTests
     }
 
     [Fact]
-    public void Case_18_uses_PersonalityResult_SelectedRole_not_PreferredJobRoles()
+    public void CalculateCompleteness_PersonalityRoleMissing_ReturnsLessThenOneHundred()
     {
-        // Open item: case 18 deviation — original tracked PreferredJobRoles list,
-        // merged tracks PersonalityResult.SelectedRole (a single role).
         var user = BuildFullyFilledUser();
         user.PersonalityResult!.SelectedRole = null;
 

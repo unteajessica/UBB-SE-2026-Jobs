@@ -32,7 +32,7 @@ public class CompanyRecommendationServiceTests
     }
 
     [Fact]
-    public async Task LoadApplicantsAsync_results_in_no_applicants_when_company_has_no_jobs()
+    public async Task LoadApplicantsAsync_CompanyHasNoJobs_ResultsInNoApplicants()
     {
         var service = BuildService();
 
@@ -43,7 +43,7 @@ public class CompanyRecommendationServiceTests
     }
 
     [Fact]
-    public async Task LoadApplicantsAsync_includes_only_applied_matches_for_company_jobs()
+    public async Task LoadApplicantsAsync_MatchesExist_IncludesOnlyAppliedMatchesForCompanyJobs()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build(), new UserBuilder().WithId(2).Build());
         jobRepo.Seed(
@@ -64,7 +64,7 @@ public class CompanyRecommendationServiceTests
     }
 
     [Fact]
-    public async Task LoadApplicantsAsync_sorts_applicants_by_score_descending()
+    public async Task LoadApplicantsAsync_MultipleApplicants_SortsApplicantsByScoreDescending()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build(), new UserBuilder().WithId(2).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -92,7 +92,7 @@ public class CompanyRecommendationServiceTests
     }
 
     [Fact]
-    public async Task MoveToNext_then_GetNextApplicant_returns_null_after_queue_exhausted()
+    public async Task MoveToNext_QueueExhausted_ReturnsNullAfterLastApplicant()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -109,7 +109,7 @@ public class CompanyRecommendationServiceTests
     }
 
     [Fact]
-    public async Task MoveToPrevious_does_not_underflow_below_zero()
+    public async Task MoveToPrevious_AtStartOfQueue_DoesNotUnderflowBelowZero()
     {
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
@@ -126,7 +126,7 @@ public class CompanyRecommendationServiceTests
     }
 
     [Fact]
-    public async Task GetBreakdownAsync_delegates_to_algorithm()
+    public async Task GetBreakdownAsync_Called_DelegatesToAlgorithm()
     {
         var breakdown = new CompatibilityBreakdown { OverallScore = 75 };
         algorithm.CalculateScoreBreakdown(default!, default!, default!, default!).ReturnsForAnyArgs(breakdown);
@@ -146,10 +146,8 @@ public class CompanyRecommendationServiceTests
     }
 
     [Fact]
-    public async Task Two_service_instances_do_not_share_state()
+    public async Task ServiceInstances_MultipleCreated_DoNotShareState()
     {
-        // Phase 5 design: AddTransient registration. Smoke-test that the queue/index
-        // state is per-instance, so two users don't see each other's applicant queue.
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
         matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Applied).Build());
@@ -159,7 +157,7 @@ public class CompanyRecommendationServiceTests
         var serviceB = BuildService();
         await serviceA.LoadApplicantsAsync(5);
 
-        serviceA.HasMore.Should().BeTrue();
-        serviceB.HasMore.Should().BeFalse();
+        serviceA.HasMore.Should().Be(true);
+        serviceB.HasMore.Should().Be(false);
     }
 }
