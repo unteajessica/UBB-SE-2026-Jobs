@@ -65,5 +65,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         // Match navigation is configured from the Match side (restrict). Avoid configuring the
         // back-reference here to prevent EF from emitting two cascade paths.
+        builder.HasData(
+            new User { UserId = 1, FirstName = "Alice", LastName = "Smith", Email = "alice.smith@example.com" , Age = 25, Phone="+40123456789", Country="Romania", City="Bucharest", Address="123 Main St", University="University of Bucharest", Degree="Computer Science", UniversityStartYear=2018, ExpectedGraduationYear=2022, GitHub= "", ActiveAccount= true, CreatedAt = new DateTime(2025, 5, 7) }
+        );
     }
 }
