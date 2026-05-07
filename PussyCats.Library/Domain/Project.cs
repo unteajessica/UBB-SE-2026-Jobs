@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace PussyCats.Library.Domain;
 
 public class Project
@@ -5,7 +7,7 @@ public class Project
     public int ProjectId { get; set; }
 
     public int UserId { get; set; }
-    public User User { get; set; } = null!;
+    [JsonIgnore] public User User { get; set; } = null!;
 
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

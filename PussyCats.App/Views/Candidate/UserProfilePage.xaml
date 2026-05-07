@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.Candidate.UserProfilePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:PussyCats_App.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer>
+        <StackPanel>
+            <controls:ProfileCompletenessBar x:Name="completenessBar" />
+
+            <Grid Padding="20,40,20,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="15" Margin="40,0,40,0" VerticalAlignment="Center">
+                    <PersonPicture x:Name="publicAvatar" Width="200" Height="200" HorizontalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                        <Button x:Name="btnUploadAvatar" Content="Upload avatar" Click="OnAvatarUploadClick" Width="140" />
+                        <Button x:Name="btnRemoveAvatar" Content="Remove avatar" Click="OnAvatarRemoveClick" Width="140" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="30" VerticalAlignment="Center">
+                    <Border Background="#9b72a8" CornerRadius="12" Padding="20" MinWidth="220" HorizontalAlignment="Left">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                            <TextBlock Text="Account Status" Foreground="White" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" />
+                            <ToggleSwitch x:Name="checkAccountStatus"
+                                          Toggled="OnStatusToggle"
+                                          OnContent="Active" OffContent="Inactive"
+                                          Foreground="White" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Spacing="6" VerticalAlignment="Center" MaxWidth="320">
+                        <TextBlock x:Name="LevelTitleText" FontSize="16" FontWeight="Medium" />
+                        <ProgressBar x:Name="ExperienceProgressBar" Minimum="0" Maximum="100" Height="12" Foreground="Purple" />
+                        <TextBlock x:Name="ExperienceCountText" FontSize="12" />
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock x:Name="freshnessLabel" Grid.Column="1"
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                           Opacity="0.7" FontSize="13" />
+            </Grid>
+
+            <Grid Padding="30,60,30,80" MinHeight="600">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="25" HorizontalAlignment="Left" Margin="20,0,0,0">
+                    <TextBlock x:Name="firstNameLabel"  FontSize="16" />
+                    <TextBlock x:Name="lastNameLabel"   FontSize="16" />
+                    <TextBlock x:Name="emailLabel"      FontSize="16" />
+                    <TextBlock x:Name="phoneLabel"      FontSize="16" />
+                    <TextBlock x:Name="githubLabel"     FontSize="16" />
+                    <TextBlock x:Name="linkedinLabel"   FontSize="16" />
+                    <TextBlock x:Name="genderLabel"     FontSize="16" />
+                    <TextBlock x:Name="universityLabel" FontSize="16" />
+                    <TextBlock x:Name="gradYearLabel"   FontSize="16" />
+                    <TextBlock x:Name="countryLabel"    FontSize="16" />
+                    <TextBlock x:Name="cityLabel"       FontSize="16" />
+                    <TextBlock x:Name="personalityLabel" FontSize="16" />
+                    <TextBlock x:Name="errorLabel" Foreground="#FFA0A0" TextWrapping="Wrap" Margin="0,20,0,0" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="25"
+                            HorizontalAlignment="Right" Width="300" Margin="0,0,75,0">
+                    <Button x:Name="buttonEdit" Content="Edit Profile" Click="OnEditProfileClick" HorizontalAlignment="Stretch" />
+                    <Button x:Name="buttonPersonalityTest" Content="Take Personality Test" Click="OnPersonalityTestClick" HorizontalAlignment="Stretch" />
+                    <Button Content="Download Profile as PDF" Click="OnPreviewCVClick" HorizontalAlignment="Stretch" />
+                    <Button Content="View Documents"    Click="OnViewDocumentsClick"    HorizontalAlignment="Stretch" />
+                    <Button Content="Match History"     Click="OnMatchHistoryClick"     HorizontalAlignment="Stretch" />
+                    <Button Content="Check Compatibility" Click="OnCompatibilityClick"  HorizontalAlignment="Stretch" />
+                    <Button Content="See Public Profile" Click="OnPublicProfileClick"   HorizontalAlignment="Stretch" />
+                    <Button Content="Skill Tests"        Click="OnSkillTestsClick"      HorizontalAlignment="Stretch" />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,4 +1,5 @@
 using PussyCats.Library.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace PussyCats.Library.Domain;
 
@@ -14,7 +15,7 @@ public class Job
     public JobRole JobRole { get; set; }
 
     public int CompanyId { get; set; }
-    public Company Company { get; set; } = null!;
+    [JsonIgnore] public Company Company { get; set; } = null!;
 
     public List<JobSkill> RequiredSkills { get; set; } = new();
     public List<Match> Matches { get; set; } = new();

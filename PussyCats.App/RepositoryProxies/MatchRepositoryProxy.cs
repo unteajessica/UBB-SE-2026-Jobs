@@ -39,7 +39,11 @@ public class MatchRepositoryProxy : IMatchRepository
 
     public async Task<Match> AddAsync(Match match, CancellationToken ct = default)
     {
-        using var response = await http.PostAsJsonAsync("api/matches", match, RepositoryProxyJson.Options, ct).ConfigureAwait(false);
+        using var response = await http.PostAsJsonAsync(
+            "api/matches",
+            new { match.UserId, match.JobId },
+            RepositoryProxyJson.Options,
+            ct).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Match>(response, ct).ConfigureAwait(false);
     }
 

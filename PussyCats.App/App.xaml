@@ -8,9 +8,39 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
+
+            <!-- Converters -->
+            <converters:BoolToVisibilityConverter  x:Key="BoolToVisibilityConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolNegationConverter      x:Key="BoolNegationConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ListToVisibilityConverter  x:Key="ListToVisibilityConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ObjectToIntConverter       x:Key="ObjectToIntConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolToInvertedBoolConverter x:Key="BoolToInvertedBoolConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolToAccentBrushConverter x:Key="BoolToAccentBrushConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolToHighlightBackgroundConverter x:Key="BoolToHighlightBackgroundConverter"
+                                                           xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:JobRoleToDisplayNameConverter x:Key="JobRoleToDisplayNameConverter"
+                                                      xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MatchStatusToColorConverter x:Key="MatchStatusToColorConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MatchStatusToTextConverter  x:Key="MatchStatusToTextConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+
+            <!-- Shell / card colour aliases (matchmaking theme) -->
+            <SolidColorBrush x:Key="ShellBackgroundBrush"    Color="{ThemeResource SystemChromeMediumLowColor}"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush"     Color="{ThemeResource CardBackgroundFillColorDefaultColor}"/>
+            <SolidColorBrush x:Key="CardBorderBrush"         Color="{ThemeResource CardStrokeColorDefaultColor}"/>
+            <SolidColorBrush x:Key="TextPrimaryBrush"        Color="{ThemeResource TextFillColorPrimaryColor}"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush"      Color="{ThemeResource TextFillColorSecondaryColor}"/>
+            <SolidColorBrush x:Key="DividerBrush"            Color="{ThemeResource DividerStrokeColorDefaultColor}"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
