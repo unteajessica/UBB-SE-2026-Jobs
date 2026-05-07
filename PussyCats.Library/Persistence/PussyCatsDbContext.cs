@@ -22,6 +22,8 @@ public class PussyCatsDbContext : DbContext
     public DbSet<SkillTest> SkillTests => Set<SkillTest>();
     public DbSet<UserSkill> UserSkills => Set<UserSkill>();
     public DbSet<JobSkill> JobSkills => Set<JobSkill>();
+    public DbSet<Chat> Chats => Set<Chat>();
+    public DbSet<Message> Messages => Set<Message>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,5 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
+using PussyCats.Library.Repositories.Chats;
+using PussyCats.Library.Repositories.Messages;
 
 namespace PussyCats.App.Services;
 
@@ -19,103 +21,81 @@ public sealed class ChatService : IChatService
         ".doc",
     };
 
+    private const long MaxImageBytes = 10 * 1024 * 1024;
+    private const long MaxFileBytes = 20 * 1024 * 1024;
+
+    private readonly IChatRepository chatRepository;
+    private readonly IMessageRepository messageRepository;
     private readonly IUserService userService;
     private readonly ICompanyService companyService;
-    private readonly IJobService jobService;
-    private readonly List<Chat> chats = new();
-    private readonly List<Message> messages = new();
-    private readonly Dictionary<int, string> userNames = new();
-    private readonly Dictionary<int, string> companyNames = new();
-    private int nextChatId = 1;
-    private int nextMessageId = 1;
-    private bool seeded;
+    private readonly ILocalFileStorageService fileStorage;
 
-    public ChatService(IUserService userService, ICompanyService companyService, IJobService jobService)
+    public ChatService(
+        IChatRepository chatRepository,
+        IMessageRepository messageRepository,
+        IUserService userService,
+        ICompanyService companyService,
+        ILocalFileStorageService fileStorage)
     {
+        this.chatRepository = chatRepository;
+        this.messageRepository = messageRepository;
         this.userService = userService;
         this.companyService = companyService;
-        this.jobService = jobService;
+        this.fileStorage = fileStorage;
     }
 
     public async Task<Chat?> FindOrCreateUserCompanyChatAsync(int userId, int companyId, int? jobId = null, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        var existing = chats.FirstOrDefault(chat =>
-            chat.UserId == userId && chat.CompanyId == companyId && chat.JobId == jobId && chat.SecondUserId is null);
+        var existing = await chatRepository.FindUserCompanyChatAsync(userId, companyId, jobId, cancellationToken).ConfigureAwait(false);
         if (existing is not null)
         {
             existing.DeletedAtByUser = null;
             existing.DeletedAtBySecondParty = null;
+            await chatRepository.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
             return existing;
         }
 
-        var chat = new Chat
-        {
-            ChatId = nextChatId++,
-            UserId = userId,
-            CompanyId = companyId,
-            JobId = jobId,
-        };
-        chats.Add(chat);
-        return chat;
+        return await chatRepository.AddAsync(new Chat { UserId = userId, CompanyId = companyId, JobId = jobId }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Chat?> FindOrCreateUserChatAsync(int userId, int secondUserId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        var existing = chats.FirstOrDefault(chat =>
-            (chat.UserId == userId && chat.SecondUserId == secondUserId)
-            || (chat.UserId == secondUserId && chat.SecondUserId == userId));
+        var existing = await chatRepository.FindUserUserChatAsync(userId, secondUserId, cancellationToken).ConfigureAwait(false);
         if (existing is not null)
         {
             existing.DeletedAtByUser = null;
             existing.DeletedAtBySecondParty = null;
+            await chatRepository.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
             return existing;
         }
 
-        var chat = new Chat
-        {
-            ChatId = nextChatId++,
-            UserId = userId,
-            SecondUserId = secondUserId,
-        };
-        chats.Add(chat);
-        return chat;
+        return await chatRepository.AddAsync(new Chat { UserId = userId, SecondUserId = secondUserId }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Chat>> GetChatsForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        return chats
-            .Where(chat => chat.UserId == userId || chat.SecondUserId == userId)
-            .Where(chat => ShouldIncludeChat(chat, userId))
-            .OrderByDescending(ResolveLatestMessageTime)
-            .Select(chat => CloneWithPreview(chat, userId))
-            .ToList();
+        var chats = await chatRepository.GetForUserAsync(userId, cancellationToken).ConfigureAwait(false);
+        return chats.Where(chat => ShouldIncludeChat(chat, userId)).ToList();
     }
 
     public async Task<IReadOnlyList<Chat>> GetChatsForCompanyAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        return chats
-            .Where(chat => chat.CompanyId == companyId)
-            .Where(chat => ShouldIncludeChat(chat, companyId))
-            .OrderByDescending(ResolveLatestMessageTime)
-            .Select(chat => CloneWithPreview(chat, companyId))
-            .ToList();
+        var chats = await chatRepository.GetForCompanyAsync(companyId, cancellationToken).ConfigureAwait(false);
+        return chats.Where(chat => ShouldIncludeChat(chat, companyId)).ToList();
     }
 
     public async Task<IReadOnlyList<Message>> GetMessagesAsync(int chatId, int callerId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        var chat = FindChat(chatId);
+        var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, callerId);
+
         var deletedAt = chat.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
+        var messages = await messageRepository.GetForChatAsync(chatId, cancellationToken).ConfigureAwait(false);
+
         return messages
-            .Where(message => message.ChatId == chatId)
             .Where(message => deletedAt is null || message.Timestamp > deletedAt)
-            .OrderBy(message => message.Timestamp)
-            .Select(message => CloneMessage(message, callerId))
+            .Select(message => WithPresentationFields(message, callerId))
             .ToList();
     }
 
@@ -127,11 +107,6 @@ public sealed class ChatService : IChatService
         }
 
         var companies = await companyService.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var company in companies)
-        {
-            companyNames[company.CompanyId] = company.CompanyName;
-        }
-
         return companies
             .Where(company => company.CompanyName.Contains(query, StringComparison.OrdinalIgnoreCase))
             .Take(10)
@@ -146,11 +121,6 @@ public sealed class ChatService : IChatService
         }
 
         var users = await userService.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var user in users)
-        {
-            userNames[user.UserId] = GetUserName(user);
-        }
-
         return users
             .Where(user => GetUserName(user).Contains(query, StringComparison.OrdinalIgnoreCase))
             .Take(10)
@@ -159,14 +129,15 @@ public sealed class ChatService : IChatService
 
     public async Task SendMessageAsync(int chatId, string content, int senderId, MessageType type, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrWhiteSpace(content))
         {
             throw new ArgumentException("Message content cannot be empty.", nameof(content));
         }
 
-        var chat = FindChat(chatId);
+        var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, senderId);
+
         if (chat.IsBlocked)
         {
             throw new InvalidOperationException("Cannot send a message in a blocked chat.");
@@ -177,46 +148,53 @@ public sealed class ChatService : IChatService
             throw new ArgumentException("Text messages cannot exceed 2000 characters.", nameof(content));
         }
 
+        var originalFileName = string.Empty;
         if (type != MessageType.Text)
         {
-            ValidateAttachment(content, type);
+            originalFileName = Path.GetFileName(content);
+            content = await StoreAttachmentAsync(content, type, cancellationToken).ConfigureAwait(false);
         }
 
-        messages.Add(new Message
+        await messageRepository.AddAsync(new Message
         {
-            MessageId = nextMessageId++,
             ChatId = chatId,
             SenderId = senderId,
             Content = content.Trim(),
             Timestamp = DateTime.UtcNow,
             Type = type,
-        });
+            OriginalFileName = originalFileName,
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<Stream> OpenMessageAttachmentAsync(string attachmentPath, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(attachmentPath))
+        {
+            throw new ArgumentException("Attachment path cannot be empty.", nameof(attachmentPath));
+        }
+
+        return await fileStorage.OpenReadAsync(attachmentPath, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task MarkMessagesAsReadAsync(int chatId, int readerId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        var chat = FindChat(chatId);
-        EnsureParticipant(chat, readerId);
-        foreach (var message in messages.Where(message => message.ChatId == chatId && message.SenderId != readerId))
-        {
-            message.IsRead = true;
-        }
+        await messageRepository.MarkAsReadAsync(chatId, readerId, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task BlockChatAsync(int chatId, int blockerId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        var chat = FindChat(chatId);
+        var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, blockerId);
         chat.IsBlocked = true;
         chat.BlockedByUserId = blockerId;
+        await chatRepository.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task UnblockChatAsync(int chatId, int unblockerId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        var chat = FindChat(chatId);
+        var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, unblockerId);
         if (chat.BlockedByUserId != unblockerId)
         {
@@ -225,13 +203,15 @@ public sealed class ChatService : IChatService
 
         chat.IsBlocked = false;
         chat.BlockedByUserId = null;
+        await chatRepository.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task DeleteChatAsync(int chatId, int callerId, CancellationToken cancellationToken = default)
     {
-        await EnsureSeededAsync(cancellationToken).ConfigureAwait(false);
-        var chat = FindChat(chatId);
+        var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, callerId);
+
         if (chat.UserId == callerId)
         {
             chat.DeletedAtByUser = DateTime.UtcNow;
@@ -240,84 +220,19 @@ public sealed class ChatService : IChatService
         {
             chat.DeletedAtBySecondParty = DateTime.UtcNow;
         }
+
+        await chatRepository.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task EnsureSeededAsync(CancellationToken cancellationToken)
+    private static bool ShouldIncludeChat(Chat chat, int callerId)
     {
-        if (seeded)
+        if (chat.IsBlocked && chat.BlockedByUserId != callerId)
         {
-            return;
+            return false;
         }
 
-        seeded = true;
-        var users = await userService.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var companies = await companyService.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var jobs = await jobService.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var knownUser in users)
-        {
-            userNames[knownUser.UserId] = GetUserName(knownUser);
-        }
-
-        foreach (var knownCompany in companies)
-        {
-            companyNames[knownCompany.CompanyId] = knownCompany.CompanyName;
-        }
-
-        var user = users.FirstOrDefault(user => user.UserId == 1) ?? users.FirstOrDefault();
-        var secondUser = users.FirstOrDefault(candidate => user is not null && candidate.UserId != user.UserId);
-        var company = companies.FirstOrDefault(company => company.CompanyId == 1) ?? companies.FirstOrDefault();
-        var job = company is null ? jobs.FirstOrDefault() : jobs.FirstOrDefault(job => job.CompanyId == company.CompanyId);
-
-        if (user is null)
-        {
-            return;
-        }
-
-        if (company is not null)
-        {
-            var chat = new Chat
-            {
-                ChatId = nextChatId++,
-                UserId = user.UserId,
-                CompanyId = company.CompanyId,
-                JobId = job?.JobId,
-            };
-            chats.Add(chat);
-            AddSeedMessage(chat.ChatId, company.CompanyId, "Thanks for applying. We liked your profile and would like to schedule a short call.", -2);
-            AddSeedMessage(chat.ChatId, user.UserId, "Sounds great. I am available tomorrow afternoon.", -1);
-        }
-
-        if (secondUser is not null)
-        {
-            var chat = new Chat
-            {
-                ChatId = nextChatId++,
-                UserId = user.UserId,
-                SecondUserId = secondUser.UserId,
-            };
-            chats.Add(chat);
-            AddSeedMessage(chat.ChatId, secondUser.UserId, "Good luck with the interviews. The SQL test helped me a lot.", -3);
-        }
-    }
-
-    private void AddSeedMessage(int chatId, int senderId, string content, int hoursOffset)
-    {
-        messages.Add(new Message
-        {
-            MessageId = nextMessageId++,
-            ChatId = chatId,
-            SenderId = senderId,
-            Content = content,
-            Timestamp = DateTime.UtcNow.AddHours(hoursOffset),
-            Type = MessageType.Text,
-            IsRead = true,
-        });
-    }
-
-    private Chat FindChat(int chatId)
-    {
-        return chats.FirstOrDefault(chat => chat.ChatId == chatId)
-            ?? throw new KeyNotFoundException($"Chat with id {chatId} was not found.");
+        var deletedAt = chat.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
+        return deletedAt is null;
     }
 
     private static void EnsureParticipant(Chat chat, int callerId)
@@ -328,62 +243,7 @@ public sealed class ChatService : IChatService
         }
     }
 
-    private bool ShouldIncludeChat(Chat chat, int callerId)
-    {
-        if (chat.IsBlocked && chat.BlockedByUserId != callerId)
-        {
-            return false;
-        }
-
-        var deletedAt = chat.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
-        return deletedAt is null || ResolveLatestMessageTime(chat) > deletedAt;
-    }
-
-    private DateTime ResolveLatestMessageTime(Chat chat)
-    {
-        return messages
-            .Where(message => message.ChatId == chat.ChatId)
-            .Select(message => message.Timestamp)
-            .DefaultIfEmpty(DateTime.MinValue)
-            .Max();
-    }
-
-    private Chat CloneWithPreview(Chat chat, int callerId)
-    {
-        var clone = new Chat
-        {
-            ChatId = chat.ChatId,
-            UserId = chat.UserId,
-            CompanyId = chat.CompanyId,
-            SecondUserId = chat.SecondUserId,
-            JobId = chat.JobId,
-            IsBlocked = chat.IsBlocked,
-            BlockedByUserId = chat.BlockedByUserId,
-            DeletedAtByUser = chat.DeletedAtByUser,
-            DeletedAtBySecondParty = chat.DeletedAtBySecondParty,
-            OtherPartyName = ResolveOtherPartyName(chat, callerId),
-        };
-
-        var chatMessages = messages
-            .Where(message => message.ChatId == chat.ChatId)
-            .OrderBy(message => message.Timestamp)
-            .ToList();
-        var lastMessage = chatMessages.LastOrDefault();
-        if (lastMessage is null)
-        {
-            return clone;
-        }
-
-        clone.LastMessage = GetDisplayContent(lastMessage);
-        clone.LastMessageSnippet = clone.LastMessage.Length > 60 ? $"{clone.LastMessage[..57]}..." : clone.LastMessage;
-        clone.LastMessageTime = lastMessage.Timestamp.ToLocalTime().Date == DateTime.Now.Date
-            ? lastMessage.Timestamp.ToLocalTime().ToString("HH:mm")
-            : lastMessage.Timestamp.ToLocalTime().ToString("dd MMM");
-        clone.UnreadCount = chatMessages.Count(message => message.SenderId != callerId && !message.IsRead);
-        return clone;
-    }
-
-    private Message CloneMessage(Message message, int callerId)
+    private static Message WithPresentationFields(Message message, int callerId)
     {
         return new Message
         {
@@ -394,38 +254,16 @@ public sealed class ChatService : IChatService
             Timestamp = message.Timestamp,
             Type = message.Type,
             IsRead = message.IsRead,
+            OriginalFileName = message.OriginalFileName,
             ShowReadReceipt = message.SenderId == callerId,
             SenderInitials = message.SenderId == callerId ? "Me" : "Them",
         };
-    }
-
-    private string ResolveOtherPartyName(Chat chat, int callerId)
-    {
-        if (chat.CompanyId is int companyId && callerId != companyId)
-        {
-            return companyNames.TryGetValue(companyId, out var companyName) ? companyName : $"Company {companyId}";
-        }
-
-        var otherUserId = chat.UserId == callerId ? chat.SecondUserId : chat.UserId;
-        if (otherUserId is int userId)
-        {
-            return userNames.TryGetValue(userId, out var userName) ? userName : $"User {userId}";
-        }
-
-        return "Conversation";
     }
 
     private static string GetUserName(User user)
     {
         var fullName = $"{user.FirstName} {user.LastName}".Trim();
         return string.IsNullOrWhiteSpace(fullName) ? $"User {user.UserId}" : fullName;
-    }
-
-    private static string GetDisplayContent(Message message)
-    {
-        return message.Type == MessageType.Text
-            ? message.Content
-            : Path.GetFileName(message.Content);
     }
 
     private static void ValidateAttachment(string path, MessageType type)
@@ -440,5 +278,33 @@ public sealed class ChatService : IChatService
         {
             throw new NotSupportedException("File messages must be .pdf, .docx, or .doc.");
         }
+    }
+
+    private async Task<string> StoreAttachmentAsync(string sourcePath, MessageType type, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(sourcePath))
+        {
+            throw new ArgumentException("Attachment path cannot be empty.", nameof(sourcePath));
+        }
+
+        if (!File.Exists(sourcePath))
+        {
+            throw new FileNotFoundException("Attachment file was not found.", sourcePath);
+        }
+
+        ValidateAttachment(sourcePath, type);
+
+        var fileInfo = new FileInfo(sourcePath);
+        var maxBytes = type == MessageType.Image ? MaxImageBytes : MaxFileBytes;
+        if (fileInfo.Length > maxBytes)
+        {
+            throw new InvalidOperationException(type == MessageType.Image
+                ? "Image must be less than 10 MB."
+                : "File must be less than 20 MB.");
+        }
+
+        await using var stream = File.OpenRead(sourcePath);
+        return await fileStorage.SaveFileAsync(stream, Path.GetFileName(sourcePath), cancellationToken)
+            .ConfigureAwait(false);
     }
 }

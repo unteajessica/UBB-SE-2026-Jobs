@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PussyCats.Library.Persistence;
 
@@ -11,9 +12,11 @@ using PussyCats.Library.Persistence;
 namespace PussyCats.Library.Migrations
 {
     [DbContext(typeof(PussyCatsDbContext))]
-    partial class PussyCatsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507213039_SeedChatDemoData")]
+    partial class SeedChatDemoData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

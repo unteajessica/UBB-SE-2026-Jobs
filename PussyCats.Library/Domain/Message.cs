@@ -13,4 +13,5 @@ public class Message
     public bool IsRead { get; set; }
     public bool ShowReadReceipt { get; set; }
     public string SenderInitials { get; set; } = string.Empty;
+    public string OriginalFileName { get; set; } = string.Empty;
 }

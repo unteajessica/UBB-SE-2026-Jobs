@@ -6,5 +6,7 @@ public interface ILocalFileStorageService
 
     Task DeleteFileAsync(string relativePath, CancellationToken cancellationToken = default);
 
+    Task<Stream> OpenReadAsync(string relativePath, CancellationToken cancellationToken = default);
+
     string GetFilePath(string relativePath);
 }

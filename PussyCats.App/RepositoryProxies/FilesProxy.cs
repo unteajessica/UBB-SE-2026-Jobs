@@ -51,6 +51,24 @@ public class FilesProxy : IFilesProxy
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task<Stream> DownloadAsync(string relativePath, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(relativePath))
+        {
+            throw new ArgumentException("File path cannot be empty.", nameof(relativePath));
+        }
+
+        var fileName = Uri.EscapeDataString(Path.GetFileName(relativePath));
+        using var response = await httpClient.GetAsync($"api/files/{fileName}", cancellationToken).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        var memory = new MemoryStream();
+        await responseStream.CopyToAsync(memory, cancellationToken).ConfigureAwait(false);
+        memory.Position = 0;
+        return memory;
+    }
+
     public string GetUrl(string relativePath)
     {
         if (string.IsNullOrWhiteSpace(relativePath))

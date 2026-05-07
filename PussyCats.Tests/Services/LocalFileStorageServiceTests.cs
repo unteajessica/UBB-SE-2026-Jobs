@@ -37,6 +37,18 @@ public class LocalFileStorageServiceTests
     }
 
     [Fact]
+    public async Task OpenReadAsync_delegates_to_files_proxy()
+    {
+        using var stream = new MemoryStream(new byte[] { 4, 5, 6 });
+        filesProxy.DownloadAsync("uploads/x.pdf", Arg.Any<CancellationToken>()).Returns(stream);
+
+        var result = await service.OpenReadAsync("uploads/x.pdf");
+
+        result.Should().BeSameAs(stream);
+        await filesProxy.Received(1).DownloadAsync("uploads/x.pdf", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public void GetFilePath_returns_proxy_resolved_url()
     {
         filesProxy.GetUrl("uploads/x.pdf").Returns("https://api/api/files/x.pdf");

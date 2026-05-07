@@ -21,6 +21,8 @@ public interface IChatService
 
     Task SendMessageAsync(int chatId, string content, int senderId, MessageType type, CancellationToken cancellationToken = default);
 
+    Task<Stream> OpenMessageAttachmentAsync(string attachmentPath, CancellationToken cancellationToken = default);
+
     Task MarkMessagesAsReadAsync(int chatId, int readerId, CancellationToken cancellationToken = default);
 
     Task BlockChatAsync(int chatId, int blockerId, CancellationToken cancellationToken = default);

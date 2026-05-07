@@ -6,57 +6,373 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="#F7F8FA">
+    Background="#FFFFFF">
 
-    <Grid ColumnDefinitions="320,*" MinWidth="760">
-        <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*" Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="0,0,1,0">
-            <StackPanel Grid.Row="0" Padding="20,18,20,12" Spacing="4">
-                <TextBlock Text="Chat" FontSize="22" FontWeight="SemiBold" Foreground="#16181D" />
-                <TextBlock Text="Messages across user and company modes" FontSize="12" Foreground="#697181" />
-            </StackPanel>
+    <Page.Resources>
+        <SolidColorBrush x:Key="ChatColorWhite" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="ChatColorTextPrimary" Color="#1A1A1A" />
+        <SolidColorBrush x:Key="ChatColorTextMuted" Color="#ABABAB" />
+        <SolidColorBrush x:Key="ChatColorTextSecondary" Color="#6B6B6B" />
+        <SolidColorBrush x:Key="ChatColorAccentDark" Color="#0F4FAD" />
+        <SolidColorBrush x:Key="ChatColorAccent" Color="#1F6FEB" />
+        <SolidColorBrush x:Key="ChatColorError" Color="#C0392B" />
+        <SolidColorBrush x:Key="ChatColorSurfaceAlt" Color="#F8F8F7" />
+        <SolidColorBrush x:Key="ChatColorBorderLight" Color="#14000000" />
+        <SolidColorBrush x:Key="ChatColorBorderMedium" Color="#21000000" />
+        <SolidColorBrush x:Key="ChatColorOverlayLight" Color="#0A000000" />
+        <SolidColorBrush x:Key="ChatColorSelection" Color="#EBF2FF" />
+        <SolidColorBrush x:Key="ChatColorSelectionStrong" Color="#DCEBFF" />
+        <SolidColorBrush x:Key="ChatColorSelectionHover" Color="#DCEAFD" />
+        <SolidColorBrush x:Key="ChatColorSelectionPressed" Color="#D0E3FC" />
+        <SolidColorBrush x:Key="ChatColorErrorSurface" Color="#FDECEC" />
+        <SolidColorBrush x:Key="ChatColorSuccessSurface" Color="#EAF5EE" />
+        <SolidColorBrush x:Key="ChatColorSuccess" Color="#1A9645" />
+        <SolidColorBrush x:Key="ChatColorAccentBorder" Color="#661F6FEB" />
+        <SolidColorBrush x:Key="ChatColorAccentBorderSoft" Color="#331F6FEB" />
+        <SolidColorBrush x:Key="ChatColorErrorBorderSoft" Color="#33C0392B" />
+        <SolidColorBrush x:Key="ChatColorBadgeBackground" Color="#EEF4FF" />
+        <SolidColorBrush x:Key="ChatColorPressedBackground" Color="#F5F5F5" />
+        <SolidColorBrush x:Key="ChatColorContactChipBackground" Color="#F2F1EF" />
 
-            <StackPanel Grid.Row="1" Padding="16,0,16,12" Spacing="8">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                    <TextBox x:Name="SearchBox"
-                             Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="Search users or companies"
-                             CornerRadius="6" />
-                    <Button Grid.Column="1" Content="Search" Command="{Binding SearchCommand}" />
-                </Grid>
+        <Style x:Key="PillTabStyle" TargetType="ToggleButton">
+            <Setter Property="HorizontalAlignment"        Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment"          Value="Stretch" />
+            <Setter Property="FontSize"                   Value="12" />
+            <Setter Property="FontWeight"                 Value="Medium" />
+            <Setter Property="Padding"                    Value="0,7" />
+            <Setter Property="BorderThickness"            Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Root"
+                                Background="Transparent"
+                                CornerRadius="7"
+                                Padding="{TemplateBinding Padding}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorOverlayLight}" />
+                                            <Setter Target="Label.Foreground" Value="{StaticResource ChatColorTextPrimary}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorBorderLight}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Checked">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorWhite}" />
+                                            <Setter Target="Label.Foreground" Value="{StaticResource ChatColorTextPrimary}" />
+                                            <Setter Target="Label.FontWeight" Value="SemiBold" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="CheckedPointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorWhite}" />
+                                            <Setter Target="Label.Foreground" Value="{StaticResource ChatColorTextPrimary}" />
+                                            <Setter Target="Label.FontWeight" Value="SemiBold" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="CheckedPressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorPressedBackground}" />
+                                            <Setter Target="Label.Foreground" Value="{StaticResource ChatColorTextPrimary}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="Label.Foreground" Value="{StaticResource ChatColorTextMuted}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
 
-                <ListView x:Name="SearchResultsList"
-                          ItemsSource="{Binding SearchResults}"
-                          ItemClick="SearchResultsList_ItemClick"
-                          IsItemClickEnabled="True"
-                          SelectionMode="None"
-                          MaxHeight="150">
-                    <ListView.ItemTemplate>
+                            <TextBlock x:Name="Label"
+                                       Text="{TemplateBinding Content}"
+                                       Foreground="{StaticResource ChatColorTextSecondary}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       FontWeight="{TemplateBinding FontWeight}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ConvItemStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin"  Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border x:Name="Root" Background="Transparent">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorOverlayLight}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorBorderLight}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorSelection}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="SelectedPointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorSelectionHover}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="SelectedPressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource ChatColorSelectionPressed}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconBtnStyle" TargetType="Button">
+            <Setter Property="Background"      Value="{StaticResource ChatColorWhite}" />
+            <Setter Property="BorderBrush"     Value="{StaticResource ChatColorBorderMedium}" />
+            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="CornerRadius"    Value="6" />
+            <Setter Property="Width"           Value="32" />
+            <Setter Property="Height"          Value="32" />
+            <Setter Property="Padding"         Value="0" />
+        </Style>
+
+        <Style x:Key="ComposeAttachStyle" TargetType="Button">
+            <Setter Property="Background"      Value="{StaticResource ChatColorSurfaceAlt}" />
+            <Setter Property="BorderBrush"     Value="{StaticResource ChatColorBorderMedium}" />
+            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="CornerRadius"    Value="6" />
+            <Setter Property="Width"           Value="36" />
+            <Setter Property="Height"          Value="36" />
+            <Setter Property="Padding"         Value="0" />
+        </Style>
+
+        <Style x:Key="SendBtnStyle" TargetType="Button">
+            <Setter Property="Background"      Value="{StaticResource ChatColorAccent}" />
+            <Setter Property="Foreground"      Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius"    Value="6" />
+            <Setter Property="Width"           Value="36" />
+            <Setter Property="Height"          Value="36" />
+            <Setter Property="Padding"         Value="0" />
+        </Style>
+
+        <Style x:Key="ComposeInputStyle" TargetType="TextBox">
+            <Setter Property="Background"            Value="{StaticResource ChatColorSurfaceAlt}" />
+            <Setter Property="Foreground"            Value="{StaticResource ChatColorTextPrimary}" />
+            <Setter Property="PlaceholderForeground" Value="{StaticResource ChatColorTextMuted}" />
+            <Setter Property="BorderBrush"           Value="{StaticResource ChatColorBorderMedium}" />
+            <Setter Property="BorderThickness"       Value="0.5" />
+            <Setter Property="CornerRadius"          Value="10" />
+            <Setter Property="FontSize"              Value="13" />
+            <Setter Property="Padding"               Value="12,8" />
+            <Setter Property="MinHeight"             Value="36" />
+            <Setter Property="VerticalAlignment"     Value="Center" />
+            <Setter Property="AcceptsReturn"         Value="False" />
+        </Style>
+
+        <Style x:Key="IncomingAttachmentButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource ChatColorBadgeBackground}" />
+            <Setter Property="Foreground" Value="{StaticResource ChatColorAccentDark}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ChatColorAccentBorder}" />
+            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="CornerRadius" Value="14,14,14,4" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+
+        <Style x:Key="OutgoingAttachmentButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource ChatColorSelectionStrong}" />
+            <Setter Property="Foreground" Value="{StaticResource ChatColorAccentDark}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ChatColorAccentBorder}" />
+            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="CornerRadius" Value="14,14,4,14" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+    </Page.Resources>
+
+    <Grid ColumnDefinitions="288,*"
+          Background="#FFFFFF"
+          RequestedTheme="Light">
+
+        <Grid Grid.Column="0"
+              RowDefinitions="Auto,Auto,*"
+              Background="{StaticResource ChatColorSurfaceAlt}">
+
+            <Border Grid.RowSpan="3"
+                    BorderBrush="{StaticResource ChatColorBorderLight}"
+                    BorderThickness="0,0,0.5,0"
+                    IsHitTestVisible="False" />
+
+            <Border Grid.Row="0"
+                    Background="#FFFFFF"
+                    BorderBrush="{StaticResource ChatColorBorderLight}"
+                    BorderThickness="0,0,0,0.5"
+                    Padding="16,18,16,12">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Messages"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource ChatColorTextPrimary}"
+                               CharacterSpacing="-20" />
+
+                    <Border x:Name="TabSwitcher"
+                            Visibility="{Binding IsUserMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Background="{StaticResource ChatColorContactChipBackground}"
+                            CornerRadius="10"
+                            Padding="3">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="2">
+                            <ToggleButton Grid.Column="0"
+                                          x:Name="UsersTabButton"
+                                          Content="Users"
+                                          IsChecked="{Binding IsUsersTabActive, Mode=TwoWay}"
+                                          Click="UsersTab_Click"
+                                          Style="{StaticResource PillTabStyle}" />
+                            <ToggleButton Grid.Column="1"
+                                          x:Name="CompanyTabButton"
+                                          Content="Companies"
+                                          IsChecked="{Binding IsCompaniesTabActive, Mode=TwoWay}"
+                                          Click="CompanyTab_Click"
+                                          Style="{StaticResource PillTabStyle}" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Background="#FFFFFF"
+                    BorderBrush="{StaticResource ChatColorBorderLight}"
+                    BorderThickness="0,0,0,0.5"
+                    Padding="12,10">
+                <AutoSuggestBox x:Name="SearchBox"
+                                Text="{Binding SearchQuery, Mode=TwoWay}"
+                                PlaceholderText="Search conversations..."
+                                QueryIcon="Find"
+                                TextChanged="SearchBox_TextChanged"
+                                SuggestionChosen="SearchBox_SuggestionChosen"
+                                QuerySubmitted="SearchBox_QuerySubmitted"
+                                ItemsSource="{Binding SearchResults}"
+                                CornerRadius="10"
+                                Background="{StaticResource ChatColorSurfaceAlt}"
+                                Foreground="{StaticResource ChatColorTextPrimary}">
+                    <AutoSuggestBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Padding="8,6" Spacing="2">
-                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#20242A" />
-                                <TextBlock Text="{Binding SecondaryText}" FontSize="12" Foreground="#697181" />
-                            </StackPanel>
+                            <Grid ColumnDefinitions="40,*" ColumnSpacing="10" Padding="4,6">
+                                <Border Grid.Column="0"
+                                        Width="36" Height="36"
+                                        CornerRadius="18"
+                                        Background="{StaticResource ChatColorSelection}">
+                                    <TextBlock Text="{Binding Converter={StaticResource ChatInitialsConverter}}"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{StaticResource ChatColorAccentDark}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="{Binding Converter={StaticResource ChatNameConverter}}"
+                                               FontWeight="SemiBold" FontSize="13"
+                                               Foreground="{StaticResource ChatColorTextPrimary}" />
+                                    <TextBlock Text="{Binding SecondaryText}"
+                                               Foreground="{StaticResource ChatColorTextSecondary}" FontSize="12"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </Grid>
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackPanel>
+                    </AutoSuggestBox.ItemTemplate>
+                </AutoSuggestBox>
+            </Border>
 
             <ListView Grid.Row="2"
                       x:Name="ConversationList"
-                      ItemsSource="{Binding Chats}"
+                      ItemsSource="{Binding CurrentChatList}"
                       SelectedItem="{Binding SelectedChat, Mode=TwoWay}"
                       SelectionChanged="ConversationList_SelectionChanged"
-                      Padding="8,0,8,12">
+                      Background="Transparent"
+                      ItemContainerStyle="{StaticResource ConvItemStyle}">
+
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="10,9" ColumnDefinitions="*,Auto">
-                            <StackPanel Grid.Column="0" Spacing="3">
-                                <TextBlock Text="{Binding OtherPartyName}" FontWeight="SemiBold" Foreground="#1D222B" />
-                                <TextBlock Text="{Binding LastMessageSnippet}" TextTrimming="CharacterEllipsis" FontSize="12" Foreground="#697181" />
+                        <Grid ColumnDefinitions="3,50,*,Auto"
+                              MinHeight="62"
+                              Padding="0,0,12,0">
+
+                            <Border Grid.Column="0"
+                                    x:Name="AccentBar"
+                                    Background="{StaticResource ChatColorAccent}"
+                                    CornerRadius="0,2,2,0"
+                                    Visibility="Collapsed" />
+
+                            <Border Grid.Column="1"
+                                    Width="42" Height="42"
+                                    CornerRadius="{Binding Converter={StaticResource ChatAvatarCornerRadiusConverter}}"
+                                    Background="{Binding Converter={StaticResource ChatAvatarBgConverter}}"
+                                    BorderBrush="{StaticResource ChatColorBorderLight}"
+                                    BorderThickness="0.5"
+                                    VerticalAlignment="Center"
+                                    Margin="4,0">
+                                <TextBlock Text="{Binding Converter={StaticResource ChatInitialsConverter}}"
+                                           FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{Binding Converter={StaticResource ChatAvatarFgConverter}}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+
+                            <StackPanel Grid.Column="2"
+                                        Spacing="3"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Converter={StaticResource ChatNameConverter}}"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource ChatColorTextPrimary}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding LastMessageSnippet}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource ChatColorTextSecondary}"
+                                           TextTrimming="CharacterEllipsis" />
                             </StackPanel>
-                            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="3">
-                                <TextBlock Text="{Binding LastMessageTime}" FontSize="11" Foreground="#8A93A3" />
-                                <TextBlock Text="{Binding UnreadCount}" FontSize="11" Foreground="#1F6FEB" HorizontalAlignment="Right" />
+
+                            <StackPanel Grid.Column="3"
+                                        Spacing="4"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding LastMessageTime}"
+                                           FontSize="11"
+                                           Foreground="{StaticResource ChatColorTextMuted}"
+                                           HorizontalAlignment="Right" />
+                                <Border Background="{StaticResource ChatColorAccent}"
+                                        CornerRadius="9"
+                                        MinWidth="18" Height="18"
+                                        Padding="4,0"
+                                        HorizontalAlignment="Right"
+                                        Visibility="{Binding UnreadCount, Converter={StaticResource IntToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding UnreadCount}"
+                                               FontSize="10" FontWeight="SemiBold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
@@ -64,50 +380,397 @@
             </ListView>
         </Grid>
 
-        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
-            <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="0,0,0,1" Padding="20,16">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                    <StackPanel Spacing="3">
-                        <TextBlock Text="{Binding SelectedChat.OtherPartyName, FallbackValue=Select a conversation}" FontSize="18" FontWeight="SemiBold" Foreground="#16181D" />
-                        <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#B42318" />
+        <Grid Grid.Column="1"
+              RowDefinitions="Auto,*,Auto,Auto"
+              Background="#FFFFFF">
+
+            <StackPanel Grid.Row="0" Grid.RowSpan="4"
+                        Visibility="{Binding SelectedChat, Converter={StaticResource ObjectToVisibilityConverter}, ConverterParameter=Inverse}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="16">
+                <FontIcon Glyph="&#xE77B;" FontSize="64" Foreground="{StaticResource ChatColorTextMuted}" HorizontalAlignment="Center" />
+                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                    <TextBlock Text="No chat selected"
+                               FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ChatColorTextPrimary}"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="Select a conversation from the list to start messaging"
+                               FontSize="12" Foreground="{StaticResource ChatColorTextSecondary}"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
+                               MaxWidth="300" />
+                </StackPanel>
+            </StackPanel>
+
+            <Border Grid.Row="0"
+                    Visibility="{Binding SelectedChat, Converter={StaticResource ObjectToVisibilityConverter}}"
+                    Background="#FFFFFF"
+                    BorderBrush="{StaticResource ChatColorBorderLight}"
+                    BorderThickness="0,0,0,0.5"
+                    Padding="20,14">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Border Grid.Column="0"
+                            Width="38" Height="38"
+                            CornerRadius="{Binding SelectedChat, Converter={StaticResource ChatAvatarCornerRadiusConverter}}"
+                            Background="{Binding SelectedChat, Converter={StaticResource ChatAvatarBgConverter}}"
+                            BorderBrush="{StaticResource ChatColorBorderLight}"
+                            BorderThickness="0.5"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SelectedChat, Converter={StaticResource ChatInitialsConverter}}"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{Binding SelectedChat, Converter={StaticResource ChatAvatarFgConverter}}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding SelectedChat, Converter={StaticResource ChatPartyNameConverter}}"
+                                       FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource ChatColorTextPrimary}"
+                                       CharacterSpacing="-10"
+                                       VerticalAlignment="Center" />
+                            <Border Background="{StaticResource ChatColorErrorSurface}"
+                                    CornerRadius="999"
+                                    Padding="7,2"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding SelectedChat.IsBlocked, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="Blocked"
+                                           FontSize="10" FontWeight="Medium"
+                                           Foreground="{StaticResource ChatColorError}" />
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding SelectedChat, Converter={StaticResource ChatSubtitleConverter}}"
+                                       FontSize="12"
+                                       Foreground="{StaticResource ChatColorTextMuted}"
+                                       VerticalAlignment="Center" />
+
+                            <Button x:Name="JobBannerButton"
+                                    Visibility="{Binding SelectedChat.JobId, Converter={StaticResource ObjectToVisibilityConverter}}"
+                                    Click="HandleGoToJobPostClick"
+                                    Background="{StaticResource ChatColorSelection}"
+                                    BorderBrush="{StaticResource ChatColorAccentBorderSoft}"
+                                    BorderThickness="0.5"
+                                    CornerRadius="6"
+                                    Padding="8,4">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <FontIcon Glyph="&#xE7BE;" FontSize="11" Foreground="{StaticResource ChatColorAccentDark}" />
+                                    <TextBlock Text="{Binding LinkedJob.JobTitle}"
+                                               FontSize="11" FontWeight="Medium"
+                                               Foreground="{StaticResource ChatColorAccentDark}" />
+                                    <TextBlock Text="{Binding LinkedJob.JobDescription}"
+                                               FontSize="11" FontWeight="Medium"
+                                               Foreground="{StaticResource ChatColorAccentDark}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                        <Button Content="Block" Command="{Binding BlockCommand}" />
-                        <Button Content="Unblock" Command="{Binding UnblockCommand}" />
-                        <Button Content="Delete" Command="{Binding DeleteCommand}" />
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="6"
+                                VerticalAlignment="Center">
+
+                        <Button Style="{StaticResource IconBtnStyle}"
+                                Visibility="{Binding ShowGoToProfile, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Click="HandleGoToProfileClick"
+                                ToolTipService.ToolTip="View profile">
+                            <FontIcon Glyph="&#xE77B;" FontSize="14" Foreground="{StaticResource ChatColorTextSecondary}" />
+                        </Button>
+
+                        <Button Style="{StaticResource IconBtnStyle}">
+                            <FontIcon Glyph="&#xE712;" FontSize="14" Foreground="{StaticResource ChatColorTextSecondary}" />
+                            <Button.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                    <MenuFlyoutItem Text="View Profile"
+                                                    Visibility="{Binding ShowGoToProfile, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    Click="HandleGoToProfileClick">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE77B;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="View Company"
+                                                    Visibility="{Binding ShowGoToCompanyProfile, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    Click="HandleGoToCompanyProfileClick">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE825;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="View Job Post"
+                                                    Visibility="{Binding ShowGoToJobPost, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    Click="HandleGoToJobPostClick">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE7BE;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem Text="Block"
+                                                    Visibility="{Binding ShowBlock, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    Click="HandleBlockButtonClick"
+                                                    Foreground="{StaticResource ChatColorError}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xF140;" Foreground="{StaticResource ChatColorError}" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Unblock"
+                                                    Visibility="{Binding ShowUnblock, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    Click="HandleUnblockButtonClick"
+                                                    Foreground="{StaticResource ChatColorSuccess}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE73E;" Foreground="{StaticResource ChatColorSuccess}" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem Text="Delete Chat"
+                                                    Visibility="{Binding SelectedChat, Converter={StaticResource ObjectToVisibilityConverter}}"
+                                                    Click="HandleDeleteChatButtonClick"
+                                                    Foreground="{StaticResource ChatColorError}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE74D;" Foreground="{StaticResource ChatColorError}" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <ListView Grid.Row="1"
+                      Visibility="{Binding SelectedChat, Converter={StaticResource ObjectToVisibilityConverter}}"
+                      x:Name="MessageList"
                       ItemsSource="{Binding Messages}"
+                      Background="{StaticResource ChatColorSurfaceAlt}"
                       SelectionMode="None"
-                      Padding="24,16"
-                      Background="#F7F8FA">
+                      IsItemClickEnabled="True"
+                      ItemClick="MessageList_ItemClick"
+                      Padding="24,16">
+
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Padding"    Value="0,0,0,16" />
+                        <Setter Property="Margin"     Value="0" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="1" CornerRadius="7" Padding="12" Margin="0,0,0,10">
-                            <StackPanel Spacing="5">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Text="{Binding SenderLabel}" FontWeight="SemiBold" Foreground="#1F6FEB" />
-                                    <TextBlock Grid.Column="1" Text="{Binding Timestamp}" FontSize="11" Foreground="#8A93A3" />
-                                </Grid>
-                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#20242A" />
+                        <Grid>
+                            <StackPanel
+                                Visibility="{Binding Message, Converter={StaticResource IsOtherPartyMessageConverter}}"
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                HorizontalAlignment="Left"
+                                MaxWidth="420">
+
+                                <Border Width="28" Height="28"
+                                        CornerRadius="14"
+                                        Background="{StaticResource ChatColorSelection}"
+                                        BorderBrush="{StaticResource ChatColorBorderLight}"
+                                        BorderThickness="0.5"
+                                        VerticalAlignment="Bottom">
+                                    <TextBlock Text="{Binding Message.SenderInitials}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource ChatColorAccentDark}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+
+                                <StackPanel Spacing="3">
+                                    <Border Background="#FFFFFF"
+                                            BorderBrush="{StaticResource ChatColorBorderLight}"
+                                            BorderThickness="0.5"
+                                            CornerRadius="14,14,14,4"
+                                            Padding="12,9"
+                                            MaxWidth="320"
+                                            Visibility="{Binding Message, Converter={StaticResource MessageTextVisibilityConverter}}">
+                                        <TextBlock Text="{Binding Message, Converter={StaticResource MessageContentDisplayConverter}}"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource ChatColorTextPrimary}"
+                                                   TextWrapping="Wrap"
+                                                   LineHeight="20" />
+                                    </Border>
+
+                                    <Border Background="#FFFFFF"
+                                            BorderBrush="{StaticResource ChatColorBorderLight}"
+                                            BorderThickness="0.5"
+                                            CornerRadius="14,14,14,4"
+                                            Padding="4"
+                                            MaxWidth="320"
+                                            Visibility="{Binding Message, Converter={StaticResource MessageImageVisibilityConverter}}">
+                                        <Image Source="{Binding Message, Converter={StaticResource MessageImageSourceConverter}}"
+                                               MaxWidth="312"
+                                               MaxHeight="320"
+                                               Stretch="Uniform" />
+                                    </Border>
+
+                                    <Button Style="{StaticResource IncomingAttachmentButtonStyle}"
+                                            MaxWidth="320"
+                                            Visibility="{Binding Message, Converter={StaticResource MessageFileAttachmentVisibilityConverter}}"
+                                            Click="AttachmentMessage_Click"
+                                            Tag="{Binding Message}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE896;" FontSize="14" />
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Message, Converter={StaticResource MessageContentDisplayConverter}}"
+                                                           FontSize="13"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="Click to download"
+                                                           FontSize="11"
+                                                           Opacity="0.75" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <TextBlock Text="{Binding Timestamp}"
+                                               FontSize="10"
+                                               Foreground="{StaticResource ChatColorTextMuted}"
+                                               Margin="4,0,0,0" />
+                                </StackPanel>
                             </StackPanel>
-                        </Border>
+
+                            <StackPanel
+                                Visibility="{Binding Message, Converter={StaticResource IsCurrentUserMessageConverter}}"
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                HorizontalAlignment="Right"
+                                MaxWidth="420">
+
+                                <StackPanel Spacing="3" HorizontalAlignment="Right">
+                                    <Border Background="{StaticResource ChatColorAccent}"
+                                            CornerRadius="14,14,4,14"
+                                            Padding="12,9"
+                                            MaxWidth="320"
+                                            Visibility="{Binding Message, Converter={StaticResource MessageTextVisibilityConverter}}">
+                                        <TextBlock Text="{Binding Message, Converter={StaticResource MessageContentDisplayConverter}}"
+                                                   FontSize="13"
+                                                   Foreground="White"
+                                                   TextWrapping="Wrap"
+                                                   LineHeight="20" />
+                                    </Border>
+
+                                    <Border Background="{StaticResource ChatColorSelectionStrong}"
+                                            BorderBrush="{StaticResource ChatColorAccentBorder}"
+                                            BorderThickness="0.5"
+                                            CornerRadius="14,14,4,14"
+                                            Padding="4"
+                                            MaxWidth="320"
+                                            Visibility="{Binding Message, Converter={StaticResource MessageImageVisibilityConverter}}">
+                                        <Image Source="{Binding Message, Converter={StaticResource MessageImageSourceConverter}}"
+                                               MaxWidth="312"
+                                               MaxHeight="320"
+                                               Stretch="Uniform" />
+                                    </Border>
+
+                                    <Button Style="{StaticResource OutgoingAttachmentButtonStyle}"
+                                            MaxWidth="320"
+                                            Visibility="{Binding Message, Converter={StaticResource MessageFileAttachmentVisibilityConverter}}"
+                                            Click="AttachmentMessage_Click"
+                                            Tag="{Binding Message}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE896;" FontSize="14" />
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Message, Converter={StaticResource MessageContentDisplayConverter}}"
+                                                           FontSize="13"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="Click to download"
+                                                           FontSize="11"
+                                                           Opacity="0.75" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="5"
+                                                HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding Timestamp}"
+                                                   FontSize="10"
+                                                   Foreground="{StaticResource ChatColorTextMuted}" />
+                                        <TextBlock Text="{Binding Message.IsRead, Converter={StaticResource ReadReceiptConverter}}"
+                                                   FontSize="10"
+                                                   Foreground="{StaticResource ChatColorAccent}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,0,2,0"
+                                                   Visibility="{Binding Message.ShowReadReceipt, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <Border Width="28" Height="28"
+                                        CornerRadius="14"
+                                        Background="{StaticResource ChatColorSuccessSurface}"
+                                        BorderBrush="{StaticResource ChatColorBorderLight}"
+                                        BorderThickness="0.5"
+                                        VerticalAlignment="Bottom">
+                                    <TextBlock Text="{Binding Message.SenderInitials}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource ChatColorSuccess}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
 
-            <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="0,1,0,0" Padding="16">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                    <TextBox x:Name="MessageBox"
-                             Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="Type a message"
-                             CornerRadius="8"
-                             KeyDown="MessageBox_KeyDown" />
-                    <Button Grid.Column="1" Content="Send" Command="{Binding SendCommand}" />
-                </Grid>
+            <Border Grid.Row="2"
+                    Visibility="{Binding SelectedChat, Converter={StaticResource ObjectToVisibilityConverter}}"
+                    Background="#FFFFFF"
+                    BorderBrush="{StaticResource ChatColorBorderLight}"
+                    BorderThickness="0,0.5,0,0"
+                    Padding="16,12,16,14">
+                <StackPanel Spacing="8">
+                    <Border Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                            Background="{StaticResource ChatColorErrorSurface}"
+                            BorderBrush="{StaticResource ChatColorErrorBorderSoft}"
+                            BorderThickness="0.5"
+                            CornerRadius="6"
+                            Padding="10,5">
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource ChatColorError}" />
+                    </Border>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <Button Grid.Column="0"
+                                Style="{StaticResource ComposeAttachStyle}"
+                                Click="HandleAttachmentButtonClick"
+                                IsEnabled="{Binding SelectedChat.IsBlocked, Converter={StaticResource BoolNegationConverter}}"
+                                ToolTipService.ToolTip="Attach file">
+                            <FontIcon Glyph="&#xE723;" FontSize="15" Foreground="{StaticResource ChatColorTextSecondary}" />
+                        </Button>
+
+                        <TextBox Grid.Column="1"
+                                 x:Name="MessageInput"
+                                 Style="{StaticResource ComposeInputStyle}"
+                                 PlaceholderText="Type a message..."
+                                 Text="{Binding MessageText, Mode=TwoWay}"
+                                 KeyDown="MessageInput_KeyDown"
+                                 IsEnabled="{Binding SelectedChat.IsBlocked, Converter={StaticResource BoolNegationConverter}}" />
+
+                        <Button Grid.Column="2"
+                                Style="{StaticResource SendBtnStyle}"
+                                Click="HandleSendButtonClick"
+                                IsEnabled="{Binding SelectedChat.IsBlocked, Converter={StaticResource BoolNegationConverter}}"
+                                ToolTipService.ToolTip="Send">
+                            <FontIcon Glyph="&#xE724;" FontSize="15" Foreground="White" />
+                        </Button>
+                    </Grid>
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>
