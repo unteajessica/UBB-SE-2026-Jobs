@@ -6,25 +6,102 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="#F4F6F8">
+    Background="#F7F8FA">
 
-    <Grid Padding="28" RowDefinitions="Auto,*">
-        <StackPanel Grid.Row="0" Spacing="6" Margin="0,0,0,20">
-            <TextBlock Text="{Binding ModeSummary}" FontSize="24" FontWeight="SemiBold" Foreground="#171717"/>
-            <TextBlock Text="Merged app status" FontSize="13" Foreground="#5F6368"/>
-        </StackPanel>
+    <ScrollViewer Padding="28,24">
+        <Grid MaxWidth="980" HorizontalAlignment="Left" RowDefinitions="Auto,Auto,*">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,20">
+                <StackPanel Grid.Column="0" Spacing="5">
+                    <TextBlock Text="Developer Feed" FontSize="24" FontWeight="SemiBold" Foreground="#16181D" />
+                    <TextBlock Text="Propose matching algorithm parameter changes and vote on team suggestions." FontSize="13" Foreground="#697181" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
+            </Grid>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Posts}" SelectionMode="None">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Border Background="White" BorderBrush="#DADCE0" BorderThickness="1" CornerRadius="8" Padding="18" Margin="0,0,0,12">
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" Foreground="#202124"/>
-                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="13" Foreground="#4D5156"/>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </Grid>
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10" Background="#FFFFFF" Padding="16" Margin="0,0,0,16">
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#20242A" />
+                    </Style>
+                </Grid.Resources>
+                <StackPanel Grid.Column="0" Spacing="10">
+                    <TextBlock Text="New proposal" FontSize="16" FontWeight="SemiBold" />
+                    <Grid ColumnDefinitions="260,*" ColumnSpacing="10">
+                        <ComboBox Grid.Column="0"
+                                  ItemsSource="{Binding ParameterOptions}"
+                                  SelectedItem="{Binding SelectedParameter, Mode=TwoWay}"
+                                  DisplayMemberPath="DisplayName"
+                                  MinWidth="240" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding ProposedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Value, percent, factor, or lowercase keyword"
+                                 CornerRadius="6" />
+                    </Grid>
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#B42318" />
+                </StackPanel>
+                <Button Grid.Column="1"
+                        Content="Publish"
+                        Command="{Binding AddPostCommand}"
+                        VerticalAlignment="Center" />
+            </Grid>
+
+            <Grid Grid.Row="2" ColumnDefinitions="340,*" ColumnSpacing="16">
+                <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="1" CornerRadius="8" Padding="18" VerticalAlignment="Top">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="How the algorithm works" FontSize="16" FontWeight="SemiBold" Foreground="#16181D" />
+                        <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="#697181" Text="Compatibility is built from skill distance, resume/job text similarity, preferences, and promotion score. Developer posts let the team tune the weights and propose important keywords." />
+                        <Rectangle Height="1" Fill="#E0E4EA" />
+                        <TextBlock Text="Weights must be 0 to 100." FontSize="13" Foreground="#20242A" />
+                        <TextBlock Text="Mitigation factor must be at least 1." FontSize="13" Foreground="#20242A" />
+                        <TextBlock Text="Keywords must be lowercase." FontSize="13" Foreground="#20242A" />
+                    </StackPanel>
+                </Border>
+
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding Posts}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="1" CornerRadius="8" Padding="18" Margin="0,0,0,12">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                            <Border Width="36" Height="36" CornerRadius="18" Background="#1F2937">
+                                                <TextBlock Text="{Binding AuthorInitial}" Foreground="#FFFFFF" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            </Border>
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Text="{Binding AuthorName}" FontWeight="SemiBold" Foreground="#16181D" />
+                                                <TextBlock Text="{Binding CreatedAt}" FontSize="11" Foreground="#8A93A3" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Background="#1F6FEB" CornerRadius="5" Padding="9,4" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding TypeLabel}" Foreground="#FFFFFF" FontSize="11" FontWeight="SemiBold" />
+                                        </Border>
+                                    </Grid>
+
+                                    <StackPanel Spacing="5">
+                                        <TextBlock Text="{Binding ParameterDisplayName}" FontSize="16" FontWeight="SemiBold" Foreground="#20242A" />
+                                        <TextBlock Text="{Binding ValueDisplay}" FontSize="13" TextWrapping="Wrap" Foreground="#697181" />
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Command="{Binding LikeCommand}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE8E1;" FontSize="14" />
+                                                <TextBlock Text="{Binding LikeCount}" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Command="{Binding DislikeCommand}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE8E0;" FontSize="14" />
+                                                <TextBlock Text="{Binding DislikeCount}" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
 </Page>

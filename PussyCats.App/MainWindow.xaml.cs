@@ -23,12 +23,14 @@ public sealed partial class MainWindow : Window
         "CompatibilityOverviewPage",
         "DocumentsPage",
         "ExportCVPage",
+        "ChatPage",
     ];
 
     private static readonly HashSet<string> CompanyPages =
     [
         "CompanyRecommendationPage",
         "CompanyStatusPage",
+        "ChatPage",
     ];
 
     private static readonly HashSet<string> DeveloperPages =
@@ -36,10 +38,7 @@ public sealed partial class MainWindow : Window
         "DeveloperPage",
     ];
 
-    private static readonly HashSet<string> SharedPages =
-    [
-        "ChatPage",
-    ];
+    private static readonly HashSet<string> SharedPages = [];
 
     private static readonly Dictionary<string, Type> PageMap = new()
     {

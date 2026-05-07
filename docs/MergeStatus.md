@@ -52,8 +52,9 @@ Key domain decisions made:
 - `Match` keeps matchmaking's `MatchStatus` enum and the state
   machine. Navigation properties (`Match.User`, `Match.Job`)
   preferred over bare FKs per the assignment rule.
-- `Developer`, `Interaction`, `Post`, `Chat` deferred per
-  `MergePlan.md §8`. Stays mocked for now.
+- `Developer`, `DeveloperInteraction`, `DeveloperPost`, `Chat`, and
+  `Message` were added in Phase 8d for the app-local Chat and Developer
+  screens. Persistence/API backing remains future hardening.
 
 ### Phase 2 — EF Core + initial migration (done, committed)
 
@@ -620,10 +621,9 @@ touched until 5c.
   `[RelayCommand]`). Both original repos already used it; no mixed
   patterns.
 
-- **Chat and Developer VMs are deferred.** `ChatViewModel` and
-  `DeveloperViewModel` depend on services outside the merged scope
-  (§8). They are not ported. Each gets a stub file with
-  `// mock: belongs to other half, see MergePlan.md §8`.
+- **Chat and Developer VMs were deferred during Phase 5.** Phase 8d ports
+  usable app-local implementations from the Varis repo: chat inbox/search/
+  compose/block/delete and the developer algorithm proposal feed.
 
 - **`JobRecommendationResult` display helpers restored.** The DTO
   dropped `JobTitleLine`, `DescriptionExcerpt`, `BuildExcerpt`,
@@ -864,8 +864,9 @@ receive `ISkillGapService` via DI.
 
 `PostCardViewModel` — near-verbatim (pure display model).
 
-`ChatViewModel` stub → `// mock: belongs to other half, see MergePlan.md §8`.
-`DeveloperViewModel` stub → same comment.
+`ChatViewModel` and `DeveloperViewModel` were initially stubbed here. Phase
+8d replaces them with usable app-local implementations backed by
+`IChatService` and `IDeveloperService`.
 
 *`JobRecommendationResult` display helpers:* Add `JobTitleLine`,
 `DescriptionExcerpt` (first 200 chars), `BuildExcerpt` static helper,
@@ -929,9 +930,10 @@ Phase 5 complete.
   for the inactive mode are hidden. The Frame navigates to the default page
   for the newly selected mode.
 
-- **Deferred pages get placeholder stubs.** `ChatPage` and `DeveloperPage` are
-  created as single-Grid pages with a `TextBlock` "Coming soon — see MergePlan §8."
-  They appear in the nav rail so navigation doesn't crash, but have no logic.
+- **Deferred pages get placeholder stubs.** `ChatPage` and `DeveloperPage`
+  started as single-Grid placeholders. Phase 8d replaces them with usable
+  pages ported from Varis: a two-panel chat surface and a developer proposal
+  feed.
 
 - **XAML namespace.** All ported XAML files use `x:Class="PussyCats_App.Views.X"`
   and `xmlns:local="using:PussyCats_App.Views"`. Remove all references to
@@ -1005,14 +1007,11 @@ Port from matchmaking: `UserRecommendationPageView`, `UserStatusPage`,
 `SkillGapPage` may be embedded as a panel inside `UserStatusPage` (it was a
 sidebar in the original) — preserve that layout.
 
-*Step 4 — Stub deferred pages.*
+*Step 4 — Deferred pages.*
 
-`App/Views/ChatPage.xaml` and `App/Views/DeveloperPage.xaml` — each is just a
-`Page` with a centred `TextBlock`:
-```xml
-<TextBlock Text="Coming soon — see MergePlan.md §8"
-           HorizontalAlignment="Center" VerticalAlignment="Center" />
-```
+`App/Views/ChatPage.xaml` and `App/Views/Developer/DeveloperPage.xaml` were
+created as placeholders in Phase 5. Phase 8d replaces them with working
+surfaces.
 
 End of 6a: `dotnet build` green. App launches, NavigationView shows, candidate
 pages load with real data from the API. Commit.
@@ -1454,9 +1453,10 @@ command.
 - `PersonalityTestViewModelTests` (uses `QuestionViewModel`;
   `RoleResultViewModel` covered as a sub-fixture, not its own file)
 
-`ChatViewModelTests` and `DeveloperViewModelTests` — **skip**. Both VMs are
-deferred per MergePlan §8 and are stubs; nothing to assert. Note this in the
-test project README if a README ever materialises (Phase 8).
+`ChatViewModelTests` and `DeveloperViewModelTests` were skipped while both VMs
+were placeholders. Phase 8d ports the screens; focused tests can now be added
+when the team decides whether the backing services stay app-local or become
+API-backed.
 
 *WinUI threading note for VM tests.* Tests do not run inside a `DispatcherQueue`,
 so `DispatchableObservableObject.OnPropertyChanged` falls through to the base
@@ -1744,7 +1744,10 @@ the city portion of a `Job.Location` value such as `Bucharest, Romania`.
 format instead of documenting it as an open-item failure. `ApiConfigurationLoader`
 now reads `appsettings.local.json` / `appsettings.json` with a default
 fallback, and `PussyCats.App.csproj` copies both bundled config and optional
-local config to output. Moved
+local config to output. Ported the Varis Chat and Developer pages into the
+merged app with app-local `IChatService` and `IDeveloperService`
+implementations, Library chat/developer domain models, real view models, and
+usable XAML surfaces. Moved
 `IRecommendationAlgorithm` from `App/Services` to `Library/Services` and
 updated DI/consumers/tests to use the Library contract. Pruned resolved
 open-item notes for recommendation-service DI, the dropped `Questions` table,

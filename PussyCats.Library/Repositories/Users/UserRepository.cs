@@ -59,7 +59,16 @@ public class UserRepository : IUserRepository
     public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
         user.LastUpdated = DateTime.UtcNow;
-        ApplyDetachedUpdate(user, user.UserId);
+        var target = await GetTrackedOrLoadedUserAsync(user.UserId, cancellationToken).ConfigureAwait(false);
+        if (target is null)
+        {
+            databaseContext.Entry(user).State = EntityState.Modified;
+            await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        databaseContext.Entry(target).CurrentValues.SetValues(user);
+        await ReconcileProfileCollectionsAsync(target, user, cancellationToken).ConfigureAwait(false);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -72,18 +81,173 @@ public class UserRepository : IUserRepository
     /// same key value is already being tracked." Copying the request values onto
     /// the tracked instance avoids the IdentityMap conflict.
     /// </summary>
-    private void ApplyDetachedUpdate(User incoming, int key)
+    private async Task<User?> GetTrackedOrLoadedUserAsync(int key, CancellationToken cancellationToken)
     {
         var tracked = databaseContext.Users.Local.FirstOrDefault(existing => existing.UserId == key);
         if (tracked is not null)
         {
-            databaseContext.Entry(tracked).CurrentValues.SetValues(incoming);
+            return tracked;
         }
-        else
+
+        return await databaseContext.Users
+            .Include(user => user.WorkExperiences)
+            .Include(user => user.Projects)
+            .Include(user => user.ExtraCurricularActivities)
+            .Include(user => user.Skills).ThenInclude(skill => skill.Skill)
+            .FirstOrDefaultAsync(user => user.UserId == key, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private async Task ReconcileProfileCollectionsAsync(User target, User incoming, CancellationToken cancellationToken)
+    {
+        ReplaceWorkExperiences(target, incoming.WorkExperiences);
+        ReplaceProjects(target, incoming.Projects);
+        ReplaceExtraCurricularActivities(target, incoming.ExtraCurricularActivities);
+        await ReconcileSkillsAsync(target, incoming.Skills, cancellationToken).ConfigureAwait(false);
+    }
+
+    private void ReplaceWorkExperiences(User target, IEnumerable<WorkExperience> incoming)
+    {
+        databaseContext.Set<WorkExperience>().RemoveRange(target.WorkExperiences);
+        target.WorkExperiences.Clear();
+
+        foreach (var workExperience in incoming)
         {
-            databaseContext.Entry(incoming).State = EntityState.Modified;
+            target.WorkExperiences.Add(new WorkExperience
+            {
+                UserId = target.UserId,
+                Company = workExperience.Company,
+                JobTitle = workExperience.JobTitle,
+                StartDate = workExperience.StartDate,
+                EndDate = workExperience.EndDate,
+                Description = workExperience.Description,
+                CurrentlyWorking = workExperience.CurrentlyWorking,
+            });
         }
     }
+
+    private void ReplaceProjects(User target, IEnumerable<Project> incoming)
+    {
+        databaseContext.Set<Project>().RemoveRange(target.Projects);
+        target.Projects.Clear();
+
+        foreach (var project in incoming)
+        {
+            target.Projects.Add(new Project
+            {
+                UserId = target.UserId,
+                Name = project.Name,
+                Description = project.Description,
+                Url = project.Url,
+                Technologies = project.Technologies.ToList(),
+            });
+        }
+    }
+
+    private void ReplaceExtraCurricularActivities(User target, IEnumerable<ExtraCurricularActivity> incoming)
+    {
+        databaseContext.Set<ExtraCurricularActivity>().RemoveRange(target.ExtraCurricularActivities);
+        target.ExtraCurricularActivities.Clear();
+
+        foreach (var activity in incoming)
+        {
+            target.ExtraCurricularActivities.Add(new ExtraCurricularActivity
+            {
+                UserId = target.UserId,
+                ActivityName = activity.ActivityName,
+                Organization = activity.Organization,
+                Role = activity.Role,
+                Period = activity.Period,
+                Description = activity.Description,
+            });
+        }
+    }
+
+    private async Task ReconcileSkillsAsync(User target, IEnumerable<UserSkill> incoming, CancellationToken cancellationToken)
+    {
+        var desiredSkills = incoming
+            .Select(CreateSkillDraft)
+            .Where(skill => skill is not null)
+            .Select(skill => skill!)
+            .GroupBy(skill => skill.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .ToList();
+
+        var desiredNames = desiredSkills.Select(skill => skill.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var removedSkills = target.Skills
+            .Where(skill => !desiredNames.Contains(skill.Skill?.Name ?? string.Empty))
+            .ToList();
+
+        foreach (var removedSkill in removedSkills)
+        {
+            databaseContext.UserSkills.Remove(removedSkill);
+            target.Skills.Remove(removedSkill);
+        }
+
+        foreach (var desiredSkill in desiredSkills)
+        {
+            var catalogSkill = await ResolveCatalogSkillAsync(desiredSkill.Name, cancellationToken).ConfigureAwait(false);
+            var existing = target.Skills.FirstOrDefault(skill =>
+                string.Equals(skill.Skill?.Name, catalogSkill.Name, StringComparison.OrdinalIgnoreCase));
+            if (existing is not null)
+            {
+                existing.Skill = catalogSkill;
+                existing.SkillId = catalogSkill.SkillId;
+                if (!existing.IsVerified)
+                {
+                    existing.Score = desiredSkill.Score;
+                    existing.IsVerified = desiredSkill.IsVerified;
+                    existing.AchievedDate = desiredSkill.AchievedDate;
+                }
+                continue;
+            }
+
+            target.Skills.Add(new UserSkill
+            {
+                UserId = target.UserId,
+                Skill = catalogSkill,
+                SkillId = catalogSkill.SkillId,
+                Score = desiredSkill.Score,
+                IsVerified = desiredSkill.IsVerified,
+                AchievedDate = desiredSkill.AchievedDate,
+            });
+        }
+    }
+
+    private async Task<Skill> ResolveCatalogSkillAsync(string name, CancellationToken cancellationToken)
+    {
+        var local = databaseContext.Skills.Local.FirstOrDefault(skill =>
+            string.Equals(skill.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (local is not null)
+        {
+            return local;
+        }
+
+        var existing = await databaseContext.Skills
+            .FirstOrDefaultAsync(skill => skill.Name == name, cancellationToken)
+            .ConfigureAwait(false);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        var added = new Skill { Name = name, Category = "Custom" };
+        databaseContext.Skills.Add(added);
+        return added;
+    }
+
+    private static SkillDraft? CreateSkillDraft(UserSkill userSkill)
+    {
+        var name = userSkill.Skill?.Name?.Trim();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return null;
+        }
+
+        return new SkillDraft(name, userSkill.Score, userSkill.IsVerified, userSkill.AchievedDate);
+    }
+
+    private sealed record SkillDraft(string Name, int Score, bool IsVerified, DateOnly? AchievedDate);
 
     public async Task RemoveAsync(int userId, CancellationToken cancellationToken = default)
     {

@@ -6,11 +6,109 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="#F7F8FA">
 
-    <TextBlock Text="Chat — coming soon (see MergePlan.md §8)"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"
-               FontSize="18"
-               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+    <Grid ColumnDefinitions="320,*" MinWidth="760">
+        <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*" Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="0,0,1,0">
+            <StackPanel Grid.Row="0" Padding="20,18,20,12" Spacing="4">
+                <TextBlock Text="Chat" FontSize="22" FontWeight="SemiBold" Foreground="#16181D" />
+                <TextBlock Text="Messages across user and company modes" FontSize="12" Foreground="#697181" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Padding="16,0,16,12" Spacing="8">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBox x:Name="SearchBox"
+                             Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="Search users or companies"
+                             CornerRadius="6" />
+                    <Button Grid.Column="1" Content="Search" Command="{Binding SearchCommand}" />
+                </Grid>
+
+                <ListView x:Name="SearchResultsList"
+                          ItemsSource="{Binding SearchResults}"
+                          ItemClick="SearchResultsList_ItemClick"
+                          IsItemClickEnabled="True"
+                          SelectionMode="None"
+                          MaxHeight="150">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Padding="8,6" Spacing="2">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#20242A" />
+                                <TextBlock Text="{Binding SecondaryText}" FontSize="12" Foreground="#697181" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+
+            <ListView Grid.Row="2"
+                      x:Name="ConversationList"
+                      ItemsSource="{Binding Chats}"
+                      SelectedItem="{Binding SelectedChat, Mode=TwoWay}"
+                      SelectionChanged="ConversationList_SelectionChanged"
+                      Padding="8,0,8,12">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="10,9" ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="3">
+                                <TextBlock Text="{Binding OtherPartyName}" FontWeight="SemiBold" Foreground="#1D222B" />
+                                <TextBlock Text="{Binding LastMessageSnippet}" TextTrimming="CharacterEllipsis" FontSize="12" Foreground="#697181" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="3">
+                                <TextBlock Text="{Binding LastMessageTime}" FontSize="11" Foreground="#8A93A3" />
+                                <TextBlock Text="{Binding UnreadCount}" FontSize="11" Foreground="#1F6FEB" HorizontalAlignment="Right" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+            <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="0,0,0,1" Padding="20,16">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <StackPanel Spacing="3">
+                        <TextBlock Text="{Binding SelectedChat.OtherPartyName, FallbackValue=Select a conversation}" FontSize="18" FontWeight="SemiBold" Foreground="#16181D" />
+                        <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#B42318" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Block" Command="{Binding BlockCommand}" />
+                        <Button Content="Unblock" Command="{Binding UnblockCommand}" />
+                        <Button Content="Delete" Command="{Binding DeleteCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ListView Grid.Row="1"
+                      ItemsSource="{Binding Messages}"
+                      SelectionMode="None"
+                      Padding="24,16"
+                      Background="#F7F8FA">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="1" CornerRadius="7" Padding="12" Margin="0,0,0,10">
+                            <StackPanel Spacing="5">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Text="{Binding SenderLabel}" FontWeight="SemiBold" Foreground="#1F6FEB" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Timestamp}" FontSize="11" Foreground="#8A93A3" />
+                                </Grid>
+                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#20242A" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#E0E4EA" BorderThickness="0,1,0,0" Padding="16">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <TextBox x:Name="MessageBox"
+                             Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="Type a message"
+                             CornerRadius="8"
+                             KeyDown="MessageBox_KeyDown" />
+                    <Button Grid.Column="1" Content="Send" Command="{Binding SendCommand}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </Page>

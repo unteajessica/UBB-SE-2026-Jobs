@@ -78,6 +78,9 @@ public partial class App : Application
         services.AddHttpClient<IFilesProxy, FilesProxy>(client =>
             client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
 
+        services.AddSingleton<IChatService, ChatService>();
+        services.AddSingleton<IDeveloperService, DeveloperService>();
+
         services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
         services.AddTransient<ICompanyService, CompanyService>();
         services.AddTransient<ICompanyStatusService, CompanyStatusService>();
