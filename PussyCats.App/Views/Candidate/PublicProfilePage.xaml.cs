@@ -22,7 +22,7 @@ public sealed partial class PublicProfilePage : Page
     protected override async void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
         base.OnNavigatedTo(eventArguments);
-        var userId = eventArguments.Parameter is int id ? id : eventArguments.Parameter is User u ? u.UserId : 0;
+        var userId = eventArguments.Parameter is int id ? id : eventArguments.Parameter is User user ? user.UserId : 0;
         if (userId == 0) return;
 
         await viewModel.LoadPublicProfileAsync(userId);

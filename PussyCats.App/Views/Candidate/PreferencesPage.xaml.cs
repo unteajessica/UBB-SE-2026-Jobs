@@ -71,12 +71,12 @@ public sealed partial class PreferencesPage : Page
     {
         foreach (var item in eventArguments.AddedItems.Cast<string>())
         {
-            var role = RoleDisplayNames.First(kv => kv.Value == item).Key;
+            var role = RoleDisplayNames.First(keyValuePair => keyValuePair.Value == item).Key;
             viewModel.ToggleJobRole(role);
         }
         foreach (var item in eventArguments.RemovedItems.Cast<string>())
         {
-            var role = RoleDisplayNames.First(kv => kv.Value == item).Key;
+            var role = RoleDisplayNames.First(keyValuePair => keyValuePair.Value == item).Key;
             viewModel.ToggleJobRole(role);
         }
 

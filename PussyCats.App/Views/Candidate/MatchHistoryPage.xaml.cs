@@ -29,11 +29,11 @@ public sealed partial class MatchHistoryPage : Page
         await viewModel.LoadStatisticsAsync();
 
         MatchesListView.ItemsSource = viewModel.GetMatches()
-            .Select(m => new
+            .Select(match => new
             {
-                CompanyName = m.Job?.Company?.CompanyName ?? $"Job {m.JobId}",
-                JobRole     = m.Job is not null ? ViewModelSupport.FormatJobRole(m.Job.JobRole) : m.JobId.ToString(),
-                MatchDate   = m.Timestamp.ToString("dd MMM yyyy"),
+                CompanyName = match.Job?.Company?.CompanyName ?? $"Job {match.JobId}",
+                JobRole     = match.Job is not null ? ViewModelSupport.FormatJobRole(match.Job.JobRole) : match.JobId.ToString(),
+                MatchDate   = match.Timestamp.ToString("dd MMM yyyy"),
             }).ToList();
 
         var stats = viewModel.GetStatistics();
@@ -45,7 +45,7 @@ public sealed partial class MatchHistoryPage : Page
             matchesLastYearLabel.Text       = $"Last Year: {stats.MatchesLastYear}";
 
             PositionStatsListView.ItemsSource = stats.MatchesPerPosition
-                .Select(kv => new { JobRole = kv.Key, Count = kv.Value })
+                .Select(keyValuePair => new { JobRole = keyValuePair.Key, Count = keyValuePair.Value })
                 .ToList();
         }
     }

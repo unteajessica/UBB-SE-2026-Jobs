@@ -32,9 +32,9 @@ public sealed partial class DocumentsPage : Page
     private async void LoadGrid()
     {
         await listViewModel.LoadDocumentsAsync();
-        var docs = listViewModel.GetDocuments();
-        listViewDocuments.ItemsSource = docs;
-        noDocumentsLabel.Visibility = docs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var documents = listViewModel.GetDocuments();
+        listViewDocuments.ItemsSource = documents;
+        noDocumentsLabel.Visibility = documents.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnDocumentNameChanged(object sender, TextChangedEventArgs eventArguments)
