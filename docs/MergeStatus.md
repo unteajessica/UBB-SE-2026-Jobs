@@ -1522,6 +1522,12 @@ End of 7d: `dotnet test` green; ≥ 100 tests; coverage report generated via
 These are flagged in code or in conversation but haven't been
 resolved yet:
 
+- **Skill-test runner UI is a placeholder.** `SkillTestCardViewModel.RetakeAsync`
+  rolls `Random.Shared.Next(0, 101)` and submits that as the new score —
+  there's no actual quiz page. The retake plumbing (eligibility check,
+  score update, XP recalc) is real; only the test-runner is fake. Stays
+  fake. The 3-month `RetakeEligibilityMonths` cooldown is intentional;
+  the button greying out immediately after a retake is by design, not a bug.
 - `CompanyStatusService.ComputeCompatibilityFallback`: `User.City`
   vs `Job.Location` format mismatch produces silent false
   negatives. TODO in source.
