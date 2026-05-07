@@ -1,7 +1,7 @@
 # Merge Status
 
-Last updated: 2026-05-06
-Current phase: 5b done. Next phase is 5c (view-model migration).
+Last updated: 2026-05-07
+Current phase: Phase 6 done (runs locally end-to-end). Phase 7 playbook below.
 
 This document tracks where the merge stands right now. The architectural
 plan is in `MergePlan.md` and is unchanged. This file records what's been
@@ -13,13 +13,11 @@ decided and built since the plan was written, plus what's left.
   Windows auth.
 - Build green across all four projects (`PussyCats.App`, `PussyCats.Library`,
   `PussyCats.Api`, `PussyCats.Tests`).
-- Phases 0, 1, 2, 3a, 3b, 3c, 4, 5a, and 5b are implemented. Phase 5c is next.
-- DI is wired in `App.xaml.cs` with RepositoryProxy typed clients and a startup proxy assertion.
-- View models from both original repos have not been touched. They
-  still reference original namespaces and won't build against the
-  merged code. Phase 5 ports them.
-- Workflow note from 2026-05-06 onward: Codex must not create commits
-  or branches. The user manages git commits and branches manually.
+- Phases 0–6 done. App launches, navigates, and round-trips data through
+  the API to SQL Server.
+- Phase 7 (tests) not started. Test project currently empty (xUnit
+  packaged, no test files yet).
+- Phase 8 (polish) not started.
 
 ## Phase status
 
@@ -591,9 +589,10 @@ End of 4b: `dotnet build` across all four projects green. Full route
 table. List all 501-stubbed endpoints. Deviations from playbook.
 Commit. Phase 4 complete.
 
-### Phase 5 — App services + RepositoryProxies + view-model migration (5b done, 5c next)
+### Phase 5 — App services + RepositoryProxies + view-model migration (not started, playbook below)
 
-Three sessions. 5a and 5b are complete. View models stay frozen until 5c.
+Three sessions. No DI wired until 5b is complete. No view models
+touched until 5c.
 
 **Design decisions locked in:**
 
@@ -652,32 +651,7 @@ Three sessions. 5a and 5b are complete. View models stay frozen until 5c.
 
 ---
 
-**5a — API gap fixes + packages + RecommendationAlgorithm (done)**
-
-Status after 2026-05-06:
-- Implemented in commit `e79b11f` before the workflow rule changed.
-- `MatchesController.GetAll` now accepts optional `jobId`; when both
-  `userId` and `jobId` are present it returns a zero-or-one list.
-- Added `SkillGroupsController` with `GET /api/skill-groups` and
-  `GET /api/skill-groups?jobRole={jobRole}`.
-- Added `RecommendationsController` with by-id lookup, optional latest
-  lookup by `userId` + `jobId`, add, and delete endpoints.
-- Added App package references:
-  `Microsoft.Extensions.DependencyInjection`, `Microsoft.Extensions.Http`,
-  and `CommunityToolkit.Mvvm`.
-- Added `ApiConfiguration` and `ApiConfigurationLoader` with base URL
-  `https://localhost:7000` and the Phase 8 config-file TODO.
-- Added `PussyCats.App/Services/RecommendationAlgorithm.cs` implementing
-  `IRecommendationAlgorithm`. The default-constructor path is active;
-  the dynamic Developer/Interaction feed constructor throws
-  `NotSupportedException` per MergePlan section 8. The port adapts
-  `UserSkill.Score`, `JobSkill.RequiredLevel`, `Skill.Name`, `User.ParsedCv`,
-  and `User.LocationPreference` to the merged model.
-- Verification: `dotnet build "UBB-SE-2026-921-1.sln" -v:n` succeeds
-  across all four projects. Remaining warning:
-  `NETSDK1198` missing WinUI publish profile `win-x86.pubxml`.
-
-Historical playbook retained below for review context.
+**5a — API gap fixes + packages + RecommendationAlgorithm (commit)**
 
 *Pre-step — fix Phase 4 API gaps.*
 
@@ -731,44 +705,11 @@ Historical playbook retained below for review context.
      with `throw new NotSupportedException(` + §8 comment.
    - Preserve all constants and weights verbatim.
 
-End of 5a status: `dotnet build` green across all four projects.
+End of 5a: `dotnet build` green across all four projects. Commit.
 
 ---
 
-**5b — RepositoryProxies + App.xaml.cs DI (done; user manages git)**
-
-Status after 2026-05-06:
-- Added 13 App-side RepositoryProxy classes under
-  `PussyCats.App/RepositoryProxies/`: Users, Jobs, Matches, Companies,
-  Documents, Skills, JobSkills, UserSkills, SkillGroups, SkillTests,
-  PersonalityTests, Questions, and Recommendations.
-- Proxies use typed `HttpClient` registrations. `ApiConfiguration` is
-  resolved once in `App.xaml.cs`, and every proxy client gets
-  `https://localhost:7000` as `BaseAddress`.
-- Added shared proxy JSON options with web defaults,
-  `JsonStringEnumConverter`, and `ReferenceHandler.IgnoreCycles`. This
-  covers proxy outbound circular navigation graphs without removing
-  useful read-side navigation payloads from API responses.
-- Added `SessionContext` in `PussyCats.App/Configuration/SessionContext.cs`.
-- Wired `App.xaml.cs` DI for all repository interfaces, App services,
-  `IRecommendationAlgorithm`, `SessionContext`, and auto-registration
-  of any current/future `*ViewModel` classes found in the App assembly.
-- Startup now resolves every Library `I*Repository` and throws if the
-  concrete type name does not end in `Proxy`.
-- `QuestionRepositoryProxy` intentionally throws `NotSupportedException`;
-  questions remain hardcoded in `PersonalityTestService`.
-- `UserRepositoryProxy.TouchLastUpdatedAsync` is a no-op; the API patch
-  endpoints touch server-side as planned.
-- Added two small API shims required by the repository contracts:
-  `GET /api/job-skills` for `IJobSkillRepository.GetAllAsync`, and
-  `PUT /api/matches/{id}` for `IMatchRepository.UpdateAsync`.
-- `PdfExportService` remains view-scoped and is not DI-registered,
-  because its constructor requires a page-owned `WebView2` control.
-- Verification: `dotnet build "UBB-SE-2026-921-1.sln" -v:n` succeeds
-  across all four projects. Remaining warning:
-  `NETSDK1198` missing WinUI publish profile `win-x86.pubxml`.
-
-Historical playbook retained below for review context.
+**5b — RepositoryProxies + App.xaml.cs DI (commit)**
 
 *Step 1 — 13 RepositoryProxy classes in `PussyCats.App/RepositoryProxies/`.*
 
@@ -853,11 +794,11 @@ public static IServiceProvider Services => ((App)Current).serviceProvider;
            $"DI violation: {iface.Name} is not bound to a *Proxy implementation.");
    ```
 
-End of 5b status: `dotnet build` green. Do not auto-commit; user manages git.
+End of 5b: `dotnet build` green. Commit.
 
 ---
 
-**5c — View model migration (next; user manages git)**
+**5c — View model migration (commit)**
 
 All view models land in `PussyCats.App/ViewModels/`.
 MVVM Toolkit standard throughout.
@@ -933,25 +874,541 @@ and `TakeTopSkills(int n)` back onto
 `PussyCats.Library/DTOs/JobRecommendationResult.cs`. They are pure
 computed properties — no I/O, safe in Library.
 
-End of 5c target: `dotnet build` green across all four projects. Do
-not auto-commit; user manages git.
+End of 5c: `dotnet build` green across all four projects. Commit.
 Phase 5 complete.
 
-### Phase 6 — UI shell (not started)
+### Phase 6 — UI shell (not started, playbook below)
 
-Single `MainWindow` with `NavigationView`. Candidate/Company
-toggle. All pages migrated into one Frame. No new windows opened.
-Replace popup-as-window patterns with `ContentDialog`/`Flyout`.
+**Pre-steps before touching XAML (fix Phase 5 issues):**
 
-### Phase 7 — Tests (not started)
+1. `MatchRepositoryProxy.AddAsync` — replace `PostAsJsonAsync("api/matches", match, ...)` with
+   `PostAsJsonAsync("api/matches", new { match.UserId, match.JobId }, ...)`.
+   The controller expects `CreateMatchRequest { UserId, JobId }`, not a full Match entity.
 
-Per-aggregate `Fake*Repository` in `Tests/Fakes/`. Port matchmaking
-xUnit tests as-is. Rewrite PussyCats MSTest tests to xUnit. Service
-tests use fakes only — no DB, no network.
+2. `[JsonIgnore]` on all back-navigation properties in Library domain entities
+   (`WorkExperience.User`, `Match.User`, `Match.Job`, `UserSkill.User`,
+   `JobSkill.Job`, and any other child → parent nav properties). Grep for
+   `public.*User\|public.*Job\|public.*Match` across Domain/*.cs to catch all of them.
+   EF ignores `[JsonIgnore]` so queries are unaffected. Once done, the
+   `ReferenceHandler.IgnoreCycles` in Program.cs can stay (harmless) or be removed.
+
+---
+
+**Design decisions locked in:**
+
+- **All pages land in `App/Views/`.** Two subfolders: `Candidate/` and `Company/`.
+  Controls (reusable sub-views, not full pages) go in `App/Views/Controls/`.
+
+- **ViewModel binding via `App.Services`.** Each page's code-behind resolves its
+  ViewModel from `App.Services.GetRequiredService<XViewModel>()` in the constructor
+  and assigns it to a `public XViewModel ViewModel` property. XAML binds with
+  `x:Bind ViewModel.X`.
+
+- **`PdfExportService` is page-scoped, not DI-resolved.** It takes a `WebView2`
+  instance in its constructor. `ExportCVPage` creates it directly after
+  `InitializeComponent()`: `pdfService = new PdfExportService(webView)`.
+
+- **File pickers need the window handle.** Any page that opens a `FileOpenPicker` or
+  `FileSavePicker` must call
+  `WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainAppWindow))`.
+  `App.MainAppWindow` is already exposed as a static property.
+
+- **Secondary windows become `ContentDialog`.** Where either original repo opened a
+  new `Window` for sub-screens (e.g. document upload, personality test result
+  selection), replace with a `ContentDialog` hosted in the current page. WinUI 3's
+  `ContentDialog.XamlRoot` must be set to the page's `XamlRoot` before `ShowAsync()`.
+
+- **NavigationView item selection drives `Frame.Navigate`.** The shell
+  `MainWindow.xaml` hosts one `NavigationView` and one `Frame`. A
+  `SelectionChanged` handler maps nav-item tags to page types and calls
+  `contentFrame.Navigate(typeof(XPage))`. Page state (current user, company mode)
+  flows through `SessionContext`, not through navigation parameters — pages load
+  data from services in their `OnNavigatedTo` override.
+
+- **Mode toggle.** A `ToggleSwitch` or top-level nav item switches
+  `SessionContext.Mode` between `Candidate` and `Company`. The nav items
+  for the inactive mode are hidden. The Frame navigates to the default page
+  for the newly selected mode.
+
+- **Deferred pages get placeholder stubs.** `ChatPage` and `DeveloperPage` are
+  created as single-Grid pages with a `TextBlock` "Coming soon — see MergePlan §8."
+  They appear in the nav rail so navigation doesn't crash, but have no logic.
+
+- **XAML namespace.** All ported XAML files use `x:Class="PussyCats_App.Views.X"`
+  and `xmlns:local="using:PussyCats_App.Views"`. Remove all references to
+  `PussyCatsApp.*` and `matchmaking.*` namespaces.
+
+---
+
+**6a — NavigationView shell + candidate pages (done, pending commit)**
+
+*Step 1 — `MainWindow.xaml` + `MainWindow.xaml.cs`.*
+
+Replace `<Grid />` with:
+```xml
+<NavigationView x:Name="navView" SelectionChanged="NavView_SelectionChanged"
+                IsBackButtonVisible="Collapsed" PaneDisplayMode="Left">
+    <NavigationView.MenuItems>
+        <!-- Candidate items, tag="page type name" -->
+        <NavigationViewItem Content="My Profile"       Tag="UserProfilePage"    Icon="Contact" />
+        <NavigationViewItem Content="Edit Profile"     Tag="ProfileFormPage"    Icon="Edit" />
+        <NavigationViewItem Content="Skill Tests"      Tag="TestDashboardPage"  Icon="Permissions" />
+        <NavigationViewItem Content="Personality Test" Tag="PersonalityTestPage" Icon="Favorite" />
+        <NavigationViewItem Content="Compatibility"    Tag="CompatibilityOverviewPage" Icon="Filter" />
+        <NavigationViewItem Content="Browse Jobs"      Tag="UserRecommendationPage" Icon="Find" />
+        <NavigationViewItem Content="My Applications"  Tag="UserStatusPage"     Icon="List" />
+        <!-- Company items (initially collapsed) -->
+        <NavigationViewItem Content="Review Applicants" Tag="CompanyRecommendationPage" Icon="People" />
+        <NavigationViewItem Content="Applicant Status"  Tag="CompanyStatusPage"  Icon="Accept" />
+        <!-- Deferred -->
+        <NavigationViewItem Content="Chat"             Tag="ChatPage"           Icon="Message" />
+    </NavigationView.MenuItems>
+    <NavigationView.FooterMenuItems>
+        <NavigationViewItem Content="Preferences" Tag="PreferencesPage" Icon="Setting" />
+        <NavigationViewItem Content="Documents"   Tag="DocumentsPage"   Icon="Document" />
+        <NavigationViewItem Content="Export CV"   Tag="ExportCVPage"    Icon="Download" />
+    </NavigationView.FooterMenuItems>
+    <NavigationView.PaneCustomContent>
+        <!-- Mode toggle: Candidate ↔ Company -->
+        <ToggleSwitch x:Name="modeToggle" Header="Company mode"
+                      Toggled="ModeToggle_Toggled" Margin="12,0" />
+    </NavigationView.PaneCustomContent>
+    <Frame x:Name="contentFrame" />
+</NavigationView>
+```
+
+Code-behind wires `SelectionChanged` to navigate by tag, `ModeToggle_Toggled`
+to flip `SessionContext.Mode` and refresh nav-item visibility.
+Navigate to `UserRecommendationPage` on first load.
+
+*Step 2 — Port candidate pages from PussyCats.*
+
+For each of the 14 PussyCats views, create a corresponding Page in
+`App/Views/Candidate/`. Update:
+- `x:Class` → `PussyCats_App.Views.Candidate.XPage`
+- All `xmlns:local` to `using:PussyCats_App.Views.Candidate`
+- Remove old `PussyCatsApp.*` xmlns references
+- Code-behind: resolve ViewModel via `App.Services`; call load method in
+  `OnNavigatedTo`
+- Any `x:Bind` property names that changed (e.g. `PhoneNumber` → `Phone`,
+  `ProfilePicture` → `ProfilePicturePath`)
+- `ProfileCompletenessBar` and `SkillTestCardView` become UserControls in
+  `App/Views/Controls/`
+
+Secondary-window patterns to convert to `ContentDialog`:
+- `UploadDocumentViewModel` flow (was a separate dialog window in PussyCats) →
+  `ContentDialog` inside `DocumentsPage`
+
+*Step 3 — Port matchmaking candidate pages.*
+
+Port from matchmaking: `UserRecommendationPageView`, `UserStatusPage`,
+`SkillGapPage` into `App/Views/Candidate/`. Update namespaces, wire ViewModels.
+`SkillGapPage` may be embedded as a panel inside `UserStatusPage` (it was a
+sidebar in the original) — preserve that layout.
+
+*Step 4 — Stub deferred pages.*
+
+`App/Views/ChatPage.xaml` and `App/Views/DeveloperPage.xaml` — each is just a
+`Page` with a centred `TextBlock`:
+```xml
+<TextBlock Text="Coming soon — see MergePlan.md §8"
+           HorizontalAlignment="Center" VerticalAlignment="Center" />
+```
+
+End of 6a: `dotnet build` green. App launches, NavigationView shows, candidate
+pages load with real data from the API. Commit.
+
+---
+
+**6b — Company pages + full nav wiring + ContentDialog cleanup (done, pending commit)**
+
+*Step 1 — Port company pages.*
+
+Port from matchmaking: `CompanyMatchmakingPage`, `CompanyStatusPage` into
+`App/Views/Company/`. Wire `CompanyRecommendationViewModel` and
+`CompanyStatusViewModel` via `App.Services`. Both need `SessionContext.CompanyId`
+set to work — navigation to company pages should guard for null `CompanyId`.
+
+`ITestingModuleAdapter` calls in `CompanyStatusViewModel` were already replaced
+with `// mock: see MergePlan §8` stubs in Phase 5.
+
+*Step 2 — Mode-aware nav item visibility.*
+
+In `MainWindow.xaml.cs`, implement `UpdateNavVisibility()`: iterate
+`navView.MenuItems`, check each item's `Tag` against a candidate-page set and a
+company-page set, set `IsEnabled` and `Visibility` based on `SessionContext.Mode`.
+Call on `ModeToggle_Toggled` and on initial load.
+
+*Step 3 — `AppHeaderControl` (optional).*
+
+If the matchmaking `AppHeaderControl` (user avatar + name display) is worth
+keeping, port it as `App/Views/Controls/AppHeaderControl.xaml`. Wire it into the
+`NavigationView.PaneHeader`. Otherwise skip — Phase 8 polish.
+
+*Step 4 — ContentDialog audit.*
+
+Grep all ported pages for `new Window(`, `window.Activate()`, `Window window`.
+Each one must become a `ContentDialog`. The common cases:
+- Document upload → `ContentDialog` in `DocumentsPage`
+- Profile picture picker — uses `FileOpenPicker` (not a window), keep as-is with
+  window handle initialisation
+- Personality test role selection → `ContentDialog` in `PersonalityTestPage`
+
+End of 6b: `dotnet build` green. Full app works — both candidate and company modes
+navigate correctly, all pages load real data, no secondary windows open. Commit.
+
+---
+
+**6c — Runtime fixes from local end-to-end testing (done, pending commit)**
+
+This wasn't on the original 6 playbook — it landed organically during the first
+full local launch. Captured here so reviewers know why the patches exist.
+
+*WinUI 3 cross-thread `INotifyPropertyChanged` crash (RPC_E_WRONG_THREAD,
+0x8001010E).* Service-layer `ConfigureAwait(false)` + the WinUI native COM
+proxy combine to fire `PropertyChanged` off the UI thread, which crashes inside
+`NativeDelegateWrapper.Invoke` before any view handler runs. Fixed systemically:
+- New `App/Configuration/UIDispatcher.cs` — static holder for the UI thread's
+  `DispatcherQueue`. Set in `App()` before DI is built.
+- New `App/ViewModels/DispatchableObservableObject.cs` — abstract base that
+  overrides `OnPropertyChanged` to marshal through `UIDispatcher.Enqueue`.
+- All 25 ViewModels rebased onto `DispatchableObservableObject` (was
+  `ObservableObject`).
+- Pages with `Action<string> ErrorOccurred` handlers wrap their `ContentDialog`
+  creation in `DispatcherQueue.TryEnqueue` (the events also fire off-thread).
+
+*EF Core identity-insert rejected on POST.* Scalar/Swagger UI pre-fills `id`
+fields with non-zero example values, EF Core tries to INSERT explicit identity
+values, SQL Server rejects with `IDENTITY_INSERT is OFF`. Fix: every controller
+`Add` method now zeros the surrogate key before calling the repository
+(`user.UserId = 0;` etc.). Applies to Users, Companies, Jobs, Documents, Skills,
+SkillTests, Recommendations.
+
+*Empty 200 responses crashed `ReadFromJsonAsync`.* `RepositoryProxyJson` now
+short-circuits on `Content-Length: 0` / 204 / empty stream and returns
+`default(T)` instead of letting `JsonSerializer` throw "no JSON tokens".
+
+*Implicit `[Required]` on non-nullable navigation properties.* ASP.NET Core
+auto-treats `User User { get; set; } = null!;` as required for model
+validation, so any POST whose body omits navigation refs (which is all of them
+because of `[JsonIgnore]`) returned 400. Fix:
+`SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true` in
+`Program.cs`.
+
+*`JobSkill.Skill` / `UserSkill.Skill` were `[JsonIgnore]`'d unnecessarily.*
+`Skill` is a leaf (no back-reference), so there was no cycle to break. Removed
+the attribute on both. Consumers (`JobRecommendationResult.TakeTopSkills`,
+`UserRecommendationService.CreateCardAsync`) also got null-defensive
+(`jobSkill.Skill?.Name ?? $"Skill #{jobSkill.SkillId}"`) so a stale API
+deployment can't NRE the client.
+
+*Sidebar collapsed pane.* `ToggleSwitch` in `NavigationView.PaneCustomContent`
+overflowed the compact pane width and showed truncated header text ("Con").
+Fix: `MainWindow.xaml.cs` hides the toggle entirely on `PaneClosed` and
+restores it on `PaneOpened`.
+
+*Filter pane bled through page header.* `SplitView.PaneBackground` was
+`CardBackgroundFillColorDefaultBrush` which is semi-transparent. Switched to
+`SolidBackgroundFillColorBaseBrush`.
+
+*Light theme.* `App.xaml` `RequestedTheme="Light"` — closer to the
+Varis_vs_Clavicular look than the system-default dark theme. Removed the
+short-lived MicaBackdrop experiment.
+
+*OpenAPI exploration.* `AddOpenApi()` only serves raw JSON in .NET 9/10. Added
+`Scalar.AspNetCore` package and `app.MapScalarApiReference()` so the API has a
+browsable UI at `https://localhost:7134/scalar/v1` for seeding test users.
+
+*Dev-loop ergonomics.* `PussyCats.Api.csproj` had `<Platforms>x86;x64;ARM64</Platforms>`
+and a `<RuntimeIdentifiers>` block copied from the WinUI app, which broke "Any
+CPU" builds in VS. Both removed. `ApiConfigurationLoader.cs` URL corrected from
+the placeholder `https://localhost:7000` to the real `https://localhost:7134`.
+
+*ExportCV resources.* `ExportCVPage.OnPageLoaded` looks up
+`AppContext.BaseDirectory/resources/`. Created `PussyCats.App/resources/` and
+copied `CVHtmlTemplate.html`, `CVCSSTemplate.css`, `CVGenerator.js` from the
+PussyCatsApp original. Added as `<Content CopyToOutputDirectory="PreserveNewest">`
+in the csproj so they ship to the output directory.
+
+End of 6c: app launches, candidate and company flows both work end-to-end
+against a live API + SQL Server. Phase 6 complete.
+
+### Phase 7 — Tests (not started, playbook below)
+
+Four sessions. The two source repos disagree on the test framework
+(matchmaking is xUnit + FluentAssertions, PussyCatsApp is MSTest), and they
+disagree on the seam (matchmaking unit-tests services with hand-rolled mocks,
+PussyCatsApp uses Moq for repositories and integration-tests against real SQL).
+The merged test project standardizes on **xUnit + FluentAssertions + NSubstitute**
+and **fakes over mocks** (per-aggregate in-memory `Fake*Repository` implementing
+`IXRepository`). No DB, no network, no `WebApplicationFactory` in 7a–7c. Optional
+controller integration suite in 7d if time permits.
+
+**Design decisions locked in:**
+
+- **Test framework: xUnit 2.9 (already packaged) + FluentAssertions + NSubstitute.**
+  FluentAssertions for readable assertions (carries over from matchmaking tests).
+  NSubstitute over Moq because it's lighter and the two original suites used
+  three different mocking styles — picking one. Add both packages in 7a.
+
+- **Fakes over mocks for repositories.** Each `IXRepository` gets an in-memory
+  `Fake*Repository` in `Tests/Fakes/`. Backed by a `Dictionary<int, T>` or
+  `List<T>`. This is closer to matchmaking's existing pattern and makes service
+  tests read like business specs rather than mock-setup walls. Mocks (via
+  NSubstitute) are reserved for service-to-service collaborators where
+  verifying call sites is the point.
+
+- **Tests target App-layer services with fakes substituted for repositories.**
+  This is the highest-value layer — it's where the merged business logic lives.
+  No EF Core in the test project. No SQL connection string.
+
+- **Integration tests deferred.** PussyCatsApp's
+  `*RepositoryIntegrationTests` and matchmaking's `Sql*RepositoryIntegrationTests`
+  hit a real SQL Server with `EnsureSchema()` setup. The merged repos already
+  use EF migrations, not raw SQL, so the original integration tests don't port
+  cleanly. **Skip them in Phase 7.** EF + the real DB are exercised by the live
+  app daily; if a Phase 8 task needs DB-level coverage, write a focused
+  `IntegrationFixture` then.
+
+- **Controller tests via `WebApplicationFactory` are optional 7d work.** Tier
+  them as nice-to-have. Service-layer coverage via fakes hits the same business
+  logic with much less ceremony.
+
+- **ViewModel tests use NSubstitute for service interfaces.** ViewModels are
+  thin glue (per Phase 5 design), so VM tests are mostly: "given this fake
+  service returns X, the VM property exposes Y after calling Load." Don't
+  re-test service behaviour through the VM.
+
+- **One test class per service / per VM / per aggregate fake.** Mirror the
+  source tree under `Tests/`:
+  ```
+  Tests/
+    Fakes/                       # Fake*Repository per aggregate (13 fakes)
+    Services/                    # *ServiceTests — one per service
+    ViewModels/                  # *ViewModelTests — one per VM
+    Algorithm/                   # RecommendationAlgorithmTests
+    Helpers/                     # builder helpers (UserBuilder, JobBuilder, ...)
+  ```
+
+- **Builders for entity test data.** `UserBuilder`, `JobBuilder`, `MatchBuilder`
+  in `Tests/Helpers/`. Fluent `.With…()` chain ending in `.Build()`. Avoids
+  re-typing 30 default fields per test and makes intent visible at the call
+  site. Pattern is in the matchmaking test sources — port it.
+
+- **Constants ladder verbatim.** When a test asserts a tier threshold or
+  level cutoff, reference `SimpleModelOperations.GoldScoreThreshold` etc. — do
+  not hardcode `90` in test code. The constant is the spec.
+
+- **WinUI bootstrap is suppressed for the test project.** The test csproj
+  references `PussyCats.App` (which is WinUI), but
+  `WindowsAppSdk*Initialize=false` should be set so tests don't need the
+  Windows App SDK runtime. Already partially set; verify in 7a pre-step.
+
+---
+
+**7a — Test infrastructure (commit)**
+
+*Pre-step — package additions.*
+Add to `PussyCats.Tests.csproj`:
+- `FluentAssertions` (≥ 7.x)
+- `NSubstitute` (≥ 5.x)
+
+Confirm `WindowsAppSdkSelfContained=false`,
+`WindowsAppSdkBootstrapInitialize=false` are set so tests don't try to
+boot the Windows App SDK runtime when the App project is referenced.
+
+*Step 1 — `Tests/Fakes/` (13 fakes).*
+One file per aggregate. Each implements the corresponding `IXRepository`
+verbatim — every interface method, every cancellation token. Backing store
+is a `Dictionary<int, T>` for surrogate-key entities, a
+`Dictionary<(int, int), T>` for composite-key entities (`UserSkill`, `JobSkill`).
+
+Required fakes (matching the 13 registered repository interfaces):
+- `FakeUserRepository`
+- `FakeJobRepository`
+- `FakeCompanyRepository`
+- `FakeMatchRepository`
+- `FakeDocumentRepository`
+- `FakeSkillRepository`
+- `FakeJobSkillRepository`
+- `FakeUserSkillRepository`
+- `FakeSkillGroupRepository`
+- `FakeSkillTestRepository`
+- `FakePersonalityTestRepository`
+- `FakeQuestionRepository` (mostly empty — questions live in service code)
+- `FakeRecommendationRepository`
+
+Each fake has an internal `Seed(...)` overload taking an array of entities so
+tests can preload state in one line. `AddAsync` assigns a new identity by
+`store.Count + 1` for surrogate-key tables; preserves any caller-supplied id
+on composite keys.
+
+*Step 2 — `Tests/Helpers/` (builders + utilities).*
+- `UserBuilder` with `.WithId`, `.WithEmail`, `.WithSkills(params (int skillId, int score)[])`,
+  `.WithLevel`, etc. → `.Build()` returns a fully-populated `User`.
+- `JobBuilder` (`.WithId`, `.WithCompanyId`, `.WithRole`, `.WithEmploymentType`).
+- `MatchBuilder` (`.AppliedFor(userId, jobId)`, `.WithStatus`, `.WithFeedback`).
+- `CompanyBuilder`, `SkillBuilder`, `SkillTestBuilder`,
+  `PersonalityResultBuilder`.
+- Static helper `Clock.FixedAt(DateTime.UtcNow)` if any service ends up taking
+  an `IClock` (currently they call `DateTime.UtcNow` directly — leave for now).
+
+*Step 3 — first smoke test.*
+`Tests/Smoke/SolutionLoadsTest.cs` — single test that constructs every fake
+plus `UserBuilder().Build()` and asserts non-null. Confirms the test project
+references resolve before any real assertion logic lands.
+
+End of 7a: `dotnet test` runs (1 passing test). Commit.
+
+---
+
+**7b — Service tests (commit)**
+
+Port both source repos' service test suites onto the merged services + fakes.
+
+*From matchmaking (xUnit, near-direct ports):*
+
+Each landed as `Tests/Services/<Name>ServiceTests.cs`:
+- `MatchServiceTests` — state-machine transitions, statistics aggregation
+  (the expanded `GetMatchesForUserAsync` / `GetMatchStatisticsAsync` from
+  3b.1 included). Verify `MatchStatusTransitions.IsDecisionTransitionAllowed`
+  matrix exhaustively.
+- `UserStatusServiceTests`
+- `CompanyStatusServiceTests` — exercise the
+  `ComputeCompatibilityFallback` `User.City` vs `Job.Location` fallback path
+  explicitly (open-item flagged).
+- `SkillGapServiceTests`
+- `JobSkillServiceTests`
+- `SkillServiceTests` (matchmaking version) — confirm catalog reads still pass.
+- `CompanyRecommendationServiceTests` — both queue advancement and reload
+  paths. `AddTransient` registration was a deliberate Phase 5 choice; one test
+  asserts that two service instances do not share `currentIndex` state (a
+  smoke test for "we picked the right lifetime").
+- `UserRecommendationServiceTests` — covered scoring path and dismissal /
+  cooldown flow.
+
+*From PussyCatsApp (MSTest → xUnit rewrite):*
+
+Each MSTest `[TestClass]` becomes `class XServiceTests`; `[TestMethod]` →
+`[Fact]`. `[TestInitialize]` → constructor (xUnit creates a fresh instance per
+test). `[DataRow]` → `[Theory] + [InlineData]`. `Assert.AreEqual(x, y)` →
+`y.Should().Be(x)` (FluentAssertions).
+- `UserProfileServiceTests` — `SaveAsync` facade (Add vs Update branching),
+  `RecalculateLevelAsync` against `SimpleModelOperations` constants.
+- `PersonalityTestServiceTests` — score computation against the 24 hardcoded
+  questions; `SelectedRole` persistence; trait-score `int`/`double` round-trip.
+- `SkillTestServiceTests` — `CanRetakeTest` against `RetakeEligibilityMonths = 3`;
+  `SubmitRetake` updates score + `AchievedDate`; XP awarded matches
+  `SimpleModelOperations.GetExperiencePoints`.
+- `CompatibilityServiceTests` — exercises `IUserRepository.user.ParsedCv`
+  path that replaced `GetParsedCvByUserId`.
+- `PreferenceServiceTests` — `User`-fields-as-`Preference` translation;
+  `SearchLocationsAsync` against `PredefinedLocations.All`.
+- `DocumentServiceTests` — metadata persistence + `ILocalFileStorageService`
+  collaboration. Storage's write methods are stubbed
+  `NotImplementedException` — assert the service surfaces a sensible error,
+  not that the throw bubbles.
+- `MatchServiceTests` (PussyCats half) — anything not already covered by the
+  matchmaking port; merge into the single `MatchServiceTests` class, don't
+  duplicate.
+- `BadgeTests`, `UserLevelTests`, `SkillTestTests` — these test pure
+  computation in `SimpleModelOperations`. Move into a single
+  `SimpleModelOperationsTests` class.
+- `CompletenessServiceTests` — assert all 21 `Labels` and case-18 deviation
+  (`PersonalityResult?.SelectedRole != null`) per the open-item note.
+- `CVParsingServiceTests` — verbatim port; constants are the spec.
+- `LocalFileStorageServiceTests`, `ImageStorageServiceTests` — port read-side
+  tests; write/upload tests skipped (those methods now throw — Phase 5
+  decision).
+
+End of 7b: `dotnet test` green; ≥ 50 service tests passing. Commit.
+
+---
+
+**7c — ViewModel tests (commit)**
+
+ViewModels post-Phase-5 are thin: bind `IXService` results to observable
+properties, expose `RelayCommand`s. Tests substitute the service interfaces
+with NSubstitute and assert the VM exposes the expected state after a load /
+command.
+
+*From matchmaking:*
+- `UserRecommendationViewModelTests` — Like / Dismiss / Undo flow.
+- `UserStatusViewModelTests`
+- `CompanyRecommendationViewModelTests`
+- `CompanyStatusViewModelTests`
+- `SkillGapViewModelTests`
+- `UserProfileViewModelTests` (matchmaking half — small)
+
+*From PussyCatsApp:*
+- `UserProfileViewModelTests` — merge with matchmaking half if there's overlap.
+- `ProfileFormViewModelTests` — constructor-injection variant (no static
+  `Create()`).
+- `PreferencesViewModelTests`
+- `PersonalityTestViewModelTests` (uses `QuestionViewModel`;
+  `RoleResultViewModel` covered as a sub-fixture, not its own file)
+
+`ChatViewModelTests` and `DeveloperViewModelTests` — **skip**. Both VMs are
+deferred per MergePlan §8 and are stubs; nothing to assert. Note this in the
+test project README if a README ever materialises (Phase 8).
+
+*WinUI threading note for VM tests.* Tests do not run inside a `DispatcherQueue`,
+so `DispatchableObservableObject.OnPropertyChanged` falls through to the base
+`ObservableObject` path (the dispatch helper falls back when `UIDispatcher.Queue`
+is null). Verify: write one test that asserts `PropertyChanged` fires on a
+property change on a VM that uses `DispatchableObservableObject`. If it doesn't,
+fix `UIDispatcher.Enqueue`'s no-dispatcher fallback to invoke synchronously.
+
+End of 7c: `dotnet test` green; total ≥ 80 tests. Commit.
+
+---
+
+**7d — Algorithm + (optional) controller integration tests (commit)**
+
+*Step 1 — `RecommendationAlgorithmTests` (port from matchmaking).*
+The matchmaking test file is the most prescriptive in the repo and exercises
+weighted scoring, breakdown decomposition, and the default-vs-dynamic
+constructor split. Port verbatim, with two adjustments:
+- The dynamic constructor (`SqlPostRepository + SqlInteractionRepository`) is
+  stubbed in our merged port. Tests for the dynamic-weights path become
+  `[Fact(Skip = "Dynamic weights deferred per MergePlan §8")]`. Don't delete —
+  Phase 8 may revisit.
+- Library type adjustments: matchmaking's tests pass `List<Skill>` for both
+  user and job sides; the merged interface takes `IReadOnlyList<UserSkill>` /
+  `IReadOnlyList<JobSkill>`. Adapt the test fixtures.
+
+*Step 2 — (optional) controller integration suite via `WebApplicationFactory`.*
+If time permits, add a `Tests/Api/` subfolder with one fixture per controller.
+Use `Microsoft.AspNetCore.Mvc.Testing`'s `WebApplicationFactory<Program>` and
+override the `IXRepository` registrations to point at the in-memory fakes from
+7a. This gives end-to-end verification of route table, status codes, and
+controller-level guards without standing up SQL Server.
+
+If skipped, document under "Open items" that controller routing is verified
+manually only.
+
+End of 7d: `dotnet test` green; ≥ 100 tests; coverage report generated via
+`coverlet.collector` (already packaged). Commit. Phase 7 complete.
 
 ### Phase 8 — Polish (not started)
 
-StyleCop pass. Coverage. Dry-run demo. Tag `v4.0`.
+- StyleCop pass across all four projects.
+- Coverage report review; backfill gaps surfaced by the report.
+- Top-bar Varis-style header (currently sidebar `NavigationView`) — scoped as
+  Phase 8 because it's a structural UI change, not a fix.
+- Drop the unused `Questions` table (now confirmed dead — questions live in
+  `PersonalityTestService`).
+- `ImageStorageService.CheckFileSize` cleanup (public on class, not on
+  interface — open item).
+- N+1 query review in `UserStatusService` if Phase 6 demo surfaced perf
+  issues.
+- Replace `Preference` legacy DTO with a flat `UserPreferences` record (open
+  item).
+- Optional: revisit `SuppressImplicitRequiredAttributeForNonNullableReferenceTypes`
+  — consider per-DTO `[ValidateNever]` on navigation properties instead, or
+  switch controller action signatures to typed DTOs that don't carry
+  navigation refs at all.
+- Dry-run demo on a clean machine. Tag `v4.0`.
 
 ## Open items / known issues
 
@@ -962,9 +1419,8 @@ resolved yet:
   vs `Job.Location` format mismatch produces silent false
   negatives. TODO in source.
 - `CompanyRecommendationService` and `UserRecommendationService`
-  now have a concrete `RecommendationAlgorithm` implementation from
-  5a. They still are not DI-registered until Phase 5b wires
-  RepositoryProxies and `App.xaml.cs`.
+  cannot be DI-registered until 3b ports the
+  `RecommendationAlgorithm` class from `matchmaking/algorithm/`.
 - The empty `Questions` table from Phase 2 is dead weight — the
   questions live in `PersonalityTestService` per
   `MergePlan §4`. Drop in Phase 8.
@@ -997,15 +1453,20 @@ resolved yet:
   future callers use `SimpleModelOperations.GetExperiencePoints`
   directly.
 
-- **Circular back-navigation properties on domain entities.** API
-  outbound remains covered by `ReferenceHandler.IgnoreCycles` in
-  `Program.cs`. Phase 5b also added the same cycle protection to the
-  proxy JSON options used by `PostAsJsonAsync`, `PutAsJsonAsync`, and
-  `PatchAsJsonAsync`. This avoids outbound proxy serialization failures
-  if a VM wires back-navigation properties before save. `[JsonIgnore]`
-  attributes on Library back-navigation properties are no longer
-  required for Phase 5b, but can still be considered in Phase 8 if the
-  team wants leaner JSON payloads.
+- **Circular back-navigation properties on domain entities.** Every
+  child entity has a back-nav property to its parent (e.g.
+  `WorkExperience.User`, `Match.User`, `Match.Job`, `UserSkill.User`,
+  `JobSkill.Job`, likely also `Project.User`, `Document.User`,
+  `SkillTest.User`, `PersonalityTestResult.User`, etc.). The API
+  outbound side is currently covered by `ReferenceHandler.IgnoreCycles`
+  in Program.cs. The proxy outbound side (POST/PUT from App to API) is
+  not — if a VM ever manually wires back-navigation before calling save,
+  `PostAsJsonAsync` will throw a JsonException. The correct fix is
+  `[JsonIgnore]` on all back-navigation properties in Library; EF
+  ignores JSON attributes so queries are unaffected. Once that lands,
+  `ReferenceHandler.IgnoreCycles` in Program.cs can be removed (though
+  it's harmless to keep). **Planned for Phase 5b** (Library change that
+  the proxies should rely on being in place).
 
 - `CompletenessService` case 18 deviation: original checked
   `PreferredJobRoles` (a `List<string>` on `UserProfile`). Merged
@@ -1033,14 +1494,13 @@ resolved yet:
 ## Working norms (carried from earlier sessions)
 
 - One phase per Claude Code session. Fresh context each time.
-- User manages git commits and branches. Codex must not create commits
-  or branches from 2026-05-06 onward.
+- Commit at every phase boundary. Small commits over big ones.
 - For service-layer work: consult original repos for state machines
   and constants. Preserve verbatim. Flag deviations.
 - View models stay frozen until Phase 5. Service ports in 3b must
   not break view-model compilation surfaces (use facades when the
   data layer's natural shape would).
-- Push back on design issues before asking the user to commit, not after.
+- Push back on design issues before commit, not after.
 - Stop and show output before destructive or irreversible actions
   (migrations, `database update`, anything mutating).
 

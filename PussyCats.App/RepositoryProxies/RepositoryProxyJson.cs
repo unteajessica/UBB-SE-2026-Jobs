@@ -9,36 +9,59 @@ internal static class RepositoryProxyJson
 {
     public static readonly JsonSerializerOptions Options = CreateOptions();
 
-    public static async Task<T?> GetOrNullAsync<T>(HttpClient http, string uri, CancellationToken cancellationToken)
+    public static async Task<T?> GetOrNullAsync<T>(HttpClient http, string uri, CancellationToken ct)
     {
-        using var response = await http.GetAsync(uri, cancellationToken).ConfigureAwait(false);
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        using var response = await http.GetAsync(uri, ct).ConfigureAwait(false);
+        if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.NoContent)
         {
             return default;
         }
 
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<T>(Options, cancellationToken).ConfigureAwait(false);
+        return await ReadJsonOrDefaultAsync<T>(response, ct).ConfigureAwait(false);
     }
 
-    public static async Task<IReadOnlyList<T>> GetListAsync<T>(HttpClient http, string uri, CancellationToken cancellationToken)
+    public static async Task<IReadOnlyList<T>> GetListAsync<T>(HttpClient http, string uri, CancellationToken ct)
     {
-        using var response = await http.GetAsync(uri, cancellationToken).ConfigureAwait(false);
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        using var response = await http.GetAsync(uri, ct).ConfigureAwait(false);
+        if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.NoContent)
         {
             return Array.Empty<T>();
         }
 
         response.EnsureSuccessStatusCode();
-        var values = await response.Content.ReadFromJsonAsync<List<T>>(Options, cancellationToken).ConfigureAwait(false);
+        var values = await ReadJsonOrDefaultAsync<List<T>>(response, ct).ConfigureAwait(false);
         return values is null ? Array.Empty<T>() : values;
     }
 
-    public static async Task<T> ReadRequiredAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
+    public static async Task<T> ReadRequiredAsync<T>(HttpResponseMessage response, CancellationToken ct)
     {
         response.EnsureSuccessStatusCode();
-        var value = await response.Content.ReadFromJsonAsync<T>(Options, cancellationToken).ConfigureAwait(false);
+        var value = await ReadJsonOrDefaultAsync<T>(response, ct).ConfigureAwait(false);
         return value ?? throw new InvalidOperationException($"The API returned an empty {typeof(T).Name} response.");
+    }
+
+    private static async Task<T?> ReadJsonOrDefaultAsync<T>(HttpResponseMessage response, CancellationToken ct)
+    {
+        if (response.Content.Headers.ContentLength is 0)
+        {
+            return default;
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+        if (stream.CanSeek && stream.Length == 0)
+        {
+            return default;
+        }
+
+        try
+        {
+            return await JsonSerializer.DeserializeAsync<T>(stream, Options, ct).ConfigureAwait(false);
+        }
+        catch (JsonException) when (!stream.CanSeek)
+        {
+            return default;
+        }
     }
 
     public static Task SendAndIgnoreNotFoundAsync(HttpResponseMessage response)

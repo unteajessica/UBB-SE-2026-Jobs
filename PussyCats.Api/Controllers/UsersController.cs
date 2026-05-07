@@ -33,9 +33,10 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] User user, CancellationToken cancellationToken)
+    public async Task<IActionResult> Add([FromBody] User user, CancellationToken ct)
     {
-        var saved = await users.AddAsync(user, cancellationToken);
+        user.UserId = 0;
+        var saved = await users.AddAsync(user, ct);
         return CreatedAtAction(nameof(GetById), new { id = saved.UserId }, saved);
     }
 

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CV</title>
+    <link rel="stylesheet" href="CVCSSTemplate.css">
+</head>
+
+<body>
+    <div id="cv-content">
+
+        <header class="cv-header">
+            <div>
+                <h1 id="cv-name"></h1>
+            </div>
+            <div class="cv-contact">
+                <div id="cv-email"></div>
+                <div id="cv-phone"></div>
+                <div id="cv-location"></div>
+                <div id="cv-github" style="display:none;"><a href=""></a></div>
+                <div id="cv-linkedin" style="display:none;"><a href=""></a></div>
+            </div>
+        </header>
+
+        <div class="cv-body">
+
+            <section id="section-education" class="cv-section" style="display:none;">
+                <h2>Education</h2>
+                <div class="edu-entry">
+                    <div class="edu-line">
+                        <span id="cv-university" class="edu-university"></span>
+                        <span id="cv-degree" class="edu-degree"></span>
+                        <span class="edu-divider"></span>
+                        <span id="cv-university-start" class="edu-period"></span>
+                         -
+                        <span id="cv-graduation" class="edu-period"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-work" class="cv-section" style="display:none;">
+                <h2>Work Experience</h2>
+                <div id="work-list"></div>
+            </section>
+
+            <section id="section-projects" class="cv-section" style="display:none;">
+                <h2>Projects</h2>
+                <div id="projects-list"></div>
+            </section>
+
+            <section id="section-extra" class="cv-section" style="display:none;">
+                <h2>Extracurricular Activities</h2>
+                <div id="extra-list"></div>
+            </section>
+
+            <section id="section-skills" class="cv-section" style="display:none;">
+                <h2>Skills</h2>
+                <div id="skills-list"></div>
+            </section>
+
+        </div>
+    </div>
+    <script src="CVGenerator.js"></script>
+</body>
+
+</html>

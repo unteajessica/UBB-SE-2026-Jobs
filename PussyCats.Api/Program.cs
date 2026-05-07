@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Library.Persistence;
+using Scalar.AspNetCore;
 using PussyCats.Library.Repositories.Companies;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Repositories.Jobs;
@@ -13,7 +14,10 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
@@ -46,6 +50,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
