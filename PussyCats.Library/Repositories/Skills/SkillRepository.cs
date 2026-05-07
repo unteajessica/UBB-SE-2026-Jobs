@@ -41,7 +41,15 @@ public class SkillRepository : ISkillRepository
 
     public async Task UpdateAsync(Skill skill, CancellationToken cancellationToken = default)
     {
-        databaseContext.Skills.Update(skill);
+        var tracked = databaseContext.Skills.Local.FirstOrDefault(existing => existing.SkillId == skill.SkillId);
+        if (tracked is not null)
+        {
+            databaseContext.Entry(tracked).CurrentValues.SetValues(skill);
+        }
+        else
+        {
+            databaseContext.Entry(skill).State = EntityState.Modified;
+        }
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 

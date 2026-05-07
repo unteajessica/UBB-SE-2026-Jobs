@@ -152,7 +152,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
 
         try
         {
-            var newPath = imageStorageService.SaveImage(fileStream, fileName);
+            var newPath = await imageStorageService.SaveImageAsync(fileStream, fileName, cancellationToken);
             await profileService.UpdateProfilePicturePathAsync(UserProfile.UserId, newPath, cancellationToken);
             UserProfile.ProfilePicturePath = newPath;
             OnPropertyChanged(nameof(UserProfile));
@@ -170,7 +170,7 @@ public partial class UserProfileViewModel : DispatchableObservableObject
             return;
         }
 
-        imageStorageService.DeleteImage(UserProfile.ProfilePicturePath);
+        await imageStorageService.DeleteImageAsync(UserProfile.ProfilePicturePath, cancellationToken);
         await profileService.RemoveProfilePicturePathAsync(UserProfile.UserId, cancellationToken);
         UserProfile.ProfilePicturePath = string.Empty;
         OnPropertyChanged(nameof(UserProfile));

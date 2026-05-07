@@ -75,7 +75,15 @@ public class MatchRepository : IMatchRepository
 
     public async Task UpdateAsync(Match match, CancellationToken cancellationToken = default)
     {
-        databaseContext.Matches.Update(match);
+        var tracked = databaseContext.Matches.Local.FirstOrDefault(existing => existing.MatchId == match.MatchId);
+        if (tracked is not null)
+        {
+            databaseContext.Entry(tracked).CurrentValues.SetValues(match);
+        }
+        else
+        {
+            databaseContext.Entry(match).State = EntityState.Modified;
+        }
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 

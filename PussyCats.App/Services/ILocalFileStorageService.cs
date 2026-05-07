@@ -2,9 +2,9 @@ namespace PussyCats.App.Services;
 
 public interface ILocalFileStorageService
 {
-    string SaveFile(Stream fileStream, string originalFileName);
+    Task<string> SaveFileAsync(Stream fileStream, string originalFileName, CancellationToken cancellationToken = default);
 
-    void DeleteFile(string relativePath);
+    Task DeleteFileAsync(string relativePath, CancellationToken cancellationToken = default);
 
     string GetFilePath(string relativePath);
 }

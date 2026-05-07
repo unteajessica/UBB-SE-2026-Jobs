@@ -42,7 +42,15 @@ public class CompanyRepository : ICompanyRepository
 
     public async Task UpdateAsync(Company company, CancellationToken cancellationToken = default)
     {
-        databaseContext.Companies.Update(company);
+        var tracked = databaseContext.Companies.Local.FirstOrDefault(existing => existing.CompanyId == company.CompanyId);
+        if (tracked is not null)
+        {
+            databaseContext.Entry(tracked).CurrentValues.SetValues(company);
+        }
+        else
+        {
+            databaseContext.Entry(company).State = EntityState.Modified;
+        }
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 

@@ -61,7 +61,15 @@ public class JobRepository : IJobRepository
 
     public async Task UpdateAsync(Job job, CancellationToken cancellationToken = default)
     {
-        databaseContext.Jobs.Update(job);
+        var tracked = databaseContext.Jobs.Local.FirstOrDefault(existing => existing.JobId == job.JobId);
+        if (tracked is not null)
+        {
+            databaseContext.Entry(tracked).CurrentValues.SetValues(job);
+        }
+        else
+        {
+            databaseContext.Entry(job).State = EntityState.Modified;
+        }
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 

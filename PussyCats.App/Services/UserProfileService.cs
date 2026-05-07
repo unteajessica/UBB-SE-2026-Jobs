@@ -23,7 +23,7 @@ public class UserProfileService : IUserProfileService
 
     public async Task<IReadOnlyList<SkillTest>> GetSkillTestsForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await SkillTestDefaults.GetOrCreateAsync(skillTestRepository, userId, cancellationToken).ConfigureAwait(false);
+        return await skillTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<bool> IsProfileAvailableAsync(int userId, CancellationToken cancellationToken = default)
