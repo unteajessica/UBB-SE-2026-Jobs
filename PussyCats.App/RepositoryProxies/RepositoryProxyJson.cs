@@ -9,46 +9,46 @@ internal static class RepositoryProxyJson
 {
     public static readonly JsonSerializerOptions Options = CreateOptions();
 
-    public static async Task<T?> GetOrNullAsync<T>(HttpClient http, string uri, CancellationToken ct)
+    public static async Task<T?> GetOrNullAsync<T>(HttpClient http, string uri, CancellationToken cancellationToken)
     {
-        using var response = await http.GetAsync(uri, ct).ConfigureAwait(false);
+        using var response = await http.GetAsync(uri, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.NoContent)
         {
             return default;
         }
 
         response.EnsureSuccessStatusCode();
-        return await ReadJsonOrDefaultAsync<T>(response, ct).ConfigureAwait(false);
+        return await ReadJsonOrDefaultAsync<T>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public static async Task<IReadOnlyList<T>> GetListAsync<T>(HttpClient http, string uri, CancellationToken ct)
+    public static async Task<IReadOnlyList<T>> GetListAsync<T>(HttpClient http, string uri, CancellationToken cancellationToken)
     {
-        using var response = await http.GetAsync(uri, ct).ConfigureAwait(false);
+        using var response = await http.GetAsync(uri, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.NoContent)
         {
             return Array.Empty<T>();
         }
 
         response.EnsureSuccessStatusCode();
-        var values = await ReadJsonOrDefaultAsync<List<T>>(response, ct).ConfigureAwait(false);
+        var values = await ReadJsonOrDefaultAsync<List<T>>(response, cancellationToken).ConfigureAwait(false);
         return values is null ? Array.Empty<T>() : values;
     }
 
-    public static async Task<T> ReadRequiredAsync<T>(HttpResponseMessage response, CancellationToken ct)
+    public static async Task<T> ReadRequiredAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         response.EnsureSuccessStatusCode();
-        var value = await ReadJsonOrDefaultAsync<T>(response, ct).ConfigureAwait(false);
+        var value = await ReadJsonOrDefaultAsync<T>(response, cancellationToken).ConfigureAwait(false);
         return value ?? throw new InvalidOperationException($"The API returned an empty {typeof(T).Name} response.");
     }
 
-    private static async Task<T?> ReadJsonOrDefaultAsync<T>(HttpResponseMessage response, CancellationToken ct)
+    private static async Task<T?> ReadJsonOrDefaultAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         if (response.Content.Headers.ContentLength is 0)
         {
             return default;
         }
 
-        await using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         if (stream.CanSeek && stream.Length == 0)
         {
             return default;
@@ -56,7 +56,7 @@ internal static class RepositoryProxyJson
 
         try
         {
-            return await JsonSerializer.DeserializeAsync<T>(stream, Options, ct).ConfigureAwait(false);
+            return await JsonSerializer.DeserializeAsync<T>(stream, Options, cancellationToken).ConfigureAwait(false);
         }
         catch (JsonException) when (!stream.CanSeek)
         {

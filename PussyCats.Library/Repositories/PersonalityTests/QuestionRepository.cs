@@ -6,18 +6,18 @@ namespace PussyCats.Library.Repositories.PersonalityTests;
 
 public class QuestionRepository : IQuestionRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public QuestionRepository(PussyCatsDbContext db)
+    public QuestionRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
-    public async Task<Question?> GetByIdAsync(int questionId, CancellationToken ct = default)
+    public async Task<Question?> GetByIdAsync(int questionId, CancellationToken cancellationToken = default)
     {
-        return await db.Questions
+        return await databaseContext.Questions
             .AsNoTracking()
-            .FirstOrDefaultAsync(q => q.QuestionId == questionId, ct)
+            .FirstOrDefaultAsync(question => question.QuestionId == questionId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -25,12 +25,12 @@ public class QuestionRepository : IQuestionRepository
     /// Returns the catalog ordered by SortOrder so the UI can render questions in the original
     /// designer-defined sequence. Read-only.
     /// </summary>
-    public async Task<IReadOnlyList<Question>> GetAllOrderedAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Question>> GetAllOrderedAsync(CancellationToken cancellationToken = default)
     {
-        return await db.Questions
+        return await databaseContext.Questions
             .AsNoTracking()
-            .OrderBy(q => q.SortOrder)
-            .ToListAsync(ct)
+            .OrderBy(question => question.SortOrder)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 }

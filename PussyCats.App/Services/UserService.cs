@@ -12,28 +12,28 @@ public class UserService : IUserService
         this.userRepository = userRepository;
     }
 
-    public async Task<User?> GetByIdAsync(int userId, CancellationToken ct = default)
+    public async Task<User?> GetByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false);
+        return await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await userRepository.GetAllAsync(ct).ConfigureAwait(false);
+        return await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<User> AddAsync(User user, CancellationToken ct = default)
+    public async Task<User> AddAsync(User user, CancellationToken cancellationToken = default)
     {
-        return await userRepository.AddAsync(user, ct).ConfigureAwait(false);
+        return await userRepository.AddAsync(user, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(User user, CancellationToken ct = default)
+    public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
-        await userRepository.UpdateAsync(user, ct).ConfigureAwait(false);
+        await userRepository.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int userId, CancellationToken ct = default)
+    public async Task RemoveAsync(int userId, CancellationToken cancellationToken = default)
     {
-        await userRepository.RemoveAsync(userId, ct).ConfigureAwait(false);
+        await userRepository.RemoveAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 }

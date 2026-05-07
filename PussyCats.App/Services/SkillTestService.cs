@@ -15,14 +15,14 @@ public class SkillTestService : ISkillTestService
         this.skillTestRepository = skillTestRepository;
     }
 
-    public async Task<IReadOnlyList<SkillTest>> GetTestsForUserAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<SkillTest>> GetTestsForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await skillTestRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        return await skillTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<bool> CanRetakeTestAsync(int skillTestId, CancellationToken ct = default)
+    public async Task<bool> CanRetakeTestAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        var skillTest = await skillTestRepository.GetByIdAsync(skillTestId, ct).ConfigureAwait(false);
+        var skillTest = await skillTestRepository.GetByIdAsync(skillTestId, cancellationToken).ConfigureAwait(false);
 
         if (skillTest is null)
         {
@@ -32,22 +32,22 @@ public class SkillTestService : ISkillTestService
         return IsRetakeEligible(skillTest);
     }
 
-    public async Task<Badge> SubmitRetakeAsync(int skillTestId, int newScore, CancellationToken ct = default)
+    public async Task<Badge> SubmitRetakeAsync(int skillTestId, int newScore, CancellationToken cancellationToken = default)
     {
-        if (!await CanRetakeTestAsync(skillTestId, ct).ConfigureAwait(false))
+        if (!await CanRetakeTestAsync(skillTestId, cancellationToken).ConfigureAwait(false))
         {
             throw new Exception("Test is not yet eligible for a retake. Action blocked at service layer.");
         }
 
-        await skillTestRepository.UpdateScoreAsync(skillTestId, newScore, ct).ConfigureAwait(false);
-        await skillTestRepository.UpdateAchievedDateAsync(skillTestId, DateOnly.FromDateTime(DateTime.Now), ct).ConfigureAwait(false);
+        await skillTestRepository.UpdateScoreAsync(skillTestId, newScore, cancellationToken).ConfigureAwait(false);
+        await skillTestRepository.UpdateAchievedDateAsync(skillTestId, DateOnly.FromDateTime(DateTime.Now), cancellationToken).ConfigureAwait(false);
 
         return SimpleModelOperations.AssignTier(newScore);
     }
 
-    public async Task<SkillTest?> GetSkillTestByIdAsync(int skillTestId, CancellationToken ct = default)
+    public async Task<SkillTest?> GetSkillTestByIdAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        return await skillTestRepository.GetByIdAsync(skillTestId, ct).ConfigureAwait(false);
+        return await skillTestRepository.GetByIdAsync(skillTestId, cancellationToken).ConfigureAwait(false);
     }
 
     public static bool IsRetakeEligible(SkillTest skillTest)

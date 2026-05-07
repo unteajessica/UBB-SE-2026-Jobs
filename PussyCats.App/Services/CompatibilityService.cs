@@ -31,10 +31,10 @@ public class CompatibilityService : ICompatibilityService
         this.userRepository = userRepository;
     }
 
-    private async Task<List<UserSkill>> GetUserSkillsAsync(int userId, CancellationToken ct)
+    private async Task<List<UserSkill>> GetUserSkillsAsync(int userId, CancellationToken cancellationToken)
     {
-        var verifiedSkillsOfUser = await userSkillRepository.GetVerifiedByUserIdAsync(userId, ct).ConfigureAwait(false);
-        var user = await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false);
+        var verifiedSkillsOfUser = await userSkillRepository.GetVerifiedByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
         string parsedCvText = user?.ParsedCv ?? string.Empty;
         var extractedCvSkills = ExtractSkillsFromParsedCv(parsedCvText);
         return MergeVerifiedAndUnverifiedSkills(verifiedSkillsOfUser, extractedCvSkills);
@@ -235,10 +235,10 @@ public class CompatibilityService : ICompatibilityService
         return missingSkillsSuggestions;
     }
 
-    public async Task<RoleResult> CalculateForRoleAsync(int userId, JobRole role, CancellationToken ct = default)
+    public async Task<RoleResult> CalculateForRoleAsync(int userId, JobRole role, CancellationToken cancellationToken = default)
     {
-        var userSkills = await GetUserSkillsAsync(userId, ct).ConfigureAwait(false);
-        var groups = await skillGroupRepository.GetByJobRoleAsync(role, ct).ConfigureAwait(false);
+        var userSkills = await GetUserSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
+        var groups = await skillGroupRepository.GetByJobRoleAsync(role, cancellationToken).ConfigureAwait(false);
 
         int totalWeight = 0;
         foreach (var group in groups)
@@ -272,13 +272,13 @@ public class CompatibilityService : ICompatibilityService
         return result;
     }
 
-    public async Task<IReadOnlyList<RoleResult>> CalculateAllAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<RoleResult>> CalculateAllAsync(int userId, CancellationToken cancellationToken = default)
     {
         var results = new List<RoleResult>();
 
         foreach (JobRole role in Enum.GetValues(typeof(JobRole)))
         {
-            results.Add(await CalculateForRoleAsync(userId, role, ct).ConfigureAwait(false));
+            results.Add(await CalculateForRoleAsync(userId, role, cancellationToken).ConfigureAwait(false));
         }
 
         return results;

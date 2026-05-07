@@ -12,28 +12,28 @@ public class CompanyService : ICompanyService
         this.companyRepository = companyRepository;
     }
 
-    public async Task<Company?> GetByIdAsync(int companyId, CancellationToken ct = default)
+    public async Task<Company?> GetByIdAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        return await companyRepository.GetByIdAsync(companyId, ct).ConfigureAwait(false);
+        return await companyRepository.GetByIdAsync(companyId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await companyRepository.GetAllAsync(ct).ConfigureAwait(false);
+        return await companyRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Company> AddAsync(Company company, CancellationToken ct = default)
+    public async Task<Company> AddAsync(Company company, CancellationToken cancellationToken = default)
     {
-        return await companyRepository.AddAsync(company, ct).ConfigureAwait(false);
+        return await companyRepository.AddAsync(company, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(Company company, CancellationToken ct = default)
+    public async Task UpdateAsync(Company company, CancellationToken cancellationToken = default)
     {
-        await companyRepository.UpdateAsync(company, ct).ConfigureAwait(false);
+        await companyRepository.UpdateAsync(company, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int companyId, CancellationToken ct = default)
+    public async Task RemoveAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        await companyRepository.RemoveAsync(companyId, ct).ConfigureAwait(false);
+        await companyRepository.RemoveAsync(companyId, cancellationToken).ConfigureAwait(false);
     }
 }

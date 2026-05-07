@@ -29,18 +29,18 @@ public sealed partial class UserStatusPage : Page
         Loaded += OnLoaded;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs eventArguments)
     {
         SetActiveFilter(FilterAll);
         await viewModel.LoadMatchesAsync();
     }
 
-    private void Filter_Click(object sender, RoutedEventArgs e)
+    private void Filter_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is not Button btn) return;
         SetActiveFilter(btn);
@@ -66,15 +66,15 @@ public sealed partial class UserStatusPage : Page
         }
     }
 
-    private void ViewJobDetails_Click(object sender, RoutedEventArgs e)
+    private void ViewJobDetails_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is Button { Tag: ApplicationCardModel model })
             Frame.Navigate(typeof(UserStatusJobDetailPage), model);
     }
 
-    private void RefreshButton_Click(object sender, RoutedEventArgs e)
+    private void RefreshButton_Click(object sender, RoutedEventArgs eventArguments)
         => viewModel.Refresh();
 
-    private void GoToRecommendationsButton_Click(object sender, RoutedEventArgs e)
+    private void GoToRecommendationsButton_Click(object sender, RoutedEventArgs eventArguments)
         => Frame.Navigate(typeof(UserRecommendationPage));
 }

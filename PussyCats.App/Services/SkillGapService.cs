@@ -21,16 +21,16 @@ public class SkillGapService : ISkillGapService
         this.userSkillService = userSkillService;
     }
 
-    public async Task<IReadOnlyList<MissingSkillModel>> GetMissingSkillsAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<MissingSkillModel>> GetMissingSkillsAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var rejectedMatches = await GetRejectedMatchesAsync(userId, ct).ConfigureAwait(false);
+        var rejectedMatches = await GetRejectedMatchesAsync(userId, cancellationToken).ConfigureAwait(false);
         if (rejectedMatches.Count == 0)
         {
             return new List<MissingSkillModel>();
         }
 
         var userSkillIds = new HashSet<int>();
-        foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, ct).ConfigureAwait(false))
+        foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false))
         {
             userSkillIds.Add(userSkill.SkillId);
         }
@@ -38,7 +38,7 @@ public class SkillGapService : ISkillGapService
         var missingCount = new Dictionary<string, int>();
         foreach (var match in rejectedMatches)
         {
-            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, ct).ConfigureAwait(false))
+            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, cancellationToken).ConfigureAwait(false))
             {
                 if (!userSkillIds.Contains(jobSkill.SkillId))
                 {
@@ -63,16 +63,16 @@ public class SkillGapService : ISkillGapService
         return missingSkills;
     }
 
-    public async Task<IReadOnlyList<UnderscoredSkillModel>> GetUnderscoredSkillsAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UnderscoredSkillModel>> GetUnderscoredSkillsAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var rejectedMatches = await GetRejectedMatchesAsync(userId, ct).ConfigureAwait(false);
+        var rejectedMatches = await GetRejectedMatchesAsync(userId, cancellationToken).ConfigureAwait(false);
         if (rejectedMatches.Count == 0)
         {
             return new List<UnderscoredSkillModel>();
         }
 
         var userSkillMap = new Dictionary<int, UserSkill>();
-        foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, ct).ConfigureAwait(false))
+        foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false))
         {
             userSkillMap[userSkill.SkillId] = userSkill;
         }
@@ -80,7 +80,7 @@ public class SkillGapService : ISkillGapService
         var requiredScoresPerSkill = new Dictionary<int, (string Name, int UserScore, List<int> RequiredScores)>();
         foreach (var match in rejectedMatches)
         {
-            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, ct).ConfigureAwait(false))
+            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, cancellationToken).ConfigureAwait(false))
             {
                 if (!userSkillMap.TryGetValue(jobSkill.SkillId, out var userSkill))
                 {
@@ -116,16 +116,16 @@ public class SkillGapService : ISkillGapService
         return underscoredSkills;
     }
 
-    public async Task<SkillGapSummaryModel> GetSummaryAsync(int userId, CancellationToken ct = default)
+    public async Task<SkillGapSummaryModel> GetSummaryAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var rejectedMatches = await GetRejectedMatchesAsync(userId, ct).ConfigureAwait(false);
+        var rejectedMatches = await GetRejectedMatchesAsync(userId, cancellationToken).ConfigureAwait(false);
         if (rejectedMatches.Count == 0)
         {
             return new SkillGapSummaryModel { HasRejections = false, HasSkillGaps = false };
         }
 
-        var missing = await GetMissingSkillsAsync(userId, ct).ConfigureAwait(false);
-        var underscored = await GetUnderscoredSkillsAsync(userId, ct).ConfigureAwait(false);
+        var missing = await GetMissingSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
+        var underscored = await GetUnderscoredSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
 
         return new SkillGapSummaryModel
         {
@@ -136,9 +136,9 @@ public class SkillGapService : ISkillGapService
         };
     }
 
-    private async Task<IReadOnlyList<Match>> GetRejectedMatchesAsync(int userId, CancellationToken ct)
+    private async Task<IReadOnlyList<Match>> GetRejectedMatchesAsync(int userId, CancellationToken cancellationToken)
     {
-        var matches = await matchRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        var matches = await matchRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
         var rejected = new List<Match>();
         foreach (var match in matches)
         {

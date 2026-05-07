@@ -42,47 +42,47 @@ public sealed class UserRecommendationService : IUserRecommendationService
         this.algorithm = algorithm;
     }
 
-    public async Task<JobRecommendationResult?> GetNextCardAsync(int userId, UserMatchmakingFilters filters, CancellationToken ct = default)
+    public async Task<JobRecommendationResult?> GetNextCardAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken = default)
     {
-        var ranked = await BuildRankedListAsync(userId, filters, ct).ConfigureAwait(false);
+        var ranked = await BuildRankedListAsync(userId, filters, cancellationToken).ConfigureAwait(false);
         if (ranked.Count == 0)
         {
             return null;
         }
 
         var (topRankedJob, score) = ranked[0];
-        return await BuildCardWithShownRecordAsync(userId, topRankedJob, score, ct).ConfigureAwait(false);
+        return await BuildCardWithShownRecordAsync(userId, topRankedJob, score, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<JobRecommendationResult?> RecalculateTopCardIgnoringCooldownAsync(int userId, UserMatchmakingFilters filters, CancellationToken ct = default)
+    public async Task<JobRecommendationResult?> RecalculateTopCardIgnoringCooldownAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken = default)
     {
-        var ranked = await BuildRankedListIgnoringCooldownAsync(userId, filters, ct).ConfigureAwait(false);
+        var ranked = await BuildRankedListIgnoringCooldownAsync(userId, filters, cancellationToken).ConfigureAwait(false);
         if (ranked.Count == 0)
         {
             return null;
         }
 
         var best = ranked[0];
-        return await BuildCardWithShownRecordAsync(userId, best.Job, best.Score, ct).ConfigureAwait(false);
+        return await BuildCardWithShownRecordAsync(userId, best.Job, best.Score, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<List<(Job Job, double Score)>> BuildRankedListIgnoringCooldownAsync(int userId, UserMatchmakingFilters filters, CancellationToken ct)
+    private async Task<List<(Job Job, double Score)>> BuildRankedListIgnoringCooldownAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false)
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("User not found.");
 
-        var jobs = await GetFilteredJobsAsync(filters, user, ct).ConfigureAwait(false);
-        var userSkills = await userSkillRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        var jobs = await GetFilteredJobsAsync(filters, user, cancellationToken).ConfigureAwait(false);
+        var userSkills = await userSkillRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
 
         var ranked = new List<(Job Job, double Score)>();
         foreach (var currentJob in jobs)
         {
-            if (await matchService.GetByUserIdAndJobIdAsync(userId, currentJob.JobId, ct).ConfigureAwait(false) is not null)
+            if (await matchService.GetByUserIdAndJobIdAsync(userId, currentJob.JobId, cancellationToken).ConfigureAwait(false) is not null)
             {
                 continue;
             }
 
-            var score = await ComputeCompatibilityScoreAsync(user, currentJob, userSkills, ct).ConfigureAwait(false);
+            var score = await ComputeCompatibilityScoreAsync(user, currentJob, userSkills, cancellationToken).ConfigureAwait(false);
             ranked.Add((currentJob, score));
         }
 
@@ -90,34 +90,34 @@ public sealed class UserRecommendationService : IUserRecommendationService
         return ranked;
     }
 
-    private async Task<double> ComputeCompatibilityScoreAsync(User user, Job job, IReadOnlyList<UserSkill> userSkills, CancellationToken ct)
+    private async Task<double> ComputeCompatibilityScoreAsync(User user, Job job, IReadOnlyList<UserSkill> userSkills, CancellationToken cancellationToken)
     {
-        var jobSkills = await jobSkillRepository.GetByJobIdAsync(job.JobId, ct).ConfigureAwait(false);
+        var jobSkills = await jobSkillRepository.GetByJobIdAsync(job.JobId, cancellationToken).ConfigureAwait(false);
         return algorithm.CalculateCompatibilityScore(user, job, userSkills, jobSkills);
     }
 
-    private async Task<List<(Job Job, double Score)>> BuildRankedListAsync(int userId, UserMatchmakingFilters filters, CancellationToken ct)
+    private async Task<List<(Job Job, double Score)>> BuildRankedListAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false)
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("User not found.");
 
-        var jobs = await GetFilteredJobsAsync(filters, user, ct).ConfigureAwait(false);
-        var userSkills = await userSkillRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        var jobs = await GetFilteredJobsAsync(filters, user, cancellationToken).ConfigureAwait(false);
+        var userSkills = await userSkillRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
 
         var ranked = new List<(Job Job, double Score)>();
         foreach (var currentJob in jobs)
         {
-            if (await matchService.GetByUserIdAndJobIdAsync(userId, currentJob.JobId, ct).ConfigureAwait(false) is not null)
+            if (await matchService.GetByUserIdAndJobIdAsync(userId, currentJob.JobId, cancellationToken).ConfigureAwait(false) is not null)
             {
                 continue;
             }
 
-            if (await cooldownService.IsOnCooldownAsync(userId, currentJob.JobId, DateTime.UtcNow, ct).ConfigureAwait(false))
+            if (await cooldownService.IsOnCooldownAsync(userId, currentJob.JobId, DateTime.UtcNow, cancellationToken).ConfigureAwait(false))
             {
                 continue;
             }
 
-            var score = await ComputeCompatibilityScoreAsync(user, currentJob, userSkills, ct).ConfigureAwait(false);
+            var score = await ComputeCompatibilityScoreAsync(user, currentJob, userSkills, cancellationToken).ConfigureAwait(false);
             ranked.Add((currentJob, score));
         }
 
@@ -125,7 +125,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
         return ranked;
     }
 
-    private async Task<JobRecommendationResult> BuildCardWithShownRecordAsync(int userId, Job job, double score, CancellationToken ct)
+    private async Task<JobRecommendationResult> BuildCardWithShownRecordAsync(int userId, Job job, double score, CancellationToken cancellationToken)
     {
         var displayRecommendation = new Recommendation
         {
@@ -134,16 +134,16 @@ public sealed class UserRecommendationService : IUserRecommendationService
             Timestamp = DateTime.UtcNow,
         };
 
-        var saved = await recommendationRepository.AddAsync(displayRecommendation, ct).ConfigureAwait(false);
-        return await CreateCardAsync(job, score, saved.RecommendationId, ct).ConfigureAwait(false);
+        var saved = await recommendationRepository.AddAsync(displayRecommendation, cancellationToken).ConfigureAwait(false);
+        return await CreateCardAsync(job, score, saved.RecommendationId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<JobRecommendationResult> CreateCardAsync(Job job, double score, int? displayRecommendationId, CancellationToken ct)
+    private async Task<JobRecommendationResult> CreateCardAsync(Job job, double score, int? displayRecommendationId, CancellationToken cancellationToken)
     {
-        var company = await companyRepository.GetByIdAsync(job.CompanyId, ct).ConfigureAwait(false)
+        var company = await companyRepository.GetByIdAsync(job.CompanyId, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException($"Company {job.CompanyId} not found.");
 
-        var jobSkillRows = await jobSkillRepository.GetByJobIdAsync(job.JobId, ct).ConfigureAwait(false);
+        var jobSkillRows = await jobSkillRepository.GetByJobIdAsync(job.JobId, cancellationToken).ConfigureAwait(false);
         var topSkills = JobRecommendationResult.TakeTopSkills(jobSkillRows);
         var allSkillLabels = new List<string>();
         foreach (var jobSkill in jobSkillRows)
@@ -163,18 +163,18 @@ public sealed class UserRecommendationService : IUserRecommendationService
         };
     }
 
-    public async Task<int> ApplyLikeAsync(int userId, JobRecommendationResult card, CancellationToken ct = default)
+    public async Task<int> ApplyLikeAsync(int userId, JobRecommendationResult card, CancellationToken cancellationToken = default)
     {
         var targetJob = card.Job;
-        if (await matchService.GetByUserIdAndJobIdAsync(userId, targetJob.JobId, ct).ConfigureAwait(false) is not null)
+        if (await matchService.GetByUserIdAndJobIdAsync(userId, targetJob.JobId, cancellationToken).ConfigureAwait(false) is not null)
         {
             throw new InvalidOperationException("Already applied to this job.");
         }
 
-        return await matchService.CreatePendingApplicationAsync(userId, targetJob.JobId, ct).ConfigureAwait(false);
+        return await matchService.CreatePendingApplicationAsync(userId, targetJob.JobId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<int> ApplyDismissAsync(int userId, JobRecommendationResult card, CancellationToken ct = default)
+    public async Task<int> ApplyDismissAsync(int userId, JobRecommendationResult card, CancellationToken cancellationToken = default)
     {
         var dismissedRecommendation = new Recommendation
         {
@@ -183,29 +183,29 @@ public sealed class UserRecommendationService : IUserRecommendationService
             Timestamp = DateTime.UtcNow,
         };
 
-        var saved = await recommendationRepository.AddAsync(dismissedRecommendation, ct).ConfigureAwait(false);
+        var saved = await recommendationRepository.AddAsync(dismissedRecommendation, cancellationToken).ConfigureAwait(false);
         return saved.RecommendationId;
     }
 
-    public async Task UndoLikeAsync(int matchId, int? displayRecommendationId, CancellationToken ct = default)
+    public async Task UndoLikeAsync(int matchId, int? displayRecommendationId, CancellationToken cancellationToken = default)
     {
-        await matchService.RemoveApplicationAsync(matchId, ct).ConfigureAwait(false);
+        await matchService.RemoveApplicationAsync(matchId, cancellationToken).ConfigureAwait(false);
         if (displayRecommendationId is { } resolvedDisplayRecommendationId)
         {
-            await recommendationRepository.RemoveAsync(resolvedDisplayRecommendationId, ct).ConfigureAwait(false);
+            await recommendationRepository.RemoveAsync(resolvedDisplayRecommendationId, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public async Task UndoDismissAsync(int dismissRecommendationId, int? displayRecommendationId, CancellationToken ct = default)
+    public async Task UndoDismissAsync(int dismissRecommendationId, int? displayRecommendationId, CancellationToken cancellationToken = default)
     {
-        await recommendationRepository.RemoveAsync(dismissRecommendationId, ct).ConfigureAwait(false);
+        await recommendationRepository.RemoveAsync(dismissRecommendationId, cancellationToken).ConfigureAwait(false);
         if (displayRecommendationId is { } resolvedDisplayRecommendationId && resolvedDisplayRecommendationId != dismissRecommendationId)
         {
-            await recommendationRepository.RemoveAsync(resolvedDisplayRecommendationId, ct).ConfigureAwait(false);
+            await recommendationRepository.RemoveAsync(resolvedDisplayRecommendationId, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private async Task<bool> PassesFiltersAsync(Job job, UserMatchmakingFilters filters, User user, CancellationToken ct)
+    private async Task<bool> PassesFiltersAsync(Job job, UserMatchmakingFilters filters, User user, CancellationToken cancellationToken)
     {
         if (filters.EmploymentTypes.Count > 0)
         {
@@ -234,7 +234,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
 
         if (filters.SkillIds.Count > 0)
         {
-            var jobSkillIds = await GetJobSkillIdSetAsync(job.JobId, ct).ConfigureAwait(false);
+            var jobSkillIds = await GetJobSkillIdSetAsync(job.JobId, cancellationToken).ConfigureAwait(false);
             if (!HasAnySkillIntersection(filters.SkillIds, jobSkillIds))
             {
                 return false;
@@ -256,12 +256,12 @@ public sealed class UserRecommendationService : IUserRecommendationService
         };
     }
 
-    private async Task<List<Job>> GetFilteredJobsAsync(UserMatchmakingFilters filters, User user, CancellationToken ct)
+    private async Task<List<Job>> GetFilteredJobsAsync(UserMatchmakingFilters filters, User user, CancellationToken cancellationToken)
     {
         var filteredJobs = new List<Job>();
-        foreach (var job in await jobRepository.GetAllAsync(ct).ConfigureAwait(false))
+        foreach (var job in await jobRepository.GetAllAsync(cancellationToken).ConfigureAwait(false))
         {
-            if (await PassesFiltersAsync(job, filters, user, ct).ConfigureAwait(false))
+            if (await PassesFiltersAsync(job, filters, user, cancellationToken).ConfigureAwait(false))
             {
                 filteredJobs.Add(job);
             }
@@ -270,10 +270,10 @@ public sealed class UserRecommendationService : IUserRecommendationService
         return filteredJobs;
     }
 
-    private async Task<HashSet<int>> GetJobSkillIdSetAsync(int jobId, CancellationToken ct)
+    private async Task<HashSet<int>> GetJobSkillIdSetAsync(int jobId, CancellationToken cancellationToken)
     {
         var skillIds = new HashSet<int>();
-        foreach (var jobSkill in await jobSkillRepository.GetByJobIdAsync(jobId, ct).ConfigureAwait(false))
+        foreach (var jobSkill in await jobSkillRepository.GetByJobIdAsync(jobId, cancellationToken).ConfigureAwait(false))
         {
             skillIds.Add(jobSkill.SkillId);
         }

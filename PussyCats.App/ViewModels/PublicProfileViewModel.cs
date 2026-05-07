@@ -41,11 +41,11 @@ public class PublicProfileViewModel : DispatchableObservableObject
         private set => SetProperty(ref errorMessage, value);
     }
 
-    public async Task LoadPublicProfileAsync(int userId, CancellationToken ct = default)
+    public async Task LoadPublicProfileAsync(int userId, CancellationToken cancellationToken = default)
     {
         try
         {
-            IsAvailable = await userProfileService.IsProfileAvailableAsync(userId, ct).ConfigureAwait(false);
+            IsAvailable = await userProfileService.IsProfileAvailableAsync(userId, cancellationToken).ConfigureAwait(false);
             if (!IsAvailable)
             {
                 Profile = null;
@@ -53,8 +53,8 @@ public class PublicProfileViewModel : DispatchableObservableObject
                 return;
             }
 
-            Profile = await userProfileService.GetProfileAsync(userId, ct).ConfigureAwait(false);
-            Tests = (await userProfileService.GetSkillTestsForUserAsync(userId, ct).ConfigureAwait(false)).ToList();
+            Profile = await userProfileService.GetProfileAsync(userId, cancellationToken).ConfigureAwait(false);
+            Tests = (await userProfileService.GetSkillTestsForUserAsync(userId, cancellationToken).ConfigureAwait(false)).ToList();
         }
         catch (Exception exception)
         {

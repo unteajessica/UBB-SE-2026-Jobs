@@ -6,35 +6,35 @@ namespace PussyCats.Library.Repositories.Skills;
 
 public class UserSkillRepository : IUserSkillRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public UserSkillRepository(PussyCatsDbContext db)
+    public UserSkillRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
     /// Tracked single-row lookup keyed by the (UserId, SkillId) composite. Includes Skill so
     /// the caller can render the catalog name without a second query.
     /// </summary>
-    public async Task<UserSkill?> GetAsync(int userId, int skillId, CancellationToken ct = default)
+    public async Task<UserSkill?> GetAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
-        return await db.UserSkills
-            .Include(s => s.Skill)
-            .FirstOrDefaultAsync(s => s.UserId == userId && s.SkillId == skillId, ct)
+        return await databaseContext.UserSkills
+            .Include(skill => skill.Skill)
+            .FirstOrDefaultAsync(skill => skill.UserId == userId && skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
     }
 
     /// <summary>
     /// Read-only listing of every claimed skill for a user. Includes Skill for catalog name.
     /// </summary>
-    public async Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.UserSkills
+        return await databaseContext.UserSkills
             .AsNoTracking()
-            .Include(s => s.Skill)
-            .Where(s => s.UserId == userId)
-            .ToListAsync(ct)
+            .Include(skill => skill.Skill)
+            .Where(skill => skill.UserId == userId)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -46,52 +46,52 @@ public class UserSkillRepository : IUserSkillRepository
     /// AchievedDate IS NOT NULL — both must hold for a skill to count as "verified", per the
     /// AchievedDate XML doc note on UserSkill.
     /// </summary>
-    public async Task<IReadOnlyList<UserSkill>> GetVerifiedByUserIdAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UserSkill>> GetVerifiedByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.UserSkills
+        return await databaseContext.UserSkills
             .AsNoTracking()
-            .Include(s => s.Skill)
-            .Where(s => s.UserId == userId && s.IsVerified && s.AchievedDate != null)
-            .ToListAsync(ct)
+            .Include(skill => skill.Skill)
+            .Where(skill => skill.UserId == userId && skill.IsVerified && skill.AchievedDate != null)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken ct = default)
+    public async Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        db.UserSkills.Add(userSkill);
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        databaseContext.UserSkills.Add(userSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return userSkill;
     }
 
-    public async Task UpdateAsync(UserSkill userSkill, CancellationToken ct = default)
+    public async Task UpdateAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        db.UserSkills.Update(userSkill);
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        databaseContext.UserSkills.Update(userSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Targeted column update through the change tracker — same pattern as
     /// SkillTestRepository.UpdateScoreAsync.
     /// </summary>
-    public async Task UpdateScoreAsync(int userId, int skillId, int score, CancellationToken ct = default)
+    public async Task UpdateScoreAsync(int userId, int skillId, int score, CancellationToken cancellationToken = default)
     {
-        var userSkill = await db.UserSkills.FindAsync(new object?[] { userId, skillId }, ct).ConfigureAwait(false);
+        var userSkill = await databaseContext.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
         if (userSkill is null)
         {
             return;
         }
         userSkill.Score = score;
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int userId, int skillId, CancellationToken ct = default)
+    public async Task RemoveAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
-        var userSkill = await db.UserSkills.FindAsync(new object?[] { userId, skillId }, ct).ConfigureAwait(false);
+        var userSkill = await databaseContext.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
         if (userSkill is null)
         {
             return;
         }
-        db.UserSkills.Remove(userSkill);
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        databaseContext.UserSkills.Remove(userSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -9,26 +9,26 @@ public class RecommendationConfiguration : IEntityTypeConfiguration<Recommendati
     public void Configure(EntityTypeBuilder<Recommendation> builder)
     {
         builder.ToTable("Recommendations");
-        builder.HasKey(r => r.RecommendationId);
+        builder.HasKey(recommendation => recommendation.RecommendationId);
 
         // Cascade: User -> Recommendation. Per-user recommendations are derived from the user's
         // own profile; once the user is gone there is nothing meaningful to keep.
-        builder.HasOne(r => r.User)
+        builder.HasOne(recommendation => recommendation.User)
             .WithMany()
-            .HasForeignKey(r => r.UserId)
+            .HasForeignKey(recommendation => recommendation.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Restrict on Job -> Recommendation. SQL Server forbids two cascade paths converging on
         // one table, and User -> Recommendation already cascades; restricting here also guards
         // against accidentally deleting recommendations across all users when a job is removed.
-        builder.HasOne(r => r.Job)
+        builder.HasOne(recommendation => recommendation.Job)
             .WithMany()
-            .HasForeignKey(r => r.JobId)
+            .HasForeignKey(recommendation => recommendation.JobId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(r => r.UserId);
-        builder.HasIndex(r => r.JobId);
+        builder.HasIndex(recommendation => recommendation.UserId);
+        builder.HasIndex(recommendation => recommendation.JobId);
         // (UserId, JobId, Timestamp DESC) supports GetLatestByUserIdAndJobIdAsync without a sort.
-        builder.HasIndex(r => new { r.UserId, r.JobId, r.Timestamp });
+        builder.HasIndex(recommendation => new { recommendation.UserId, recommendation.JobId, recommendation.Timestamp });
     }
 }

@@ -11,21 +11,21 @@ public class JobSkillConfiguration : IEntityTypeConfiguration<JobSkill>
         builder.ToTable("JobSkills");
 
         // Composite PK (JobId, SkillId) — same rationale as UserSkill.
-        builder.HasKey(s => new { s.JobId, s.SkillId });
+        builder.HasKey(skill => new { skill.JobId, skill.SkillId });
 
         // Cascade on Job -> JobSkill: a removed job has no remaining requirements.
-        builder.HasOne(s => s.Job)
-            .WithMany(j => j.RequiredSkills)
-            .HasForeignKey(s => s.JobId)
+        builder.HasOne(skill => skill.Job)
+            .WithMany(job => job.RequiredSkills)
+            .HasForeignKey(skill => skill.JobId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Restrict on Skill -> JobSkill: catalog reference, can't be dropped while in use.
-        builder.HasOne(s => s.Skill)
+        builder.HasOne(skill => skill.Skill)
             .WithMany()
-            .HasForeignKey(s => s.SkillId)
+            .HasForeignKey(skill => skill.SkillId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(s => s.SkillId);
+        builder.HasIndex(skill => skill.SkillId);
 
         // Three sample required-skill rows for the three seeded jobs.
         builder.HasData(

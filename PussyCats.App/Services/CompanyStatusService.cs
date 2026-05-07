@@ -23,9 +23,9 @@ public class CompanyStatusService : ICompanyStatusService
         this.userSkillService = userSkillService;
     }
 
-    public async Task<IReadOnlyList<UserApplicationResult>> GetApplicantsForCompanyAsync(int companyId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UserApplicationResult>> GetApplicantsForCompanyAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        var matches = await matchService.GetByCompanyIdAsync(companyId, ct).ConfigureAwait(false);
+        var matches = await matchService.GetByCompanyIdAsync(companyId, cancellationToken).ConfigureAwait(false);
         var visibleMatches = new List<Match>();
         foreach (var match in matches)
         {
@@ -39,14 +39,14 @@ public class CompanyStatusService : ICompanyStatusService
 
         foreach (var match in visibleMatches)
         {
-            var user = await userService.GetByIdAsync(match.UserId, ct).ConfigureAwait(false);
-            var job = await jobService.GetByIdAsync(match.JobId, ct).ConfigureAwait(false);
+            var user = await userService.GetByIdAsync(match.UserId, cancellationToken).ConfigureAwait(false);
+            var job = await jobService.GetByIdAsync(match.JobId, cancellationToken).ConfigureAwait(false);
             if (user is null || job is null)
             {
                 continue;
             }
 
-            var userSkills = await userSkillService.GetByUserIdAsync(user.UserId, ct).ConfigureAwait(false);
+            var userSkills = await userSkillService.GetByUserIdAsync(user.UserId, cancellationToken).ConfigureAwait(false);
             var result = BuildResult(match, user, job, userSkills);
             results.Add(result);
         }
@@ -56,9 +56,9 @@ public class CompanyStatusService : ICompanyStatusService
         return results;
     }
 
-    public async Task<UserApplicationResult?> GetApplicantByMatchIdAsync(int companyId, int matchId, CancellationToken ct = default)
+    public async Task<UserApplicationResult?> GetApplicantByMatchIdAsync(int companyId, int matchId, CancellationToken cancellationToken = default)
     {
-        var applicants = await GetApplicantsForCompanyAsync(companyId, ct).ConfigureAwait(false);
+        var applicants = await GetApplicantsForCompanyAsync(companyId, cancellationToken).ConfigureAwait(false);
         foreach (var result in applicants)
         {
             if (result.Match.MatchId == matchId)

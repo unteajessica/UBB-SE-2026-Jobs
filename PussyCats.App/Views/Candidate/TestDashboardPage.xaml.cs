@@ -17,10 +17,10 @@ public sealed partial class TestDashboardPage : Page
         viewModel = App.Services.GetRequiredService<TestDashboardViewModel>();
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
-        var user = e.Parameter as User;
+        base.OnNavigatedTo(eventArguments);
+        var user = eventArguments.Parameter as User;
         await viewModel.LoadTestsAsync(user);
         RenderCards();
     }

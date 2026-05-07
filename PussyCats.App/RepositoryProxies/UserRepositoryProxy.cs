@@ -13,51 +13,51 @@ public class UserRepositoryProxy : IUserRepository
         this.http = http;
     }
 
-    public async Task<User?> GetByIdAsync(int userId, CancellationToken ct = default)
+    public async Task<User?> GetByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetOrNullAsync<User>(http, $"api/users/{userId}", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetOrNullAsync<User>(http, $"api/users/{userId}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<User>(http, "api/users", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<User>(http, "api/users", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<User> AddAsync(User user, CancellationToken ct = default)
+    public async Task<User> AddAsync(User user, CancellationToken cancellationToken = default)
     {
-        using var response = await http.PostAsJsonAsync("api/users", user, RepositoryProxyJson.Options, ct).ConfigureAwait(false);
-        return await RepositoryProxyJson.ReadRequiredAsync<User>(response, ct).ConfigureAwait(false);
+        using var response = await http.PostAsJsonAsync("api/users", user, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
+        return await RepositoryProxyJson.ReadRequiredAsync<User>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(User user, CancellationToken ct = default)
+    public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
-        using var response = await http.PutAsJsonAsync($"api/users/{user.UserId}", user, RepositoryProxyJson.Options, ct).ConfigureAwait(false);
+        using var response = await http.PutAsJsonAsync($"api/users/{user.UserId}", user, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int userId, CancellationToken ct = default)
+    public async Task RemoveAsync(int userId, CancellationToken cancellationToken = default)
     {
-        using var response = await http.DeleteAsync($"api/users/{userId}", ct).ConfigureAwait(false);
+        using var response = await http.DeleteAsync($"api/users/{userId}", cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public async Task UpdateActiveAccountAsync(int userId, bool isActive, CancellationToken ct = default)
+    public async Task UpdateActiveAccountAsync(int userId, bool isActive, CancellationToken cancellationToken = default)
     {
-        using var response = await http.PatchAsJsonAsync($"api/users/{userId}/active", new { isActive }, RepositoryProxyJson.Options, ct).ConfigureAwait(false);
+        using var response = await http.PatchAsJsonAsync($"api/users/{userId}/active", new { isActive }, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public async Task UpdateProfilePicturePathAsync(int userId, string profilePicturePath, CancellationToken ct = default)
+    public async Task UpdateProfilePicturePathAsync(int userId, string profilePicturePath, CancellationToken cancellationToken = default)
     {
         using var response = await http.PatchAsJsonAsync(
             $"api/users/{userId}/profile-picture",
             new { path = profilePicturePath },
             RepositoryProxyJson.Options,
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 
-    public Task TouchLastUpdatedAsync(int userId, CancellationToken ct = default)
+    public Task TouchLastUpdatedAsync(int userId, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }

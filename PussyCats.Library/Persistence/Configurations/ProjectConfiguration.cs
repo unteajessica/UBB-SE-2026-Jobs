@@ -9,18 +9,18 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
     public void Configure(EntityTypeBuilder<Project> builder)
     {
         builder.ToTable("Projects");
-        builder.HasKey(p => p.ProjectId);
+        builder.HasKey(project => project.ProjectId);
 
-        builder.Property(p => p.Name).HasMaxLength(200);
-        builder.Property(p => p.Description).HasMaxLength(2000);
-        builder.Property(p => p.Url).HasMaxLength(512);
+        builder.Property(project => project.Name).HasMaxLength(200);
+        builder.Property(project => project.Description).HasMaxLength(2000);
+        builder.Property(project => project.Url).HasMaxLength(512);
 
         // Technologies is a primitive collection; EF Core's primitive-collection support stores
         // it as a JSON column on the Projects table (no value converter, no join table).
-        builder.PrimitiveCollection(p => p.Technologies)
+        builder.PrimitiveCollection(project => project.Technologies)
             .HasColumnType("nvarchar(max)");
 
         // Cascade configured on UserConfiguration (User -> Projects).
-        builder.HasIndex(p => p.UserId);
+        builder.HasIndex(project => project.UserId);
     }
 }

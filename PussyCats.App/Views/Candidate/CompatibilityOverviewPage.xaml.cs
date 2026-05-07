@@ -20,12 +20,12 @@ public sealed partial class CompatibilityOverviewPage : Page
         viewModel = App.Services.GetRequiredService<CompatibilityOverviewViewModel>();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void Page_Loaded(object sender, RoutedEventArgs e)
+    private async void Page_Loaded(object sender, RoutedEventArgs eventArguments)
     {
         await viewModel.LoadAllRolesAsync();
 
@@ -54,7 +54,7 @@ public sealed partial class CompatibilityOverviewPage : Page
         rolesList.ItemsSource = displayItems;
     }
 
-    private void RolesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void RolesList_SelectionChanged(object sender, SelectionChangedEventArgs eventArguments)
     {
         if (rolesList.SelectedItem is null) return;
         dynamic selected = rolesList.SelectedItem;
@@ -63,7 +63,7 @@ public sealed partial class CompatibilityOverviewPage : Page
         Frame.Navigate(typeof(CompatibilityDetailPage), result);
     }
 
-    private void ButtonBack_Click(object sender, RoutedEventArgs e)
+    private void ButtonBack_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (Frame.CanGoBack) Frame.GoBack();
     }

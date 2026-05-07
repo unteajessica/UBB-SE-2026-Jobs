@@ -18,19 +18,19 @@ public sealed partial class SkillGapPage : Page
         Loaded += OnLoaded;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
-        base.OnNavigatedTo(e);
+        base.OnNavigatedTo(eventArguments);
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs eventArguments)
         => await viewModel.LoadDataAsync();
 
-    private void BackToStatus_Click(object sender, RoutedEventArgs e)
+    private void BackToStatus_Click(object sender, RoutedEventArgs eventArguments)
     {
         if (Frame.CanGoBack) Frame.GoBack();
     }
 
-    private void RefreshButton_Click(object sender, RoutedEventArgs e)
+    private void RefreshButton_Click(object sender, RoutedEventArgs eventArguments)
         => viewModel.Refresh();
 }

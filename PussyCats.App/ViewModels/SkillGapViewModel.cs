@@ -44,7 +44,7 @@ public class SkillGapViewModel : DispatchableObservableObject
     public bool HasMissingSkills => MissingSkills.Count > 0;
     public ICommand RefreshCommand { get; }
 
-    public async Task LoadDataAsync(CancellationToken ct = default)
+    public async Task LoadDataAsync(CancellationToken cancellationToken = default)
     {
         IsLoading = true;
         ShowContent = false;
@@ -54,9 +54,9 @@ public class SkillGapViewModel : DispatchableObservableObject
         try
         {
             var userId = ViewModelSupport.ResolveUserId(session);
-            var summary = await skillGapService.GetSummaryAsync(userId, ct).ConfigureAwait(false);
-            var missing = await skillGapService.GetMissingSkillsAsync(userId, ct).ConfigureAwait(false);
-            var underscored = await skillGapService.GetUnderscoredSkillsAsync(userId, ct).ConfigureAwait(false);
+            var summary = await skillGapService.GetSummaryAsync(userId, cancellationToken).ConfigureAwait(false);
+            var missing = await skillGapService.GetMissingSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
+            var underscored = await skillGapService.GetUnderscoredSkillsAsync(userId, cancellationToken).ConfigureAwait(false);
 
             SkillsToImprove.Clear();
             MissingSkills.Clear();

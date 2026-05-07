@@ -22,87 +22,87 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
-        => Ok(await users.GetAllAsync(ct));
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        => Ok(await users.GetAllAsync(cancellationToken));
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var user = await users.GetByIdAsync(id, ct);
+        var user = await users.GetByIdAsync(id, cancellationToken);
         return user is null ? NotFound() : Ok(user);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] User user, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] User user, CancellationToken cancellationToken)
     {
         user.UserId = 0;
-        var saved = await users.AddAsync(user, ct);
+        var saved = await users.AddAsync(user, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.UserId }, saved);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] User user, CancellationToken ct)
+    public async Task<IActionResult> Update(int id, [FromBody] User user, CancellationToken cancellationToken)
     {
-        if (await users.GetByIdAsync(id, ct) is null)
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
         user.UserId = id;
-        await users.UpdateAsync(user, ct);
+        await users.UpdateAsync(user, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Remove(int id, CancellationToken ct)
+    public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {
-        if (await users.GetByIdAsync(id, ct) is null)
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await users.RemoveAsync(id, ct);
+        await users.RemoveAsync(id, cancellationToken);
         return NoContent();
     }
 
     [HttpPatch("{id}/active")]
-    public async Task<IActionResult> UpdateActive(int id, [FromBody] UpdateActiveRequest body, CancellationToken ct)
+    public async Task<IActionResult> UpdateActive(int id, [FromBody] UpdateActiveRequest body, CancellationToken cancellationToken)
     {
-        if (await users.GetByIdAsync(id, ct) is null)
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await users.UpdateActiveAccountAsync(id, body.IsActive, ct);
-        await users.TouchLastUpdatedAsync(id, ct);
+        await users.UpdateActiveAccountAsync(id, body.IsActive, cancellationToken);
+        await users.TouchLastUpdatedAsync(id, cancellationToken);
         return NoContent();
     }
 
     [HttpPatch("{id}/profile-picture")]
-    public async Task<IActionResult> UpdateProfilePicture(int id, [FromBody] UpdateProfilePictureRequest body, CancellationToken ct)
+    public async Task<IActionResult> UpdateProfilePicture(int id, [FromBody] UpdateProfilePictureRequest body, CancellationToken cancellationToken)
     {
-        if (await users.GetByIdAsync(id, ct) is null)
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await users.UpdateProfilePicturePathAsync(id, body.Path ?? string.Empty, ct);
-        await users.TouchLastUpdatedAsync(id, ct);
+        await users.UpdateProfilePicturePathAsync(id, body.Path ?? string.Empty, cancellationToken);
+        await users.TouchLastUpdatedAsync(id, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{id}/profile-picture")]
-    public async Task<IActionResult> RemoveProfilePicture(int id, CancellationToken ct)
+    public async Task<IActionResult> RemoveProfilePicture(int id, CancellationToken cancellationToken)
     {
-        if (await users.GetByIdAsync(id, ct) is null)
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await users.UpdateProfilePicturePathAsync(id, string.Empty, ct);
-        await users.TouchLastUpdatedAsync(id, ct);
+        await users.UpdateProfilePicturePathAsync(id, string.Empty, cancellationToken);
+        await users.TouchLastUpdatedAsync(id, cancellationToken);
         return NoContent();
     }
 
     [HttpGet("{id}/matches")]
-    public async Task<IActionResult> GetMatches(int id, CancellationToken ct)
+    public async Task<IActionResult> GetMatches(int id, CancellationToken cancellationToken)
     {
-        if (await users.GetByIdAsync(id, ct) is null)
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        return Ok(await matches.GetByUserIdAsync(id, ct));
+        return Ok(await matches.GetByUserIdAsync(id, cancellationToken));
     }
 
     [HttpGet("{id}/documents")]
-    public async Task<IActionResult> GetDocuments(int id, CancellationToken ct)
+    public async Task<IActionResult> GetDocuments(int id, CancellationToken cancellationToken)
     {
-        if (await users.GetByIdAsync(id, ct) is null)
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        return Ok(await documents.GetByUserIdAsync(id, ct));
+        return Ok(await documents.GetByUserIdAsync(id, cancellationToken));
     }
 
     [HttpPost("{id}/cv")]

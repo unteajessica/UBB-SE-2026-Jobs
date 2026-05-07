@@ -12,28 +12,28 @@ public class UserSkillService : IUserSkillService
         this.userSkillRepository = userSkillRepository;
     }
 
-    public async Task<UserSkill?> GetByIdAsync(int userId, int skillId, CancellationToken ct = default)
+    public async Task<UserSkill?> GetByIdAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
-        return await userSkillRepository.GetAsync(userId, skillId, ct).ConfigureAwait(false);
+        return await userSkillRepository.GetAsync(userId, skillId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await userSkillRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        return await userSkillRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken ct = default)
+    public async Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        return await userSkillRepository.AddAsync(userSkill, ct).ConfigureAwait(false);
+        return await userSkillRepository.AddAsync(userSkill, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(UserSkill userSkill, CancellationToken ct = default)
+    public async Task UpdateAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        await userSkillRepository.UpdateAsync(userSkill, ct).ConfigureAwait(false);
+        await userSkillRepository.UpdateAsync(userSkill, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int userId, int skillId, CancellationToken ct = default)
+    public async Task RemoveAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
-        await userSkillRepository.RemoveAsync(userId, skillId, ct).ConfigureAwait(false);
+        await userSkillRepository.RemoveAsync(userId, skillId, cancellationToken).ConfigureAwait(false);
     }
 }

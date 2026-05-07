@@ -16,19 +16,19 @@ public class UserProfileService : IUserProfileService
         this.skillTestRepository = skillTestRepository;
     }
 
-    public async Task<User?> GetProfileAsync(int userId, CancellationToken ct = default)
+    public async Task<User?> GetProfileAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false);
+        return await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<SkillTest>> GetSkillTestsForUserAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<SkillTest>> GetSkillTestsForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await skillTestRepository.GetByUserIdAsync(userId, ct).ConfigureAwait(false);
+        return await skillTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<bool> IsProfileAvailableAsync(int userId, CancellationToken ct = default)
+    public async Task<bool> IsProfileAvailableAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
 
         if (user is null)
         {
@@ -38,21 +38,21 @@ public class UserProfileService : IUserProfileService
         return user.ActiveAccount;
     }
 
-    public async Task UpdateAccountStatusAsync(int userId, bool isActive, CancellationToken ct = default)
+    public async Task UpdateAccountStatusAsync(int userId, bool isActive, CancellationToken cancellationToken = default)
     {
-        await userRepository.UpdateActiveAccountAsync(userId, isActive, ct).ConfigureAwait(false);
-        await userRepository.TouchLastUpdatedAsync(userId, ct).ConfigureAwait(false);
+        await userRepository.UpdateActiveAccountAsync(userId, isActive, cancellationToken).ConfigureAwait(false);
+        await userRepository.TouchLastUpdatedAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateProfilePicturePathAsync(int userId, string newPath, CancellationToken ct = default)
+    public async Task UpdateProfilePicturePathAsync(int userId, string newPath, CancellationToken cancellationToken = default)
     {
-        await userRepository.UpdateProfilePicturePathAsync(userId, newPath ?? string.Empty, ct).ConfigureAwait(false);
-        await userRepository.TouchLastUpdatedAsync(userId, ct).ConfigureAwait(false);
+        await userRepository.UpdateProfilePicturePathAsync(userId, newPath ?? string.Empty, cancellationToken).ConfigureAwait(false);
+        await userRepository.TouchLastUpdatedAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveProfilePicturePathAsync(int userId, CancellationToken ct = default)
+    public async Task RemoveProfilePicturePathAsync(int userId, CancellationToken cancellationToken = default)
     {
-        await UpdateProfilePicturePathAsync(userId, string.Empty, ct).ConfigureAwait(false);
+        await UpdateProfilePicturePathAsync(userId, string.Empty, cancellationToken).ConfigureAwait(false);
     }
 
     public string GenerateParsedCvText(User user)
@@ -65,31 +65,31 @@ public class UserProfileService : IUserProfileService
         var parsedCvTextBuilder = new StringBuilder();
         parsedCvTextBuilder.AppendLine($"{user.FirstName} {user.LastName}".Trim());
         parsedCvTextBuilder.AppendLine(user.University ?? string.Empty);
-        parsedCvTextBuilder.AppendLine(string.Join(", ", user.Skills.Select(s => s.Skill?.Name ?? string.Empty).Where(n => !string.IsNullOrEmpty(n))));
+        parsedCvTextBuilder.AppendLine(string.Join(", ", user.Skills.Select(skill => skill.Skill?.Name ?? string.Empty).Where(name => !string.IsNullOrEmpty(name))));
         return parsedCvTextBuilder.ToString().TrimEnd();
     }
 
-    public async Task SaveAsync(int userId, User user, CancellationToken ct = default)
+    public async Task SaveAsync(int userId, User user, CancellationToken cancellationToken = default)
     {
-        var existing = await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false);
+        var existing = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
         if (existing is null)
         {
-            await userRepository.AddAsync(user, ct).ConfigureAwait(false);
+            await userRepository.AddAsync(user, cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            await userRepository.UpdateAsync(user, ct).ConfigureAwait(false);
+            await userRepository.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public async Task<int> RecalculateLevelAsync(User user, CancellationToken ct = default)
+    public async Task<int> RecalculateLevelAsync(User user, CancellationToken cancellationToken = default)
     {
         if (user is null)
         {
             return 0;
         }
 
-        var skillTests = await skillTestRepository.GetByUserIdAsync(user.UserId, ct).ConfigureAwait(false);
+        var skillTests = await skillTestRepository.GetByUserIdAsync(user.UserId, cancellationToken).ConfigureAwait(false);
         int totalExperiencePoints = 0;
 
         foreach (var skillTest in skillTests)

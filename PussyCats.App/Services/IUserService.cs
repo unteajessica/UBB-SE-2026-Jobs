@@ -4,13 +4,13 @@ namespace PussyCats.App.Services;
 
 public interface IUserService
 {
-    Task<User?> GetByIdAsync(int userId, CancellationToken ct = default);
+    Task<User?> GetByIdAsync(int userId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<User> AddAsync(User user, CancellationToken ct = default);
+    Task<User> AddAsync(User user, CancellationToken cancellationToken = default);
 
-    Task UpdateAsync(User user, CancellationToken ct = default);
+    Task UpdateAsync(User user, CancellationToken cancellationToken = default);
 
-    Task RemoveAsync(int userId, CancellationToken ct = default);
+    Task RemoveAsync(int userId, CancellationToken cancellationToken = default);
 }

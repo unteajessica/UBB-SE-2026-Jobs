@@ -104,7 +104,7 @@ public partial class PersonalityTestViewModel : DispatchableObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
-    private async Task SaveResultAsync(CancellationToken ct)
+    private async Task SaveResultAsync(CancellationToken cancellationToken)
     {
         if (SelectedRole is null)
         {
@@ -117,7 +117,7 @@ public partial class PersonalityTestViewModel : DispatchableObservableObject
         }
 
         await personalityTestService
-            .SaveResultAsync(ViewModelSupport.ResolveUserId(session), lastAnswers, SelectedRole.Role, ct)
+            .SaveResultAsync(ViewModelSupport.ResolveUserId(session), lastAnswers, SelectedRole.Role, cancellationToken)
             .ConfigureAwait(false);
 
         SaveMessage = $"Your personality test result has been updated to {SelectedRole.DisplayName}.";

@@ -17,7 +17,7 @@
                     <StackPanel Spacing="6">
                         <TextBlock Text="Document Name" Foreground="White" FontSize="14"/>
                         <TextBox x:Name="txtDocumentName"
-                                 PlaceholderText="e.g. AWS Certificate 2024"
+                                 PlaceholderText="eventArguments.g. AWS Certificate 2024"
                                  TextChanged="OnDocumentNameChanged"
                                  MaxWidth="400" HorizontalAlignment="Left"/>
                     </StackPanel>

@@ -13,40 +13,40 @@ public class RecommendationRepositoryProxy : IRecommendationRepository
         this.http = http;
     }
 
-    public async Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken ct = default)
+    public async Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         return await RepositoryProxyJson.GetOrNullAsync<Recommendation>(
             http,
             $"api/recommendations/{recommendationId}",
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await RepositoryProxyJson.GetListAsync<Recommendation>(http, "api/recommendations", ct).ConfigureAwait(false);
+        return await RepositoryProxyJson.GetListAsync<Recommendation>(http, "api/recommendations", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken ct = default)
+    public async Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
         return await RepositoryProxyJson.GetOrNullAsync<Recommendation>(
             http,
             $"api/recommendations?userId={userId}&jobId={jobId}",
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken ct = default)
+    public async Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
     {
         using var response = await http.PostAsJsonAsync(
             "api/recommendations",
             recommendation,
             RepositoryProxyJson.Options,
-            ct).ConfigureAwait(false);
-        return await RepositoryProxyJson.ReadRequiredAsync<Recommendation>(response, ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
+        return await RepositoryProxyJson.ReadRequiredAsync<Recommendation>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveAsync(int recommendationId, CancellationToken ct = default)
+    public async Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
-        using var response = await http.DeleteAsync($"api/recommendations/{recommendationId}", ct).ConfigureAwait(false);
+        using var response = await http.DeleteAsync($"api/recommendations/{recommendationId}", cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 }

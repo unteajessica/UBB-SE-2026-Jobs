@@ -13,9 +13,9 @@ public sealed class CooldownService : ICooldownService
         this.cooldownPeriod = cooldownPeriod <= TimeSpan.Zero ? TimeSpan.FromHours(24) : cooldownPeriod;
     }
 
-    public async Task<bool> IsOnCooldownAsync(int userId, int jobId, DateTime utcNow, CancellationToken ct = default)
+    public async Task<bool> IsOnCooldownAsync(int userId, int jobId, DateTime utcNow, CancellationToken cancellationToken = default)
     {
-        var latest = await recommendationRepository.GetLatestByUserIdAndJobIdAsync(userId, jobId, ct).ConfigureAwait(false);
+        var latest = await recommendationRepository.GetLatestByUserIdAndJobIdAsync(userId, jobId, cancellationToken).ConfigureAwait(false);
         if (latest is null)
         {
             return false;

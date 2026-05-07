@@ -9,14 +9,14 @@ public class WorkExperienceConfiguration : IEntityTypeConfiguration<WorkExperien
     public void Configure(EntityTypeBuilder<WorkExperience> builder)
     {
         builder.ToTable("WorkExperiences");
-        builder.HasKey(w => w.WorkExperienceId);
+        builder.HasKey(workExperience => workExperience.WorkExperienceId);
 
-        builder.Property(w => w.Company).HasMaxLength(200);
-        builder.Property(w => w.JobTitle).HasMaxLength(200);
-        builder.Property(w => w.Description).HasMaxLength(2000);
+        builder.Property(workExperience => workExperience.Company).HasMaxLength(200);
+        builder.Property(workExperience => workExperience.JobTitle).HasMaxLength(200);
+        builder.Property(workExperience => workExperience.Description).HasMaxLength(2000);
 
         // Cascade is configured on UserConfiguration (User -> WorkExperiences). Index supports
         // the GetByUserId-style queries used during profile loads.
-        builder.HasIndex(w => w.UserId);
+        builder.HasIndex(workExperience => workExperience.UserId);
     }
 }

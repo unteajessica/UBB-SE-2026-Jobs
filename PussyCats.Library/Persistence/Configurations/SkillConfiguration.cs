@@ -9,13 +9,13 @@ public class SkillConfiguration : IEntityTypeConfiguration<Skill>
     public void Configure(EntityTypeBuilder<Skill> builder)
     {
         builder.ToTable("Skills");
-        builder.HasKey(s => s.SkillId);
+        builder.HasKey(skill => skill.SkillId);
 
-        builder.Property(s => s.Name).HasMaxLength(100).IsRequired();
-        builder.Property(s => s.Category).HasMaxLength(100);
+        builder.Property(skill => skill.Name).HasMaxLength(100).IsRequired();
+        builder.Property(skill => skill.Category).HasMaxLength(100);
 
         // Catalog uniqueness — adding "C#" twice is a bug, never a feature.
-        builder.HasIndex(s => s.Name).IsUnique();
+        builder.HasIndex(skill => skill.Name).IsUnique();
 
         // Restrict on Skill -> UserSkill, JobSkill, SkillGroup. The catalog is foundational; you
         // shouldn't be able to delete a skill that's currently in use anywhere. To retire a skill

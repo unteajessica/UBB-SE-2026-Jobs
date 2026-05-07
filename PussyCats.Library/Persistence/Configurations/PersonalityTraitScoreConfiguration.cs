@@ -9,12 +9,12 @@ public class PersonalityTraitScoreConfiguration : IEntityTypeConfiguration<Perso
     public void Configure(EntityTypeBuilder<PersonalityTraitScore> builder)
     {
         builder.ToTable("PersonalityTraitScores");
-        builder.HasKey(s => s.PersonalityTraitScoreId);
+        builder.HasKey(skill => skill.PersonalityTraitScoreId);
 
-        builder.Property(s => s.Trait).HasConversion<string>().HasMaxLength(40);
+        builder.Property(skill => skill.Trait).HasConversion<string>().HasMaxLength(40);
 
         // Cascade is configured from PersonalityTestResultConfiguration so the trait score rows
         // disappear with their parent.
-        builder.HasIndex(s => s.PersonalityTestResultId);
+        builder.HasIndex(skill => skill.PersonalityTestResultId);
     }
 }

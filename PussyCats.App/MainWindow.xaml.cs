@@ -39,21 +39,21 @@ public sealed partial class MainWindow : Window
         UpdateNavSelection("UserRecommendationPage");
     }
 
-    private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs e)
+    private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs eventArguments)
     {
-        if (e.SelectedItem is NavigationViewItem item && item.Tag is string tag)
+        if (eventArguments.SelectedItem is NavigationViewItem item && item.Tag is string tag)
         {
             NavigateTo(tag);
         }
     }
 
-    private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs e)
+    private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs eventArguments)
     {
         if (contentFrame.CanGoBack)
             contentFrame.GoBack();
     }
 
-    private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
+    private void ContentFrame_Navigated(object sender, NavigationEventArgs eventArguments)
     {
         navView.IsBackEnabled = contentFrame.CanGoBack;
     }
@@ -67,7 +67,7 @@ public sealed partial class MainWindow : Window
     private void NavView_PaneClosed(NavigationView sender, object args)
         => modeToggle.Visibility = Visibility.Collapsed;
 
-    private void ModeToggle_Toggled(object sender, RoutedEventArgs e)
+    private void ModeToggle_Toggled(object sender, RoutedEventArgs eventArguments)
     {
         var session = App.Services.GetRequiredService<SessionContext>();
         session.Mode = modeToggle.IsOn ? AppMode.Company : AppMode.Candidate;

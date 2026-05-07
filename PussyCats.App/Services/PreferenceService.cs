@@ -20,9 +20,9 @@ public class PreferenceService : IPreferenceService
         this.userRepository = userRepository;
     }
 
-    public async Task<IReadOnlyList<Preference>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Preference>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
         var preferences = new List<Preference>();
 
         if (user is null)
@@ -66,27 +66,27 @@ public class PreferenceService : IPreferenceService
         return preferences;
     }
 
-    public async Task SavePreferencesAsync(int userId, IReadOnlyList<JobRole> roles, WorkMode workMode, string location, CancellationToken ct = default)
+    public async Task SavePreferencesAsync(int userId, IReadOnlyList<JobRole> roles, WorkMode workMode, string location, CancellationToken cancellationToken = default)
     {
         if (roles is null || roles.Count < MinimumPreferredRoles || roles.Count > MaximumPreferredRoles)
         {
             throw new ArgumentException("You must select between 1 and 3 job roles.");
         }
 
-        var user = await userRepository.GetByIdAsync(userId, ct).ConfigureAwait(false);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return;
         }
 
-        user.PreferredEmploymentType = string.Join(",", roles.Select(r => r.ToString()));
+        user.PreferredEmploymentType = string.Join(",", roles.Select(role => role.ToString()));
         user.WorkModePreference = workMode.ToString();
         user.LocationPreference = location;
 
-        await userRepository.UpdateAsync(user, ct).ConfigureAwait(false);
+        await userRepository.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
     }
 
-    public Task<IReadOnlyList<string>> SearchLocationsAsync(string locationQuery, CancellationToken ct = default)
+    public Task<IReadOnlyList<string>> SearchLocationsAsync(string locationQuery, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(locationQuery))
         {

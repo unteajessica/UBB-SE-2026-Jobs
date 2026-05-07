@@ -29,10 +29,10 @@ public class TestDashboardViewModel : DispatchableObservableObject
         private set => SetProperty(ref testCards, value);
     }
 
-    public async Task LoadTestsAsync(User? user = null, CancellationToken ct = default)
+    public async Task LoadTestsAsync(User? user = null, CancellationToken cancellationToken = default)
     {
         var userId = user?.UserId > 0 ? user.UserId : ViewModelSupport.ResolveUserId(session);
-        var tests = await skillTestService.GetTestsForUserAsync(userId, ct).ConfigureAwait(false);
+        var tests = await skillTestService.GetTestsForUserAsync(userId, cancellationToken).ConfigureAwait(false);
 
         TestCards = tests
             .Select(test => new SkillTestCardViewModel(test, skillTestService, userProfileViewModel))
@@ -40,7 +40,7 @@ public class TestDashboardViewModel : DispatchableObservableObject
 
         foreach (var card in TestCards)
         {
-            await card.LoadCardAsync(ct).ConfigureAwait(false);
+            await card.LoadCardAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

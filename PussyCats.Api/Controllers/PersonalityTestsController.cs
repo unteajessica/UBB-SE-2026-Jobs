@@ -16,33 +16,33 @@ public class PersonalityTestsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken ct)
+    public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken cancellationToken)
     {
-        var result = await personalityTests.GetByUserIdAsync(userId, ct);
+        var result = await personalityTests.GetByUserIdAsync(userId, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] PersonalityTestResult result, CancellationToken ct)
+    public async Task<IActionResult> Add([FromBody] PersonalityTestResult result, CancellationToken cancellationToken)
     {
-        var saved = await personalityTests.AddAsync(result, ct);
+        var saved = await personalityTests.AddAsync(result, cancellationToken);
         return CreatedAtAction(nameof(GetByUserId), new { userId = saved.UserId }, saved);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] PersonalityTestResult result, CancellationToken ct)
+    public async Task<IActionResult> Update(int id, [FromBody] PersonalityTestResult result, CancellationToken cancellationToken)
     {
         // IPersonalityTestRepository has no GetByIdAsync; existence is not pre-checked.
         // EF will throw DbUpdateConcurrencyException if the row is missing.
         result.PersonalityTestResultId = id;
-        await personalityTests.UpdateAsync(result, ct);
+        await personalityTests.UpdateAsync(result, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Remove(int id, CancellationToken ct)
+    public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {
-        await personalityTests.RemoveAsync(id, ct);
+        await personalityTests.RemoveAsync(id, cancellationToken);
         return NoContent();
     }
 }

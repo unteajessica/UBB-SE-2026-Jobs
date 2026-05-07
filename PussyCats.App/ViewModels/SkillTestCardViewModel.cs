@@ -50,20 +50,20 @@ public partial class SkillTestCardViewModel : DispatchableObservableObject
         private set => SetProperty(ref isRetakeEnabled, value);
     }
 
-    public async Task LoadCardAsync(CancellationToken ct = default)
+    public async Task LoadCardAsync(CancellationToken cancellationToken = default)
     {
-        await CheckRetakeEligibleAsync(ct).ConfigureAwait(false);
+        await CheckRetakeEligibleAsync(cancellationToken).ConfigureAwait(false);
         UpdateBadge();
     }
 
-    public async Task CheckRetakeEligibleAsync(CancellationToken ct = default)
+    public async Task CheckRetakeEligibleAsync(CancellationToken cancellationToken = default)
     {
         IsRetakeEnabled = SkillTest.SkillTestId > 0 &&
-            await skillTestService.CanRetakeTestAsync(SkillTest.SkillTestId, ct).ConfigureAwait(false);
+            await skillTestService.CanRetakeTestAsync(SkillTest.SkillTestId, cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private async Task RetakeAsync(CancellationToken ct)
+    private async Task RetakeAsync(CancellationToken cancellationToken)
     {
         if (!IsRetakeEnabled)
         {
@@ -71,15 +71,15 @@ public partial class SkillTestCardViewModel : DispatchableObservableObject
         }
 
         var newTestScore = Random.Shared.Next(MinimumRetakeScore, MaximumRetakeScore + 1);
-        Badge = await skillTestService.SubmitRetakeAsync(SkillTest.SkillTestId, newTestScore, ct).ConfigureAwait(false);
+        Badge = await skillTestService.SubmitRetakeAsync(SkillTest.SkillTestId, newTestScore, cancellationToken).ConfigureAwait(false);
 
         SkillTest.AchievedDate = DateOnly.FromDateTime(DateTime.Now);
         SkillTest.Score = newTestScore;
         OnPropertyChanged(nameof(SkillTest));
 
-        await CheckRetakeEligibleAsync(ct).ConfigureAwait(false);
+        await CheckRetakeEligibleAsync(cancellationToken).ConfigureAwait(false);
         UpdateBadge();
-        await userProfileViewModel.RecalculateLevelAsync(ct).ConfigureAwait(false);
+        await userProfileViewModel.RecalculateLevelAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public void UpdateBadge()
