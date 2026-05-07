@@ -6,7 +6,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public class MatchHistoryViewModel : ObservableObject
+public class MatchHistoryViewModel : DispatchableObservableObject
 {
     private readonly IMatchService matchService;
     private readonly SessionContext session;

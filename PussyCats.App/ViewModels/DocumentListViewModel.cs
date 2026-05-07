@@ -5,7 +5,7 @@ using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels;
 
-public class DocumentListViewModel : ObservableObject
+public class DocumentListViewModel : DispatchableObservableObject
 {
     private readonly IDocumentService documentService;
     private readonly SessionContext session;

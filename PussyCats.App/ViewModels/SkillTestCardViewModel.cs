@@ -5,7 +5,7 @@ using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels;
 
-public partial class SkillTestCardViewModel : ObservableObject
+public partial class SkillTestCardViewModel : DispatchableObservableObject
 {
     private const int MinimumRetakeScore = 0;
     private const int MaximumRetakeScore = 100;

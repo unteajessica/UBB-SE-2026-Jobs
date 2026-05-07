@@ -5,7 +5,7 @@ using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels;
 
-public class TestDashboardViewModel : ObservableObject
+public class TestDashboardViewModel : DispatchableObservableObject
 {
     private readonly ISkillTestService skillTestService;
     private readonly UserProfileViewModel userProfileViewModel;

@@ -9,7 +9,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public class SkillGapViewModel : ObservableObject
+public class SkillGapViewModel : DispatchableObservableObject
 {
     private readonly ISkillGapService skillGapService;
     private readonly SessionContext session;

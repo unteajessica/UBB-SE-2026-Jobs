@@ -7,7 +7,7 @@ using PussyCats.Library.Domain.Enums;
 
 namespace PussyCats.App.ViewModels;
 
-public partial class PersonalityTestViewModel : ObservableObject
+public partial class PersonalityTestViewModel : DispatchableObservableObject
 {
     private const int NumberOfTopRolesToDisplay = 3;
 

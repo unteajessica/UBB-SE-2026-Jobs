@@ -6,7 +6,7 @@ using PussyCats.Library.Domain.Enums;
 
 namespace PussyCats.App.ViewModels;
 
-public class ShellViewModel : ObservableObject
+public class ShellViewModel : DispatchableObservableObject
 {
     private readonly SessionContext session;
     private string activePage = "MyStatus";

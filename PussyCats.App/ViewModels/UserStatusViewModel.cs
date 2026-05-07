@@ -10,7 +10,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public class UserStatusViewModel : ObservableObject
+public class UserStatusViewModel : DispatchableObservableObject
 {
     private readonly IUserStatusService userStatusService;
     private readonly ISkillGapService skillGapService;

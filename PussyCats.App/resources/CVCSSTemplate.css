@@ -1,0 +1,391 @@
+/* ─── Reset & base ──────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --accent: #1a3a5c;
+    --accent2: #2d6a9f;
+    --light: #eef4fb;
+    --divider: #c8d8e8;
+    --text: #1c1c1e;
+    --muted: #5a6a7a;
+    --page-w: 210mm;
+    --page-h: 297mm;
+    --margin-x: 14mm;
+    --margin-y: 12mm;
+}
+
+body {
+    font-family: 'Georgia', serif;
+    background: #d0d8e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 60px;
+    color: var(--text);
+}
+
+/* ─── A4 page wrapper ───────────────────────────────────────── */
+#cv-content {
+    width: var(--page-w);
+    min-height: var(--page-h);
+    background: #fff;
+    padding: var(--margin-y) var(--margin-x);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, .18);
+    font-size: 9.5pt;
+    line-height: 1.5;
+}
+
+/* ─── Header ────────────────────────────────────────────────── */
+.cv-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2.5px solid var(--accent);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.cv-header h1 {
+    font-family: 'Georgia', serif;
+    font-size: 22pt;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+}
+
+.cv-header .role-tag {
+    font-size: 9pt;
+    color: var(--accent2);
+    margin-top: 3px;
+    font-style: italic;
+}
+
+.cv-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 14px;
+    margin-top: 6px;
+    text-align: left;
+    font-size: 8.5pt;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.cv-contact > div {
+    white-space: nowrap;
+}
+
+.cv-contact a {
+    color: var(--accent2);
+    text-decoration: none;
+}
+
+/* ─── Section headings ──────────────────────────────────────── */
+.cv-section {
+    margin-bottom: 12px;
+}
+
+.cv-section h2 {
+    font-size: 10.5pt;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--divider);
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+}
+
+/* ─── Personal info row ─────────────────────────────────────── */
+.info-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 8.5pt;
+    color: var(--muted);
+}
+
+.info-pills span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.info-pills .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent2);
+    flex-shrink: 0;
+}
+
+/* ─── Two-column layout (main + sidebar) ────────────────────── */
+/* .cv-body {
+    display: grid;
+    grid-template-columns: 1fr 62mm;
+    gap: 0 14px;
+} */
+
+/* ─── Entry blocks (experience / education) ─────────────────── */
+.edu-entry {
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+}
+
+.edu-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.edu-university {
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.edu-degree {
+    font-size: 8.5pt;
+    color: var(--accent2);
+    font-style: italic;
+    white-space: nowrap;
+}
+
+.edu-divider {
+    flex: 1;
+    border-bottom: 1px dashed var(--divider);
+    transform: translateY(1px);
+}
+
+.edu-period {
+    font-size: 8pt;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.edu-program {
+    margin-top: 2px;
+    font-size: 8.5pt;
+    color: var(--accent2);
+    font-style: italic;
+}
+
+.edu-courses,
+.edu-description {
+    margin-top: 2px;
+    font-size: 8.5pt;
+    color: #333;
+}
+
+.edu-label {
+    font-weight: 700;
+}
+
+.work-entry,
+.project-entry-custom {
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+}
+
+.work-line,
+.project-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.work-role,
+.project-title {
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.work-company {
+    font-size: 8.5pt;
+    color: var(--accent2);
+    font-style: italic;
+    white-space: nowrap;
+}
+
+.work-divider,
+.project-divider {
+    flex: 1;
+    border-bottom: 1px dashed var(--divider);
+    transform: translateY(1px);
+}
+
+.work-period,
+.project-period {
+    font-size: 8pt;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.work-description,
+.project-description {
+    margin-top: 2px;
+    font-size: 8.5pt;
+    color: #333;
+}
+
+.entry {
+    margin-bottom: 9px;
+    page-break-inside: avoid;
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.entry-title {
+    font-weight: 700;
+    font-size: 9.5pt;
+    color: var(--text);
+}
+
+.entry-period {
+    font-size: 8pt;
+    color: var(--muted);
+    white-space: nowrap;
+    margin-left: 6px;
+}
+
+.entry-subtitle {
+    font-size: 8.5pt;
+    color: var(--accent2);
+    margin-bottom: 3px;
+    font-style: italic;
+}
+
+.entry ul {
+    padding-left: 14px;
+    margin-top: 2px;
+}
+
+.entry li {
+    font-size: 8.5pt;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.entry p {
+    font-size: 8.5pt;
+    color: #333;
+    margin-top: 2px;
+}
+
+/* ─── Skills sidebar ────────────────────────────────────────── */
+.skill-group {
+    margin-bottom: 8px;
+}
+
+.skill-group-label {
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 4px;
+}
+
+.skill-tag {
+    background: var(--light);
+    color: var(--accent);
+    border: 0.5px solid var(--divider);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 7.5pt;
+}
+
+/* ─── Projects ──────────────────────────────────────────────── */
+.project-entry {
+    margin-bottom: 7px;
+    page-break-inside: avoid;
+}
+
+.project-name {
+    font-weight: 700;
+    font-size: 9pt;
+}
+
+.project-tech {
+    font-size: 7.5pt;
+    color: var(--accent2);
+    margin: 1px 0 2px;
+}
+
+.project-desc {
+    font-size: 8.5pt;
+    color: #333;
+}
+
+/* ─── Extracurricular ───────────────────────────────────────── */
+.extra-entry {
+    margin-bottom: 6px;
+    page-break-inside: avoid;
+}
+
+.extra-title {
+    font-weight: 700;
+    font-size: 9pt;
+}
+
+.extra-meta {
+    font-size: 8pt;
+    color: var(--muted);
+    margin-bottom: 1px;
+}
+
+.extra-desc {
+    font-size: 8.5pt;
+    color: #333;
+}
+
+
+/* ─── Motivation block ──────────────────────────────────────── */
+.motivation-text {
+    font-size: 8.5pt;
+    color: #333;
+    font-style: italic;
+    border-left: 2px solid var(--accent2);
+    padding-left: 8px;
+}
+
+/* ─── Print / PDF rules ─────────────────────────────────────── */
+@media print {
+    body {
+        background: none;
+        padding: 0;
+    }
+
+    #cv-content {
+        box-shadow: none;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}
+
+@page {
+    size: A4;
+    margin: 0;
+}
+
+

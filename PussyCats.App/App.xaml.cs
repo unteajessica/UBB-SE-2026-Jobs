@@ -36,6 +36,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        UIDispatcher.Queue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
         var services = new ServiceCollection();
         ConfigureServices(services);

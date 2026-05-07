@@ -6,7 +6,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public class CompatibilityOverviewViewModel : ObservableObject
+public class CompatibilityOverviewViewModel : DispatchableObservableObject
 {
     private readonly ICompatibilityService compatibilityService;
     private readonly SessionContext session;

@@ -102,7 +102,7 @@ internal static class ViewModelSupport
     }
 }
 
-public sealed class FilterCheckItem : ObservableObject
+public sealed class FilterCheckItem : DispatchableObservableObject
 {
     private bool isChecked;
 
@@ -120,7 +120,7 @@ public sealed class FilterCheckItem : ObservableObject
     }
 }
 
-public sealed class SkillFilterItem : ObservableObject
+public sealed class SkillFilterItem : DispatchableObservableObject
 {
     private bool isChecked;
 

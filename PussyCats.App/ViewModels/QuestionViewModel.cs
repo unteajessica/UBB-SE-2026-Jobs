@@ -3,7 +3,7 @@ using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels;
 
-public class QuestionViewModel : ObservableObject
+public class QuestionViewModel : DispatchableObservableObject
 {
     private int? selectedAnswer;
 

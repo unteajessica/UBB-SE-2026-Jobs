@@ -3,7 +3,7 @@ using PussyCats.Library.Domain.Enums;
 
 namespace PussyCats.App.ViewModels;
 
-public class RoleResultViewModel : ObservableObject
+public class RoleResultViewModel : DispatchableObservableObject
 {
     private bool isSelected;
 

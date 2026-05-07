@@ -5,7 +5,7 @@ using PussyCats.Library.Domain.Enums;
 
 namespace PussyCats.App.ViewModels;
 
-public class PreferencesViewModel : ObservableObject
+public class PreferencesViewModel : DispatchableObservableObject
 {
     private const int MaximumJobRolesAllowed = 3;
 

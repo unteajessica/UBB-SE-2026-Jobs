@@ -29,6 +29,7 @@ public class DocumentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] Document document, CancellationToken ct)
     {
+        document.DocumentId = 0;
         var saved = await documents.AddAsync(document, ct);
         return CreatedAtAction(nameof(GetById), new { id = saved.DocumentId }, saved);
     }

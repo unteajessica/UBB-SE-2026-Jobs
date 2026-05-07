@@ -4,7 +4,7 @@ using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels;
 
-public class PublicProfileViewModel : ObservableObject
+public class PublicProfileViewModel : DispatchableObservableObject
 {
     private readonly IUserProfileService userProfileService;
     private User? profile;

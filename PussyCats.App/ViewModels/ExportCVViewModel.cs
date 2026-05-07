@@ -5,7 +5,7 @@ using PussyCats.App.Services;
 
 namespace PussyCats.App.ViewModels;
 
-public partial class ExportCVViewModel : ObservableObject
+public partial class ExportCVViewModel : DispatchableObservableObject
 {
     private readonly IUserProfileService userProfileService;
     private IPdfExportService? pdfExportService;

@@ -75,7 +75,7 @@ public sealed partial class DocumentsPage : Page
             txtDocumentName.Text   = string.Empty;
             selectedFileLabel.Text = "No file selected";
             uploadViewModel.SetDocumentName(string.Empty);
-            uploadViewModel.SetSelectedFilePath(null);
+            uploadViewModel.SetSelectedFilePath(string.Empty);
             LoadGrid();
         }
         catch (Exception ex)

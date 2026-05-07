@@ -3,7 +3,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public class CompatibilityDetailViewModel : ObservableObject
+public class CompatibilityDetailViewModel : DispatchableObservableObject
 {
     private RoleResult? currentRoleResult;
     private string errorMessage = string.Empty;

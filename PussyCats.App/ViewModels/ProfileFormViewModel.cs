@@ -7,7 +7,7 @@ using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels;
 
-public class ProfileFormViewModel : ObservableObject
+public class ProfileFormViewModel : DispatchableObservableObject
 {
     private const int MaximumNumberOfExtraCurricularActivitiesAllowed = 10;
     private const int MaximumNumberOfSkillsAllowed = 30;

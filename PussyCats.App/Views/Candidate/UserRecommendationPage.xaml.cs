@@ -42,7 +42,7 @@ public sealed partial class UserRecommendationPage : Page
                            or nameof(UserRecommendationViewModel.ShowEmptyDeck)
                            or null)
         {
-            UpdateView();
+            DispatcherQueue.TryEnqueue(UpdateView);
         }
     }
 
@@ -181,12 +181,15 @@ public sealed partial class UserRecommendationPage : Page
         ExpandedContactText.Text     = job.ContactLine;
     }
 
-    private async void OnViewModelError(string message)
+    private void OnViewModelError(string message)
     {
-        var dialog = new ContentDialog
+        DispatcherQueue.TryEnqueue(async () =>
         {
-            Title = "Error", Content = message, CloseButtonText = "OK", XamlRoot = XamlRoot,
-        };
-        await dialog.ShowAsync();
+            var dialog = new ContentDialog
+            {
+                Title = "Error", Content = message, CloseButtonText = "OK", XamlRoot = XamlRoot,
+            };
+            await dialog.ShowAsync();
+        });
     }
 }

@@ -8,7 +8,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public class CompanyRecommendationViewModel : ObservableObject
+public class CompanyRecommendationViewModel : DispatchableObservableObject
 {
     private readonly ICompanyRecommendationService recommendationService;
     private readonly IMatchService matchService;

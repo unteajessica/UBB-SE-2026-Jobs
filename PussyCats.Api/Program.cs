@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Library.Persistence;
+using Scalar.AspNetCore;
 using PussyCats.Library.Repositories.Companies;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Repositories.Jobs;
@@ -46,6 +47,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();

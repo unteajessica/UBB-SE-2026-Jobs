@@ -6,7 +6,7 @@ using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels;
 
-public partial class UserProfileViewModel : ObservableObject
+public partial class UserProfileViewModel : DispatchableObservableObject
 {
     private readonly IUserProfileService profileService;
     private readonly IImageStorageService imageStorageService;

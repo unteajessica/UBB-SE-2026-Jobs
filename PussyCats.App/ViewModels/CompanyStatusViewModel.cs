@@ -10,7 +10,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public class CompanyStatusViewModel : ObservableObject
+public class CompanyStatusViewModel : DispatchableObservableObject
 {
     private const int MaximumFeedbackLength = 500;
 

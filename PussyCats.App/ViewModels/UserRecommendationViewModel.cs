@@ -9,7 +9,7 @@ using PussyCats.Library.DTOs;
 
 namespace PussyCats.App.ViewModels;
 
-public sealed class UserRecommendationViewModel : ObservableObject
+public sealed class UserRecommendationViewModel : DispatchableObservableObject
 {
     private readonly IUserRecommendationService service;
     private readonly SessionContext session;
