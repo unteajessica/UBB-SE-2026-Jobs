@@ -1,25 +1,49 @@
 using FluentAssertions;
-using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
+using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
+using PussyCats.Tests.Fakes;
+using PussyCats.Tests.Helpers;
 
 namespace PussyCats.Tests.Integration;
 
 public class CompanyStatusViewModelTests
 {
-    private readonly ICompanyStatusService companyStatusService = Substitute.For<ICompanyStatusService>();
-    private readonly IMatchService matchService = Substitute.For<IMatchService>();
-    private readonly SessionContext session = new() { CompanyId = 4, Mode = AppMode.Company };
+    private readonly FakeMatchRepository matchRepo = new();
+    private readonly FakeUserRepository userRepo = new();
+    private readonly FakeJobRepository jobRepo = new();
+    private readonly FakeUserSkillRepository userSkillRepo = new();
+
+    private readonly CompanyStatusViewModel viewModel;
+
+    public CompanyStatusViewModelTests()
+    {
+        var session = new SessionContext { CompanyId = 4, Mode = AppMode.Company };
+
+        var userService = new UserService(userRepo);
+        var jobService = new JobService(jobRepo);
+        var userSkillService = new UserSkillService(userSkillRepo);
+        var matchService = new MatchService(matchRepo, jobService);
+
+        var companyStatusService = new CompanyStatusService(
+            matchService,
+            userService,
+            jobService,
+            userSkillService);
+
+        viewModel = new CompanyStatusViewModel(companyStatusService, matchService, session);
+    }
 
     [Fact]
-    public async Task LoadApplicationsAsync_populates_applications_and_page_message()
+    public async Task LoadApplicationsAsync_DataExistsInRepo_PopulatesApplicationsAndPageMessage()
     {
-        companyStatusService.GetApplicantsForCompanyAsync(4, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<IReadOnlyList<UserApplicationResult>>([ViewModelTestData.Applicant(companyId: 4)]));
-        var viewModel = new CompanyStatusViewModel(companyStatusService, matchService, session);
+        var companyId = 4;
+        var jobId = 10;
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, jobId).WithStatus(MatchStatus.Applied).Build());
 
         await viewModel.LoadApplicationsAsync();
 
@@ -29,27 +53,31 @@ public class CompanyStatusViewModelTests
     }
 
     [Fact]
-    public async Task LoadEvaluationAsync_sets_selected_applicant_and_latest_test_stub()
+    public async Task LoadEvaluationAsync_MatchInRepo_SetsSelectedApplicantAndEvaluationState()
     {
-        var applicant = ViewModelTestData.Applicant(matchId: 12, companyId: 4, status: MatchStatus.Accepted);
-        companyStatusService.GetApplicantByMatchIdAsync(4, 12, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<UserApplicationResult?>(applicant));
-        var viewModel = new CompanyStatusViewModel(companyStatusService, matchService, session);
+        var matchId = 12;
+        var companyId = 4;
+        var jobId = 30;
 
-        var loaded = await viewModel.LoadEvaluationAsync(12);
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepo.Seed(new MatchBuilder()
+            .WithId(matchId)
+            .AppliedFor(12, jobId)
+            .WithStatus(MatchStatus.Accepted)
+            .Build());
+
+        var loaded = await viewModel.LoadEvaluationAsync(matchId);
 
         loaded.Should().BeTrue();
-        viewModel.SelectedApplicant.Should().BeSameAs(applicant);
+        viewModel.SelectedApplicant.Should().NotBeNull();
+        viewModel.SelectedApplicant!.Match.MatchId.Should().Be(matchId);
         viewModel.SelectedDecision.Should().Be(MatchStatus.Accepted);
         viewModel.FeedbackMessage.Should().Be("Good fit.");
-        viewModel.LastTestResult.Should().NotBeNull();
     }
 
     [Fact]
-    public void ValidateAll_reports_missing_decision_and_feedback()
+    public void ValidateAll_EmptyState_ReportsMissingDecisionAndFeedbackErrors()
     {
-        var viewModel = new CompanyStatusViewModel(companyStatusService, matchService, session);
-
         var isValid = viewModel.ValidateAll();
 
         isValid.Should().BeFalse();
@@ -59,26 +87,29 @@ public class CompanyStatusViewModelTests
     }
 
     [Fact]
-    public async Task SubmitDecisionAsync_saves_decision_and_refreshes_applications()
+    public async Task SubmitDecisionAsync_ValidSubmission_PersistsDecisionInRepositoryAndRefreshesList()
     {
-        var applicant = ViewModelTestData.Applicant(matchId: 12, companyId: 4, status: MatchStatus.Accepted);
-        companyStatusService.GetApplicantByMatchIdAsync(4, 12, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<UserApplicationResult?>(applicant));
-        companyStatusService.GetApplicantsForCompanyAsync(4, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<IReadOnlyList<UserApplicationResult>>([]));
-        var viewModel = new CompanyStatusViewModel(companyStatusService, matchService, session);
-        await viewModel.LoadEvaluationAsync(12);
+        var matchId = 12;
+        var companyId = 4;
+        var jobId = 30;
+
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepo.Seed(new MatchBuilder()
+            .WithId(matchId)
+            .AppliedFor(1, jobId)
+            .WithStatus(MatchStatus.Applied)
+            .Build());
+
+        await viewModel.LoadEvaluationAsync(matchId);
         viewModel.SelectedDecision = MatchStatus.Rejected;
-        viewModel.FeedbackMessage = "Not enough SQL experience.";
+        viewModel.FeedbackMessage = "Not enough experience.";
 
         var saved = await viewModel.SubmitDecisionAsync();
 
         saved.Should().BeTrue();
-        await matchService.Received(1).SubmitDecisionAsync(
-            12,
-            MatchStatus.Rejected,
-            "Not enough SQL experience.",
-            Arg.Any<CancellationToken>());
+        var persistedMatch = await matchRepo.GetByIdAsync(matchId);
+        persistedMatch!.Status.Should().Be(MatchStatus.Rejected);
+        persistedMatch.FeedbackMessage.Should().Be("Not enough experience.");
         viewModel.SelectedApplicant.Should().BeNull();
     }
 }

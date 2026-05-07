@@ -67,4 +67,4 @@ public class CompanyServiceTests
 
         (await service.GetByIdAsync(1)).Should().BeNull();
     }
-}s
+}
