@@ -6,6 +6,11 @@ namespace PussyCats.Api.Controllers;
 [Route("api/files")]
 public class FilesController : ControllerBase
 {
+    private const int BytesPerKilobyte = 1024;
+    private const int BytesPerMegabyte = 1024 * BytesPerKilobyte;
+    private const int MaxFileSizeInMb = 20;
+    private const int MaxFileSize = MaxFileSizeInMb * BytesPerMegabyte;
+
     private readonly string uploadsPath = Path.Combine("uploads", "avatars");
 
     public FilesController()
@@ -23,8 +28,8 @@ public class FilesController : ControllerBase
         if (ext is not ".jpg" and not ".jpeg" and not ".png")
             return BadRequest("Unsupported file type.");
 
-        if (file.Length > 5 * 1024 * 1024)
-            return BadRequest("File exceeds 5MB limit.");
+        if (file.Length > MaxFileSize)
+            return BadRequest($"File exceeds {MaxFileSizeInMb} MB limit.");
 
         var fileName = $"{Guid.NewGuid()}{ext}";
         var fullPath = Path.Combine(uploadsPath, fileName);

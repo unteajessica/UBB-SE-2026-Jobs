@@ -1,0 +1,69 @@
+using FluentAssertions;
+using NSubstitute;
+using PussyCats.App.Configuration;
+using PussyCats.App.Services;
+using PussyCats.App.ViewModels;
+using PussyCats.Library.Domain;
+
+namespace PussyCats.Tests.ViewModels;
+
+public class DocumentViewModelTests
+{
+    private readonly IDocumentService documentService = Substitute.For<IDocumentService>();
+    private readonly SessionContext session = new() { UserId = 22 };
+
+    [Fact]
+    public async Task DocumentList_loads_documents_for_session_user()
+    {
+        documentService.GetDocumentsByUserIdAsync(22, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<IReadOnlyList<Document>>([new() { DocumentId = 1, DocumentName = "CV" }]));
+        var viewModel = new DocumentListViewModel(documentService, session);
+
+        await viewModel.LoadDocumentsAsync();
+
+        viewModel.GetDocuments().Should().ContainSingle(document => document.DocumentName == "CV");
+    }
+
+    [Fact]
+    public async Task DocumentList_delete_refreshes_documents()
+    {
+        documentService.GetDocumentsByUserIdAsync(22, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<IReadOnlyList<Document>>([]));
+        var viewModel = new DocumentListViewModel(documentService, session);
+
+        await viewModel.DeleteDocumentAsync(1);
+
+        await documentService.Received(1).DeleteDocumentAsync(1, Arg.Any<CancellationToken>());
+        await documentService.Received(1).GetDocumentsByUserIdAsync(22, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadDocument_uploads_when_input_is_valid()
+    {
+        var viewModel = new UploadDocumentViewModel(documentService, session)
+        {
+            DocumentName = "CV",
+            SelectedFilePath = "cv.pdf",
+        };
+
+        await viewModel.UploadDocumentAsync();
+
+        await documentService.Received(1).UploadDocumentAsync(
+            Arg.Is<Document>(document => document.UserId == 22 && document.DocumentName == "CV"),
+            "cv.pdf",
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public void UploadDocument_validation_requires_name_and_file()
+    {
+        var viewModel = new UploadDocumentViewModel(documentService, session);
+
+        viewModel.ValidateDocumentInput().Should().BeFalse();
+        viewModel.GetErrorMessage().Should().Contain("Document name");
+
+        viewModel.DocumentName = "CV";
+        viewModel.ValidateDocumentInput().Should().BeFalse();
+        viewModel.GetErrorMessage().Should().Contain("Select a file");
+    }
+}

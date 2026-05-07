@@ -24,13 +24,13 @@ public class ImageStorageServiceTests : IDisposable
     }
 
     [Fact]
-    public void SaveImage_throws_NotImplementedException_per_phase_5_decision()
+    public void SaveImage_rejects_unsupported_extension_before_uploading()
     {
         using var stream = new MemoryStream();
-        Action act = () => service.SaveImage(stream, "x.png");
+        Action act = () => service.SaveImage(stream, "x.gif");
 
-        act.Should().Throw<NotImplementedException>()
-            .WithMessage("*Phase 5 routes file uploads*");
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Unsupported file type*");
     }
 
     [Fact]
@@ -42,20 +42,21 @@ public class ImageStorageServiceTests : IDisposable
     }
 
     [Fact]
-    public void CheckFileSize_throws_when_stream_exceeds_5mb()
+    public void CheckFileSize_throws_when_stream_exceeds_20mb()
     {
-        // 5 MB + 1 byte
-        using var stream = new MemoryStream(new byte[5 * 1024 * 1024 + 1]);
+        // 20 MB + 1 byte
+        using var stream = new MemoryStream(new byte[20 * 1024 * 1024 + 1]);
 
         Action act = () => service.CheckFileSize(stream);
 
-        act.Should().Throw<Exception>().WithMessage("*File size exceeds*");
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*20 MB*");
     }
 
     [Fact]
-    public void CheckFileSize_passes_when_stream_under_5mb()
+    public void CheckFileSize_passes_when_stream_under_20mb()
     {
-        using var stream = new MemoryStream(new byte[1024]);
+        using var stream = new MemoryStream(new byte[10 * 1024 * 1024]);
 
         Action act = () => service.CheckFileSize(stream);
 

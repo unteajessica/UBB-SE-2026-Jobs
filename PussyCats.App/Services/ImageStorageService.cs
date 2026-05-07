@@ -7,7 +7,7 @@ public class ImageStorageService : IImageStorageService
     private string basePath = Path.Combine("uploads", "avatars");
     private const int BytesPerKilobyte = 1024;
     private const int BytesPerMegabyte = 1024 * BytesPerKilobyte;
-    private const int MaxFileSizeInMb = 5;
+    private const int MaxFileSizeInMb = 20;
     private const int MaxFileSize = MaxFileSizeInMb * BytesPerMegabyte;
     private readonly HashSet<string> allowedExtensions = new() { ".jpg", ".jpeg", ".png" };
 
@@ -92,7 +92,9 @@ public class ImageStorageService : IImageStorageService
     {
         if (fileStream.Length > MaxFileSize)
         {
-            throw new Exception("File size exceeds the maximum limit of " + MaxFileSize + "MB.");
+            var fileSizeInMb = fileStream.Length / (double)BytesPerMegabyte;
+            throw new InvalidOperationException(
+                $"File size exceeds the maximum limit of {MaxFileSizeInMb} MB. Selected file is {fileSizeInMb:0.##} MB.");
         }
     }
 }
