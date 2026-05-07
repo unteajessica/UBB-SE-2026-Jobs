@@ -1,6 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
+using PussyCats.Library.Services;
 
 namespace PussyCats.App.Services;
 

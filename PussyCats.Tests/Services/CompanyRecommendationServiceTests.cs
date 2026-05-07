@@ -4,6 +4,7 @@ using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
+using PussyCats.Library.Services;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
 

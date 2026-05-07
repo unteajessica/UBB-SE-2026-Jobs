@@ -1,7 +1,9 @@
 # Demo Dry Run Checklist
 
 Run this on a clean Windows machine after applying migrations and creating
-`PussyCats.Api/appsettings.local.json` from the example file.
+`PussyCats.Api/appsettings.local.json` from the example file. If the API runs
+on a non-default URL, also copy `PussyCats.App/appsettings.local.json.example`
+to `PussyCats.App/appsettings.local.json` and update `Api.BaseUrl`.
 
 ## Candidate Mode
 

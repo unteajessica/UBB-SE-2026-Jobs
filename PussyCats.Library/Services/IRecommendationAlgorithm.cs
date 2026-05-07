@@ -1,22 +1,25 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
 
-namespace PussyCats.App.Services;
+namespace PussyCats.Library.Services;
 
 /// <summary>
 /// Computes job-applicant compatibility for the recommendation services.
-/// Phase 3b ports the matchmaking RecommendationAlgorithm implementation
-/// against this interface. Until then, no class implements it; DI must
-/// not be wired in Phase 5 until the implementation lands.
 /// </summary>
 public interface IRecommendationAlgorithm
 {
+    /// <summary>
+    /// Calculates the aggregate compatibility score for a candidate and a job.
+    /// </summary>
     double CalculateCompatibilityScore(
         User user,
         Job job,
         IReadOnlyList<UserSkill> userSkills,
         IReadOnlyList<JobSkill> jobSkills);
 
+    /// <summary>
+    /// Calculates the score plus its individual component breakdown.
+    /// </summary>
     CompatibilityBreakdown CalculateScoreBreakdown(
         User user,
         Job job,

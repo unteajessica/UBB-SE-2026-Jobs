@@ -1,6 +1,7 @@
 using System.Globalization;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
+using PussyCats.Library.Services;
 
 namespace PussyCats.App.Services;
 

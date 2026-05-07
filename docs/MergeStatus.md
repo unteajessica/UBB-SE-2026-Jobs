@@ -92,7 +92,7 @@ Server=DESKTOP-M6HSOV2;Database=ISS-921-1;Trusted_Connection=True;TrustServerCer
 ### Phase 3a — Port matchmaking services (done, committed)
 
 `PussyCats.App/Services/` contains 12 service ports plus the algorithm
-interface stub. All are async, take `CancellationToken`, use
+implementation. All are async, take `CancellationToken`, use
 `ConfigureAwait(false)`, return `IReadOnlyList<T>` where applicable.
 
 Services ported from `matchmaking/Services/`:
@@ -107,9 +107,9 @@ Services ported from `matchmaking/Services/`:
 - `CompanyStatusService`, `UserStatusService`, `SkillGapService`
 - `CompanyRecommendationService`, `UserRecommendationService`
 
-Interface added: `IRecommendationAlgorithm` (signatures only, no
-implementation yet — Phase 3b ports the algorithm class from
-`matchmaking/algorithm/`).
+Interface added: `IRecommendationAlgorithm` (signatures only at the time).
+Phase 3b ported the algorithm class from `matchmaking/algorithm/`; Phase
+8d moved the interface contract to `PussyCats.Library/Services/`.
 
 DTOs moved from `matchmaking/Models/` into `Library/DTOs/`:
 `ApplicationCardModel`, `MissingSkillModel`, `UnderscoredSkillModel`,
@@ -688,8 +688,8 @@ touched until 5c.
    public record ApiConfiguration(string BaseUrl);
    ```
    `App/Configuration/ApiConfigurationLoader.cs` — static class with a
-   single `Load()` that returns `new ApiConfiguration("https://localhost:7000")`.
-   Add a `// TODO Phase 8: read from bundled config file` comment.
+   `Load()` method. Initially hard-coded during the merge; Phase 8d reads
+   bundled/local JSON config with a demo-safe default.
 
 6. Port `RecommendationAlgorithm` from
    `matchmaking/algorithm/RecommendationAlgorithm.cs` (494 lines) into
@@ -1741,7 +1741,12 @@ explicit release approval.
 `CompanyStatusService.ComputeCompatibilityFallback` so `User.City` matches
 the city portion of a `Job.Location` value such as `Bucharest, Romania`.
 `CompanyStatusServiceTests` now asserts the location bonus for that merged
-format instead of documenting it as an open-item failure. Pruned resolved
+format instead of documenting it as an open-item failure. `ApiConfigurationLoader`
+now reads `appsettings.local.json` / `appsettings.json` with a default
+fallback, and `PussyCats.App.csproj` copies both bundled config and optional
+local config to output. Moved
+`IRecommendationAlgorithm` from `App/Services` to `Library/Services` and
+updated DI/consumers/tests to use the Library contract. Pruned resolved
 open-item notes for recommendation-service DI, the dropped `Questions` table,
 `UserStatusService` N+1 loading, the legacy `Preference` DTO, and domain
 back-navigation JSON cycles.
@@ -1768,10 +1773,6 @@ Remaining deliberate deviations and known issues:
 - The CV parser caps `Motivation` at 1000 chars; the DB column caps
   at 2000. Intentional — parser is the friendly cap, DB is the
   safety net.
-- `IRecommendationAlgorithm` interface in `App/Services` violates
-  CodingStyle §6 strictly speaking (interfaces with implementations
-  in App rather than Library), but the algorithm uses Library
-  domain types so moving it later is trivial.
 - `UserProfileService.RecalculateLevelAsync` now uses
   `SimpleModelOperations.GetExperiencePoints` and `CalculateLevelNumber`
   (resolved in 3b.2).

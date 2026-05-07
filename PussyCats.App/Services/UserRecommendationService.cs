@@ -5,6 +5,7 @@ using PussyCats.Library.Repositories.Jobs;
 using PussyCats.Library.Repositories.Recommendations;
 using PussyCats.Library.Repositories.Skills;
 using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services;
 
 namespace PussyCats.App.Services;
 
