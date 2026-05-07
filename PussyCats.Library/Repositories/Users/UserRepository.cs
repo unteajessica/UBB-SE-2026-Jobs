@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.Users;
 
 public class UserRepository : IUserRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public UserRepository(PussyCatsDbContext db)
+    public UserRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -20,7 +20,7 @@ public class UserRepository : IUserRepository
     /// </summary>
     public async Task<User?> GetByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.Users
+        return await databaseContext.Users
             .Include(user => user.WorkExperiences)
             .Include(user => user.Projects)
             .Include(user => user.ExtraCurricularActivities)
@@ -36,7 +36,7 @@ public class UserRepository : IUserRepository
     /// </summary>
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await db.Users
+        return await databaseContext.Users
             .AsNoTracking()
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -51,27 +51,27 @@ public class UserRepository : IUserRepository
         }
         user.LastUpdated = now;
 
-        db.Users.Add(user);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Users.Add(user);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return user;
     }
 
     public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
         user.LastUpdated = DateTime.UtcNow;
-        db.Users.Update(user);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Users.Update(user);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var user = await db.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
+        var user = await databaseContext.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return;
         }
-        db.Users.Remove(user);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Users.Remove(user);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -82,14 +82,14 @@ public class UserRepository : IUserRepository
     /// </summary>
     public async Task UpdateActiveAccountAsync(int userId, bool isActive, CancellationToken cancellationToken = default)
     {
-        var user = await db.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
+        var user = await databaseContext.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return;
         }
         user.ActiveAccount = isActive;
         user.LastUpdated = DateTime.UtcNow;
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -99,14 +99,14 @@ public class UserRepository : IUserRepository
     /// </summary>
     public async Task UpdateProfilePicturePathAsync(int userId, string profilePicturePath, CancellationToken cancellationToken = default)
     {
-        var user = await db.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
+        var user = await databaseContext.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return;
         }
         user.ProfilePicturePath = profilePicturePath;
         user.LastUpdated = DateTime.UtcNow;
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -116,12 +116,12 @@ public class UserRepository : IUserRepository
     /// </summary>
     public async Task TouchLastUpdatedAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var user = await db.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
+        var user = await databaseContext.Users.FindAsync(new object?[] { userId }, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return;
         }
         user.LastUpdated = DateTime.UtcNow;
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

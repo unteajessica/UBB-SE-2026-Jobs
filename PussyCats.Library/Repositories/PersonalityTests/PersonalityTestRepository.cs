@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.PersonalityTests;
 
 public class PersonalityTestRepository : IPersonalityTestRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public PersonalityTestRepository(PussyCatsDbContext db)
+    public PersonalityTestRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -22,7 +22,7 @@ public class PersonalityTestRepository : IPersonalityTestRepository
     /// </summary>
     public async Task<PersonalityTestResult?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.PersonalityTestResults
+        return await databaseContext.PersonalityTestResults
             .Include(result => result.TraitScores)
             .FirstOrDefaultAsync(result => result.UserId == userId, cancellationToken)
             .ConfigureAwait(false);
@@ -34,25 +34,25 @@ public class PersonalityTestRepository : IPersonalityTestRepository
         {
             result.CompletedAt = DateTime.UtcNow;
         }
-        db.PersonalityTestResults.Add(result);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.PersonalityTestResults.Add(result);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return result;
     }
 
     public async Task UpdateAsync(PersonalityTestResult result, CancellationToken cancellationToken = default)
     {
-        db.PersonalityTestResults.Update(result);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.PersonalityTestResults.Update(result);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int personalityTestResultId, CancellationToken cancellationToken = default)
     {
-        var result = await db.PersonalityTestResults.FindAsync(new object?[] { personalityTestResultId }, cancellationToken).ConfigureAwait(false);
+        var result = await databaseContext.PersonalityTestResults.FindAsync(new object?[] { personalityTestResultId }, cancellationToken).ConfigureAwait(false);
         if (result is null)
         {
             return;
         }
-        db.PersonalityTestResults.Remove(result);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.PersonalityTestResults.Remove(result);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.Companies;
 
 public class CompanyRepository : ICompanyRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public CompanyRepository(PussyCatsDbContext db)
+    public CompanyRepository(PussyCatsDbContext database)
     {
-        this.db = db;
+        this.databaseContext = database;
     }
 
     /// <summary>
@@ -19,7 +19,7 @@ public class CompanyRepository : ICompanyRepository
     /// </summary>
     public async Task<Company?> GetByIdAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        return await db.Companies
+        return await databaseContext.Companies
             .Include(company => company.Jobs)
             .FirstOrDefaultAsync(company => company.CompanyId == companyId, cancellationToken)
             .ConfigureAwait(false);
@@ -27,7 +27,7 @@ public class CompanyRepository : ICompanyRepository
 
     public async Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await db.Companies
+        return await databaseContext.Companies
             .AsNoTracking()
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -35,25 +35,25 @@ public class CompanyRepository : ICompanyRepository
 
     public async Task<Company> AddAsync(Company company, CancellationToken cancellationToken = default)
     {
-        db.Companies.Add(company);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Companies.Add(company);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return company;
     }
 
     public async Task UpdateAsync(Company company, CancellationToken cancellationToken = default)
     {
-        db.Companies.Update(company);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Companies.Update(company);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        var company = await db.Companies.FindAsync(new object?[] { companyId }, cancellationToken).ConfigureAwait(false);
+        var company = await databaseContext.Companies.FindAsync(new object?[] { companyId }, cancellationToken).ConfigureAwait(false);
         if (company is null)
         {
             return;
         }
-        db.Companies.Remove(company);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Companies.Remove(company);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

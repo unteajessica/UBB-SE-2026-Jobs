@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.Matches;
 
 public class MatchRepository : IMatchRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public MatchRepository(PussyCatsDbContext db)
+    public MatchRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -19,7 +19,7 @@ public class MatchRepository : IMatchRepository
     /// </summary>
     public async Task<Match?> GetByIdAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        return await db.Matches
+        return await databaseContext.Matches
             .Include(match => match.User)
             .Include(match => match.Job).ThenInclude(job => job.Company)
             .FirstOrDefaultAsync(match => match.MatchId == matchId, cancellationToken)
@@ -28,7 +28,7 @@ public class MatchRepository : IMatchRepository
 
     public async Task<IReadOnlyList<Match>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await db.Matches
+        return await databaseContext.Matches
             .AsNoTracking()
             .Include(match => match.Job).ThenInclude(job => job.Company)
             .ToListAsync(cancellationToken)
@@ -42,7 +42,7 @@ public class MatchRepository : IMatchRepository
     /// </summary>
     public async Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.Matches
+        return await databaseContext.Matches
             .AsNoTracking()
             .Where(match => match.UserId == userId)
             .Include(match => match.Job).ThenInclude(job => job.Company)
@@ -57,7 +57,7 @@ public class MatchRepository : IMatchRepository
     /// </summary>
     public async Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        return await db.Matches
+        return await databaseContext.Matches
             .FirstOrDefaultAsync(match => match.UserId == userId && match.JobId == jobId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -68,25 +68,25 @@ public class MatchRepository : IMatchRepository
         {
             match.Timestamp = DateTime.UtcNow;
         }
-        db.Matches.Add(match);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Matches.Add(match);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return match;
     }
 
     public async Task UpdateAsync(Match match, CancellationToken cancellationToken = default)
     {
-        db.Matches.Update(match);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Matches.Update(match);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        var match = await db.Matches.FindAsync(new object?[] { matchId }, cancellationToken).ConfigureAwait(false);
+        var match = await databaseContext.Matches.FindAsync(new object?[] { matchId }, cancellationToken).ConfigureAwait(false);
         if (match is null)
         {
             return;
         }
-        db.Matches.Remove(match);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Matches.Remove(match);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -6,16 +6,16 @@ namespace PussyCats.Library.Repositories.PersonalityTests;
 
 public class QuestionRepository : IQuestionRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public QuestionRepository(PussyCatsDbContext db)
+    public QuestionRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     public async Task<Question?> GetByIdAsync(int questionId, CancellationToken cancellationToken = default)
     {
-        return await db.Questions
+        return await databaseContext.Questions
             .AsNoTracking()
             .FirstOrDefaultAsync(question => question.QuestionId == questionId, cancellationToken)
             .ConfigureAwait(false);
@@ -27,7 +27,7 @@ public class QuestionRepository : IQuestionRepository
     /// </summary>
     public async Task<IReadOnlyList<Question>> GetAllOrderedAsync(CancellationToken cancellationToken = default)
     {
-        return await db.Questions
+        return await databaseContext.Questions
             .AsNoTracking()
             .OrderBy(question => question.SortOrder)
             .ToListAsync(cancellationToken)

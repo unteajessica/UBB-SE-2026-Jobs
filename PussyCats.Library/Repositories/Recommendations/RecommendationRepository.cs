@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.Recommendations;
 
 public class RecommendationRepository : IRecommendationRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public RecommendationRepository(PussyCatsDbContext db)
+    public RecommendationRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -19,14 +19,14 @@ public class RecommendationRepository : IRecommendationRepository
     /// </summary>
     public async Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
-        return await db.Recommendations
+        return await databaseContext.Recommendations
             .FirstOrDefaultAsync(recommendation => recommendation.RecommendationId == recommendationId, cancellationToken)
             .ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await db.Recommendations
+        return await databaseContext.Recommendations
             .AsNoTracking()
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -39,7 +39,7 @@ public class RecommendationRepository : IRecommendationRepository
     /// </summary>
     public async Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        return await db.Recommendations
+        return await databaseContext.Recommendations
             .AsNoTracking()
             .Where(recommendation => recommendation.UserId == userId && recommendation.JobId == jobId)
             .OrderByDescending(recommendation => recommendation.Timestamp)
@@ -53,19 +53,19 @@ public class RecommendationRepository : IRecommendationRepository
         {
             recommendation.Timestamp = DateTime.UtcNow;
         }
-        db.Recommendations.Add(recommendation);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Recommendations.Add(recommendation);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return recommendation;
     }
 
     public async Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
-        var recommendation = await db.Recommendations.FindAsync(new object?[] { recommendationId }, cancellationToken).ConfigureAwait(false);
+        var recommendation = await databaseContext.Recommendations.FindAsync(new object?[] { recommendationId }, cancellationToken).ConfigureAwait(false);
         if (recommendation is null)
         {
             return;
         }
-        db.Recommendations.Remove(recommendation);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Recommendations.Remove(recommendation);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

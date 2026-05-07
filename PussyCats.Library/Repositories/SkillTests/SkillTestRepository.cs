@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.SkillTests;
 
 public class SkillTestRepository : ISkillTestRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public SkillTestRepository(PussyCatsDbContext db)
+    public SkillTestRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -20,7 +20,7 @@ public class SkillTestRepository : ISkillTestRepository
     /// </summary>
     public async Task<SkillTest?> GetByIdAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        return await db.SkillTests
+        return await databaseContext.SkillTests
             .FirstOrDefaultAsync(test => test.SkillTestId == skillTestId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -31,7 +31,7 @@ public class SkillTestRepository : ISkillTestRepository
     /// </summary>
     public async Task<IReadOnlyList<SkillTest>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.SkillTests
+        return await databaseContext.SkillTests
             .AsNoTracking()
             .Where(test => test.UserId == userId)
             .ToListAsync(cancellationToken)
@@ -40,8 +40,8 @@ public class SkillTestRepository : ISkillTestRepository
 
     public async Task<SkillTest> AddAsync(SkillTest skillTest, CancellationToken cancellationToken = default)
     {
-        db.SkillTests.Add(skillTest);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.SkillTests.Add(skillTest);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return skillTest;
     }
 
@@ -52,13 +52,13 @@ public class SkillTestRepository : ISkillTestRepository
     /// </summary>
     public async Task UpdateScoreAsync(int skillTestId, int score, CancellationToken cancellationToken = default)
     {
-        var test = await db.SkillTests.FindAsync(new object?[] { skillTestId }, cancellationToken).ConfigureAwait(false);
+        var test = await databaseContext.SkillTests.FindAsync(new object?[] { skillTestId }, cancellationToken).ConfigureAwait(false);
         if (test is null)
         {
             return;
         }
         test.Score = score;
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -67,23 +67,23 @@ public class SkillTestRepository : ISkillTestRepository
     /// </summary>
     public async Task UpdateAchievedDateAsync(int skillTestId, DateOnly achievedDate, CancellationToken cancellationToken = default)
     {
-        var test = await db.SkillTests.FindAsync(new object?[] { skillTestId }, cancellationToken).ConfigureAwait(false);
+        var test = await databaseContext.SkillTests.FindAsync(new object?[] { skillTestId }, cancellationToken).ConfigureAwait(false);
         if (test is null)
         {
             return;
         }
         test.AchievedDate = achievedDate;
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        var test = await db.SkillTests.FindAsync(new object?[] { skillTestId }, cancellationToken).ConfigureAwait(false);
+        var test = await databaseContext.SkillTests.FindAsync(new object?[] { skillTestId }, cancellationToken).ConfigureAwait(false);
         if (test is null)
         {
             return;
         }
-        db.SkillTests.Remove(test);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.SkillTests.Remove(test);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

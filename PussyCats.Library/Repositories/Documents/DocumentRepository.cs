@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.Documents;
 
 public class DocumentRepository : IDocumentRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public DocumentRepository(PussyCatsDbContext db)
+    public DocumentRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -19,7 +19,7 @@ public class DocumentRepository : IDocumentRepository
     /// </summary>
     public async Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        return await db.Documents
+        return await databaseContext.Documents
             .FirstOrDefaultAsync(document => document.DocumentId == documentId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -30,7 +30,7 @@ public class DocumentRepository : IDocumentRepository
     /// </summary>
     public async Task<IReadOnlyList<Document>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.Documents
+        return await databaseContext.Documents
             .AsNoTracking()
             .Where(document => document.UserId == userId)
             .ToListAsync(cancellationToken)
@@ -43,19 +43,19 @@ public class DocumentRepository : IDocumentRepository
         {
             document.UploadDate = DateTime.UtcNow;
         }
-        db.Documents.Add(document);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Documents.Add(document);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return document;
     }
 
     public async Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        var document = await db.Documents.FindAsync(new object?[] { documentId }, cancellationToken).ConfigureAwait(false);
+        var document = await databaseContext.Documents.FindAsync(new object?[] { documentId }, cancellationToken).ConfigureAwait(false);
         if (document is null)
         {
             return;
         }
-        db.Documents.Remove(document);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.Documents.Remove(document);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

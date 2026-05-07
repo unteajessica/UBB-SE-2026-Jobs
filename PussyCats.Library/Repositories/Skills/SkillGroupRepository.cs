@@ -7,11 +7,11 @@ namespace PussyCats.Library.Repositories.Skills;
 
 public class SkillGroupRepository : ISkillGroupRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public SkillGroupRepository(PussyCatsDbContext db)
+    public SkillGroupRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -20,7 +20,7 @@ public class SkillGroupRepository : ISkillGroupRepository
     /// </summary>
     public async Task<IReadOnlyList<SkillGroup>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await db.SkillGroups
+        return await databaseContext.SkillGroups
             .AsNoTracking()
             .Include(group => group.Skills)
             .ToListAsync(cancellationToken)
@@ -34,7 +34,7 @@ public class SkillGroupRepository : ISkillGroupRepository
     /// </summary>
     public async Task<IReadOnlyList<SkillGroup>> GetByJobRoleAsync(JobRole jobRole, CancellationToken cancellationToken = default)
     {
-        return await db.SkillGroups
+        return await databaseContext.SkillGroups
             .AsNoTracking()
             .Include(group => group.Skills)
             .Where(group => group.JobRole == jobRole)

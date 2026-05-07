@@ -6,11 +6,11 @@ namespace PussyCats.Library.Repositories.Skills;
 
 public class UserSkillRepository : IUserSkillRepository
 {
-    private readonly PussyCatsDbContext db;
+    private readonly PussyCatsDbContext databaseContext;
 
-    public UserSkillRepository(PussyCatsDbContext db)
+    public UserSkillRepository(PussyCatsDbContext databaseContext)
     {
-        this.db = db;
+        this.databaseContext = databaseContext;
     }
 
     /// <summary>
@@ -19,7 +19,7 @@ public class UserSkillRepository : IUserSkillRepository
     /// </summary>
     public async Task<UserSkill?> GetAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
-        return await db.UserSkills
+        return await databaseContext.UserSkills
             .Include(skill => skill.Skill)
             .FirstOrDefaultAsync(skill => skill.UserId == userId && skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
@@ -30,7 +30,7 @@ public class UserSkillRepository : IUserSkillRepository
     /// </summary>
     public async Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.UserSkills
+        return await databaseContext.UserSkills
             .AsNoTracking()
             .Include(skill => skill.Skill)
             .Where(skill => skill.UserId == userId)
@@ -48,7 +48,7 @@ public class UserSkillRepository : IUserSkillRepository
     /// </summary>
     public async Task<IReadOnlyList<UserSkill>> GetVerifiedByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await db.UserSkills
+        return await databaseContext.UserSkills
             .AsNoTracking()
             .Include(skill => skill.Skill)
             .Where(skill => skill.UserId == userId && skill.IsVerified && skill.AchievedDate != null)
@@ -58,15 +58,15 @@ public class UserSkillRepository : IUserSkillRepository
 
     public async Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        db.UserSkills.Add(userSkill);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.UserSkills.Add(userSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return userSkill;
     }
 
     public async Task UpdateAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        db.UserSkills.Update(userSkill);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.UserSkills.Update(userSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -75,23 +75,23 @@ public class UserSkillRepository : IUserSkillRepository
     /// </summary>
     public async Task UpdateScoreAsync(int userId, int skillId, int score, CancellationToken cancellationToken = default)
     {
-        var userSkill = await db.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
+        var userSkill = await databaseContext.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
         if (userSkill is null)
         {
             return;
         }
         userSkill.Score = score;
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
-        var userSkill = await db.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
+        var userSkill = await databaseContext.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
         if (userSkill is null)
         {
             return;
         }
-        db.UserSkills.Remove(userSkill);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        databaseContext.UserSkills.Remove(userSkill);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }
