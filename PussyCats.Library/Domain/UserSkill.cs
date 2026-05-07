@@ -8,7 +8,7 @@ public class UserSkill
     [JsonIgnore] public User User { get; set; } = null!;
 
     public int SkillId { get; set; }
-    [JsonIgnore] public Skill Skill { get; set; } = null!;
+    public Skill Skill { get; set; } = null!;
 
     public int Score { get; set; }
     public bool IsVerified { get; set; }

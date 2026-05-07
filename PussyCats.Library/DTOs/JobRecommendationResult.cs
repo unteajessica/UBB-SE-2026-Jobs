@@ -69,7 +69,8 @@ public sealed class JobRecommendationResult
                 break;
             }
 
-            skillLabels.Add($"{jobSkill.Skill.Name} (min {jobSkill.RequiredLevel})");
+            var skillName = jobSkill.Skill?.Name ?? $"Skill #{jobSkill.SkillId}";
+            skillLabels.Add($"{skillName} (min {jobSkill.RequiredLevel})");
             index++;
         }
 

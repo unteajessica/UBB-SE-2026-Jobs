@@ -11,7 +11,7 @@
 
     <Grid>
         <SplitView x:Name="RootSplit"
-                   PaneBackground="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                   PaneBackground="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                    OpenPaneLength="360" CompactPaneLength="0"
                    DisplayMode="Overlay"
                    IsPaneOpen="{Binding IsFilterOpen, Mode=TwoWay}">

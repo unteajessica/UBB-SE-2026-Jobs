@@ -8,7 +8,7 @@ public class JobSkill
     [JsonIgnore] public Job Job { get; set; } = null!;
 
     public int SkillId { get; set; }
-    [JsonIgnore] public Skill Skill { get; set; } = null!;
+    public Skill Skill { get; set; } = null!;
 
     public int RequiredLevel { get; set; }
 }

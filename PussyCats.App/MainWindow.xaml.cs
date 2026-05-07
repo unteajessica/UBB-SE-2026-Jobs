@@ -58,6 +58,15 @@ public sealed partial class MainWindow : Window
         navView.IsBackEnabled = contentFrame.CanGoBack;
     }
 
+    private void NavView_PaneOpened(NavigationView sender, object args)
+    {
+        modeToggle.Header = "Company mode";
+        modeToggle.Visibility = Visibility.Visible;
+    }
+
+    private void NavView_PaneClosed(NavigationView sender, object args)
+        => modeToggle.Visibility = Visibility.Collapsed;
+
     private void ModeToggle_Toggled(object sender, RoutedEventArgs e)
     {
         var session = App.Services.GetRequiredService<SessionContext>();
