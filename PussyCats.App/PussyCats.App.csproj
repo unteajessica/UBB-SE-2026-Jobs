@@ -14,6 +14,16 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Suppress WindowsAppSDK auto-initializer ModuleInitializers in PussyCats.App.dll.
+         The MSIX-packaged App runtime is loaded by the OS via framework dependencies,
+         so the auto-init is redundant in production. Suppression also lets PussyCats.Tests
+         load this assembly without the [ModuleInitializer] firing in an unpackaged test
+         process (which would COMException). -->
+    <WindowsAppSdkBootstrapInitialize>false</WindowsAppSdkBootstrapInitialize>
+    <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
+    <WindowsAppSdkUndockedRegFreeWinRTInitialize>false</WindowsAppSdkUndockedRegFreeWinRTInitialize>
+    <WindowsAppSdkCompatibilityInitialize>false</WindowsAppSdkCompatibilityInitialize>
+    <WindowsAppSdkAutoInitialize>false</WindowsAppSdkAutoInitialize>
   </PropertyGroup>
 
   <ItemGroup>
