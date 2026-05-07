@@ -66,11 +66,20 @@ public sealed partial class UserProfilePage : Page
         freshnessLabel.Text = viewModel.FreshnessText;
         checkAccountStatus.IsOn = user.ActiveAccount;
         buttonPersonalityTest.Content = viewModel.GetPersonalityButtonText();
-
         if (!string.IsNullOrEmpty(user.ProfilePicturePath))
-            publicAvatar.ProfilePicture = new BitmapImage(new Uri(user.ProfilePicturePath));
+        {
+            var fullUrl = $"https://localhost:7134/api/files/{user.ProfilePicturePath}";
+            publicAvatar.ProfilePicture = new BitmapImage(new Uri(fullUrl));
+        }
         else
             publicAvatar.ProfilePicture = null;
+        /*
+
+        if (!string.IsNullOrEmpty(user.ProfilePicturePath))
+
+            publicAvatar.ProfilePicture = new BitmapImage(new Uri(user.ProfilePicturePath));
+        else
+            publicAvatar.ProfilePicture = null;*/
 
         completenessBar.Update(viewModel.CompletenessPercentage, viewModel.NextEmptyFieldPrompt);
         RefreshLevelDisplay();

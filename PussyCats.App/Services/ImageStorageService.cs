@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace PussyCats.App.Services;
 
 public class ImageStorageService : IImageStorageService
@@ -28,14 +30,33 @@ public class ImageStorageService : IImageStorageService
             Directory.CreateDirectory(basePath);
         }
     }
-
     public string SaveImage(Stream fileStream, string fileName)
     {
-        // Phase 5 routes uploads through /api/files; silent disk writes during
-        // demo would mask the bug.
-        throw new NotImplementedException(
-            "Phase 5 routes file uploads through /api/files per MergePlan §4.");
+        var ext = GetImageExtension(fileName);
+        CheckFileSize(fileStream);
+
+        using var content = new MultipartFormDataContent();
+        using var streamContent = new StreamContent(fileStream);
+        content.Add(streamContent, "file", $"upload{ext}");
+
+        using var http = new HttpClient();
+        var response = http.PostAsync("https://localhost:7134/api/files", content).Result;
+
+        if (!response.IsSuccessStatusCode)
+            throw new Exception("File upload failed.");
+
+        var json = response.Content.ReadAsStringAsync().Result;
+        using var doc = JsonDocument.Parse(json);
+        return doc.RootElement.GetProperty("path").GetString()!;
     }
+
+    /* public string SaveImage(Stream fileStream, string fileName)
+     {
+         // Phase 5 routes uploads through /api/files; silent disk writes during
+         // demo would mask the bug.
+         throw new NotImplementedException(
+             "Phase 5 routes file uploads through /api/files per MergePlan §4.");
+     }*/
 
     public void DeleteImage(string relativePath)
     {
