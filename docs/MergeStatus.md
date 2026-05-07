@@ -1497,25 +1497,222 @@ manually only.
 End of 7d: `dotnet test` green; ≥ 100 tests; coverage report generated via
 `coverlet.collector` (already packaged). Commit. Phase 7 complete.
 
-### Phase 8 — Polish (not started)
+### Phase 8 — Cleanup, polish, demo prep (not started, playbook below)
 
-- StyleCop pass across all four projects.
-- Coverage report review; backfill gaps surfaced by the report.
-- Top-bar Varis-style header (currently sidebar `NavigationView`) — scoped as
-  Phase 8 because it's a structural UI change, not a fix.
-- Drop the unused `Questions` table (now confirmed dead — questions live in
-  `PersonalityTestService`).
-- `ImageStorageService.CheckFileSize` cleanup (public on class, not on
-  interface — open item).
-- N+1 query review in `UserStatusService` if Phase 6 demo surfaced perf
-  issues.
-- Replace `Preference` legacy DTO with a flat `UserPreferences` record (open
-  item).
-- Optional: revisit `SuppressImplicitRequiredAttributeForNonNullableReferenceTypes`
-  — consider per-DTO `[ValidateNever]` on navigation properties instead, or
-  switch controller action signatures to typed DTOs that don't carry
-  navigation refs at all.
-- Dry-run demo on a clean machine. Tag `v4.0`.
+Three sessions. The functional bug list from `docs/issues.pdf` was already
+resolved across the `phase 7c`, `phase 7d`, and `bug fixes + phase 7d` commits.
+Phase 8 scope is now: clean up tech debt those fixes introduced, finish the
+polish items the original Phase 8 outlined, and prep for the demo.
+
+**Design decisions locked in:**
+
+- **Typed `HttpClient` for storage services.** The current `new HttpClient()`
+  per upload is a Phase 5 violation and a socket-exhaustion risk. Both
+  `LocalFileStorageService` and `ImageStorageService` move to constructor-
+  injected `HttpClient` via the same `AddHttpClient<TInterface, TImpl>`
+  pattern the proxies use.
+- **Seed defaults at the migration layer, not at read time.**
+  `SkillTestDefaults.GetOrCreateAsync` mutates the DB during a `GET` —
+  surprising side effect. Move the three default tests into a follow-up
+  migration `SeedDemoSkillTests` and delete `SkillTestDefaults`.
+- **Detach only the conflicting entry, not every tracked entity.**
+  `UserRepository.UpdateAsync`'s current "detach everything" hammer is fine
+  for a per-request scoped DbContext but ugly. Replace with
+  `db.Entry(user).State = EntityState.Modified;` so EF doesn't traverse
+  navigation properties and doesn't conflict with the controller's prior
+  `GetByIdAsync`.
+- **Skill-test runner stays placeholder.** Per open-items decision — out of
+  scope.
+- **No new feature work.** Phase 8 only fixes / cleans up / polishes.
+
+---
+
+**8a — Tech debt cleanup from 7c/7d bug-fix commits (done, pending commit)**
+
+*Step 1.* All eight `*Repository.UpdateAsync` methods (User, Match, Company,
+Job, PersonalityTest, UserSkill, Skill, JobSkill) replace the original
+`db.{Set}.Update(entity)` (and the temporary `ChangeTracker.Entries()`
+detach-all hammer GPT had introduced in the User one) with a
+local-tracked-instance lookup pattern:
+
+```csharp
+var tracked = db.{Set}.Local.FirstOrDefault(e => e.{Key} == incoming.{Key});
+if (tracked is not null)
+    db.Entry(tracked).CurrentValues.SetValues(incoming);
+else
+    db.Entry(incoming).State = EntityState.Modified;
+```
+
+*Why not just `Entry(incoming).State = EntityState.Modified;`?* That was the
+first attempt — but `Entry(...).State = ...` still routes through the
+`IdentityMap.Add` codepath. When the controller's 404 guard called
+`GetByIdAsync` first (which **tracks** the entity, since the merged
+`GetByIdAsync` overloads use `Include(...)` without `AsNoTracking()`), the
+DbSet's local store already holds an instance with that key. Trying to
+attach a fresh request-body instance with the same key throws "another
+instance with the same key value is already being tracked." The local
+lookup pattern reconciles by copying values onto the tracked instance
+instead of attaching a duplicate.
+
+Match crashed first in the running app because it's the hottest write path
+(decision/advance/revert). Same root cause across all 8 — fixed
+symmetrically.
+
+No new tests needed — existing service tests use `Fake*Repository` and
+don't exercise the EF tracker. The fix was validated by re-running the
+crashing UI flow.
+
+*Step 2.* Storage services use typed `HttpClient`.
+- Add `IFilesProxy` + `FilesProxy` in `App/RepositoryProxies/` exposing
+  `Task<string> UploadAsync(Stream, string, ct)`,
+  `Task DeleteAsync(string, ct)`, `string GetUrl(string)`.
+- `ImageStorageService` and `LocalFileStorageService` accept `IFilesProxy`
+  via constructor; their `SaveImage`/`SaveFile` delegate to
+  `proxy.UploadAsync` (no more `new HttpClient()`, no more `.Result`).
+- `App.xaml.cs` registers
+  `AddHttpClient<IFilesProxy, FilesProxy>(c => c.BaseAddress = new Uri(cfg.BaseUrl));`
+  and updates the storage-service registrations to inject `IFilesProxy`.
+- Remove the commented-out `NotImplementedException` block in
+  `ImageStorageService.SaveImage`.
+
+*Step 3.* Move skill-test defaults from runtime to seed.
+- New migration `SeedDemoSkillTests` that inserts three rows for
+  `UserId = 1` (C# Fundamentals 82, SQL Server 76, Software Design 88) with
+  `AchievedDate = '2026-01-07'` (deterministic).
+- Delete `SkillTestDefaults.cs`.
+- `UserProfileService.GetSkillTestsForUserAsync` reverts to
+  `skillTestRepository.GetByUserIdAsync(...)`.
+- Same for any other call sites (grep `SkillTestDefaults`).
+
+*Step 4.* Audit any remaining `.Result` patterns introduced by the storage
+fixes — convert to proper `await`.
+
+End of 8a: storage services Phase 5 compliant, no silent DB mutations on
+read paths, `UpdateAsync` is one line.
+
+*8a done summary (pending commit).* `dotnet test` green: 287 passing,
+2 skipped (pre-existing skips for `RecommendationAlgorithmTests.Dynamic_*`
+and `CvParsingServiceTests.ParseCvFile_parses_valid_xml`), 0 failed.
+
+New files:
+- `PussyCats.App/RepositoryProxies/IFilesProxy.cs`
+- `PussyCats.App/RepositoryProxies/FilesProxy.cs`
+- `PussyCats.Library/Migrations/20260507175325_SeedDemoSkillTests.cs` (+ Designer)
+
+Modified files:
+- `PussyCats.Library/Repositories/Users/UserRepository.cs` — Step 1 fix.
+- `PussyCats.Library/Persistence/Configurations/SkillTestConfiguration.cs` — added
+  `HasData(...)` for the three demo tests; deterministic `2026-01-07` date.
+- `PussyCats.Library/Migrations/PussyCatsDbContextModelSnapshot.cs` — auto-updated
+  by `dotnet ef migrations add`.
+- `PussyCats.App/App.xaml.cs` — registers
+  `AddHttpClient<IFilesProxy, FilesProxy>(...)`.
+- `PussyCats.App/Services/{ILocalFileStorageService,IImageStorageService}.cs` —
+  signatures changed to `*Async` returning `Task` / `Task<string>`,
+  `CancellationToken` arg added.
+- `PussyCats.App/Services/{LocalFileStorageService,ImageStorageService}.cs` —
+  delegate to `IFilesProxy`. No more `new HttpClient()`, no more `.Result`.
+- `PussyCats.App/Services/{DocumentService,UserProfileService,SkillTestService}.cs`,
+  `PussyCats.App/ViewModels/UserProfileViewModel.cs` — updated to await the
+  new async signatures and call repository directly (no more
+  `SkillTestDefaults.GetOrCreateAsync`).
+- `PussyCats.Tests/Services/{LocalFileStorageServiceTests,ImageStorageServiceTests,DocumentServiceTests}.cs`,
+  `PussyCats.Tests/ViewModels/UserProfileViewModelTests.cs` — adapted to
+  async signatures + `IFilesProxy` mocking via NSubstitute.
+
+Deleted:
+- `PussyCats.App/Services/SkillTestDefaults.cs` — runtime mutate-on-read
+  hack replaced by the seed migration.
+
+Deviations / notes:
+- The `SeedDemoSkillTests` migration uses static `SkillTestId` values 1, 2, 3.
+  On dev machines that have already run the App with the old `SkillTestDefaults`,
+  three skill-test rows already exist with those IDs (and a runtime-stamped
+  `AchievedDate`). Running `dotnet ef database update` after this migration
+  will fail with PK conflict on those machines. **Recipe:**
+  `DELETE FROM SkillTests WHERE UserId = 1;` then re-run the update.
+  Same shape as the `AddDummyUser` PK-conflict recipe.
+- `LocalFileStorageService` lost its constructor that takes a local-disk
+  base path. The local-disk fallback is gone — uploads always go through
+  `/api/files` now. Tests dropped the `Constructor_creates_directory_when_missing`
+  case along with the local-disk path. Net change: −1 test, +3 mock-based
+  tests covering proxy delegation (LocalFileStorageServiceTests went from
+  6 cases to 4; ImageStorageServiceTests went from 4 cases to 5).
+
+---
+
+**8b — Polish + cleanup (commit)**
+
+*Step 1.* Drop unused `Questions` table. New migration `DropQuestionsTable`.
+`IQuestionRepository` and `QuestionRepository` get deleted along with the DI
+registration. `FakeQuestionRepository` and any references in tests removed.
+(Questions live in `PersonalityTestService` per `MergePlan §4`.)
+
+*Step 2.* `IImageStorageService.CheckFileSize` — add to interface so
+consumers can call it through the abstraction. Open item from earlier
+phases.
+
+*Step 3.* Replace legacy `Preference` DTO with a flat `UserPreferences`
+record.
+- New `Library/DTOs/UserPreferences.cs`:
+  `record UserPreferences(IReadOnlyList<JobRole> Roles, WorkMode WorkMode, string Location);`
+- `IPreferenceService.GetByUserIdAsync` returns `Task<UserPreferences>`
+  (single object, not a list of `Preference` rows).
+- `PreferencesViewModel` adapts.
+- Delete `Library/DTOs/Preference.cs`.
+
+*Step 4.* Upgrade `System.Security.Cryptography.Xml` to a non-vulnerable
+version. Pin via explicit `<PackageReference>` in
+`PussyCats.Library.csproj` since it's transitive from
+`Microsoft.EntityFrameworkCore.Design`.
+
+*Step 5.* N+1 in `UserStatusService.GetApplicationsForUserAsync`. Currently
+does one repo call per match. Replace with bulk loads: pull all matches,
+then one bulk job/company/job-skill query, join in memory.
+
+*Step 6.* `CvParsingService` XML branch. Two options:
+- (a) Replace `DateTimeOffset` with `DateTime` on `CvData` so
+  `XmlSerializer` accepts it; un-skip the test from 7b.
+- (b) Drop the XML branch entirely and only support JSON. Update
+  `ParseCvFile` to throw on `.xml`, remove the skipped test.
+Option (b) is simpler if no real CV uploads use XML.
+
+*Step 7.* StyleCop pass + coverage report. Backfill obvious coverage gaps
+surfaced by `coverlet`.
+
+End of 8b: warnings clean, vuln gone, dead code removed, perf regression on
+My Applications fixed.
+
+---
+
+**8c — Demo prep + tag (commit)**
+
+*Step 1.* `appsettings.local.json` for per-dev connection strings. Add
+`appsettings.local.json` to `.gitignore`. `Program.cs` reads it after
+`appsettings.Development.json`. Ship a `appsettings.local.json.example` with
+`Server=YOUR-MACHINE-NAME` so new devs copy and edit.
+
+*Step 2.* Dry-run on a clean Windows machine.
+- Walk every nav entry as Candidate: Browse Jobs, My Applications, My
+  Profile, Edit Profile, Skill Tests, Personality Test, Compatibility,
+  Documents, Preferences.
+- Toggle to Company mode: Review Applicants, Applicant Status.
+- Capture screenshots in `docs/demo-screenshots/`.
+- Note any new issues found in the open-items list (don't fix in 8c — that
+  would slip).
+
+*Step 3.* Tag `v4.0`. Push tag. Confirm CI still green.
+
+End of 8c: repo demo-ready, tagged release.
+
+---
+
+*Out of scope (intentionally not in Phase 8):*
+- Skill-test runner UI (open-items decision — stays placeholder).
+- Top-bar Varis-style header (cosmetic, not blocking demo). Leave for v4.1.
+- Auth, real company onboarding, deployment — Phase 9+ if it ever happens.
+- The `WindowsAppSdk*Initialize=false` flags on `App.csproj` — these are a
+  Phase 7 workaround and should not be revisited.
 
 ## Open items / known issues
 

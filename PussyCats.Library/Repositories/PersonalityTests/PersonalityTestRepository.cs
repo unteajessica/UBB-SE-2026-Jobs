@@ -41,7 +41,15 @@ public class PersonalityTestRepository : IPersonalityTestRepository
 
     public async Task UpdateAsync(PersonalityTestResult result, CancellationToken cancellationToken = default)
     {
-        databaseContext.PersonalityTestResults.Update(result);
+        var tracked = databaseContext.PersonalityTestResults.Local.FirstOrDefault(existing => existing.PersonalityTestResultId == result.PersonalityTestResultId);
+        if (tracked is not null)
+        {
+            databaseContext.Entry(tracked).CurrentValues.SetValues(result);
+        }
+        else
+        {
+            databaseContext.Entry(result).State = EntityState.Modified;
+        }
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 

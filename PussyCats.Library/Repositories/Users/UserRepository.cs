@@ -59,13 +59,30 @@ public class UserRepository : IUserRepository
     public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
         user.LastUpdated = DateTime.UtcNow;
-        foreach (var entry in databaseContext.ChangeTracker.Entries().ToList())
-        {
-            entry.State = EntityState.Detached;
-        }
-
-        databaseContext.Users.Update(user);
+        ApplyDetachedUpdate(user, user.UserId);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reconciles a detached request-body entity with whatever the DbContext is
+    /// already tracking. Controllers typically call <c>GetByIdAsync</c> as a 404
+    /// guard before <c>UpdateAsync</c>, which leaves the existing User tracked;
+    /// passing a fresh deserialised User to <c>Update</c> or
+    /// <c>Entry().State = Modified</c> then throws "another instance with the
+    /// same key value is already being tracked." Copying the request values onto
+    /// the tracked instance avoids the IdentityMap conflict.
+    /// </summary>
+    private void ApplyDetachedUpdate(User incoming, int key)
+    {
+        var tracked = databaseContext.Users.Local.FirstOrDefault(existing => existing.UserId == key);
+        if (tracked is not null)
+        {
+            databaseContext.Entry(tracked).CurrentValues.SetValues(incoming);
+        }
+        else
+        {
+            databaseContext.Entry(incoming).State = EntityState.Modified;
+        }
     }
 
     public async Task RemoveAsync(int userId, CancellationToken cancellationToken = default)

@@ -31,7 +31,7 @@ public class DocumentService : IDocumentService
         }
 
         using var stream = File.OpenRead(filePath);
-        string relativePath = fileStorage.SaveFile(stream, Path.GetFileName(filePath));
+        string relativePath = await fileStorage.SaveFileAsync(stream, Path.GetFileName(filePath), cancellationToken).ConfigureAwait(false);
 
         document.FilePath = relativePath;
         document.UploadDate = DateTime.Now;
@@ -50,7 +50,7 @@ public class DocumentService : IDocumentService
 
         if (!string.IsNullOrEmpty(document.FilePath))
         {
-            fileStorage.DeleteFile(document.FilePath);
+            await fileStorage.DeleteFileAsync(document.FilePath, cancellationToken).ConfigureAwait(false);
         }
 
         await documentRepository.RemoveAsync(documentId, cancellationToken).ConfigureAwait(false);

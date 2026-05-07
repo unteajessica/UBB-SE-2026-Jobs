@@ -1,82 +1,47 @@
 using FluentAssertions;
+using NSubstitute;
+using PussyCats.App.RepositoryProxies;
 using PussyCats.App.Services;
 
 namespace PussyCats.Tests.Services;
 
-public class LocalFileStorageServiceTests : IDisposable
+public class LocalFileStorageServiceTests
 {
-    private readonly string tempDir;
+    private readonly IFilesProxy filesProxy = Substitute.For<IFilesProxy>();
     private readonly LocalFileStorageService service;
 
     public LocalFileStorageServiceTests()
     {
-        tempDir = Path.Combine(Path.GetTempPath(), $"local-fs-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(tempDir);
-        service = new LocalFileStorageService(tempDir);
-    }
-
-    public void Dispose()
-    {
-        if (Directory.Exists(tempDir))
-        {
-            Directory.Delete(tempDir, recursive: true);
-        }
+        service = new LocalFileStorageService(filesProxy);
     }
 
     [Fact]
-    public void Constructor_creates_directory_when_missing()
+    public async Task SaveFileAsync_delegates_upload_to_files_proxy()
     {
-        var newDir = Path.Combine(Path.GetTempPath(), $"new-{Guid.NewGuid():N}");
-        try
-        {
-            _ = new LocalFileStorageService(newDir);
-            Directory.Exists(newDir).Should().BeTrue();
-        }
-        finally
-        {
-            if (Directory.Exists(newDir))
-            {
-                Directory.Delete(newDir, recursive: true);
-            }
-        }
+        filesProxy.UploadAsync(Arg.Any<Stream>(), "x.pdf", Arg.Any<CancellationToken>())
+            .Returns("uploads/x.pdf");
+        using var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+
+        var result = await service.SaveFileAsync(stream, "x.pdf");
+
+        result.Should().Be("uploads/x.pdf");
+        await filesProxy.Received(1).UploadAsync(stream, "x.pdf", Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public void SaveFile_persists_file_when_using_local_test_storage()
+    public async Task DeleteFileAsync_delegates_to_files_proxy()
     {
-        using var stream = new MemoryStream([1, 2, 3]);
+        await service.DeleteFileAsync("uploads/x.pdf");
 
-        var savedPath = service.SaveFile(stream, "x.pdf");
-
-        File.Exists(savedPath).Should().BeTrue();
-        Path.GetExtension(savedPath).Should().Be(".pdf");
+        await filesProxy.Received(1).DeleteAsync("uploads/x.pdf", Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public void DeleteFile_removes_local_test_file()
+    public void GetFilePath_returns_proxy_resolved_url()
     {
-        using var stream = new MemoryStream([1, 2, 3]);
-        var savedPath = service.SaveFile(stream, "x.pdf");
+        filesProxy.GetUrl("uploads/x.pdf").Returns("https://api/api/files/x.pdf");
 
-        service.DeleteFile(savedPath);
-
-        File.Exists(savedPath).Should().BeFalse();
-    }
-
-    [Fact]
-    public void DeleteFile_silently_returns_for_blank_path()
-    {
-        Action act = () => service.DeleteFile("");
-
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void GetFilePath_throws_when_file_missing()
-    {
-        Action act = () => service.GetFilePath("does-not-exist.pdf");
-
-        act.Should().Throw<FileNotFoundException>();
+        service.GetFilePath("uploads/x.pdf").Should().Be("https://api/api/files/x.pdf");
     }
 
     [Fact]

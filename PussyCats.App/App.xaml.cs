@@ -75,6 +75,9 @@ public partial class App : Application
         RegisterRepositoryProxy<IQuestionRepository, QuestionRepositoryProxy>(services, apiConfiguration);
         RegisterRepositoryProxy<IRecommendationRepository, RecommendationRepositoryProxy>(services, apiConfiguration);
 
+        services.AddHttpClient<IFilesProxy, FilesProxy>(client =>
+            client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
+
         services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
         services.AddTransient<ICompanyService, CompanyService>();
         services.AddTransient<ICompanyStatusService, CompanyStatusService>();

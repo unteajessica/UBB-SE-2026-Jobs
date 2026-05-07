@@ -17,7 +17,7 @@ public class SkillTestService : ISkillTestService
 
     public async Task<IReadOnlyList<SkillTest>> GetTestsForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await SkillTestDefaults.GetOrCreateAsync(skillTestRepository, userId, cancellationToken).ConfigureAwait(false);
+        return await skillTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<bool> CanRetakeTestAsync(int skillTestId, CancellationToken cancellationToken = default)

@@ -49,14 +49,14 @@ public class UserProfileViewModelTests
     public async Task UploadAvatarAsync_saves_image_and_updates_profile_picture_path()
     {
         var user = BuildUser();
-        imageStorageService.SaveImage(Arg.Any<Stream>(), "avatar.png").Returns("stored.png");
+        imageStorageService.SaveImageAsync(Arg.Any<Stream>(), "avatar.png", Arg.Any<CancellationToken>()).Returns("stored.png");
         var viewModel = CreateViewModel();
         viewModel.UserProfile = user;
         using var stream = new MemoryStream([1, 2, 3]);
 
         await viewModel.UploadAvatarAsync(stream, "avatar.png");
 
-        imageStorageService.Received(1).SaveImage(stream, "avatar.png");
+        await imageStorageService.Received(1).SaveImageAsync(stream, "avatar.png", Arg.Any<CancellationToken>());
         await profileService.Received(1).UpdateProfilePicturePathAsync(6, "stored.png", Arg.Any<CancellationToken>());
         user.ProfilePicturePath.Should().Be("stored.png");
     }
@@ -71,7 +71,7 @@ public class UserProfileViewModelTests
 
         await viewModel.RemoveAvatarAsync();
 
-        imageStorageService.Received(1).DeleteImage("stored.png");
+        await imageStorageService.Received(1).DeleteImageAsync("stored.png", Arg.Any<CancellationToken>());
         await profileService.Received(1).RemoveProfilePicturePathAsync(6, Arg.Any<CancellationToken>());
         user.ProfilePicturePath.Should().BeEmpty();
     }

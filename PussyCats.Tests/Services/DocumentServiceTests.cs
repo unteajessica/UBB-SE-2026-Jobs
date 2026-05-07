@@ -68,7 +68,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task UploadDocumentAsync_persists_metadata_with_storage_path()
     {
-        fileStorage.SaveFile(Arg.Any<Stream>(), Arg.Any<string>()).Returns("uploads/1.pdf");
+        fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns("uploads/1.pdf");
         var document = new Document { UserId = 1, DocumentName = "CV" };
 
         var saved = await service.UploadDocumentAsync(document, tempPdfPath);
@@ -81,7 +81,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task UploadDocumentAsync_surfaces_storage_exception()
     {
-        fileStorage.SaveFile(Arg.Any<Stream>(), Arg.Any<string>())
+        fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Throws(new InvalidOperationException("File upload failed."));
 
         Func<Task> act = () => service.UploadDocumentAsync(
@@ -98,7 +98,7 @@ public class DocumentServiceTests : IDisposable
 
         await service.DeleteDocumentAsync(5);
 
-        fileStorage.Received(1).DeleteFile("uploads/x.pdf");
+        await fileStorage.Received(1).DeleteFileAsync("uploads/x.pdf", Arg.Any<CancellationToken>());
         (await service.GetDocumentsByUserIdAsync(1)).Should().BeEmpty();
     }
 
@@ -118,7 +118,7 @@ public class DocumentServiceTests : IDisposable
 
         await service.DeleteDocumentAsync(5);
 
-        fileStorage.DidNotReceiveWithAnyArgs().DeleteFile(default!);
+        await fileStorage.DidNotReceiveWithAnyArgs().DeleteFileAsync(default!, default);
     }
 
     [Fact]

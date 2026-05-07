@@ -2,6 +2,7 @@ namespace PussyCats.App.Services;
 
 public interface IImageStorageService
 {
-    string SaveImage(Stream fileStream, string fileName);
-    void DeleteImage(string relativePath);
+    Task<string> SaveImageAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default);
+
+    Task DeleteImageAsync(string relativePath, CancellationToken cancellationToken = default);
 }
