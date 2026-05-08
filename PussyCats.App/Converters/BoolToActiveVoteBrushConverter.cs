@@ -11,7 +11,7 @@ public class BoolToActiveVoteBrushConverter : IValueConverter
         if (value is true)
         {
             // "dislike" parameter → red; default → blue
-            bool isDislike = parameter is string p && p.Equals("dislike", StringComparison.OrdinalIgnoreCase);
+            bool isDislike = parameter is string parameterString && parameterString.Equals("dislike", StringComparison.OrdinalIgnoreCase);
             return isDislike
                 ? new SolidColorBrush(Color.FromArgb(0xFF, 0xB4, 0x23, 0x18))
                 : new SolidColorBrush(Color.FromArgb(0xFF, 0x1F, 0x6F, 0xEB));

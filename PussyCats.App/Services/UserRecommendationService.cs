@@ -247,12 +247,16 @@ public sealed class UserRecommendationService : IUserRecommendationService
 
     public static string MapUserYearsToExperienceBucket(int yearsOfExperience)
     {
+        const int InternshipThreshold = 2;
+        const int EntryThreshold = 4;
+        const int MidSeniorThreshold = 7;
+        const int DirectorThreshold = 10;
         return yearsOfExperience switch
         {
-            < 2 => "Internship",
-            < 4 => "Entry",
-            < 7 => "MidSenior",
-            < 10 => "Director",
+            < InternshipThreshold => "Internship",
+            < EntryThreshold => "Entry",
+            < MidSeniorThreshold => "MidSenior",
+            < DirectorThreshold => "Director",
             _ => "Executive",
         };
     }

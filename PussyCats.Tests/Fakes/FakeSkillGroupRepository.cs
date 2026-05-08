@@ -16,15 +16,15 @@ public class FakeSkillGroupRepository : ISkillGroupRepository
         }
     }
 
-    public Task<IReadOnlyList<SkillGroup>> GetAllAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<SkillGroup>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<SkillGroup> snapshot = store.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
-    public Task<IReadOnlyList<SkillGroup>> GetByJobRoleAsync(JobRole jobRole, CancellationToken ct = default)
+    public Task<IReadOnlyList<SkillGroup>> GetByJobRoleAsync(JobRole jobRole, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SkillGroup> filtered = store.Values.Where(g => g.JobRole == jobRole).ToList();
+        IReadOnlyList<SkillGroup> filtered = store.Values.Where(skillGroup => skillGroup.JobRole == jobRole).ToList();
         return Task.FromResult(filtered);
     }
 }

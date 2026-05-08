@@ -40,7 +40,7 @@
 
             <AutoSuggestBox x:Name="LocationAutoSuggestBox"
                             Header="Location (City, Country)"
-                            PlaceholderText="eventArguments.g., Bucharest, Romania"
+                            PlaceholderText="e.g., Bucharest, Romania"
                             HorizontalAlignment="Stretch"
                             TextChanged="LocationAutoSuggestBox_TextChanged"
                             SuggestionChosen="LocationAutoSuggestBox_SuggestionChosen"/>

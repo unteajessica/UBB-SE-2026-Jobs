@@ -15,28 +15,28 @@ public class FakeRecommendationRepository : IRecommendationRepository
         }
     }
 
-    public Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken ct = default)
+    public Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(recommendationId, out var recommendation);
         return Task.FromResult(recommendation);
     }
 
-    public Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Recommendation> snapshot = store.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
-    public Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken ct = default)
+    public Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
         var latest = store.Values
-            .Where(r => r.UserId == userId && r.JobId == jobId)
-            .OrderByDescending(r => r.Timestamp)
+            .Where(recommendation => recommendation.UserId == userId && recommendation.JobId == jobId)
+            .OrderByDescending(recommendation => recommendation.Timestamp)
             .FirstOrDefault();
         return Task.FromResult(latest);
     }
 
-    public Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken ct = default)
+    public Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
     {
         if (recommendation.RecommendationId == 0)
         {
@@ -50,7 +50,7 @@ public class FakeRecommendationRepository : IRecommendationRepository
         return Task.FromResult(recommendation);
     }
 
-    public Task RemoveAsync(int recommendationId, CancellationToken ct = default)
+    public Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         store.Remove(recommendationId);
         return Task.CompletedTask;

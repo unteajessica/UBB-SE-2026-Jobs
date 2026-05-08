@@ -22,15 +22,15 @@ public class PersonalityTestServiceTests
         var questions = PersonalityTestService.LoadQuestions();
 
         questions.Should().HaveCount(24);
-        questions.Select(q => q.SortOrder).Should().BeInAscendingOrder();
-        questions.Select(q => q.SortOrder).Should().Equal(Enumerable.Range(1, 24));
+        questions.Select(question => question.SortOrder).Should().BeInAscendingOrder();
+        questions.Select(question => question.SortOrder).Should().Equal(Enumerable.Range(1, 24));
     }
 
     [Fact]
     public void LoadQuestions_Called_CoversAllSixTraitsEvenly()
     {
         var questions = PersonalityTestService.LoadQuestions();
-        var perTrait = questions.GroupBy(q => q.Trait).ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
+        var perTrait = questions.GroupBy(question => question.Trait).ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
 
         perTrait.Should().HaveCount(6);
         perTrait.Values.Should().AllBeEquivalentTo(4);
@@ -111,7 +111,7 @@ public class PersonalityTestServiceTests
         saved.Should().NotBeNull();
         saved!.SelectedRole.Should().Be(JobRole.BackendDeveloper);
         saved.UserId.Should().Be(1);
-        saved.TraitScores.Should().Contain(s => s.Trait == TraitType.Depth && s.Score == 5);
+        saved.TraitScores.Should().Contain(personalityTraitScore => personalityTraitScore.Trait == TraitType.Depth && personalityTraitScore.Score == 5);
     }
 
     [Fact]
@@ -123,8 +123,8 @@ public class PersonalityTestServiceTests
             UserId = 1,
             SelectedRole = JobRole.FrontendDeveloper,
         });
-        var q = new Question { Trait = TraitType.Depth, SortOrder = 1 };
-        var answers = new Dictionary<Question, AnswerValue> { [q] = AnswerValue.StronglyAgree };
+        var question = new Question { Trait = TraitType.Depth, SortOrder = 1 };
+        var answers = new Dictionary<Question, AnswerValue> { [question] = AnswerValue.StronglyAgree };
 
         await service.SaveResultAsync(1, answers, JobRole.BackendDeveloper);
 

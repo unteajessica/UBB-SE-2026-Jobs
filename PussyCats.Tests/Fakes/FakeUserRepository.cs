@@ -15,19 +15,19 @@ public class FakeUserRepository : IUserRepository
         }
     }
 
-    public Task<User?> GetByIdAsync(int userId, CancellationToken ct = default)
+    public Task<User?> GetByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(userId, out var user);
         return Task.FromResult(user);
     }
 
-    public Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<User> snapshot = store.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
-    public Task<User> AddAsync(User user, CancellationToken ct = default)
+    public Task<User> AddAsync(User user, CancellationToken cancellationToken = default)
     {
         if (user.UserId == 0)
         {
@@ -43,20 +43,20 @@ public class FakeUserRepository : IUserRepository
         return Task.FromResult(user);
     }
 
-    public Task UpdateAsync(User user, CancellationToken ct = default)
+    public Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
         user.LastUpdated = DateTime.UtcNow;
         store[user.UserId] = user;
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int userId, CancellationToken ct = default)
+    public Task RemoveAsync(int userId, CancellationToken cancellationToken = default)
     {
         store.Remove(userId);
         return Task.CompletedTask;
     }
 
-    public Task UpdateActiveAccountAsync(int userId, bool isActive, CancellationToken ct = default)
+    public Task UpdateActiveAccountAsync(int userId, bool isActive, CancellationToken cancellationToken = default)
     {
         if (store.TryGetValue(userId, out var user))
         {
@@ -66,7 +66,7 @@ public class FakeUserRepository : IUserRepository
         return Task.CompletedTask;
     }
 
-    public Task UpdateProfilePicturePathAsync(int userId, string profilePicturePath, CancellationToken ct = default)
+    public Task UpdateProfilePicturePathAsync(int userId, string profilePicturePath, CancellationToken cancellationToken = default)
     {
         if (store.TryGetValue(userId, out var user))
         {
@@ -76,7 +76,7 @@ public class FakeUserRepository : IUserRepository
         return Task.CompletedTask;
     }
 
-    public Task TouchLastUpdatedAsync(int userId, CancellationToken ct = default)
+    public Task TouchLastUpdatedAsync(int userId, CancellationToken cancellationToken = default)
     {
         if (store.TryGetValue(userId, out var user))
         {

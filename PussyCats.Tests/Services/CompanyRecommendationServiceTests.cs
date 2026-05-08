@@ -72,12 +72,12 @@ public class CompanyRecommendationServiceTests
             new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Applied).Build(),
             new MatchBuilder().WithId(2).AppliedFor(2, 10).WithStatus(MatchStatus.Applied).Build());
         algorithm.CalculateCompatibilityScore(
-            Arg.Is<User>(u => u.UserId == 1),
+            Arg.Is<User>(user => user.UserId == 1),
             Arg.Any<Job>(),
             Arg.Any<IReadOnlyList<UserSkill>>(),
             Arg.Any<IReadOnlyList<JobSkill>>()).Returns(40.0);
         algorithm.CalculateCompatibilityScore(
-            Arg.Is<User>(u => u.UserId == 2),
+            Arg.Is<User>(user => user.UserId == 2),
             Arg.Any<Job>(),
             Arg.Any<IReadOnlyList<UserSkill>>(),
             Arg.Any<IReadOnlyList<JobSkill>>()).Returns(80.0);

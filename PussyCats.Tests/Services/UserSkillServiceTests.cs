@@ -38,7 +38,7 @@ public class UserSkillServiceTests
         var result = await service.GetByUserIdAsync(1);
 
         result.Should().HaveCount(2);
-        result.Should().OnlyContain(s => s.UserId == 1);
+        result.Should().OnlyContain(userSkill => userSkill.UserId == 1);
     }
 
     [Fact]

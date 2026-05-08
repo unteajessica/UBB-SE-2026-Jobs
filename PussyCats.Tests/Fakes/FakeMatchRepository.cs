@@ -15,31 +15,31 @@ public class FakeMatchRepository : IMatchRepository
         }
     }
 
-    public Task<Match?> GetByIdAsync(int matchId, CancellationToken ct = default)
+    public Task<Match?> GetByIdAsync(int matchId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(matchId, out var match);
         return Task.FromResult(match);
     }
 
-    public Task<IReadOnlyList<Match>> GetAllAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<Match>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Match> snapshot = store.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
-    public Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Match> filtered = store.Values.Where(match => match.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
-    public Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken ct = default)
+    public Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        var match = store.Values.FirstOrDefault(m => m.UserId == userId && m.JobId == jobId);
+        var match = store.Values.FirstOrDefault(match => match.UserId == userId && match.JobId == jobId);
         return Task.FromResult(match);
     }
 
-    public Task<Match> AddAsync(Match match, CancellationToken ct = default)
+    public Task<Match> AddAsync(Match match, CancellationToken cancellationToken = default)
     {
         if (match.MatchId == 0)
         {
@@ -49,13 +49,13 @@ public class FakeMatchRepository : IMatchRepository
         return Task.FromResult(match);
     }
 
-    public Task UpdateAsync(Match match, CancellationToken ct = default)
+    public Task UpdateAsync(Match match, CancellationToken cancellationToken = default)
     {
         store[match.MatchId] = match;
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int matchId, CancellationToken ct = default)
+    public Task RemoveAsync(int matchId, CancellationToken cancellationToken = default)
     {
         store.Remove(matchId);
         return Task.CompletedTask;

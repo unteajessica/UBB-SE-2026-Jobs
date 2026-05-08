@@ -15,19 +15,19 @@ public class FakeSkillTestRepository : ISkillTestRepository
         }
     }
 
-    public Task<SkillTest?> GetByIdAsync(int skillTestId, CancellationToken ct = default)
+    public Task<SkillTest?> GetByIdAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(skillTestId, out var skillTest);
         return Task.FromResult(skillTest);
     }
 
-    public Task<IReadOnlyList<SkillTest>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public Task<IReadOnlyList<SkillTest>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SkillTest> filtered = store.Values.Where(t => t.UserId == userId).ToList();
+        IReadOnlyList<SkillTest> filtered = store.Values.Where(skillTest => skillTest.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
-    public Task<SkillTest> AddAsync(SkillTest skillTest, CancellationToken ct = default)
+    public Task<SkillTest> AddAsync(SkillTest skillTest, CancellationToken cancellationToken = default)
     {
         if (skillTest.SkillTestId == 0)
         {
@@ -37,7 +37,7 @@ public class FakeSkillTestRepository : ISkillTestRepository
         return Task.FromResult(skillTest);
     }
 
-    public Task UpdateScoreAsync(int skillTestId, int score, CancellationToken ct = default)
+    public Task UpdateScoreAsync(int skillTestId, int score, CancellationToken cancellationToken = default)
     {
         if (store.TryGetValue(skillTestId, out var skillTest))
         {
@@ -46,7 +46,7 @@ public class FakeSkillTestRepository : ISkillTestRepository
         return Task.CompletedTask;
     }
 
-    public Task UpdateAchievedDateAsync(int skillTestId, DateOnly achievedDate, CancellationToken ct = default)
+    public Task UpdateAchievedDateAsync(int skillTestId, DateOnly achievedDate, CancellationToken cancellationToken = default)
     {
         if (store.TryGetValue(skillTestId, out var skillTest))
         {
@@ -55,7 +55,7 @@ public class FakeSkillTestRepository : ISkillTestRepository
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int skillTestId, CancellationToken ct = default)
+    public Task RemoveAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
         store.Remove(skillTestId);
         return Task.CompletedTask;

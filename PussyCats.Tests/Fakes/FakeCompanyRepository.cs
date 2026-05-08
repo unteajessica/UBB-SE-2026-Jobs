@@ -15,19 +15,19 @@ public class FakeCompanyRepository : ICompanyRepository
         }
     }
 
-    public Task<Company?> GetByIdAsync(int companyId, CancellationToken ct = default)
+    public Task<Company?> GetByIdAsync(int companyId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(companyId, out var company);
         return Task.FromResult(company);
     }
 
-    public Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Company> snapshot = store.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
-    public Task<Company> AddAsync(Company company, CancellationToken ct = default)
+    public Task<Company> AddAsync(Company company, CancellationToken cancellationToken = default)
     {
         if (company.CompanyId == 0)
         {
@@ -37,13 +37,13 @@ public class FakeCompanyRepository : ICompanyRepository
         return Task.FromResult(company);
     }
 
-    public Task UpdateAsync(Company company, CancellationToken ct = default)
+    public Task UpdateAsync(Company company, CancellationToken cancellationToken = default)
     {
         store[company.CompanyId] = company;
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int companyId, CancellationToken ct = default)
+    public Task RemoveAsync(int companyId, CancellationToken cancellationToken = default)
     {
         store.Remove(companyId);
         return Task.CompletedTask;

@@ -44,13 +44,13 @@ public sealed partial class CompatibilityDetailPage : Page
         }
 
         var items = new List<object>();
-        foreach (var s in suggestions)
+        foreach (var suggestion in suggestions)
         {
             items.Add(new
             {
-                s.SkillName,
-                s.GroupName,
-                GainDisplay = $"Potential gain: +{Math.Round(s.GainScore, 1)}%",
+                suggestion.SkillName,
+                suggestion.GroupName,
+                GainDisplay = $"Potential gain: +{Math.Round(suggestion.GainScore, 1)}%",
             });
         }
 
