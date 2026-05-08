@@ -5,8 +5,9 @@ using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
+using PussyCats.Tests.Integration;
 
-namespace PussyCats.Tests.Integration;
+namespace PussyCats.Tests.ViewModels;
 
 public class UserRecommendationViewModelTests
 {
@@ -14,7 +15,7 @@ public class UserRecommendationViewModelTests
     private readonly SessionContext session = new() { UserId = 5, Mode = AppMode.Candidate };
 
     [Fact]
-    public async Task LoadRecommendationsAsync_sets_current_card_from_service()
+    public async Task LoadRecommendationsAsync_CardExists_SetsCurrentCardFromService()
     {
         var card = ViewModelTestData.JobCard();
         service.GetNextCardAsync(5, Arg.Any<UserMatchmakingFilters>(), Arg.Any<CancellationToken>())
@@ -29,7 +30,7 @@ public class UserRecommendationViewModelTests
     }
 
     [Fact]
-    public async Task LoadRecommendationsAsync_reports_error_when_candidate_session_missing()
+    public async Task LoadRecommendationsAsync_SessionModeIsCompany_ReportsMissingCandidateSessionError()
     {
         session.Mode = AppMode.Company;
         var viewModel = new UserRecommendationViewModel(service, session);
@@ -44,13 +45,15 @@ public class UserRecommendationViewModelTests
     }
 
     [Fact]
-    public async Task LikeAsync_applies_like_advances_and_enables_undo()
+    public async Task LikeAsync_ValidCard_AppliesLikeAdvancesToNextAndEnablesUndo()
     {
         var first = ViewModelTestData.JobCard(jobId: 10, recommendationId: 100);
         var second = ViewModelTestData.JobCard(jobId: 11, recommendationId: 101);
+
         service.GetNextCardAsync(5, Arg.Any<UserMatchmakingFilters>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<JobRecommendationResult?>(first), Task.FromResult<JobRecommendationResult?>(second));
         service.ApplyLikeAsync(5, first, Arg.Any<CancellationToken>()).Returns(Task.FromResult(44));
+
         var viewModel = new UserRecommendationViewModel(service, session);
         await viewModel.LoadRecommendationsAsync();
 
@@ -62,13 +65,15 @@ public class UserRecommendationViewModelTests
     }
 
     [Fact]
-    public async Task UndoAsync_restores_previous_card_after_like()
+    public async Task UndoAsync_AfterLike_RestoresPreviousCardAndDisablesUndo()
     {
         var first = ViewModelTestData.JobCard(jobId: 10, recommendationId: 100);
         var second = ViewModelTestData.JobCard(jobId: 11, recommendationId: 101);
+
         service.GetNextCardAsync(5, Arg.Any<UserMatchmakingFilters>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<JobRecommendationResult?>(first), Task.FromResult<JobRecommendationResult?>(second));
         service.ApplyLikeAsync(5, first, Arg.Any<CancellationToken>()).Returns(Task.FromResult(44));
+
         var viewModel = new UserRecommendationViewModel(service, session);
         await viewModel.LoadRecommendationsAsync();
         await viewModel.LikeAsync();
@@ -81,16 +86,19 @@ public class UserRecommendationViewModelTests
     }
 
     [Fact]
-    public async Task ApplyFiltersAsync_passes_selected_filter_values_to_service()
+    public async Task ApplyFiltersAsync_FiltersSet_PassesSelectedValuesToService()
     {
         UserMatchmakingFilters? capturedFilters = null;
         service.GetNextCardAsync(5, Arg.Do<UserMatchmakingFilters>(filters => capturedFilters = filters), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<JobRecommendationResult?>(null));
         service.RecalculateTopCardIgnoringCooldownAsync(5, Arg.Any<UserMatchmakingFilters>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<JobRecommendationResult?>(null));
+
         var viewModel = new UserRecommendationViewModel(service, session);
-        viewModel.DraftEmploymentSelections[0].IsChecked = true;
-        viewModel.DraftExperienceSelections[1].IsChecked = true;
+
+        // Setup draft selections
+        viewModel.DraftEmploymentSelections.First(x => x.Label == "Full-time").IsChecked = true;
+        viewModel.DraftExperienceSelections.First(x => x.Label == "Entry").IsChecked = true;
         viewModel.SetSkillFilterOptions([new SkillFilterItem(3, "C#") { IsChecked = true }]);
         viewModel.DraftLocation = " Cluj ";
 
