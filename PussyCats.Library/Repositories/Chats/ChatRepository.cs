@@ -13,44 +13,44 @@ public class ChatRepository : IChatRepository
         this.databaseContext = databaseContext;
     }
 
-    public async Task<Chat?> GetByIdAsync(int chatId, CancellationToken ct = default)
+    public async Task<Chat?> GetByIdAsync(int chatId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Chats
             .AsNoTracking()
-            .FirstOrDefaultAsync(chat => chat.ChatId == chatId, ct)
+            .FirstOrDefaultAsync(chat => chat.ChatId == chatId, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Chat>> GetForUserAsync(int userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Chat>> GetForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Chats
             .AsNoTracking()
             .Where(chat => chat.UserId == userId || chat.SecondUserId == userId)
-            .ToListAsync(ct)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<Chat>> GetForCompanyAsync(int companyId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Chat>> GetForCompanyAsync(int companyId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Chats
             .AsNoTracking()
             .Where(chat => chat.CompanyId == companyId)
-            .ToListAsync(ct)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<Chat?> FindUserUserChatAsync(int userId, int secondUserId, CancellationToken ct = default)
+    public async Task<Chat?> FindUserUserChatAsync(int userId, int secondUserId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Chats
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 chat => (chat.UserId == userId && chat.SecondUserId == secondUserId)
                      || (chat.UserId == secondUserId && chat.SecondUserId == userId),
-                ct)
+                cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<Chat?> FindUserCompanyChatAsync(int userId, int companyId, int? jobId, CancellationToken ct = default)
+    public async Task<Chat?> FindUserCompanyChatAsync(int userId, int companyId, int? jobId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Chats
             .AsNoTracking()
@@ -59,18 +59,18 @@ public class ChatRepository : IChatRepository
                      && chat.CompanyId == companyId
                      && chat.JobId == jobId
                      && chat.SecondUserId == null,
-                ct)
+                cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<Chat> AddAsync(Chat chat, CancellationToken ct = default)
+    public async Task<Chat> AddAsync(Chat chat, CancellationToken cancellationToken = default)
     {
         databaseContext.Chats.Add(chat);
-        await databaseContext.SaveChangesAsync(ct).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return chat;
     }
 
-    public async Task UpdateAsync(Chat chat, CancellationToken ct = default)
+    public async Task UpdateAsync(Chat chat, CancellationToken cancellationToken = default)
     {
         var tracked = databaseContext.Chats.Local.FirstOrDefault(existing => existing.ChatId == chat.ChatId);
         if (tracked is not null)
@@ -81,6 +81,6 @@ public class ChatRepository : IChatRepository
         {
             databaseContext.Entry(chat).State = EntityState.Modified;
         }
-        await databaseContext.SaveChangesAsync(ct).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

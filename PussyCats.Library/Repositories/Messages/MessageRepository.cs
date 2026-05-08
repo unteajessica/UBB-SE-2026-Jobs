@@ -13,49 +13,49 @@ public class MessageRepository : IMessageRepository
         this.databaseContext = databaseContext;
     }
 
-    public async Task<IReadOnlyList<Message>> GetForChatAsync(int chatId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Message>> GetForChatAsync(int chatId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Messages
             .AsNoTracking()
             .Where(message => message.ChatId == chatId)
             .OrderBy(message => message.Timestamp)
-            .ToListAsync(ct)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<Message?> GetLatestForChatAsync(int chatId, CancellationToken ct = default)
+    public async Task<Message?> GetLatestForChatAsync(int chatId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Messages
             .AsNoTracking()
             .Where(message => message.ChatId == chatId)
             .OrderBy(message => message.Timestamp)
-            .LastOrDefaultAsync(ct)
+            .LastOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<int> GetUnreadCountAsync(int chatId, int senderId, CancellationToken ct = default)
+    public async Task<int> GetUnreadCountAsync(int chatId, int senderId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Messages
             .CountAsync(
                 message => message.ChatId == chatId
                         && message.SenderId != senderId
                         && !message.IsRead,
-                ct)
+                cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<Message> AddAsync(Message message, CancellationToken ct = default)
+    public async Task<Message> AddAsync(Message message, CancellationToken cancellationToken = default)
     {
         databaseContext.Messages.Add(message);
-        await databaseContext.SaveChangesAsync(ct).ConfigureAwait(false);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return message;
     }
 
-    public async Task MarkAsReadAsync(int chatId, int readerId, CancellationToken ct = default)
+    public async Task MarkAsReadAsync(int chatId, int readerId, CancellationToken cancellationToken = default)
     {
         await databaseContext.Messages
             .Where(message => message.ChatId == chatId && message.SenderId != readerId && !message.IsRead)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(message => message.IsRead, true), ct)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(message => message.IsRead, true), cancellationToken)
             .ConfigureAwait(false);
     }
 }

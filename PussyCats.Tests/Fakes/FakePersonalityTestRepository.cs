@@ -15,13 +15,13 @@ public class FakePersonalityTestRepository : IPersonalityTestRepository
         }
     }
 
-    public Task<PersonalityTestResult?> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public Task<PersonalityTestResult?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         var result = store.Values.FirstOrDefault(r => r.UserId == userId);
         return Task.FromResult(result);
     }
 
-    public Task<PersonalityTestResult> AddAsync(PersonalityTestResult result, CancellationToken ct = default)
+    public Task<PersonalityTestResult> AddAsync(PersonalityTestResult result, CancellationToken cancellationToken = default)
     {
         if (result.PersonalityTestResultId == 0)
         {
@@ -31,13 +31,13 @@ public class FakePersonalityTestRepository : IPersonalityTestRepository
         return Task.FromResult(result);
     }
 
-    public Task UpdateAsync(PersonalityTestResult result, CancellationToken ct = default)
+    public Task UpdateAsync(PersonalityTestResult result, CancellationToken cancellationToken = default)
     {
         store[result.PersonalityTestResultId] = result;
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int personalityTestResultId, CancellationToken ct = default)
+    public Task RemoveAsync(int personalityTestResultId, CancellationToken cancellationToken = default)
     {
         store.Remove(personalityTestResultId);
         return Task.CompletedTask;

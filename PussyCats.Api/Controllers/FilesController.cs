@@ -21,7 +21,7 @@ public class FilesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> UploadFile(IFormFile file, CancellationToken ct)
+    public async Task<IActionResult> UploadFile(IFormFile file, CancellationToken cancellationToken)
     {
         if (file is null || file.Length == 0)
             return BadRequest("No file provided.");
@@ -37,7 +37,7 @@ public class FilesController : ControllerBase
         var fullPath = Path.Combine(uploadsPath, fileName);
 
         await using var stream = System.IO.File.Create(fullPath);
-        await file.CopyToAsync(stream, ct);
+        await file.CopyToAsync(stream, cancellationToken);
 
         return Ok(new { path = fileName });
     }

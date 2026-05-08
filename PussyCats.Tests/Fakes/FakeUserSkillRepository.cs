@@ -15,19 +15,19 @@ public class FakeUserSkillRepository : IUserSkillRepository
         }
     }
 
-    public Task<UserSkill?> GetAsync(int userId, int skillId, CancellationToken ct = default)
+    public Task<UserSkill?> GetAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue((userId, skillId), out var userSkill);
         return Task.FromResult(userSkill);
     }
 
-    public Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         IReadOnlyList<UserSkill> filtered = store.Values.Where(s => s.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
-    public Task<IReadOnlyList<UserSkill>> GetVerifiedByUserIdAsync(int userId, CancellationToken ct = default)
+    public Task<IReadOnlyList<UserSkill>> GetVerifiedByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         IReadOnlyList<UserSkill> filtered = store.Values
             .Where(s => s.UserId == userId && s.IsVerified && s.AchievedDate != null)
@@ -35,19 +35,19 @@ public class FakeUserSkillRepository : IUserSkillRepository
         return Task.FromResult(filtered);
     }
 
-    public Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken ct = default)
+    public Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
         store[(userSkill.UserId, userSkill.SkillId)] = userSkill;
         return Task.FromResult(userSkill);
     }
 
-    public Task UpdateAsync(UserSkill userSkill, CancellationToken ct = default)
+    public Task UpdateAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
         store[(userSkill.UserId, userSkill.SkillId)] = userSkill;
         return Task.CompletedTask;
     }
 
-    public Task UpdateScoreAsync(int userId, int skillId, int score, CancellationToken ct = default)
+    public Task UpdateScoreAsync(int userId, int skillId, int score, CancellationToken cancellationToken = default)
     {
         if (store.TryGetValue((userId, skillId), out var userSkill))
         {
@@ -56,7 +56,7 @@ public class FakeUserSkillRepository : IUserSkillRepository
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int userId, int skillId, CancellationToken ct = default)
+    public Task RemoveAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
         store.Remove((userId, skillId));
         return Task.CompletedTask;

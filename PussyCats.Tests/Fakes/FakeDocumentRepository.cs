@@ -15,19 +15,19 @@ public class FakeDocumentRepository : IDocumentRepository
         }
     }
 
-    public Task<Document?> GetByIdAsync(int documentId, CancellationToken ct = default)
+    public Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(documentId, out var document);
         return Task.FromResult(document);
     }
 
-    public Task<IReadOnlyList<Document>> GetByUserIdAsync(int userId, CancellationToken ct = default)
+    public Task<IReadOnlyList<Document>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Document> filtered = store.Values.Where(d => d.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
-    public Task<Document> AddAsync(Document document, CancellationToken ct = default)
+    public Task<Document> AddAsync(Document document, CancellationToken cancellationToken = default)
     {
         if (document.DocumentId == 0)
         {
@@ -37,7 +37,7 @@ public class FakeDocumentRepository : IDocumentRepository
         return Task.FromResult(document);
     }
 
-    public Task RemoveAsync(int documentId, CancellationToken ct = default)
+    public Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
     {
         store.Remove(documentId);
         return Task.CompletedTask;

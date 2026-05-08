@@ -15,19 +15,19 @@ public class FakeSkillRepository : ISkillRepository
         }
     }
 
-    public Task<Skill?> GetByIdAsync(int skillId, CancellationToken ct = default)
+    public Task<Skill?> GetByIdAsync(int skillId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(skillId, out var skill);
         return Task.FromResult(skill);
     }
 
-    public Task<IReadOnlyList<Skill>> GetAllAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<Skill>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Skill> snapshot = store.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
-    public Task<Skill> AddAsync(Skill skill, CancellationToken ct = default)
+    public Task<Skill> AddAsync(Skill skill, CancellationToken cancellationToken = default)
     {
         if (skill.SkillId == 0)
         {
@@ -37,13 +37,13 @@ public class FakeSkillRepository : ISkillRepository
         return Task.FromResult(skill);
     }
 
-    public Task UpdateAsync(Skill skill, CancellationToken ct = default)
+    public Task UpdateAsync(Skill skill, CancellationToken cancellationToken = default)
     {
         store[skill.SkillId] = skill;
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int skillId, CancellationToken ct = default)
+    public Task RemoveAsync(int skillId, CancellationToken cancellationToken = default)
     {
         store.Remove(skillId);
         return Task.CompletedTask;

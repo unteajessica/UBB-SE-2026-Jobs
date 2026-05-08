@@ -15,25 +15,25 @@ public class FakeJobRepository : IJobRepository
         }
     }
 
-    public Task<Job?> GetByIdAsync(int jobId, CancellationToken ct = default)
+    public Task<Job?> GetByIdAsync(int jobId, CancellationToken cancellationToken = default)
     {
         store.TryGetValue(jobId, out var job);
         return Task.FromResult(job);
     }
 
-    public Task<IReadOnlyList<Job>> GetAllAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<Job>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Job> snapshot = store.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
-    public Task<IReadOnlyList<Job>> GetByCompanyIdAsync(int companyId, CancellationToken ct = default)
+    public Task<IReadOnlyList<Job>> GetByCompanyIdAsync(int companyId, CancellationToken cancellationToken = default)
     {
         IReadOnlyList<Job> filtered = store.Values.Where(job => job.CompanyId == companyId).ToList();
         return Task.FromResult(filtered);
     }
 
-    public Task<Job> AddAsync(Job job, CancellationToken ct = default)
+    public Task<Job> AddAsync(Job job, CancellationToken cancellationToken = default)
     {
         if (job.JobId == 0)
         {
@@ -43,13 +43,13 @@ public class FakeJobRepository : IJobRepository
         return Task.FromResult(job);
     }
 
-    public Task UpdateAsync(Job job, CancellationToken ct = default)
+    public Task UpdateAsync(Job job, CancellationToken cancellationToken = default)
     {
         store[job.JobId] = job;
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(int jobId, CancellationToken ct = default)
+    public Task RemoveAsync(int jobId, CancellationToken cancellationToken = default)
     {
         store.Remove(jobId);
         return Task.CompletedTask;

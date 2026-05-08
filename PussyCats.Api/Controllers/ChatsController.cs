@@ -214,9 +214,9 @@ public class ChatsController : ControllerBase
         return NoContent();
     }
 
-    private async Task EnrichChatAsync(Chat chat, int callerId, CancellationToken ct)
+    private async Task EnrichChatAsync(Chat chat, int callerId, CancellationToken cancellationToken)
     {
-        var latest = await messageRepo.GetLatestForChatAsync(chat.ChatId, ct).ConfigureAwait(false);
+        var latest = await messageRepo.GetLatestForChatAsync(chat.ChatId, cancellationToken).ConfigureAwait(false);
         if (latest is not null)
         {
             chat.LastMessage = latest.Type == MessageType.Text
@@ -231,28 +231,28 @@ public class ChatsController : ControllerBase
                 ? latest.Timestamp.ToLocalTime().ToString("HH:mm")
                 : latest.Timestamp.ToLocalTime().ToString("dd MMM");
         }
-        chat.UnreadCount = await messageRepo.GetUnreadCountAsync(chat.ChatId, callerId, ct).ConfigureAwait(false);
-        chat.OtherPartyName = await ResolveOtherPartyNameAsync(chat, callerId, ct).ConfigureAwait(false);
+        chat.UnreadCount = await messageRepo.GetUnreadCountAsync(chat.ChatId, callerId, cancellationToken).ConfigureAwait(false);
+        chat.OtherPartyName = await ResolveOtherPartyNameAsync(chat, callerId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<string> ResolveOtherPartyNameAsync(Chat chat, int callerId, CancellationToken ct)
+    private async Task<string> ResolveOtherPartyNameAsync(Chat chat, int callerId, CancellationToken cancellationToken)
     {
         if (chat.CompanyId.HasValue)
         {
             if (chat.UserId == callerId)
             {
-                var company = await companyRepo.GetByIdAsync(chat.CompanyId.Value, ct).ConfigureAwait(false);
+                var company = await companyRepo.GetByIdAsync(chat.CompanyId.Value, cancellationToken).ConfigureAwait(false);
                 return company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
             }
 
-            var user = await userRepo.GetByIdAsync(chat.UserId, ct).ConfigureAwait(false);
+            var user = await userRepo.GetByIdAsync(chat.UserId, cancellationToken).ConfigureAwait(false);
             return user is not null ? $"{user.FirstName} {user.LastName}".Trim() : $"User {chat.UserId}";
         }
 
         var otherUserId = chat.UserId == callerId ? chat.SecondUserId : chat.UserId;
         if (otherUserId.HasValue)
         {
-            var otherUser = await userRepo.GetByIdAsync(otherUserId.Value, ct).ConfigureAwait(false);
+            var otherUser = await userRepo.GetByIdAsync(otherUserId.Value, cancellationToken).ConfigureAwait(false);
             return otherUser is not null ? $"{otherUser.FirstName} {otherUser.LastName}".Trim() : $"User {otherUserId.Value}";
         }
 
