@@ -24,7 +24,7 @@ public class FakeSkillGroupRepository : ISkillGroupRepository
 
     public Task<IReadOnlyList<SkillGroup>> GetByJobRoleAsync(JobRole jobRole, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SkillGroup> filtered = store.Values.Where(g => g.JobRole == jobRole).ToList();
+        IReadOnlyList<SkillGroup> filtered = store.Values.Where(skillGroup => skillGroup.JobRole == jobRole).ToList();
         return Task.FromResult(filtered);
     }
 }

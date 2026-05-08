@@ -97,8 +97,8 @@ public class UserRecommendationViewModelTests
         var viewModel = new UserRecommendationViewModel(service, session);
 
         // Setup draft selections
-        viewModel.DraftEmploymentSelections.First(x => x.Label == "Full-time").IsChecked = true;
-        viewModel.DraftExperienceSelections.First(x => x.Label == "Entry").IsChecked = true;
+        viewModel.DraftEmploymentSelections.First(filterCheckItem => filterCheckItem.Label == "Full-time").IsChecked = true;
+        viewModel.DraftExperienceSelections.First(filterCheckItem => filterCheckItem.Label == "Entry").IsChecked = true;
         viewModel.SetSkillFilterOptions([new SkillFilterItem(3, "C#") { IsChecked = true }]);
         viewModel.DraftLocation = " Cluj ";
 
