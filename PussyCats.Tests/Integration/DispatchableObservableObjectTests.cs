@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using FluentAssertions;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -8,7 +7,7 @@ namespace PussyCats.Tests.Integration;
 public class DispatchableObservableObjectTests
 {
     [Fact]
-    public void PropertyChanged_invokes_synchronously_when_dispatcher_is_not_available()
+    public void SetProperty_DispatcherNotAvailable_InvokesPropertyChangedSynchronously()
     {
         UIDispatcher.Queue = null;
         var viewModel = new TestDispatchableViewModel();

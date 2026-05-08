@@ -3,12 +3,12 @@ using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
 
-namespace PussyCats.Tests.Integration;
+namespace PussyCats.Tests.ViewModels;
 
 public class ShellViewModelTests
 {
     [Fact]
-    public void Commands_update_active_page()
+    public void RecommendationsCommand_Executed_UpdatesActivePageAndStates()
     {
         var viewModel = new ShellViewModel(new SessionContext());
 
@@ -22,7 +22,7 @@ public class ShellViewModelTests
     }
 
     [Fact]
-    public void Mode_commands_update_session_mode()
+    public void CompanyModeCommand_Executed_UpdatesSessionModeToCompany()
     {
         var session = new SessionContext { Mode = AppMode.Candidate };
         var viewModel = new ShellViewModel(session);
@@ -32,6 +32,13 @@ public class ShellViewModelTests
         session.Mode.Should().Be(AppMode.Company);
         viewModel.IsCompanyMode.Should().BeTrue();
         viewModel.IsCandidateMode.Should().BeFalse();
+    }
+
+    [Fact]
+    public void DeveloperModeCommand_Executed_UpdatesSessionModeToDeveloper()
+    {
+        var session = new SessionContext { Mode = AppMode.Candidate };
+        var viewModel = new ShellViewModel(session);
 
         viewModel.DeveloperModeCommand.Execute(null);
 

@@ -4,8 +4,9 @@ using PussyCats.App.Configuration;
 using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
+using PussyCats.Tests.Fakes;
 
-namespace PussyCats.Tests.Integration;
+namespace PussyCats.Tests.ViewModels;
 
 public class DocumentViewModelTests
 {
@@ -13,10 +14,10 @@ public class DocumentViewModelTests
     private readonly SessionContext session = new() { UserId = 22 };
 
     [Fact]
-    public async Task DocumentList_loads_documents_for_session_user()
+    public async Task LoadDocumentsAsync_DocumentsExist_PopulatesDocumentList()
     {
         documentService.GetDocumentsByUserIdAsync(22, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<IReadOnlyList<Document>>([new() { DocumentId = 1, DocumentName = "CV" }]));
+            .Returns(Task.FromResult<IReadOnlyList<Document>>([new() { DocumentId = 1, DocumentName = "CV", UserId = 22 }]));
         var viewModel = new DocumentListViewModel(documentService, session);
 
         await viewModel.LoadDocumentsAsync();
@@ -25,7 +26,7 @@ public class DocumentViewModelTests
     }
 
     [Fact]
-    public async Task DocumentList_delete_refreshes_documents()
+    public async Task DeleteDocumentAsync_ValidId_InvokesDeleteAndRefreshesList()
     {
         documentService.GetDocumentsByUserIdAsync(22, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<IReadOnlyList<Document>>([]));
@@ -38,7 +39,7 @@ public class DocumentViewModelTests
     }
 
     [Fact]
-    public async Task UploadDocument_uploads_when_input_is_valid()
+    public async Task UploadDocumentAsync_InputIsValid_CallsServiceUpload()
     {
         var viewModel = new UploadDocumentViewModel(documentService, session)
         {
@@ -55,7 +56,7 @@ public class DocumentViewModelTests
     }
 
     [Fact]
-    public void UploadDocument_validation_requires_name_and_file()
+    public void ValidateDocumentInput_EmptyFields_ReportsValidationErrors()
     {
         var viewModel = new UploadDocumentViewModel(documentService, session);
 

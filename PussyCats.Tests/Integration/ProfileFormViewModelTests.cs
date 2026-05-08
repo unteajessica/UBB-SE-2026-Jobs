@@ -4,21 +4,33 @@ using PussyCats.App.Configuration;
 using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
+using PussyCats.Library.Repositories.SkillTests;
+using PussyCats.Library.Repositories.Users;
+using PussyCats.Tests.Fakes;
 
 namespace PussyCats.Tests.Integration;
 
 public class ProfileFormViewModelTests
 {
-    private readonly IUserProfileService profileService = Substitute.For<IUserProfileService>();
+    private readonly IUserRepository userRepo = new FakeUserRepository();
+    private readonly ISkillTestRepository skillTestRepository= new FakeSkillTestRepository();
     private readonly ICvParsingService cvParsingService = Substitute.For<ICvParsingService>();
     private readonly SessionContext session = new() { UserId = 15 };
 
+    private readonly UserProfileService profileService;
+    private readonly ProfileFormViewModel viewModel;
+
+    public ProfileFormViewModelTests()
+    {
+        profileService = new UserProfileService(userRepo,skillTestRepository);
+        viewModel = new ProfileFormViewModel(profileService, cvParsingService, session);
+    }
+
     [Fact]
-    public void LoadProfile_maps_user_fields_into_form_properties()
+    public void LoadProfile_UserPassed_MapsUserFieldsIntoFormProperties()
     {
         var user = ValidUser();
         user.Phone = "+40 123456789";
-        var viewModel = CreateViewModel();
 
         viewModel.LoadProfile(user);
 
@@ -30,22 +42,21 @@ public class ProfileFormViewModelTests
     }
 
     [Fact]
-    public async Task SaveProfileAsync_returns_false_and_shows_infobar_when_required_fields_missing()
+    public async Task SaveProfileAsync_RequiredFieldsMissing_ReturnsFalseAndShowsInfoBar()
     {
-        var viewModel = CreateViewModel();
-
         var saved = await viewModel.SaveProfileAsync();
 
         saved.Should().BeFalse();
         viewModel.IsInfoBarOpen.Should().BeTrue();
         viewModel.InfoBarMessage.Should().Contain("Please fill in required fields");
-        await profileService.DidNotReceiveWithAnyArgs().SaveAsync(default, default!, default);
+
+        var persisted = await userRepo.GetByIdAsync(15);
+        persisted.Should().BeNull();
     }
 
     [Fact]
-    public async Task SaveProfileAsync_persists_trimmed_profile_when_valid()
+    public async Task SaveProfileAsync_ValidData_PersistsTrimmedProfileToRepository()
     {
-        var viewModel = CreateViewModel();
         viewModel.LoadProfile(ValidUser());
         viewModel.FirstName = " Ada ";
         viewModel.Email = " ADA@EXAMPLE.COM ";
@@ -54,18 +65,17 @@ public class ProfileFormViewModelTests
         var saved = await viewModel.SaveProfileAsync();
 
         saved.Should().BeTrue();
-        await profileService.Received(1).SaveAsync(
-            15,
-            Arg.Is<User>(user => user.FirstName == "Ada" && user.Email == "ada@example.com" && user.Skills.Count == 1),
-            Arg.Any<CancellationToken>());
+        var persisted = await userRepo.GetByIdAsync(15);
+        persisted.Should().NotBeNull();
+        persisted!.FirstName.Should().Be("Ada");
+        persisted.Email.Should().Be("ada@example.com");
+        persisted.Skills.Should().HaveCount(1);
         viewModel.InfoBarMessage.Should().Be("Profile saved successfully!");
     }
 
     [Fact]
-    public void AddSkill_rejects_duplicates_case_insensitively()
+    public void AddSkill_DuplicateSkill_RejectsAndShowsErrorMessage()
     {
-        var viewModel = CreateViewModel();
-
         viewModel.AddSkill("C#");
         viewModel.AddSkill("c#");
 
@@ -74,27 +84,18 @@ public class ProfileFormViewModelTests
     }
 
     [Fact]
-    public void ProcessCvFile_populates_form_from_parser_result()
+    public void ProcessCvFile_FileParsed_PopulatesFormFromParserResult()
     {
         var parsedUser = ValidUser();
         parsedUser.FirstName = "Grace";
-        parsedUser.Skills =
-        [
-            new UserSkill { Skill = new Skill { Name = "COBOL" } },
-        ];
+        parsedUser.Skills = [new UserSkill { Skill = new Skill { Name = "COBOL" } }];
         cvParsingService.ParseCvFile("content", "json").Returns(parsedUser);
-        var viewModel = CreateViewModel();
 
         viewModel.ProcessCvFile("content", "json");
 
         viewModel.FirstName.Should().Be("Grace");
         viewModel.Skills.Should().ContainSingle("COBOL");
         viewModel.CvStatusText.Should().Be("CV loaded successfully!");
-    }
-
-    private ProfileFormViewModel CreateViewModel()
-    {
-        return new ProfileFormViewModel(profileService, cvParsingService, session);
     }
 
     private static User ValidUser()
@@ -112,8 +113,7 @@ public class ProfileFormViewModelTests
             City = "Cluj-Napoca",
             University = "Babes-Bolyai University",
             Degree = "Computer Science",
-            ExpectedGraduationYear = 2027,
-            LastUpdated = DateTime.UtcNow,
+            ExpectedGraduationYear = 2027
         };
     }
 }

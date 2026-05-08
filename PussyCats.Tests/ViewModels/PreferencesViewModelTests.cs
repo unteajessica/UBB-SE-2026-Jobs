@@ -5,8 +5,9 @@ using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
+using PussyCats.Tests.Fakes;
 
-namespace PussyCats.Tests.Integration;
+namespace PussyCats.Tests.ViewModels;
 
 public class PreferencesViewModelTests
 {
@@ -14,7 +15,7 @@ public class PreferencesViewModelTests
     private readonly SessionContext session = new() { UserId = 3 };
 
     [Fact]
-    public async Task LoadPreferencesAsync_loads_roles_work_mode_and_location()
+    public async Task LoadPreferencesAsync_PreferencesExist_PopulatesRolesWorkModeAndLocation()
     {
         preferenceService.GetByUserIdAsync(3, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(new UserPreferences(
@@ -31,7 +32,7 @@ public class PreferencesViewModelTests
     }
 
     [Fact]
-    public void ToggleJobRole_enforces_three_role_limit()
+    public void ToggleJobRole_ExceedingLimit_EnforcesThreeRoleLimitAndShowsError()
     {
         var viewModel = new PreferencesViewModel(preferenceService, session);
 
@@ -45,7 +46,7 @@ public class PreferencesViewModelTests
     }
 
     [Fact]
-    public async Task SearchLocationAsync_populates_suggestions()
+    public async Task SearchLocationAsync_ValidQuery_PopulatesLocationSuggestions()
     {
         preferenceService.SearchLocationsAsync("cl", Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<IReadOnlyList<string>>(["Cluj-Napoca"]));
@@ -57,7 +58,7 @@ public class PreferencesViewModelTests
     }
 
     [Fact]
-    public async Task SavePreferencesAsync_passes_selection_to_service()
+    public async Task SavePreferencesAsync_CommandExecuted_PassesSelectionsToService()
     {
         var viewModel = new PreferencesViewModel(preferenceService, session);
         viewModel.ToggleJobRole(JobRole.BackendDeveloper);
