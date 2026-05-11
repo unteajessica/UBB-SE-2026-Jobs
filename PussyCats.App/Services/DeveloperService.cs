@@ -85,8 +85,8 @@ public sealed class DeveloperService : IDeveloperService
         interactions.Add(new DeveloperInteraction
         {
             DeveloperInteractionId = nextInteractionId++,
-            DeveloperId = developerId,
-            DeveloperPostId = postId,
+            Developer = new Developer { DeveloperId = developerId },
+            DeveloperPost = new DeveloperPost { DeveloperPostId = postId },
             Type = type,
         });
     }
