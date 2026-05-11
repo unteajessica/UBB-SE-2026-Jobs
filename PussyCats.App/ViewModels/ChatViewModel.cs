@@ -411,7 +411,7 @@ public class ChatViewModel : DispatchableObservableObject
 
         _ = RunSafelyAsync(async () =>
         {
-            var chat = await chatService.FindOrCreateUserCompanyChatAsync(session.UserId, new Company{CompanyId=companyId}, jobId);//TODO: avoid creating a new company instance
+            var chat = await chatService.FindOrCreateUserCompanyChatAsync(session.UserId, new Company{CompanyId=companyId}, jobId.HasValue?new Job{JobId =(int) jobId}:null);//TODO: avoid creating a new company instance
             if (chat is null)
             {
                 return;
@@ -464,9 +464,9 @@ public class ChatViewModel : DispatchableObservableObject
                 Messages.Add(new MessageDisplayViewModel(message));
             }
 
-            if (SelectedChat.JobId.HasValue)
+            if (SelectedChat.Job!=null)
             {
-                LinkedJob = await jobService.GetByIdAsync(SelectedChat.JobId.Value).ConfigureAwait(false);
+                LinkedJob = await jobService.GetByIdAsync(SelectedChat.Job.JobId).ConfigureAwait(false);//todo avoid creating a new job instance, change session
             }
             else
             {
@@ -678,9 +678,9 @@ public class ChatViewModel : DispatchableObservableObject
                 }
             }
 
-            if (SelectedChat.JobId.HasValue)
+            if (SelectedChat.Job!=null)//todo
             {
-                LinkedJob = await jobService.GetByIdAsync(SelectedChat.JobId.Value).ConfigureAwait(false);
+                LinkedJob = await jobService.GetByIdAsync(SelectedChat.Job.JobId).ConfigureAwait(false);
             }
             else
             {
@@ -765,7 +765,7 @@ public class ChatViewModel : DispatchableObservableObject
             ShowGoToCompanyProfile = SelectedChat.Company != null;
         }
 
-        ShowGoToJobPost = SelectedChat.JobId.HasValue;
+        ShowGoToJobPost = SelectedChat.Job!=null;
     }
 
     private void SyncTabTogglesFromActiveTab()
@@ -861,12 +861,12 @@ public class ChatViewModel : DispatchableObservableObject
 
     public void GoToJobPost()
     {
-        if (SelectedChat?.JobId is null)
+        if (SelectedChat?.Job is null)
         {
             return;
         }
 
-        JobNavigationRequested?.Invoke(SelectedChat.JobId.Value);
+        JobNavigationRequested?.Invoke(SelectedChat.Job.JobId);
     }
 
     public event Action<int>? ProfileNavigationRequested;
@@ -949,7 +949,7 @@ public class ChatViewModel : DispatchableObservableObject
         return current.UserId != updated.UserId ||
                current.Company?.CompanyId != updated.Company?.CompanyId ||
                current.SecondUserId != updated.SecondUserId ||
-               current.JobId != updated.JobId ||
+               current.Job?.JobId != updated.Job?.JobId ||
                current.IsBlocked != updated.IsBlocked ||
                current.BlockedByUserId != updated.BlockedByUserId ||
                !Nullable.Equals(current.DeletedAtByUser, updated.DeletedAtByUser) ||

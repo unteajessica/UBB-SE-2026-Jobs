@@ -37,9 +37,9 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
             .OnDelete(DeleteBehavior.Restrict);
 
         // JobId links the chat to a specific job posting (nullable).
-        builder.HasOne<Job>()
+        builder.HasOne(chat=>chat.Job)
             .WithMany()
-            .HasForeignKey(chat => chat.JobId)
+            .HasForeignKey("JobId")
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

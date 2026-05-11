@@ -59,7 +59,7 @@ public class ChatRepository : IChatRepository
                 chat => chat.UserId == userId
                      && chat.Company != null 
                      && chat.Company.CompanyId == company.CompanyId
-                     && chat.JobId == jobId
+                     && chat.Job!=null && chat.Job.JobId == jobId
                      && chat.SecondUserId == null,
                 cancellationToken)
             .ConfigureAwait(false);

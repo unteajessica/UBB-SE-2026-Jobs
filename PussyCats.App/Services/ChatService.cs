@@ -46,10 +46,10 @@ public sealed class ChatService : IChatService
         this.fileStorage = fileStorage;
     }
 
-    public async Task<Chat?> FindOrCreateUserCompanyChatAsync(int userId, Company company, int? jobId = null,
+    public async Task<Chat?> FindOrCreateUserCompanyChatAsync(int userId, Company company, Job? job = null,
         CancellationToken cancellationToken = default)
     {
-        var existing = await chatRepository.FindUserCompanyChatAsync(userId, company, jobId, cancellationToken).ConfigureAwait(false);
+        var existing = await chatRepository.FindUserCompanyChatAsync(userId, company, job?.JobId, cancellationToken).ConfigureAwait(false);
         if (existing is not null)
         {
             existing.DeletedAtByUser = null;
@@ -58,7 +58,7 @@ public sealed class ChatService : IChatService
             return existing;
         }
 
-        return await chatRepository.AddAsync(new Chat { UserId = userId, Company = company, JobId = jobId }, cancellationToken).ConfigureAwait(false);
+        return await chatRepository.AddAsync(new Chat { UserId = userId, Company = company, Job = job }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Chat?> FindOrCreateUserChatAsync(int userId, int secondUserId, CancellationToken cancellationToken = default)
