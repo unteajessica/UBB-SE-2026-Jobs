@@ -15,7 +15,7 @@ public class ChatAvatarBgConverter : IValueConverter
             return DefaultAvatarBackgroundColor;
         }
 
-        return chat.CompanyId.HasValue ? CompanyAvatarBackgroundColor : DefaultAvatarBackgroundColor;
+        return chat.Company!=null ? CompanyAvatarBackgroundColor : DefaultAvatarBackgroundColor;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, string language)

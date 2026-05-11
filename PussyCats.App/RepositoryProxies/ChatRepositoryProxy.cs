@@ -38,11 +38,12 @@ public class ChatRepositoryProxy : IChatRepository
         return await RepositoryProxyJson.ReadRequiredAsync<Chat>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Chat?> FindUserCompanyChatAsync(int userId, int companyId, int? jobId, CancellationToken cancellationToken = default)
+    public async Task<Chat?> FindUserCompanyChatAsync(int userId, Company company, int? jobId,
+        CancellationToken cancellationToken = default)
     {
         using var response = await http.PostAsJsonAsync(
             "api/chats",
-            new { UserId = userId, CompanyId = companyId, SecondUserId = (int?)null, JobId = jobId },
+            new { UserId = userId, Company = company, SecondUserId = (int?)null, JobId = jobId },
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Chat>(response, cancellationToken).ConfigureAwait(false);
@@ -52,7 +53,7 @@ public class ChatRepositoryProxy : IChatRepository
     {
         using var response = await http.PostAsJsonAsync(
             "api/chats",
-            new { chat.UserId, chat.CompanyId, chat.SecondUserId, chat.JobId },
+            new { chat.UserId, chat.Company, chat.SecondUserId, chat.JobId },
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Chat>(response, cancellationToken).ConfigureAwait(false);

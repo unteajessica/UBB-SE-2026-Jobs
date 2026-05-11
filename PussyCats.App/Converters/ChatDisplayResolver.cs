@@ -27,9 +27,9 @@ internal static class ChatDisplayResolver
             return $"User {chat.UserId}";
         }
 
-        if (chat.CompanyId.HasValue)
+        if (chat.Company!=null)
         {
-            var companyId = chat.CompanyId.Value;
+            var companyId = chat.Company.CompanyId;
             return $"Company {companyId}";
         }
 

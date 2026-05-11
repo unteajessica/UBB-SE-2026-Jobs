@@ -16,7 +16,7 @@ public class ChatAvatarCornerRadiusConverter : IValueConverter
             return new CornerRadius(CircularAvatarCornerRadius);
         }
 
-        return chat.CompanyId.HasValue
+        return chat.Company!=null
             ? new CornerRadius(CompanyAvatarCornerRadius)
             : new CornerRadius(CircularAvatarCornerRadius);
     }

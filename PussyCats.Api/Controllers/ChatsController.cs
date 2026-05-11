@@ -81,14 +81,14 @@ public class ChatsController : ControllerBase
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
 
-        if (body.CompanyId.HasValue)
+        if (body.Company!=null)
         {
-            var existing = await chatRepo.FindUserCompanyChatAsync(body.UserId, body.CompanyId.Value, body.JobId, cancellationToken).ConfigureAwait(false);
+            var existing = await chatRepo.FindUserCompanyChatAsync(body.UserId, body.Company, body.JobId, cancellationToken).ConfigureAwait(false);
             if (existing is not null)
                 return Ok(existing);
 
             var created = await chatRepo.AddAsync(
-                new Chat { UserId = body.UserId, CompanyId = body.CompanyId, JobId = body.JobId },
+                new Chat { UserId = body.UserId, Company = body.Company, JobId = body.JobId },
                 cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
@@ -237,7 +237,7 @@ public class ChatsController : ControllerBase
 
     private async Task<string> ResolveOtherPartyNameAsync(Chat chat, int callerId, CancellationToken cancellationToken)
     {
-        if (chat.CompanyId.HasValue)
+        if (chat.CompanyId.HasValue)//TODO
         {
             if (chat.UserId == callerId)
             {
@@ -259,7 +259,7 @@ public class ChatsController : ControllerBase
         return "Conversation";
     }
 
-    public record FindOrCreateChatRequest(int UserId, int? CompanyId, int? SecondUserId, int? JobId);
+    public record FindOrCreateChatRequest(int UserId, Company? Company, int? SecondUserId, int? JobId);
     public record BlockRequest(int BlockerId);
     public record UnblockRequest(int UnblockerId);
     public record AddMessageRequest(int SenderId, string Content, MessageType Type, string? OriginalFileName);

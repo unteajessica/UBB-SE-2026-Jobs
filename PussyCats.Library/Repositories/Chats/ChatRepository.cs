@@ -50,13 +50,15 @@ public class ChatRepository : IChatRepository
             .ConfigureAwait(false);
     }
 
-    public async Task<Chat?> FindUserCompanyChatAsync(int userId, int companyId, int? jobId, CancellationToken cancellationToken = default)
+    public async Task<Chat?> FindUserCompanyChatAsync(int userId, Company company, int? jobId,
+        CancellationToken cancellationToken = default)
     {
         return await databaseContext.Chats
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 chat => chat.UserId == userId
-                     && chat.CompanyId == companyId
+                     && chat.Company != null 
+                     && chat.Company.CompanyId == company.CompanyId
                      && chat.JobId == jobId
                      && chat.SecondUserId == null,
                 cancellationToken)

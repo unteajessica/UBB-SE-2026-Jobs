@@ -339,7 +339,7 @@ public class ChatViewModel : DispatchableObservableObject
             {
                 if (IsCompanyMode && session.CompanyId is int companyId)
                 {
-                    var createdChat = await chatService.FindOrCreateUserCompanyChatAsync(result.Id, companyId);
+                    var createdChat = await chatService.FindOrCreateUserCompanyChatAsync(result.Id, new Company{CompanyId=companyId}); //TODO: avoid creating a new company instance, change session
                     if (createdChat is null)
                     {
                         return;
@@ -360,7 +360,7 @@ public class ChatViewModel : DispatchableObservableObject
             }
             else if (result.Kind == ContactSearchResultKind.Company)
             {
-                var createdChat = await chatService.FindOrCreateUserCompanyChatAsync(session.UserId, result.Id);
+                var createdChat = await chatService.FindOrCreateUserCompanyChatAsync(session.UserId, new Company { CompanyId = result.Id });
                 if (createdChat is null)
                 {
                     return;
@@ -411,7 +411,7 @@ public class ChatViewModel : DispatchableObservableObject
 
         _ = RunSafelyAsync(async () =>
         {
-            var chat = await chatService.FindOrCreateUserCompanyChatAsync(session.UserId, companyId, jobId);
+            var chat = await chatService.FindOrCreateUserCompanyChatAsync(session.UserId, new Company{CompanyId=companyId}, jobId);//TODO: avoid creating a new company instance
             if (chat is null)
             {
                 return;
@@ -762,7 +762,7 @@ public class ChatViewModel : DispatchableObservableObject
         else
         {
             ShowGoToProfile = SelectedChat.SecondUserId.HasValue;
-            ShowGoToCompanyProfile = SelectedChat.CompanyId.HasValue;
+            ShowGoToCompanyProfile = SelectedChat.Company != null;
         }
 
         ShowGoToJobPost = SelectedChat.JobId.HasValue;
@@ -851,12 +851,12 @@ public class ChatViewModel : DispatchableObservableObject
 
     public void GoToCompanyProfile()
     {
-        if (SelectedChat?.CompanyId is null)
+        if (SelectedChat?.Company is null)
         {
             return;
         }
 
-        CompanyNavigationRequested?.Invoke(SelectedChat.CompanyId.Value);
+        CompanyNavigationRequested?.Invoke(SelectedChat.Company.CompanyId);
     }
 
     public void GoToJobPost()
@@ -947,7 +947,7 @@ public class ChatViewModel : DispatchableObservableObject
     private static bool IsChatDifferent(Chat current, Chat updated)
     {
         return current.UserId != updated.UserId ||
-               current.CompanyId != updated.CompanyId ||
+               current.Company?.CompanyId != updated.Company?.CompanyId ||
                current.SecondUserId != updated.SecondUserId ||
                current.JobId != updated.JobId ||
                current.IsBlocked != updated.IsBlocked ||
@@ -1036,7 +1036,7 @@ public class ChatViewModel : DispatchableObservableObject
         var result = new List<Chat>();
         foreach (var chat in chats)
         {
-            if (chat.CompanyId.HasValue)
+            if (chat.Company !=null)
             {
                 result.Add(chat);
             }
@@ -1106,7 +1106,7 @@ public class ChatViewModel : DispatchableObservableObject
         var result = new List<Chat>();
         foreach (var chat in chats)
         {
-            if (!chat.CompanyId.HasValue)
+            if (chat.Company ==null)
             {
                 continue;
             }
