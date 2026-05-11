@@ -840,7 +840,7 @@ public class ChatViewModel : DispatchableObservableObject
             return;
         }
 
-        var userId = SelectedChat.SecondUserId ?? SelectedChat.UserId;
+        var userId = SelectedChat.SecondUserId ?? SelectedChat.User.UserId;
         if (userId <= 0)
         {
             return;
@@ -946,7 +946,7 @@ public class ChatViewModel : DispatchableObservableObject
 
     private static bool IsChatDifferent(Chat current, Chat updated)
     {
-        return current.UserId != updated.UserId ||
+        return current.User.UserId != updated.User.UserId ||
                current.CompanyId != updated.CompanyId ||
                current.SecondUserId != updated.SecondUserId ||
                current.JobId != updated.JobId ||
@@ -1125,7 +1125,7 @@ public class ChatViewModel : DispatchableObservableObject
         var result = new List<Chat>();
         foreach (var chat in chats)
         {
-            if (chat.UserId <= 0)
+            if (chat.User.UserId <= 0)
             {
                 continue;
             }

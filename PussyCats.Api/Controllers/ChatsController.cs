@@ -77,7 +77,7 @@ public class ChatsController : ControllerBase
             if (existing is not null)
                 return Ok(existing);
 
-            var created = await chatRepo.AddAsync(new Chat { UserId = body.UserId, SecondUserId = body.SecondUserId }, cancellationToken).ConfigureAwait(false);
+            var created = await chatRepo.AddAsync(new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), SecondUserId = body.SecondUserId }, cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
 
@@ -88,7 +88,7 @@ public class ChatsController : ControllerBase
                 return Ok(existing);
 
             var created = await chatRepo.AddAsync(
-                new Chat { UserId = body.UserId, CompanyId = body.CompanyId, JobId = body.JobId },
+                new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), CompanyId = body.CompanyId, JobId = body.JobId },
                 cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
@@ -132,7 +132,7 @@ public class ChatsController : ControllerBase
         if (chat is null)
             return NotFound();
 
-        if (chat.UserId == callerId)
+        if (chat.User.UserId == callerId)
             chat.DeletedAtByUser = DateTime.UtcNow;
         else
             chat.DeletedAtBySecondParty = DateTime.UtcNow;
@@ -239,17 +239,17 @@ public class ChatsController : ControllerBase
     {
         if (chat.CompanyId.HasValue)
         {
-            if (chat.UserId == callerId)
+            if (chat.User.UserId == callerId)
             {
                 var company = await companyRepo.GetByIdAsync(chat.CompanyId.Value, cancellationToken).ConfigureAwait(false);
                 return company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
             }
-
-            var user = await userRepo.GetByIdAsync(chat.UserId, cancellationToken).ConfigureAwait(false);
-            return user is not null ? $"{user.FirstName} {user.LastName}".Trim() : $"User {chat.UserId}";
+            
+            var user = chat.User;
+            return user is not null ? $"{user.FirstName} {user.LastName}".Trim() : $"User {chat.User.UserId}";
         }
 
-        var otherUserId = chat.UserId == callerId ? chat.SecondUserId : chat.UserId;
+        var otherUserId = chat.User.UserId == callerId ? chat.SecondUserId : chat.User.UserId;
         if (otherUserId.HasValue)
         {
             var otherUser = await userRepo.GetByIdAsync(otherUserId.Value, cancellationToken).ConfigureAwait(false);
@@ -263,4 +263,10 @@ public class ChatsController : ControllerBase
     public record BlockRequest(int BlockerId);
     public record UnblockRequest(int UnblockerId);
     public record AddMessageRequest(int SenderId, string Content, MessageType Type, string? OriginalFileName);
+
+    private async Task<User> GetUserOrThrowAsync(int userId, CancellationToken cancellationToken)
+    {
+        var user = await userRepo.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        return user ?? throw new KeyNotFoundException($"User {userId} not found.");
+    }
 }

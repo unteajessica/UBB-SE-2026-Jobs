@@ -52,7 +52,7 @@ public class ChatRepositoryProxy : IChatRepository
     {
         using var response = await http.PostAsJsonAsync(
             "api/chats",
-            new { chat.UserId, chat.CompanyId, chat.SecondUserId, chat.JobId },
+            new { UserId = chat.User.UserId, chat.CompanyId, chat.SecondUserId, chat.JobId },
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Chat>(response, cancellationToken).ConfigureAwait(false);
