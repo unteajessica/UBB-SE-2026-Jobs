@@ -17,18 +17,18 @@ public class SkillTestConfiguration : IEntityTypeConfiguration<SkillTest>
         // wipes them.
         builder.HasOne(test => test.User)
             .WithMany()
-            .HasForeignKey(test => test.UserId)
+            .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(test => test.UserId);
+        builder.HasIndex("UserId");
 
         // Demo data: three skill tests for User #1 so the Skill Tests page renders
         // without a runtime mutate-on-read seed. Dates are static for migration
         // determinism. Replaces the deleted SkillTestDefaults helper.
         var seededDate = new DateOnly(2026, 1, 7);
         builder.HasData(
-            new SkillTest { SkillTestId = 1, UserId = 1, Name = "C# Fundamentals", Score = 82, AchievedDate = seededDate },
-            new SkillTest { SkillTestId = 2, UserId = 1, Name = "SQL Server",       Score = 76, AchievedDate = seededDate },
-            new SkillTest { SkillTestId = 3, UserId = 1, Name = "Software Design",  Score = 88, AchievedDate = seededDate });
+            new { SkillTestId = 1, UserId = 1, Name = "C# Fundamentals", Score = 82, AchievedDate = seededDate },
+            new { SkillTestId = 2, UserId = 1, Name = "SQL Server", Score = 76, AchievedDate = seededDate },
+            new { SkillTestId = 3, UserId = 1, Name = "Software Design", Score = 88, AchievedDate = seededDate });
     }
 }
