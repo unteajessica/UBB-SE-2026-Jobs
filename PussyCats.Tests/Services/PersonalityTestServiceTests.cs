@@ -120,7 +120,7 @@ public class PersonalityTestServiceTests
         repo.Seed(new PersonalityTestResult
         {
             PersonalityTestResultId = 7,
-            UserId = 1,
+            User = new User { UserId = 1 },
             SelectedRole = JobRole.FrontendDeveloper,
         });
         var question = new Question { Trait = TraitType.Depth, SortOrder = 1 };
