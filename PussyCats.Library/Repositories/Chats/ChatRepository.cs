@@ -34,7 +34,7 @@ public class ChatRepository : IChatRepository
     {
         return await databaseContext.Chats
             .AsNoTracking()
-            .Where(chat => chat.CompanyId == companyId)
+            .Where(chat => chat.Company!=null && chat.Company.CompanyId == companyId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }

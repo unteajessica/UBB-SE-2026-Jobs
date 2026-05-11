@@ -237,12 +237,12 @@ public class ChatsController : ControllerBase
 
     private async Task<string> ResolveOtherPartyNameAsync(Chat chat, int callerId, CancellationToken cancellationToken)
     {
-        if (chat.CompanyId.HasValue)//TODO
+        if (chat.Company!=null)
         {
             if (chat.UserId == callerId)
             {
-                var company = await companyRepo.GetByIdAsync(chat.CompanyId.Value, cancellationToken).ConfigureAwait(false);
-                return company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
+                var company = await companyRepo.GetByIdAsync(chat.Company.CompanyId, cancellationToken).ConfigureAwait(false);
+                return company?.CompanyName ?? $"Company {chat.Company.CompanyId}";
             }
 
             var user = await userRepo.GetByIdAsync(chat.UserId, cancellationToken).ConfigureAwait(false);
