@@ -124,7 +124,7 @@ public class UserProfileViewModelTests
         {
             user.PersonalityResult = new PersonalityTestResult
             {
-                UserId = user.UserId,
+                User = new User { UserId = user.UserId },
                 SelectedRole = JobRole.BackendDeveloper,
             };
         }

@@ -60,7 +60,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         // disappear when the user does.
         builder.HasOne(user => user.PersonalityResult)
             .WithOne(result => result.User)
-            .HasForeignKey<PersonalityTestResult>(result => result.UserId)
+            .HasForeignKey<PersonalityTestResult>("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // Match navigation is configured from the Match side (restrict). Avoid configuring the

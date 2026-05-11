@@ -24,18 +24,27 @@ public class PersonalityTestRepository : IPersonalityTestRepository
     {
         return await databaseContext.PersonalityTestResults
             .Include(result => result.TraitScores)
-            .FirstOrDefaultAsync(result => result.UserId == userId, cancellationToken)
+            .Include(result => result.User)
+            .FirstOrDefaultAsync(result => result.User.UserId == userId, cancellationToken)
             .ConfigureAwait(false);
     }
 
     public async Task<PersonalityTestResult> AddAsync(PersonalityTestResult result, CancellationToken cancellationToken = default)
     {
-        if (result.CompletedAt == default)
-        {
-            result.CompletedAt = DateTime.UtcNow;
-        }
-        databaseContext.PersonalityTestResults.Add(result);
-        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (result.User == null)
+            throw new ArgumentException("User is required.");
+
+        var trackedUser = await databaseContext.Users.FirstOrDefaultAsync(user => user.UserId == result.User.UserId, cancellationToken);
+
+        if (trackedUser == null)
+            throw new InvalidOperationException($"User {result.User.UserId} not found.");
+
+        result.User = trackedUser;
+
+        await databaseContext.PersonalityTestResults.AddAsync(result, cancellationToken);
+
+        await databaseContext.SaveChangesAsync(cancellationToken);
+
         return result;
     }
 

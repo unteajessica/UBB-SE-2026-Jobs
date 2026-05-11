@@ -158,7 +158,7 @@ public class PersonalityTestService : IPersonalityTestService
 
         var result = new PersonalityTestResult
         {
-            UserId = userId,
+            User = new User { UserId = userId },
             CompletedAt = DateTime.UtcNow,
             SelectedRole = selectedRole,
             TraitScores = traitScoreEntities,
