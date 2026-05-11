@@ -17,6 +17,6 @@ public class WorkExperienceConfiguration : IEntityTypeConfiguration<WorkExperien
 
         // Cascade is configured on UserConfiguration (User -> WorkExperiences). Index supports
         // the GetByUserId-style queries used during profile loads.
-        builder.HasIndex(workExperience => workExperience.UserId);
+        builder.HasIndex("UserId");
     }
 }

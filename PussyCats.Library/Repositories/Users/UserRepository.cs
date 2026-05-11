@@ -115,7 +115,7 @@ public class UserRepository : IUserRepository
         {
             target.WorkExperiences.Add(new WorkExperience
             {
-                UserId = target.UserId,
+                User = target,
                 Company = workExperience.Company,
                 JobTitle = workExperience.JobTitle,
                 StartDate = workExperience.StartDate,

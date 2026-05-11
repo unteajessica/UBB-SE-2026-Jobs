@@ -38,7 +38,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         // soft-delete via ActiveAccount = false instead.
         builder.HasMany(user => user.WorkExperiences)
             .WithOne(workExperience => workExperience.User)
-            .HasForeignKey(workExperience => workExperience.UserId)
+            .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(user => user.Projects)
