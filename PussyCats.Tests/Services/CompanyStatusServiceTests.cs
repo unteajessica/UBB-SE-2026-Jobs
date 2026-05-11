@@ -19,7 +19,7 @@ public class CompanyStatusServiceTests
     {
         var jobService = new JobService(jobRepo);
         service = new CompanyStatusService(
-            new MatchService(matchRepo, jobService),
+            new MatchService(matchRepo, jobService, new UserService(userRepo)),
             new UserService(userRepo),
             jobService,
             new UserSkillService(userSkillRepo));

@@ -29,13 +29,13 @@ public class FakeMatchRepository : IMatchRepository
 
     public Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Match> filtered = store.Values.Where(match => match.UserId == userId).ToList();
+        IReadOnlyList<Match> filtered = store.Values.Where(match => match.User.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
     public Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        var match = store.Values.FirstOrDefault(match => match.UserId == userId && match.JobId == jobId);
+        var match = store.Values.FirstOrDefault(match => match.User.UserId == userId && match.JobId == jobId);
         return Task.FromResult(match);
     }
 

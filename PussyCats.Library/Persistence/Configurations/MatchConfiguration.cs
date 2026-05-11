@@ -19,7 +19,7 @@ public class MatchConfiguration : IEntityTypeConfiguration<Match>
         // To remove a user, callers soft-delete via ActiveAccount = false. Match history stays.
         builder.HasOne(match => match.User)
             .WithMany(user => user.Matches)
-            .HasForeignKey(match => match.UserId)
+            .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Restrict on Job -> Match for the same reasoning: a deleted/archived job should not
@@ -36,6 +36,6 @@ public class MatchConfiguration : IEntityTypeConfiguration<Match>
         // Composite (UserId, JobId) supports GetByUserIdAndJobIdAsync (hot path in MatchService)
         // and also covers UserId-only queries via the leftmost-prefix rule, so a standalone
         // IX_Matches_UserId would be redundant.
-        builder.HasIndex(match => new { match.UserId, match.JobId });
+        builder.HasIndex("UserId", nameof(Match.JobId));
     }
 }

@@ -25,7 +25,7 @@ public class CompanyRecommendationViewModelTests
 
     public CompanyRecommendationViewModelTests()
     {
-        matchService = new MatchService(matchRepo, new JobService(jobRepo));
+        matchService = new MatchService(matchRepo, new JobService(jobRepo), new UserService(userRepo));
         viewModel = new CompanyRecommendationViewModel(recommendationService, matchService, session);
     }
 

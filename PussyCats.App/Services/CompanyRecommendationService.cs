@@ -61,9 +61,9 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         var results = new List<UserApplicationResult>();
         foreach (var match in appliedMatches)
         {
-            var user = await userService.GetByIdAsync(match.UserId, cancellationToken).ConfigureAwait(false);
+            var user = match.User;
             var job = await jobService.GetByIdAsync(match.JobId, cancellationToken).ConfigureAwait(false);
-            if (user is null || job is null)
+            if (job is null)
             {
                 continue;
             }

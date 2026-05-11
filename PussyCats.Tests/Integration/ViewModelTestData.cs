@@ -71,7 +71,6 @@ internal static class ViewModelTestData
         var match = new Match
         {
             MatchId = matchId,
-            UserId = user.UserId,
             JobId = job.JobId,
             Status = status,
             FeedbackMessage = "Good fit.",

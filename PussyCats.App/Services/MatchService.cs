@@ -14,11 +14,13 @@ public class MatchService : IMatchService
 
     private readonly IMatchRepository matchRepository;
     private readonly IJobService jobService;
+    private readonly IUserService userService;
 
-    public MatchService(IMatchRepository matchRepository, IJobService jobService)
+    public MatchService(IMatchRepository matchRepository, IJobService jobService, IUserService userService)
     {
         this.matchRepository = matchRepository;
         this.jobService = jobService;
+        this.userService = userService;
     }
 
     public async Task<IReadOnlyList<Match>> GetMatchesForUserAsync(int userId, CancellationToken cancellationToken = default)
@@ -57,9 +59,12 @@ public class MatchService : IMatchService
             throw new InvalidOperationException("A match already exists for this user and job.");
         }
 
+        var user = await userService.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"User {userId} not found.");
+
         var match = new Match
         {
-            UserId = userId,
+            User = user,
             JobId = jobId,
             Status = MatchStatus.Applied,
             Timestamp = DateTime.UtcNow,

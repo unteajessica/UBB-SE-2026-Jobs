@@ -26,7 +26,7 @@ public class CompanyStatusViewModelTests
         var userService = new UserService(userRepo);
         var jobService = new JobService(jobRepo);
         var userSkillService = new UserSkillService(userSkillRepo);
-        var matchService = new MatchService(matchRepo, jobService);
+        var matchService = new MatchService(matchRepo, jobService, new UserService(userRepo));
 
         var companyStatusService = new CompanyStatusService(
             matchService,

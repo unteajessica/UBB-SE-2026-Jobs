@@ -23,7 +23,7 @@ public class CompanyRecommendationServiceTests
     {
         var jobService = new JobService(jobRepo);
         return new CompanyRecommendationService(
-            new MatchService(matchRepo, jobService),
+            new MatchService(matchRepo, jobService, new UserService(userRepo)),
             new UserService(userRepo),
             jobService,
             new UserSkillService(userSkillRepo),
