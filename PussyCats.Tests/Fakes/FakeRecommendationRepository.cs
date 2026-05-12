@@ -5,31 +5,31 @@ namespace PussyCats.Tests.Fakes;
 
 public class FakeRecommendationRepository : IRecommendationRepository
 {
-    private readonly Dictionary<int, Recommendation> store = new();
+    private readonly Dictionary<int, Recommendation> recommendationsById = new();
 
     public void Seed(params Recommendation[] recommendations)
     {
         foreach (var recommendation in recommendations)
         {
-            store[recommendation.RecommendationId] = recommendation;
+            recommendationsById[recommendation.RecommendationId] = recommendation;
         }
     }
 
     public Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
-        store.TryGetValue(recommendationId, out var recommendation);
+        recommendationsById.TryGetValue(recommendationId, out var recommendation);
         return Task.FromResult(recommendation);
     }
 
     public Task<IReadOnlyList<Recommendation>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Recommendation> snapshot = store.Values.ToList();
+        IReadOnlyList<Recommendation> snapshot = recommendationsById.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
     public Task<Recommendation?> GetLatestByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        var latest = store.Values
+        var latest = recommendationsById.Values
             .Where(recommendation => recommendation.UserId == userId && recommendation.JobId == jobId)
             .OrderByDescending(recommendation => recommendation.Timestamp)
             .FirstOrDefault();
@@ -46,15 +46,15 @@ public class FakeRecommendationRepository : IRecommendationRepository
         {
             recommendation.Timestamp = DateTime.UtcNow;
         }
-        store[recommendation.RecommendationId] = recommendation;
+        recommendationsById[recommendation.RecommendationId] = recommendation;
         return Task.FromResult(recommendation);
     }
 
     public Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
-        store.Remove(recommendationId);
+        recommendationsById.Remove(recommendationId);
         return Task.CompletedTask;
     }
 
-    private int NextId() => store.Count == 0 ? 1 : store.Keys.Max() + 1;
+    private int NextId() => recommendationsById.Count == 0 ? 1 : recommendationsById.Keys.Max() + 1;
 }

@@ -5,19 +5,19 @@ namespace PussyCats.Tests.Fakes;
 
 public class FakePersonalityTestRepository : IPersonalityTestRepository
 {
-    private readonly Dictionary<int, PersonalityTestResult> store = new();
+    private readonly Dictionary<int, PersonalityTestResult> personalityTestResultsById = new();
 
     public void Seed(params PersonalityTestResult[] results)
     {
         foreach (var result in results)
         {
-            store[result.PersonalityTestResultId] = result;
+            personalityTestResultsById[result.PersonalityTestResultId] = result;
         }
     }
 
     public Task<PersonalityTestResult?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var result = store.Values.FirstOrDefault(personalityTestResult => personalityTestResult.User.UserId == userId);
+        var result = personalityTestResultsById.Values.FirstOrDefault(personalityTestResult => personalityTestResult.User.UserId == userId);
         return Task.FromResult(result);
     }
 
@@ -27,21 +27,21 @@ public class FakePersonalityTestRepository : IPersonalityTestRepository
         {
             result.PersonalityTestResultId = NextId();
         }
-        store[result.PersonalityTestResultId] = result;
+        personalityTestResultsById[result.PersonalityTestResultId] = result;
         return Task.FromResult(result);
     }
 
     public Task UpdateAsync(PersonalityTestResult result, CancellationToken cancellationToken = default)
     {
-        store[result.PersonalityTestResultId] = result;
+        personalityTestResultsById[result.PersonalityTestResultId] = result;
         return Task.CompletedTask;
     }
 
     public Task RemoveAsync(int personalityTestResultId, CancellationToken cancellationToken = default)
     {
-        store.Remove(personalityTestResultId);
+        personalityTestResultsById.Remove(personalityTestResultId);
         return Task.CompletedTask;
     }
 
-    private int NextId() => store.Count == 0 ? 1 : store.Keys.Max() + 1;
+    private int NextId() => personalityTestResultsById.Count == 0 ? 1 : personalityTestResultsById.Keys.Max() + 1;
 }
