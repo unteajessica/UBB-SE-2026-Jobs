@@ -35,8 +35,8 @@ public class DocumentServiceTests : IDisposable
     public async Task GetDocumentsByUserIdAsync_UserHasDocuments_ReturnsUserDocuments()
     {
         repo.Seed(
-            new Document { DocumentId = 1, UserId = 1, DocumentName = "CV.pdf" },
-            new Document { DocumentId = 2, UserId = 2, DocumentName = "Other.pdf" });
+            new Document { DocumentId = 1, User = new User { UserId = 1 }, DocumentName = "CV.pdf" },
+            new Document { DocumentId = 2, User = new User { UserId = 2 }, DocumentName = "Other.pdf" });
 
         var returnedDocuments = await service.GetDocumentsByUserIdAsync(1);
 
@@ -53,7 +53,7 @@ public class DocumentServiceTests : IDisposable
         try
         {
             Func<Task> act = () => service.UploadDocumentAsync(
-                new Document { UserId = 1, DocumentName = "Bad" },
+                new Document { User = new User { UserId = 1 }, DocumentName = "Bad" },
                 badPath);
 
             await act.Should().ThrowAsync<InvalidOperationException>()
@@ -69,7 +69,7 @@ public class DocumentServiceTests : IDisposable
     public async Task UploadDocumentAsync_ValidDocumentProvided_PersistsMetadataWithStoragePath()
     {
         fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns("uploads/1.pdf");
-        var document = new Document { UserId = 1, DocumentName = "CV" };
+        var document = new Document { User = new User { UserId = 1 }, DocumentName = "CV" };
 
         var saved = await service.UploadDocumentAsync(document, tempPdfPath);
 
@@ -85,7 +85,7 @@ public class DocumentServiceTests : IDisposable
             .Throws(new InvalidOperationException("File upload failed."));
 
         Func<Task> act = () => service.UploadDocumentAsync(
-            new Document { UserId = 1, DocumentName = "CV" },
+            new Document { User = new User { UserId = 1 }, DocumentName = "CV" },
             tempPdfPath);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
@@ -94,7 +94,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task DeleteDocumentAsync_DocumentExists_RemovesFileAndMetadata()
     {
-        repo.Seed(new Document { DocumentId = 5, UserId = 1, FilePath = "uploads/x.pdf" });
+        repo.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = "uploads/x.pdf" });
 
         await service.DeleteDocumentAsync(5);
 
@@ -114,7 +114,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task DeleteDocumentAsync_FilePathIsBlank_SkipsStorageCall()
     {
-        repo.Seed(new Document { DocumentId = 5, UserId = 1, FilePath = string.Empty });
+        repo.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = string.Empty });
 
         await service.DeleteDocumentAsync(5);
 
@@ -124,7 +124,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task GetDocumentAbsolutePathAsync_DocumentExists_ReturnsStoragePath()
     {
-        repo.Seed(new Document { DocumentId = 5, UserId = 1, FilePath = "uploads/x.pdf" });
+        repo.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = "uploads/x.pdf" });
         fileStorage.GetFilePath("uploads/x.pdf").Returns(@"C:\files\uploads\x.pdf");
 
         var path = await service.GetDocumentAbsolutePathAsync(5);

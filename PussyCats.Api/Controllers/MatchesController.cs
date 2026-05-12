@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Matches;
+using PussyCats.Library.Repositories.Users;
 
 namespace PussyCats.Api.Controllers;
 
@@ -10,10 +11,12 @@ namespace PussyCats.Api.Controllers;
 public class MatchesController : ControllerBase
 {
     private readonly IMatchRepository matches;
+    private readonly IUserRepository userRepo;
 
-    public MatchesController(IMatchRepository matches)
+    public MatchesController(IMatchRepository matches, IUserRepository userRepo)
     {
         this.matches = matches;
+        this.userRepo = userRepo;
     }
 
     [HttpGet("{id}")]
@@ -44,9 +47,13 @@ public class MatchesController : ControllerBase
         if (await matches.GetByUserIdAndJobIdAsync(body.UserId, body.JobId, cancellationToken) is not null)
             return Problem(detail: "A match already exists for this user and job.", statusCode: 409);
 
+        var user = await userRepo.GetByIdAsync(body.UserId, cancellationToken);
+        if (user is null)
+            return NotFound($"User {body.UserId} not found.");
+
         var match = new Match
         {
-            UserId = body.UserId,
+            User = user,
             JobId = body.JobId,
             Status = MatchStatus.Applied,
             Timestamp = DateTime.UtcNow,

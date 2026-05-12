@@ -24,7 +24,7 @@ public class UserRecommendationServiceTests
     private UserRecommendationService BuildService(TimeSpan? cooldownPeriod = null)
     {
         var jobService = new JobService(jobRepo);
-        var matchService = new MatchService(matchRepo, jobService);
+        var matchService = new MatchService(matchRepo, jobService, new UserService(userRepo));
         var cooldown = new CooldownService(recommendationRepo, cooldownPeriod ?? TimeSpan.FromHours(24));
         return new UserRecommendationService(
             userRepo,

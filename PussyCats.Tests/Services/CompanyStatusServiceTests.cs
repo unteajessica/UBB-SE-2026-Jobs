@@ -19,7 +19,7 @@ public class CompanyStatusServiceTests
     {
         var jobService = new JobService(jobRepo);
         service = new CompanyStatusService(
-            new MatchService(matchRepo, jobService),
+            new MatchService(matchRepo, jobService, new UserService(userRepo)),
             new UserService(userRepo),
             jobService,
             new UserSkillService(userSkillRepo));
@@ -94,7 +94,9 @@ public class CompanyStatusServiceTests
     {
         userRepo.Seed(new UserBuilder().WithId(1).WithCity("Bucharest").Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).WithLocation("Bucharest, Romania").Build());
-        userSkillRepo.Seed(new UserSkill { User = new User{ UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 50 });
+
+        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 50 });
+
         matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Accepted).Build());
 
         var result = await service.GetApplicantsForCompanyAsync(5);

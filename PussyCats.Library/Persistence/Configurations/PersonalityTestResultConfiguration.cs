@@ -19,7 +19,7 @@ public class PersonalityTestResultConfiguration : IEntityTypeConfiguration<Perso
         // cascade is configured on UserConfiguration.
         builder.HasMany(result => result.TraitScores)
             .WithOne(skill => skill.PersonalityTestResult)
-            .HasForeignKey(skill => skill.PersonalityTestResultId)
+            .HasForeignKey("PersonalityTestResultId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // UserId is the natural lookup column (GetByUserIdAsync). The User -> PersonalityResult

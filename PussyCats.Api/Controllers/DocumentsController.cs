@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
+using PussyCats.Library.DTOs;
 using PussyCats.Library.Repositories.Documents;
+using PussyCats.Library.Repositories.Users;
 
 namespace PussyCats.Api.Controllers;
 
@@ -9,10 +11,12 @@ namespace PussyCats.Api.Controllers;
 public class DocumentsController : ControllerBase
 {
     private readonly IDocumentRepository documents;
+    private readonly IUserRepository users;
 
-    public DocumentsController(IDocumentRepository documents)
+    public DocumentsController(IDocumentRepository documents, IUserRepository users)
     {
         this.documents = documents;
+        this.users = users;
     }
 
     [HttpGet("{id}")]
@@ -27,8 +31,18 @@ public class DocumentsController : ControllerBase
         => Ok(await documents.GetByUserIdAsync(userId, cancellationToken));
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Document document, CancellationToken cancellationToken)
+    public async Task<IActionResult> Add([FromBody] DocumentAddRequest body, CancellationToken cancellationToken)
     {
+        var user = await users.GetByIdAsync(body.UserId, cancellationToken);
+        if (user is null)
+            return NotFound($"User {body.UserId} not found.");
+
+        var document = new Document
+        {
+            User = user,
+            DocumentName = body.DocumentName,
+            FilePath = body.FilePath,
+        };
         document.DocumentId = 0;
         var saved = await documents.AddAsync(document, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.DocumentId }, saved);

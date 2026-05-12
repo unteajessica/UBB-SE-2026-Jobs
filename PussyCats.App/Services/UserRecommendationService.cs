@@ -149,7 +149,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
         var allSkillLabels = new List<string>();
         foreach (var jobSkill in jobSkillRows)
         {
-            var skillName = jobSkill.Skill?.Name ?? $"Skill #{jobSkill.Skill.SkillId}";
+            var skillName = jobSkill.Skill?.Name ?? $"Skill #{jobSkill.Skill?.SkillId ?? 0}";
             allSkillLabels.Add($"{skillName} (min {jobSkill.RequiredLevel})");
         }
 

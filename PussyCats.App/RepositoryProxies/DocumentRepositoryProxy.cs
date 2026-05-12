@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using PussyCats.Library.Domain;
+using PussyCats.Library.DTOs;
 using PussyCats.Library.Repositories.Documents;
 
 namespace PussyCats.App.RepositoryProxies;
@@ -25,7 +26,13 @@ public class DocumentRepositoryProxy : IDocumentRepository
 
     public async Task<Document> AddAsync(Document document, CancellationToken cancellationToken = default)
     {
-        using var response = await http.PostAsJsonAsync("api/documents", document, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
+        var request = new DocumentAddRequest
+        {
+            UserId = document.User.UserId,
+            DocumentName = document.DocumentName,
+            FilePath = document.FilePath,
+        };
+        using var response = await http.PostAsJsonAsync("api/documents", request, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Document>(response, cancellationToken).ConfigureAwait(false);
     }
 

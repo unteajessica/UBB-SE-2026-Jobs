@@ -24,7 +24,7 @@ internal static class ChatDisplayResolver
 
         if (session.Mode == AppMode.Company)
         {
-            return $"User {chat.UserId}";
+            return $"User {chat.User.UserId}";
         }
 
         if (chat.CompanyId.HasValue)
@@ -36,7 +36,7 @@ internal static class ChatDisplayResolver
         if (chat.SecondUser != null)
         {
             var currentUserId = session.UserId;
-            var otherUserId = chat.UserId == currentUserId ? chat.SecondUser.UserId : chat.UserId;
+            var otherUserId = chat.User.UserId == currentUserId ? chat.SecondUserId.Value : chat.User.UserId;
             return $"User {otherUserId}";
         }
 

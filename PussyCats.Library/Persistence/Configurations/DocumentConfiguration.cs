@@ -20,9 +20,9 @@ public class DocumentConfiguration : IEntityTypeConfiguration<Document>
         // need to be cleaned up by the API service layer; the database only tracks metadata.
         builder.HasOne(document => document.User)
             .WithMany()
-            .HasForeignKey(document => document.UserId)
+            .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(document => document.UserId);
+        builder.HasIndex("UserId");
     }
 }

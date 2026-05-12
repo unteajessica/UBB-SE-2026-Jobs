@@ -23,7 +23,8 @@ public class FakeDocumentRepository : IDocumentRepository
 
     public Task<IReadOnlyList<Document>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Document> filtered = documentsById.Values.Where(document => document.UserId == userId).ToList();
+        IReadOnlyList<Document> filtered = documentsById.Values.Where(document => document.User.UserId == userId).ToList();
+
         return Task.FromResult(filtered);
     }
 

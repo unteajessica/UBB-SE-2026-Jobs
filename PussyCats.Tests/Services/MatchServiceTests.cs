@@ -10,11 +10,12 @@ public class MatchServiceTests
 {
     private readonly FakeMatchRepository matchRepo = new();
     private readonly FakeJobRepository jobRepo = new();
+    private readonly FakeUserRepository userRepo = new();
     private readonly MatchService service;
 
     public MatchServiceTests()
     {
-        service = new MatchService(matchRepo, new JobService(jobRepo));
+        service = new MatchService(matchRepo, new JobService(jobRepo), new UserService(userRepo));
     }
 
     [Theory]
@@ -42,12 +43,13 @@ public class MatchServiceTests
     [Fact]
     public async Task CreatePendingApplicationAsync_ValidInputs_CreatesMatchInAppliedState()
     {
+        userRepo.Seed(new PussyCats.Library.Domain.User { UserId = 1 });
         var matchId = await service.CreatePendingApplicationAsync(userId: 1, jobId: 10);
 
         matchId.Should().BeGreaterThan(0);
         var match = await service.GetByIdAsync(matchId);
         match!.Status.Should().Be(MatchStatus.Applied);
-        match.UserId.Should().Be(1);
+        match.User.UserId.Should().Be(1);
         match.JobId.Should().Be(10);
     }
 
@@ -228,6 +230,6 @@ public class MatchServiceTests
         var result = await service.GetMatchesForUserAsync(1);
 
         result.Should().HaveCount(1);
-        result[0].UserId.Should().Be(1);
+        result[0].User.UserId.Should().Be(1);
     }
 }

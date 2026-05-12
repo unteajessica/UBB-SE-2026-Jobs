@@ -57,7 +57,7 @@ public sealed class ChatService : IChatService
             return existing;
         }
 
-        return await chatRepository.AddAsync(new Chat { UserId = userId, CompanyId = companyId, JobId = jobId }, cancellationToken).ConfigureAwait(false);
+        return await chatRepository.AddAsync(new Chat { User = await GetUserAsync(userId, cancellationToken), CompanyId = companyId, JobId = jobId }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Chat?> FindOrCreateUserChatAsync(int userId, int secondUserId, CancellationToken cancellationToken = default)
@@ -71,7 +71,7 @@ public sealed class ChatService : IChatService
             return existing;
         }
 
-        return await chatRepository.AddAsync(new Chat { UserId = userId, SecondUserId = secondUserId }, cancellationToken).ConfigureAwait(false);
+        return await chatRepository.AddAsync(new Chat { User = await GetUserAsync(userId, cancellationToken), SecondUserId = secondUserId }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Chat>> GetChatsForUserAsync(int userId, CancellationToken cancellationToken = default)
@@ -92,7 +92,7 @@ public sealed class ChatService : IChatService
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, callerId);
 
-        var deletedAt = chat.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
+        var deletedAt = chat.User.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
         var messages = await messageRepository.GetForChatAsync(chatId, cancellationToken).ConfigureAwait(false);
 
         return messages
@@ -159,8 +159,8 @@ public sealed class ChatService : IChatService
 
         await messageRepository.AddAsync(new Message
         {
-            ChatId = chatId,
-            SenderId = senderId,
+            Chat = new Chat { ChatId = chatId },
+            Sender = new MessageSender { SenderId = senderId },
             Content = content.Trim(),
             Timestamp = DateTime.UtcNow,
             Type = typeOfMessage,
@@ -214,7 +214,7 @@ public sealed class ChatService : IChatService
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, callerId);
 
-        if (chat.UserId == callerId)
+        if (chat.User.UserId == callerId)
         {
             chat.DeletedAtByUser = DateTime.UtcNow;
         }
@@ -233,13 +233,13 @@ public sealed class ChatService : IChatService
             return false;
         }
 
-        var deletedAt = chat.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
+        var deletedAt = chat.User.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
         return deletedAt is null;
     }
 
     private static void EnsureParticipant(Chat chat, int callerId)
     {
-        if (chat.UserId != callerId && chat.SecondUser?.UserId != callerId && chat.CompanyId != callerId)
+        if (chat.User.UserId != callerId && chat.SecondUserId != callerId && chat.CompanyId != callerId)
         {
             throw new UnauthorizedAccessException("Only chat participants can access this chat.");
         }
@@ -250,15 +250,15 @@ public sealed class ChatService : IChatService
         return new Message
         {
             MessageId = message.MessageId,
-            ChatId = message.ChatId,
-            SenderId = message.SenderId,
+            Chat = new Chat { ChatId = message.Chat.ChatId },
+            Sender = new MessageSender { SenderId = message.Sender.SenderId },
             Content = message.Content,
             Timestamp = message.Timestamp,
             Type = message.Type,
             IsRead = message.IsRead,
             OriginalFileName = message.OriginalFileName,
-            ShowReadReceipt = message.SenderId == callerId,
-            SenderInitials = message.SenderId == callerId ? "Me" : "Them",
+            ShowReadReceipt = message.Sender.SenderId == callerId,
+            SenderInitials = message.Sender.SenderId == callerId ? "Me" : "Them",
         };
     }
 
@@ -280,6 +280,13 @@ public sealed class ChatService : IChatService
         {
             throw new NotSupportedException("File messages must be .pdf, .docx, or .doc.");
         }
+    }
+
+    private async Task<User> GetUserAsync(int userId, CancellationToken cancellationToken)
+    {
+        var users = await userService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        return users.FirstOrDefault(u => u.UserId == userId)
+            ?? throw new KeyNotFoundException($"User {userId} not found.");
     }
 
     private async Task<string> StoreAttachmentAsync(string sourcePath, MessageType type, CancellationToken cancellationToken)

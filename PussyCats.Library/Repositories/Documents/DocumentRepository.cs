@@ -32,7 +32,8 @@ public class DocumentRepository : IDocumentRepository
     {
         return await databaseContext.Documents
             .AsNoTracking()
-            .Where(document => document.UserId == userId)
+            .Include(document => document.User)
+            .Where(document => document.User.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }

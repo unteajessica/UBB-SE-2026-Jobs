@@ -11,13 +11,14 @@ namespace PussyCats.Tests.ViewModels;
 public class DocumentViewModelTests
 {
     private readonly IDocumentService documentService = Substitute.For<IDocumentService>();
+    private readonly IUserService userService = Substitute.For<IUserService>();
     private readonly SessionContext session = new() { UserId = 22 };
 
     [Fact]
     public async Task LoadDocumentsAsync_DocumentsExist_PopulatesDocumentList()
     {
         documentService.GetDocumentsByUserIdAsync(22, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<IReadOnlyList<Document>>([new() { DocumentId = 1, DocumentName = "CV", UserId = 22 }]));
+            .Returns(Task.FromResult<IReadOnlyList<Document>>([new() { DocumentId = 1, DocumentName = "CV", User = new User { UserId = 22 } }]));
         var viewModel = new DocumentListViewModel(documentService, session);
 
         await viewModel.LoadDocumentsAsync();
@@ -41,7 +42,8 @@ public class DocumentViewModelTests
     [Fact]
     public async Task UploadDocumentAsync_InputIsValid_CallsServiceUpload()
     {
-        var viewModel = new UploadDocumentViewModel(documentService, session)
+        userService.GetByIdAsync(22, Arg.Any<CancellationToken>()).Returns(new User { UserId = 22 });
+        var viewModel = new UploadDocumentViewModel(documentService, userService, session)
         {
             DocumentName = "CV",
             SelectedFilePath = "cv.pdf",
@@ -50,7 +52,7 @@ public class DocumentViewModelTests
         await viewModel.UploadDocumentAsync();
 
         await documentService.Received(1).UploadDocumentAsync(
-            Arg.Is<Document>(document => document.UserId == 22 && document.DocumentName == "CV"),
+            Arg.Is<Document>(document => document.User.UserId == 22 && document.DocumentName == "CV"),
             "cv.pdf",
             Arg.Any<CancellationToken>());
     }
@@ -58,7 +60,7 @@ public class DocumentViewModelTests
     [Fact]
     public void ValidateDocumentInput_EmptyFields_ReportsValidationErrors()
     {
-        var viewModel = new UploadDocumentViewModel(documentService, session);
+        var viewModel = new UploadDocumentViewModel(documentService, userService, session);
 
         viewModel.ValidateDocumentInput().Should().BeFalse();
         viewModel.GetErrorMessage().Should().Contain("Document name");

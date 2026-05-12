@@ -1,10 +1,12 @@
 namespace PussyCats.Library.Domain;
+using System.Text.Json.Serialization;
 
 public class Chat
 {
     public int ChatId { get; set; }
-    public int UserId { get; set; }
+    public User User { get; set; } = null!;
     public int? CompanyId { get; set; }
+    [JsonIgnore] public Company? Company { get; set; }
     public int? SecondUserId { get; set; }
     public User? SecondUser { get; set; }
     public int? JobId { get; set; }

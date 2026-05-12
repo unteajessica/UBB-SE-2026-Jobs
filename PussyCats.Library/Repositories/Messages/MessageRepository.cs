@@ -17,7 +17,8 @@ public class MessageRepository : IMessageRepository
     {
         return await databaseContext.Messages
             .AsNoTracking()
-            .Where(message => message.ChatId == chatId)
+            .Include(message => message.Chat)
+            .Where(message => message.Chat.ChatId == chatId)
             .OrderBy(message => message.Timestamp)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -27,7 +28,8 @@ public class MessageRepository : IMessageRepository
     {
         return await databaseContext.Messages
             .AsNoTracking()
-            .Where(message => message.ChatId == chatId)
+            .Include(message => message.Chat)
+            .Where(message => message.Chat.ChatId == chatId)
             .OrderBy(message => message.Timestamp)
             .LastOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -37,8 +39,8 @@ public class MessageRepository : IMessageRepository
     {
         return await databaseContext.Messages
             .CountAsync(
-                message => message.ChatId == chatId
-                        && message.SenderId != senderId
+                message => message.Chat.ChatId == chatId
+                        && message.Sender.SenderId != senderId
                         && !message.IsRead,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -46,6 +48,10 @@ public class MessageRepository : IMessageRepository
 
     public async Task<Message> AddAsync(Message message, CancellationToken cancellationToken = default)
     {
+        if (message.Chat is not null)
+        {
+            databaseContext.Attach(message.Chat);
+        }
         databaseContext.Messages.Add(message);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return message;
@@ -54,7 +60,7 @@ public class MessageRepository : IMessageRepository
     public async Task MarkAsReadAsync(int chatId, int readerId, CancellationToken cancellationToken = default)
     {
         await databaseContext.Messages
-            .Where(message => message.ChatId == chatId && message.SenderId != readerId && !message.IsRead)
+            .Where(message => message.Chat.ChatId == chatId && message.Sender.SenderId != readerId && !message.IsRead)
             .ExecuteUpdateAsync(setters => setters.SetProperty(message => message.IsRead, true), cancellationToken)
             .ConfigureAwait(false);
     }

@@ -120,8 +120,8 @@ public class UserProfileServiceTests
         user.University = "Cambridge";
         user.Skills = new List<UserSkill>
         {
-            new() {  Skill = new Skill { Name = "C#" } },
-            new() {  Skill = new Skill { Name = "SQL" } },
+            new() { Skill = new Skill { SkillId = 1, Name = "C#" } },
+            new() { Skill = new Skill { SkillId = 2, Name = "SQL" } },
         };
 
         var text = service.GenerateParsedCvText(user);

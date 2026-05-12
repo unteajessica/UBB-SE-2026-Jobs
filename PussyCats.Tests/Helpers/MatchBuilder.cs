@@ -46,7 +46,7 @@ public class MatchBuilder
     public Match Build() => new()
     {
         MatchId = matchId,
-        UserId = userId,
+        User = new User { UserId = userId },
         JobId = jobId,
         Status = status,
         Timestamp = timestamp,

@@ -19,9 +19,9 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         builder.Ignore(chat => chat.OtherPartyName);
 
         // UserId is the primary participant (always a user/candidate).
-        builder.HasOne<User>()
+        builder.HasOne(chat => chat.User)
             .WithMany()
-            .HasForeignKey(chat => chat.UserId)
+            .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // SecondUser is the other user in a user-to-user chat (nullable).
@@ -31,7 +31,7 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
             .OnDelete(DeleteBehavior.Restrict);
 
         // CompanyId is set for user-to-company chats (nullable).
-        builder.HasOne<Company>()
+        builder.HasOne(chat => chat.Company)
             .WithMany()
             .HasForeignKey(chat => chat.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);

@@ -15,6 +15,6 @@ public class PersonalityTraitScoreConfiguration : IEntityTypeConfiguration<Perso
 
         // Cascade is configured from PersonalityTestResultConfiguration so the trait score rows
         // disappear with their parent.
-        builder.HasIndex(skill => skill.PersonalityTestResultId);
+        builder.HasIndex("PersonalityTestResultId");
     }
 }

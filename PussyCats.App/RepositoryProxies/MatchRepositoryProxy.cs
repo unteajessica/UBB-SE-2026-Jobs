@@ -41,7 +41,7 @@ public class MatchRepositoryProxy : IMatchRepository
     {
         using var response = await http.PostAsJsonAsync(
             "api/matches",
-            new { match.UserId, match.JobId },
+            new { UserId = match.User.UserId, match.JobId },
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Match>(response, cancellationToken).ConfigureAwait(false);
@@ -52,7 +52,7 @@ public class MatchRepositoryProxy : IMatchRepository
         var requestBody = new Match
         {
             MatchId = match.MatchId,
-            UserId = match.UserId,
+            User = match.User,
             JobId = match.JobId,
             Status = match.Status,
             Timestamp = match.Timestamp,

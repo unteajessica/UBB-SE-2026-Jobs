@@ -484,3 +484,4 @@ $RECYCLE.BIN/
 
 # Claude Code local settings
 .claude/
+/PussyCats.Library/Domain/Chat.cs

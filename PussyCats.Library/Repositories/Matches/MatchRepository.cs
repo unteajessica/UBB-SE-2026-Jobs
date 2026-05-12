@@ -31,6 +31,7 @@ public class MatchRepository : IMatchRepository
         return await databaseContext.Matches
             .AsNoTracking()
             .Include(match => match.Job).ThenInclude(job => job.Company)
+            .Include(match=>match.User)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -44,7 +45,8 @@ public class MatchRepository : IMatchRepository
     {
         return await databaseContext.Matches
             .AsNoTracking()
-            .Where(match => match.UserId == userId)
+            .Include(match => match.User)
+            .Where(match => match.User.UserId == userId)
             .Include(match => match.Job).ThenInclude(job => job.Company)
             .OrderByDescending(match => match.Timestamp)
             .ToListAsync(cancellationToken)
@@ -58,7 +60,8 @@ public class MatchRepository : IMatchRepository
     public async Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Matches
-            .FirstOrDefaultAsync(match => match.UserId == userId && match.JobId == jobId, cancellationToken)
+            .Include(match => match.User)
+            .FirstOrDefaultAsync(match => match.User.UserId == userId && match.JobId == jobId, cancellationToken)
             .ConfigureAwait(false);
     }
 
