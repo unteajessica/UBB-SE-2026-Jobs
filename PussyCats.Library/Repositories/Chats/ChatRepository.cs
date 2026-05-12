@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Persistence;
@@ -23,9 +24,11 @@ public class ChatRepository : IChatRepository
 
     public async Task<IReadOnlyList<Chat>> GetForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
+        System.Diagnostics.Debug.WriteLine("HEREEEEE "+userId);
         return await databaseContext.Chats
             .AsNoTracking()
             .Where(chat => chat.UserId == userId || chat.SecondUserId == userId)
+            .Include(chat => chat.Company)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -35,6 +38,7 @@ public class ChatRepository : IChatRepository
         return await databaseContext.Chats
             .AsNoTracking()
             .Where(chat => chat.Company!=null && chat.Company.CompanyId == companyId)
+            .Include(chat => chat.Company)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
