@@ -297,7 +297,7 @@ public class CompanyRecommendationViewModel : DispatchableObservableObject
             return false;
         }
 
-        if (CurrentApplicant!.Job.CompanyId != session.CompanyId.Value)
+        if (CurrentApplicant!.Job.Company.CompanyId != session.CompanyId.Value)
         {
             ReportError("This applicant does not belong to your company.");
             return false;

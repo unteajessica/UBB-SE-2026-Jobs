@@ -13,7 +13,7 @@ internal static class ViewModelTestData
             Job = new Job
             {
                 JobId = jobId,
-                CompanyId = 3,
+                Company = new Company { CompanyId = 3 },
                 JobTitle = "Backend Developer",
                 JobDescription = "Build APIs.",
                 Location = "Cluj-Napoca",
@@ -60,7 +60,7 @@ internal static class ViewModelTestData
         var job = new Job
         {
             JobId = 30,
-            CompanyId = companyId,
+            Company = new Company { CompanyId = companyId },
             JobTitle = "Engineer",
             JobDescription = "Build software.",
             EmploymentType = "Full-time",
