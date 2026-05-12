@@ -13,8 +13,10 @@ namespace PussyCats_App.Views.Company;
 public sealed partial class CompanyStatusPage : Page
 {
     private readonly CompanyStatusViewModel viewModel;
+    private readonly ContentDialog dialog = new();
     private readonly SolidColorBrush defaultBorder = new(Microsoft.UI.Colors.LightGray);
     private readonly SolidColorBrush errorBorder   = new(Microsoft.UI.Colors.IndianRed);
+    private bool isDialogOpen;
 
     public CompanyStatusPage()
     {
@@ -106,24 +108,52 @@ public sealed partial class CompanyStatusPage : Page
 
     private async void OnViewModelError(string message) => await ShowDialogAsync("Error", message);
 
-    private Task ShowDialogAsync(string title, string content)
+    private async Task ShowDialogAsync(string title, string content)
     {
-        var dialog = new ContentDialog
+        if (isDialogOpen)
         {
-            Title = title, Content = content, CloseButtonText = "OK", XamlRoot = XamlRoot,
-        };
-        return dialog.ShowAsync().AsTask();
+            return;
+        }
+
+        isDialogOpen = true;
+        try
+        {
+            ConfigureDialog(title, content, primaryButtonText: string.Empty, closeButtonText: "OK");
+            await dialog.ShowAsync();
+        }
+        finally
+        {
+            isDialogOpen = false;
+        }
     }
 
     private async Task<bool> ShowConfirmationAsync(string title, string content)
     {
-        var dialog = new ContentDialog
+        if (isDialogOpen)
         {
-            Title = title, Content = content,
-            PrimaryButtonText = "Yes", CloseButtonText = "No",
-            DefaultButton = ContentDialogButton.Close,
-            XamlRoot = XamlRoot,
-        };
-        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+            return false;
+        }
+
+        isDialogOpen = true;
+        try
+        {
+            ConfigureDialog(title, content, primaryButtonText: "Yes", closeButtonText: "No");
+            return await dialog.ShowAsync() == ContentDialogResult.Primary;
+        }
+        finally
+        {
+            isDialogOpen = false;
+        }
+    }
+
+    private void ConfigureDialog(string title, string content, string primaryButtonText, string closeButtonText)
+    {
+        dialog.Title = title;
+        dialog.Content = content;
+        dialog.PrimaryButtonText = primaryButtonText;
+        dialog.SecondaryButtonText = string.Empty;
+        dialog.CloseButtonText = closeButtonText;
+        dialog.DefaultButton = ContentDialogButton.Close;
+        dialog.XamlRoot = XamlRoot;
     }
 }
