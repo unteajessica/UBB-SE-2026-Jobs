@@ -6,12 +6,13 @@ namespace PussyCats.Library.Persistence.Configurations;
 
 public class SkillTestConfiguration : IEntityTypeConfiguration<SkillTest>
 {
+    private const int MaxNameLength = 200;
     public void Configure(EntityTypeBuilder<SkillTest> builder)
     {
         builder.ToTable("SkillTests");
         builder.HasKey(test => test.SkillTestId);
 
-        builder.Property(test => test.Name).HasMaxLength(200).IsRequired();
+        builder.Property(test => test.Name).HasMaxLength(MaxNameLength).IsRequired();
 
         // Cascade: a user's skill test attempts are owned by the user — delete-the-user
         // wipes them.
@@ -27,8 +28,8 @@ public class SkillTestConfiguration : IEntityTypeConfiguration<SkillTest>
         // determinism. Replaces the deleted SkillTestDefaults helper.
         var seededDate = new DateOnly(2026, 1, 7);
         builder.HasData(
-            new { SkillTestId = 1, UserId = 1, Name = "C# Fundamentals", Score = 82, AchievedDate = seededDate },
-            new { SkillTestId = 2, UserId = 1, Name = "SQL Server", Score = 76, AchievedDate = seededDate },
-            new { SkillTestId = 3, UserId = 1, Name = "Software Design", Score = 88, AchievedDate = seededDate });
+            new { SkillTestId = 1, UserId = 1 , Name = "C# Fundamentals", Score = 82, AchievedDate = seededDate },
+            new { SkillTestId = 2, UserId = 1 , Name = "SQL Server", Score = 76, AchievedDate = seededDate },
+            new { SkillTestId = 3, UserId = 1 , Name = "Software Design", Score = 88, AchievedDate = seededDate });
     }
 }

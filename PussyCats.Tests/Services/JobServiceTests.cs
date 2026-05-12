@@ -47,7 +47,7 @@ public class JobServiceTests
         var jobs = await service.GetByCompanyIdAsync(10);
 
         jobs.Should().HaveCount(2);
-        jobs.Should().OnlyContain(job => job.CompanyId == 10);
+        jobs.Should().OnlyContain(job => job.Company.CompanyId == 10);
     }
 
     [Fact]

@@ -29,7 +29,7 @@ public class FakeJobRepository : IJobRepository
 
     public Task<IReadOnlyList<Job>> GetByCompanyIdAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Job> filtered = store.Values.Where(job => job.CompanyId == companyId).ToList();
+        IReadOnlyList<Job> filtered = store.Values.Where(job => job.Company.CompanyId == companyId).ToList();
         return Task.FromResult(filtered);
     }
 

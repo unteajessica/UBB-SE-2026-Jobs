@@ -14,7 +14,6 @@ public class Job
     public int PromotionLevel { get; set; }
     public JobRole JobRole { get; set; }
 
-    public int CompanyId { get; set; }
     public Company Company { get; set; } = null!;
 
     public List<JobSkill> RequiredSkills { get; set; } = new();

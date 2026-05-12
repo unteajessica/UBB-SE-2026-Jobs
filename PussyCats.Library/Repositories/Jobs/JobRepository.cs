@@ -47,7 +47,7 @@ public class JobRepository : IJobRepository
     {
         return await databaseContext.Jobs
             .AsNoTracking()
-            .Where(job => job.CompanyId == companyId)
+            .Where(job => job.Company.CompanyId == companyId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }

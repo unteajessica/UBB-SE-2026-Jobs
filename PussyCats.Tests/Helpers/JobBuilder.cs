@@ -80,7 +80,7 @@ public class JobBuilder
         return new Job
         {
             JobId = jobId,
-            CompanyId = companyId,
+            Company = new Company { CompanyId = companyId },
             JobTitle = jobTitle,
             JobDescription = jobDescription,
             Location = location,

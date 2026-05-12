@@ -141,8 +141,8 @@ public sealed class UserRecommendationService : IUserRecommendationService
 
     private async Task<JobRecommendationResult> CreateCardAsync(Job job, double score, int? displayRecommendationId, CancellationToken cancellationToken)
     {
-        var company = await companyRepository.GetByIdAsync(job.CompanyId, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException($"Company {job.CompanyId} not found.");
+        var company = await companyRepository.GetByIdAsync(job.Company.CompanyId, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"Company {job.Company.CompanyId} not found.");
 
         var jobSkillRows = await jobSkillRepository.GetByJobIdAsync(job.JobId, cancellationToken).ConfigureAwait(false);
         var topSkills = JobRecommendationResult.TakeTopSkills(jobSkillRows);

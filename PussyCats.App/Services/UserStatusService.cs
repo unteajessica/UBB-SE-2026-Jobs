@@ -47,7 +47,7 @@ public class UserStatusService : IUserStatusService
                 continue;
             }
 
-            companiesById.TryGetValue(matchedJob.CompanyId, out var company);
+            companiesById.TryGetValue(matchedJob.Company.CompanyId, out var company);
             var jobSkills = jobSkillsByJobId.GetValueOrDefault(match.JobId) ?? [];
             var score = CalculateCompatibilityScore(userSkills, jobSkills);
 
