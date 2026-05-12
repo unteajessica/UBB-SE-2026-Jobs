@@ -10,6 +10,8 @@ namespace PussyCats_App.Views.Candidate;
 public sealed partial class UserRecommendationPage : Page
 {
     private readonly UserRecommendationViewModel viewModel;
+    private bool isErrorDialogOpen;
+    private ContentDialog? errorDialog;
 
     public UserRecommendationPage()
     {
@@ -185,11 +187,22 @@ public sealed partial class UserRecommendationPage : Page
     {
         DispatcherQueue.TryEnqueue(async () =>
         {
-            var dialog = new ContentDialog
+            if (isErrorDialogOpen)
             {
-                Title = "Error", Content = message, CloseButtonText = "OK", XamlRoot = XamlRoot,
+                return;
+            }
+
+            isErrorDialogOpen = true;
+            errorDialog ??= new ContentDialog
+            {
+                Title = "Error",
+                CloseButtonText = "OK",
             };
-            await dialog.ShowAsync();
+
+            errorDialog.Content = message;
+            errorDialog.XamlRoot = XamlRoot;
+            await errorDialog.ShowAsync();
+            isErrorDialogOpen = false;
         });
     }
 }

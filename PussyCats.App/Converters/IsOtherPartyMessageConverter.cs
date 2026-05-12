@@ -14,7 +14,7 @@ public class IsOtherPartyMessageConverter : IValueConverter
         }
 
         var currentSenderId = ChatDisplayResolver.GetCurrentSenderId();
-        return message.SenderId != currentSenderId ? Visibility.Visible : Visibility.Collapsed;
+        return message.Sender.SenderId != currentSenderId ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, string language)

@@ -37,12 +37,11 @@ public class CompatibilityServiceTests
         userRepo.Seed(new UserBuilder().WithId(1).Build());
         userSkillRepo.Seed(new UserSkill
         {
-            UserId = 1,
-            SkillId = 1,
+            User = new User { UserId = 1 },
+            Skill = new Skill { SkillId = 1, Name = "C#" },
             Score = 80,
             IsVerified = true,
             AchievedDate = DateOnly.FromDateTime(DateTime.UtcNow),
-            Skill = new Skill { SkillId = 1, Name = "C#" },
         });
         skillGroupRepo.Seed(new SkillGroup
         {

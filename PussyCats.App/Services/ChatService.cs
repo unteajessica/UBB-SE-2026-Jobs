@@ -159,8 +159,8 @@ public sealed class ChatService : IChatService
 
         await messageRepository.AddAsync(new Message
         {
-            ChatId = chatId,
-            SenderId = senderId,
+            Chat = new Chat { ChatId = chatId },
+            Sender = new MessageSender { SenderId = senderId },
             Content = content.Trim(),
             Timestamp = DateTime.UtcNow,
             Type = typeOfMessage,
@@ -250,15 +250,15 @@ public sealed class ChatService : IChatService
         return new Message
         {
             MessageId = message.MessageId,
-            ChatId = message.ChatId,
-            SenderId = message.SenderId,
+            Chat = new Chat { ChatId = message.Chat.ChatId },
+            Sender = new MessageSender { SenderId = message.Sender.SenderId },
             Content = message.Content,
             Timestamp = message.Timestamp,
             Type = message.Type,
             IsRead = message.IsRead,
             OriginalFileName = message.OriginalFileName,
-            ShowReadReceipt = message.SenderId == callerId,
-            SenderInitials = message.SenderId == callerId ? "Me" : "Them",
+            ShowReadReceipt = message.Sender.SenderId == callerId,
+            SenderInitials = message.Sender.SenderId == callerId ? "Me" : "Them",
         };
     }
 

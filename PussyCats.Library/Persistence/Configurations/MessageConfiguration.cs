@@ -19,12 +19,19 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Ignore(message => message.SenderInitials);
 
         // Messages are owned by a chat; cascade so that deleting a chat removes its messages.
-        builder.HasOne<Chat>()
+        builder.HasOne(message => message.Chat)
             .WithMany()
-            .HasForeignKey(message => message.ChatId)
+            .HasForeignKey("ChatId")
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.OwnsOne(message => message.Sender, owned =>
+        {
+            owned.Property(sender => sender.SenderId)
+                .HasColumnName("SenderId")
+                .IsRequired();
+        });
+
         // Index on ChatId supports the common GetForChatAsync query.
-        builder.HasIndex(message => message.ChatId);
+        builder.HasIndex("ChatId");
     }
 }

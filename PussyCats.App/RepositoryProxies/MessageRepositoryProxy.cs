@@ -32,8 +32,8 @@ public class MessageRepositoryProxy : IMessageRepository
     public async Task<Message> AddAsync(Message message, CancellationToken cancellationToken = default)
     {
         using var response = await http.PostAsJsonAsync(
-            $"api/chats/{message.ChatId}/messages",
-            new { message.SenderId, message.Content, message.Type, OriginalFileName = string.IsNullOrEmpty(message.OriginalFileName) ? null : message.OriginalFileName },
+            $"api/chats/{message.Chat.ChatId}/messages",
+            new { message.Sender.SenderId, message.Content, message.Type, OriginalFileName = string.IsNullOrEmpty(message.OriginalFileName) ? null : message.OriginalFileName },
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Message>(response, cancellationToken).ConfigureAwait(false);

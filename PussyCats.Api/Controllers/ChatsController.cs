@@ -176,8 +176,8 @@ public class ChatsController : ControllerBase
 
         var message = new Message
         {
-            ChatId = id,
-            SenderId = body.SenderId,
+            Chat = new Chat { ChatId = id },
+            Sender = new MessageSender { SenderId = body.SenderId },
             Content = body.Content,
             Type = body.Type,
             OriginalFileName = body.OriginalFileName ?? string.Empty,

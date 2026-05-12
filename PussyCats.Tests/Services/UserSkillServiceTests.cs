@@ -19,7 +19,7 @@ public class UserSkillServiceTests
     [Fact]
     public async Task GetByIdAsync_EntryExists_ReturnsSeededEntry()
     {
-        repo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 85 });
+        repo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 85 });
 
         var result = await service.GetByIdAsync(1, 1);
 
@@ -31,20 +31,20 @@ public class UserSkillServiceTests
     public async Task GetByUserIdAsync_MultipleUsersExist_FiltersByUserId()
     {
         repo.Seed(
-            new UserSkill { UserId = 1, SkillId = 1, Score = 80 },
-            new UserSkill { UserId = 1, SkillId = 2, Score = 60 },
-            new UserSkill { UserId = 2, SkillId = 1, Score = 90 });
+            new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 80 },
+            new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 2 }, Score = 60 },
+            new UserSkill { User = new User { UserId = 2 }, Skill = new Skill { SkillId = 1 }, Score = 90 });
 
         var result = await service.GetByUserIdAsync(1);
 
         result.Should().HaveCount(2);
-        result.Should().OnlyContain(userSkill => userSkill.UserId == 1);
+        result.Should().OnlyContain(userSkill => userSkill.User.UserId == 1);
     }
 
     [Fact]
     public async Task AddAsync_ValidEntryProvided_PersistsEntryAndReturnsIt()
     {
-        var entry = new UserSkill { UserId = 1, SkillId = 1, Score = 75 };
+        var entry = new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 75 };
 
         var result = await service.AddAsync(entry);
 
@@ -55,9 +55,9 @@ public class UserSkillServiceTests
     [Fact]
     public async Task UpdateAsync_ExistingEntryModified_ReplacesExistingEntry()
     {
-        repo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 50 });
+        repo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 50 });
 
-        await service.UpdateAsync(new UserSkill { UserId = 1, SkillId = 1, Score = 95 });
+        await service.UpdateAsync(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 95 });
 
         (await service.GetByIdAsync(1, 1))!.Score.Should().Be(95);
     }
@@ -65,7 +65,7 @@ public class UserSkillServiceTests
     [Fact]
     public async Task RemoveAsync_UserSkillExists_DeletesUserSkill()
     {
-        repo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 70 });
+        repo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 70 });
 
         await service.RemoveAsync(1, 1);
 

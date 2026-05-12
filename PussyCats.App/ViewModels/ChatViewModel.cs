@@ -460,7 +460,7 @@ public class ChatViewModel : DispatchableObservableObject
             Messages.Clear();
             foreach (var message in messages)
             {
-                message.SenderInitials = ResolveSenderInitials(message.SenderId);
+                message.SenderInitials = ResolveSenderInitials(message.Sender.SenderId);
                 Messages.Add(new MessageDisplayViewModel(message));
             }
 
@@ -661,7 +661,7 @@ public class ChatViewModel : DispatchableObservableObject
             if (hasUnreadFromOtherParty)
             {
                 await chatService.MarkMessagesAsReadAsync(refreshedSelectedChat.ChatId, callerId);
-                foreach (var message in latestMessages.Where(message => message.SenderId != callerId))
+                foreach (var message in latestMessages.Where(message => message.Sender.SenderId != callerId))
                 {
                     message.IsRead = true;
                 }
@@ -673,7 +673,7 @@ public class ChatViewModel : DispatchableObservableObject
                 Messages.Clear();
                 foreach (var message in latestMessages)
                 {
-                    message.SenderInitials = ResolveSenderInitials(message.SenderId);
+                    message.SenderInitials = ResolveSenderInitials(message.Sender.SenderId);
                     Messages.Add(new MessageDisplayViewModel(message));
                 }
             }
@@ -701,7 +701,7 @@ public class ChatViewModel : DispatchableObservableObject
 
         for (var index = messages.Count - 1; index >= 0; index--)
         {
-            if (messages[index].SenderId == currentSenderId)
+            if (messages[index].Sender.SenderId == currentSenderId)
             {
                 messages[index].ShowReadReceipt = true;
                 break;
@@ -977,7 +977,7 @@ public class ChatViewModel : DispatchableObservableObject
                 current.IsRead != latest.IsRead ||
                 current.Content != latest.Content ||
                 current.Timestamp != latest.Timestamp ||
-                current.SenderId != latest.SenderId ||
+                current.Sender.SenderId != latest.Sender.SenderId ||
                 current.Type != latest.Type)
             {
                 return true;
@@ -1062,7 +1062,7 @@ public class ChatViewModel : DispatchableObservableObject
     {
         foreach (var message in messages)
         {
-            if (message.SenderId != currentCallerId && !message.IsRead)
+            if (message.Sender.SenderId != currentCallerId && !message.IsRead)
             {
                 return true;
             }
