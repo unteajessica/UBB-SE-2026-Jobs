@@ -26,7 +26,7 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         // SecondUser is the other user in a user-to-user chat (nullable).
         builder.HasOne(chat => chat.SecondUser)
             .WithMany()
-            .HasForeignKey(chat => chat.SecondUserId)
+            .HasForeignKey("SecondUserId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // CompanyId is set for user-to-company chats (nullable).
@@ -44,7 +44,7 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         // BlockedByUser is the user who blocked the chat (nullable).
         builder.HasOne(chat => chat.BlockedByUser)
             .WithMany()
-            .HasForeignKey(chat => chat.BlockedByUserId)
+            .HasForeignKey("BlockedByUserId")
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
