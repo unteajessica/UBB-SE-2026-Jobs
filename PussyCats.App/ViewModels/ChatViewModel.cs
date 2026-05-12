@@ -752,7 +752,7 @@ public class ChatViewModel : DispatchableObservableObject
 
         var callerId = GetCallerId();
         ShowBlock = !SelectedChat.IsBlocked;
-        ShowUnblock = SelectedChat.IsBlocked && SelectedChat.BlockedByUserId == callerId;
+        ShowUnblock = SelectedChat.IsBlocked && SelectedChat.BlockedByUser?.UserId == callerId;
 
         if (IsCompanyMode)
         {
@@ -951,7 +951,7 @@ public class ChatViewModel : DispatchableObservableObject
                current.SecondUser?.UserId != updated.SecondUser?.UserId ||
                current.JobId != updated.JobId ||
                current.IsBlocked != updated.IsBlocked ||
-               current.BlockedByUserId != updated.BlockedByUserId ||
+               current.BlockedByUser?.UserId != updated.BlockedByUser?.UserId ||
                !Nullable.Equals(current.DeletedAtByUser, updated.DeletedAtByUser) ||
                !Nullable.Equals(current.DeletedAtBySecondParty, updated.DeletedAtBySecondParty) ||
                current.UnreadCount != updated.UnreadCount ||

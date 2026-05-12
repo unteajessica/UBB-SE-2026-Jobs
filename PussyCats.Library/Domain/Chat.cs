@@ -10,6 +10,7 @@ public class Chat
     public int? JobId { get; set; }
     public bool IsBlocked { get; set; }
     public int? BlockedByUserId { get; set; }
+    public User? BlockedByUser { get; set; }
     public DateTime? DeletedAtByUser { get; set; }
     public DateTime? DeletedAtBySecondParty { get; set; }
     public string LastMessageSnippet { get; set; } = string.Empty;
