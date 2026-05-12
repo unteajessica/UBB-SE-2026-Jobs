@@ -134,7 +134,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact]
-    public void CalculateScoreBreakdown_NoJobSkills_ReturnsZero()
+    public void CalculateScoreBreakdown_NoJobSkills_ReturnsKeywordScoreZero()
     {
         var user = BuildUser(locationPreference: "Cluj-Napoca", employmentType: "Part-time", parsedCv: "csharp sql azure");
         var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: "csharp docker", promotionLevel: 40);
@@ -153,7 +153,7 @@ public class RecommendationAlgorithmTests
     }
 
     [Fact]
-    public void CalculateScoreBreakdown_NoKeywords_ReturnsZero()
+    public void CalculateScoreBreakdown_NoKeywords_ReturnsKeywordScoreZero()
     {
         var user = BuildUser(locationPreference: "Cluj-Napoca", employmentType: "Part-time", parsedCv: string.Empty);
         var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: string.Empty, promotionLevel: 40);
@@ -161,6 +161,75 @@ public class RecommendationAlgorithmTests
         double expectedResult = 0;
         breakdown.KeywordScore.Should().Be(expectedResult);
     }
+
+    [Fact]
+    public void CalculateScoreBreakdown_KeywordsMatching_ReturnsNonZeroKeywordScore()
+    {
+        var user = BuildUser(locationPreference: "Cluj-Napoca", employmentType: "Part-time", parsedCv: "csharp sql azure");
+        var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: "csharp docker", promotionLevel: 40);
+        var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
+        double expectedResult = 25; // 1 out of 4 keywords match
+        breakdown.KeywordScore.Should().Be(expectedResult);
+    }
+
+    [Fact]
+    public void CalculateScoreBreakdown_NoMatchingKeywords_ReturnsZero()
+    {
+        var user = BuildUser(locationPreference: "Cluj-Napoca", employmentType: "Part-time", parsedCv: "python java");
+        var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: "csharp docker", promotionLevel: 40);
+        var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
+        double expectedResult = 0;
+        breakdown.KeywordScore.Should().Be(expectedResult);
+    }
+
+    [Fact]
+    public void CalculateScoreBreakdown_NoMatchingPreferences_ReturnsZeroPreferenceScore()
+    {
+        string userLocationPreference = "Cluj-Napoca", userEmploymentType = "Part-time";
+        string jobLocationPreference = "Remote", jobEmploymentType = "Full-time";
+        var user = BuildUser(locationPreference: userLocationPreference, employmentType: userEmploymentType, parsedCv: string.Empty);
+        var job = BuildJob(location: jobLocationPreference, employmentType: jobEmploymentType, description: string.Empty, promotionLevel: 40);
+        var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
+        double expectedResult = 0;
+        breakdown.PreferenceScore.Should().Be(expectedResult);
+    }
+
+    [Fact]
+    public void CalculateScoreBreakdown_MatchingLocation_ReturnsLocationPreferenceScore()
+    {
+        string location = "Cluj-Napoca";
+        string userEmploymentType = "Part-time", jobEmploymentType = "Full-time";
+        var user = BuildUser(locationPreference: location, employmentType: userEmploymentType, parsedCv: string.Empty);
+        var job = BuildJob(location: location, employmentType: jobEmploymentType, description: string.Empty, promotionLevel: 40);
+        var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
+        double expectedResult = 50;
+        breakdown.PreferenceScore.Should().Be(expectedResult);
+    }
+
+    [Fact]
+    public void CalculateScoreBreakdown_MatchingEmploymentType_ReturnsEmploymentTypePreferenceScore()
+    {
+        string userLocationPreference = "Cluj-Napoca", jobLocationPreference = "Remote";
+        string employmentType = "Full-time";
+        var user = BuildUser(locationPreference: userLocationPreference, employmentType: employmentType, parsedCv: string.Empty);
+        var job = BuildJob(location: jobLocationPreference, employmentType: employmentType, description: string.Empty, promotionLevel: 40);
+        var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
+        double expectedResult = 50; 
+        breakdown.PreferenceScore.Should().Be(expectedResult);
+    }
+
+    [Fact]
+    public void CalculateScoreBreakdown_MatchingPreferences_ReturnsFullPreferenceScore()
+    {
+        string location = "Cluj-Napoca";
+        string employmentType = "Full-time";
+        var user = BuildUser(locationPreference: location, employmentType: employmentType, parsedCv: string.Empty);
+        var job = BuildJob(location: location, employmentType: employmentType, description: string.Empty, promotionLevel: 40);
+        var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
+        double expectedResult = 100; 
+        breakdown.PreferenceScore.Should().Be(expectedResult);
+    }
+
 
     [Fact]
     public void CalculateCompatibilityScore_SkillsIdsDifferButNamesMatch_Returns100()
