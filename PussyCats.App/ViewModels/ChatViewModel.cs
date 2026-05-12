@@ -1138,20 +1138,6 @@ public class ChatViewModel : DispatchableObservableObject
         return result;
     }
 
-    private static string GetChatDisplayName(Chat chat)
-    {
-        if (chat.SecondUser is not null)
-        {
-            return chat.SecondUser.Name;
-        }
-
-        if (chat.CompanyId.HasValue)
-        {
-            return chat.Company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
-        }
-
-        return chat.User.Name;
-    }
 }
 
 public sealed class MessageDisplayViewModel
@@ -1202,6 +1188,21 @@ public sealed class ContactSearchResultViewModel
     public static ContactSearchResultViewModel ForChat(Chat chat)
     {
         return new ContactSearchResultViewModel(ContactSearchResultKind.Chat, chat.ChatId, GetChatDisplayName(chat), chat.LastMessageSnippet, chat);
+    }
+
+    private static string GetChatDisplayName(Chat chat)
+    {
+        if (chat.SecondUser is not null)
+        {
+            return chat.SecondUser.Name;
+        }
+
+        if (chat.CompanyId.HasValue)
+        {
+            return chat.Company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
+        }
+
+        return chat.User.Name;
     }
 }
 
