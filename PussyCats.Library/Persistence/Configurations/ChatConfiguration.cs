@@ -16,7 +16,6 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         builder.Ignore(chat => chat.LastMessageTime);
         builder.Ignore(chat => chat.LastMessage);
         builder.Ignore(chat => chat.UnreadCount);
-        builder.Ignore(chat => chat.OtherPartyName);
 
         // UserId is the primary participant (always a user/candidate).
         builder.HasOne(chat => chat.User)

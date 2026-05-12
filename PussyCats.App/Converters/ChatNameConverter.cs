@@ -20,7 +20,7 @@ public class ChatNameConverter : IValueConverter
 
         if (value is User user)
         {
-            return $"{user.FirstName} {user.LastName}".Trim();
+            return user.Name;
         }
 
         if (value is Company company)

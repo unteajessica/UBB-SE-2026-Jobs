@@ -6,6 +6,8 @@ public class User
 {
     public int UserId { get; set; }
 
+    public string Name => $"{FirstName} {LastName}".Trim();
+
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public int Age { get; set; }
