@@ -38,7 +38,7 @@ public class SkillGapService : ISkillGapService
         var missingCount = new Dictionary<string, int>();
         foreach (var match in rejectedMatches)
         {
-            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, cancellationToken).ConfigureAwait(false))
+            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.Job.JobId, cancellationToken).ConfigureAwait(false))
             {
                 if (!userSkillIds.Contains(jobSkill.Skill.SkillId))
                 {
@@ -80,7 +80,7 @@ public class SkillGapService : ISkillGapService
         var requiredScoresPerSkill = new Dictionary<int, (string Name, int UserScore, List<int> RequiredScores)>();
         foreach (var match in rejectedMatches)
         {
-            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, cancellationToken).ConfigureAwait(false))
+            foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.Job.JobId, cancellationToken).ConfigureAwait(false))
             {
                 if (!userSkillMap.TryGetValue(jobSkill.Skill.SkillId, out var userSkill))
                 {

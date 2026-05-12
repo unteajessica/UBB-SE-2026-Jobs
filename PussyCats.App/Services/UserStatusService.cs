@@ -42,19 +42,19 @@ public class UserStatusService : IUserStatusService
 
         foreach (var match in matches)
         {
-            if (!jobsById.TryGetValue(match.JobId, out var matchedJob))
+            if (!jobsById.TryGetValue(match.Job.JobId, out var matchedJob))
             {
                 continue;
             }
 
             companiesById.TryGetValue(matchedJob.Company.CompanyId, out var company);
-            var jobSkills = jobSkillsByJobId.GetValueOrDefault(match.JobId) ?? [];
+            var jobSkills = jobSkillsByJobId.GetValueOrDefault(match.Job.JobId) ?? [];
             var score = CalculateCompatibilityScore(userSkills, jobSkills);
 
             result.Add(new ApplicationCardModel
             {
                 MatchId = match.MatchId,
-                JobId = match.JobId,
+                JobId = match.Job.JobId,
                 CompanyName = company?.CompanyName ?? "Unknown Company",
                 JobDescription = matchedJob.JobDescription,
                 AppliedDate = match.Timestamp,
