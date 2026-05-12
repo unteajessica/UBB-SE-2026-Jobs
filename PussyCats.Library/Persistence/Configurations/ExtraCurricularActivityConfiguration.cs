@@ -18,6 +18,6 @@ public class ExtraCurricularActivityConfiguration : IEntityTypeConfiguration<Ext
         builder.Property(activity => activity.Description).HasMaxLength(2000);
 
         // Cascade configured on UserConfiguration (User -> ExtraCurricularActivities).
-        builder.HasIndex(activity => activity.UserId);
+        builder.HasIndex("UserId");
     }
 }

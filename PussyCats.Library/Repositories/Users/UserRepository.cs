@@ -153,7 +153,7 @@ public class UserRepository : IUserRepository
         {
             target.ExtraCurricularActivities.Add(new ExtraCurricularActivity
             {
-                UserId = target.UserId,
+                User = target,
                 ActivityName = activity.ActivityName,
                 Organization = activity.Organization,
                 Role = activity.Role,

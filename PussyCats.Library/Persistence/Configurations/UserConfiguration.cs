@@ -48,7 +48,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasMany(user => user.ExtraCurricularActivities)
             .WithOne(activity => activity.User)
-            .HasForeignKey(activity => activity.UserId)
+            .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(user => user.Skills)
