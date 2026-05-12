@@ -6,6 +6,7 @@ public class Chat
     public int UserId { get; set; }
     public int? CompanyId { get; set; }
     public int? SecondUserId { get; set; }
+    public User? SecondUser { get; set; }
     public int? JobId { get; set; }
     public bool IsBlocked { get; set; }
     public int? BlockedByUserId { get; set; }

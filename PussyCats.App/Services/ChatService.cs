@@ -239,7 +239,7 @@ public sealed class ChatService : IChatService
 
     private static void EnsureParticipant(Chat chat, int callerId)
     {
-        if (chat.UserId != callerId && chat.SecondUserId != callerId && chat.CompanyId != callerId)
+        if (chat.UserId != callerId && chat.SecondUser?.UserId != callerId && chat.CompanyId != callerId)
         {
             throw new UnauthorizedAccessException("Only chat participants can access this chat.");
         }

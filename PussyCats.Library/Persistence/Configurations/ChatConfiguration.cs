@@ -24,8 +24,8 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
             .HasForeignKey(chat => chat.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // SecondUserId is the other user in a user-to-user chat (nullable).
-        builder.HasOne<User>()
+        // SecondUser is the other user in a user-to-user chat (nullable).
+        builder.HasOne(chat => chat.SecondUser)
             .WithMany()
             .HasForeignKey(chat => chat.SecondUserId)
             .OnDelete(DeleteBehavior.Restrict);

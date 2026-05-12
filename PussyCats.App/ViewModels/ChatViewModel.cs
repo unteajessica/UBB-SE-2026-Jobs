@@ -383,7 +383,7 @@ public class ChatViewModel : DispatchableObservableObject
 
             if (IsCandidateMode)
             {
-                ActiveTab = chat.SecondUserId.HasValue ? "Users" : "Company";
+                ActiveTab = chat.SecondUser != null ? "Users" : "Company";
                 ApplyTabFilter();
 
                 var oldFilteredChat = FindChatById(FilteredChats, chat.ChatId);
@@ -761,7 +761,7 @@ public class ChatViewModel : DispatchableObservableObject
         }
         else
         {
-            ShowGoToProfile = SelectedChat.SecondUserId.HasValue;
+            ShowGoToProfile = SelectedChat.SecondUser != null;
             ShowGoToCompanyProfile = SelectedChat.CompanyId.HasValue;
         }
 
@@ -840,7 +840,7 @@ public class ChatViewModel : DispatchableObservableObject
             return;
         }
 
-        var userId = SelectedChat.SecondUserId ?? SelectedChat.UserId;
+        var userId = SelectedChat.SecondUser?.UserId ?? SelectedChat.UserId;
         if (userId <= 0)
         {
             return;
@@ -948,7 +948,7 @@ public class ChatViewModel : DispatchableObservableObject
     {
         return current.UserId != updated.UserId ||
                current.CompanyId != updated.CompanyId ||
-               current.SecondUserId != updated.SecondUserId ||
+               current.SecondUser?.UserId != updated.SecondUser?.UserId ||
                current.JobId != updated.JobId ||
                current.IsBlocked != updated.IsBlocked ||
                current.BlockedByUserId != updated.BlockedByUserId ||
@@ -1022,7 +1022,7 @@ public class ChatViewModel : DispatchableObservableObject
         var result = new List<Chat>();
         foreach (var chat in chats)
         {
-            if (chat.SecondUserId.HasValue)
+            if (chat.SecondUser != null)
             {
                 result.Add(chat);
             }
@@ -1087,7 +1087,7 @@ public class ChatViewModel : DispatchableObservableObject
         var result = new List<Chat>();
         foreach (var chat in chats)
         {
-            if (!chat.SecondUserId.HasValue)
+            if (chat.SecondUser == null)
             {
                 continue;
             }
