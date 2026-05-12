@@ -116,7 +116,7 @@ public class ChatsController : ControllerBase
         if (chat is null)
             return NotFound();
 
-        if (chat.BlockedByUserId != body.UnblockerId)
+        if (chat.BlockedByUser?.UserId != body.UnblockerId)
             return Problem(detail: "Only the user who blocked this chat can unblock it.", statusCode: 403);
 
         chat.IsBlocked = false;
@@ -249,7 +249,7 @@ public class ChatsController : ControllerBase
             return user is not null ? $"{user.FirstName} {user.LastName}".Trim() : $"User {chat.UserId}";
         }
 
-        var otherUserId = chat.UserId == callerId ? chat.SecondUserId : chat.UserId;
+        var otherUserId = chat.UserId == callerId ? chat.SecondUser?.UserId : chat.UserId;
         if (otherUserId.HasValue)
         {
             var otherUser = await userRepo.GetByIdAsync(otherUserId.Value, cancellationToken).ConfigureAwait(false);

@@ -198,7 +198,7 @@ public sealed class ChatService : IChatService
         var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, unblockerId);
-        if (chat.BlockedByUserId != unblockerId)
+        if (chat.BlockedByUser?.UserId != unblockerId)
         {
             throw new UnauthorizedAccessException("Only the blocker can unblock this chat.");
         }
@@ -228,7 +228,7 @@ public sealed class ChatService : IChatService
 
     private static bool ShouldIncludeChat(Chat chat, int callerId)
     {
-        if (chat.IsBlocked && chat.BlockedByUserId != callerId)
+        if (chat.IsBlocked && chat.BlockedByUser?.UserId != callerId)
         {
             return false;
         }
@@ -239,7 +239,7 @@ public sealed class ChatService : IChatService
 
     private static void EnsureParticipant(Chat chat, int callerId)
     {
-        if (chat.UserId != callerId && chat.SecondUserId != callerId && chat.CompanyId != callerId)
+        if (chat.UserId != callerId && chat.SecondUser?.UserId != callerId && chat.CompanyId != callerId)
         {
             throw new UnauthorizedAccessException("Only chat participants can access this chat.");
         }
