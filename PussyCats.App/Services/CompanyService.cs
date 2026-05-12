@@ -12,7 +12,7 @@ public class CompanyService : ICompanyService
         this.companyRepository = companyRepository;
     }
 
-    public async Task<Company?> GetByIdAsync(int companyId, CancellationToken cancellationToken = default)
+    public async Task<Company?> GetByIdAsync(int companyId, CancellationToken cancellationToken = default)//TODO
     {
         return await companyRepository.GetByIdAsync(companyId, cancellationToken).ConfigureAwait(false);
     }

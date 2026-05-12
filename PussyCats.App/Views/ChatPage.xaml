@@ -449,7 +449,7 @@
                                        VerticalAlignment="Center" />
 
                             <Button x:Name="JobBannerButton"
-                                    Visibility="{Binding SelectedChat.JobId, Converter={StaticResource ObjectToVisibilityConverter}}"
+                                    Visibility="{Binding SelectedChat.Job.JobId, Converter={StaticResource ObjectToVisibilityConverter}}"
                                     Click="HandleGoToJobPostClick"
                                     Background="{StaticResource ChatColorSelection}"
                                     BorderBrush="{StaticResource ChatColorAccentBorderSoft}"

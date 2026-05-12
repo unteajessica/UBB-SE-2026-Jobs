@@ -32,13 +32,13 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         // CompanyId is set for user-to-company chats (nullable).
         builder.HasOne(chat => chat.Company)
             .WithMany()
-            .HasForeignKey(chat => chat.CompanyId)
+            .HasForeignKey("CompanyId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // JobId links the chat to a specific job posting (nullable).
-        builder.HasOne<Job>()
+        builder.HasOne(chat=>chat.Job)
             .WithMany()
-            .HasForeignKey(chat => chat.JobId)
+            .HasForeignKey("JobId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // BlockedByUser is the user who blocked the chat (nullable).

@@ -5,7 +5,8 @@ namespace PussyCats.App.Services;
 
 public interface IChatService
 {
-    Task<Chat?> FindOrCreateUserCompanyChatAsync(int userId, int companyId, int? jobId = null, CancellationToken cancellationToken = default);
+    Task<Chat?> FindOrCreateUserCompanyChatAsync(int userId, Company company, Job? job = null,
+        CancellationToken cancellationToken = default);
 
     Task<Chat?> FindOrCreateUserChatAsync(int userId, int secondUserId, CancellationToken cancellationToken = default);
 

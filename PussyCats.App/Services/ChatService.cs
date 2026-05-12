@@ -46,9 +46,10 @@ public sealed class ChatService : IChatService
         this.fileStorage = fileStorage;
     }
 
-    public async Task<Chat?> FindOrCreateUserCompanyChatAsync(int userId, int companyId, int? jobId = null, CancellationToken cancellationToken = default)
+    public async Task<Chat?> FindOrCreateUserCompanyChatAsync(int userId, Company company, Job? job = null,
+        CancellationToken cancellationToken = default)
     {
-        var existing = await chatRepository.FindUserCompanyChatAsync(userId, companyId, jobId, cancellationToken).ConfigureAwait(false);
+        var existing = await chatRepository.FindUserCompanyChatAsync(userId, company, job?.JobId, cancellationToken).ConfigureAwait(false);
         if (existing is not null)
         {
             existing.DeletedAtByUser = null;
@@ -57,7 +58,7 @@ public sealed class ChatService : IChatService
             return existing;
         }
 
-        return await chatRepository.AddAsync(new Chat { User = await GetUserAsync(userId, cancellationToken), CompanyId = companyId, JobId = jobId }, cancellationToken).ConfigureAwait(false);
+        return await chatRepository.AddAsync(new Chat { User = await GetUserAsync(userId, cancellationToken), Company = company, Job = job }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Chat?> FindOrCreateUserChatAsync(int userId, int secondUserId, CancellationToken cancellationToken = default)
@@ -239,7 +240,7 @@ public sealed class ChatService : IChatService
 
     private static void EnsureParticipant(Chat chat, int callerId)
     {
-        if (chat.User.UserId != callerId && chat.SecondUserId != callerId && chat.CompanyId != callerId)
+        if (chat.User.UserId != callerId && chat.SecondUserId != callerId && chat.Company?.CompanyId != callerId)
         {
             throw new UnauthorizedAccessException("Only chat participants can access this chat.");
         }

@@ -77,14 +77,14 @@ public class ChatsController : ControllerBase
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
 
-        if (body.CompanyId.HasValue)
+        if (body.Company!=null)
         {
-            var existing = await chatRepo.FindUserCompanyChatAsync(body.UserId, body.CompanyId.Value, body.JobId, cancellationToken).ConfigureAwait(false);
+            var existing = await chatRepo.FindUserCompanyChatAsync(body.UserId, body.Company, body.Job?.JobId, cancellationToken).ConfigureAwait(false);
             if (existing is not null)
                 return Ok(existing);
 
             var created = await chatRepo.AddAsync(
-                new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), CompanyId = body.CompanyId, JobId = body.JobId },
+                new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), Company = body.Company, Job = body.Job },
                 cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
@@ -230,7 +230,7 @@ public class ChatsController : ControllerBase
         chat.UnreadCount = await messageRepo.GetUnreadCountAsync(chat.ChatId, callerId, cancellationToken).ConfigureAwait(false);
     }
 
-    public record FindOrCreateChatRequest(int UserId, int? CompanyId, int? SecondUserId, int? JobId);
+    public record FindOrCreateChatRequest(int UserId, Company? Company, int? SecondUserId, Job? Job);
     public record BlockRequest(int BlockerId);
     public record UnblockRequest(int UnblockerId);
     public record AddMessageRequest(int SenderId, string Content, MessageType Type, string? OriginalFileName);
