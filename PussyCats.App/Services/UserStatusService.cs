@@ -34,14 +34,15 @@ public class UserStatusService : IUserStatusService
             .ToDictionary(job => job.JobId);
         var companiesById = (await companyService.GetAllAsync(cancellationToken).ConfigureAwait(false))
             .ToDictionary(company => company.CompanyId);
+        /*
         var jobSkillsByJobId = (await jobSkillService.GetAllAsync(cancellationToken).ConfigureAwait(false))
             .GroupBy(jobSkill => jobSkill.Job != null ? jobSkill.Job.JobId : 0)
             .Where(group => group.Key != 0)
-            .ToDictionary(group => group.Key, group => (IReadOnlyList<JobSkill>)group.ToList());
-        /*
+            .ToDictionary(group => group.Key, group => (IReadOnlyList<JobSkill>)group.ToList());*/
+        
         var jobSkillsByJobId = (await jobSkillService.GetAllAsync(cancellationToken).ConfigureAwait(false))
             .GroupBy(jobSkill => jobSkill.Job.JobId)
-            .ToDictionary(group => group.Key, group => (IReadOnlyList<JobSkill>)group.ToList());*/
+            .ToDictionary(group => group.Key, group => (IReadOnlyList<JobSkill>)group.ToList());
         var result = new List<ApplicationCardModel>();
 
         foreach (var match in matches)
