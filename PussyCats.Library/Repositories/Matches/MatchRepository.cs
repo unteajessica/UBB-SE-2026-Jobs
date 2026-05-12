@@ -31,6 +31,7 @@ public class MatchRepository : IMatchRepository
         return await databaseContext.Matches
             .AsNoTracking()
             .Include(match => match.Job).ThenInclude(job => job.Company)
+            .Include(match=>match.User)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
