@@ -6,7 +6,6 @@ public class ExtraCurricularActivity
 {
     public int ExtraCurricularActivityId { get; set; }
 
-   // public int UserId { get; set; }
     public User User { get; set; } = null!;
 
     public string ActivityName { get; set; } = string.Empty;
