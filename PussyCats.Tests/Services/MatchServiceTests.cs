@@ -210,7 +210,7 @@ public class MatchServiceTests
         var matches = await service.GetByCompanyIdAsync(companyId);
         matches.Should().BeEmpty();
     }
-
+        
     [Fact]
     public async Task GetByCompanyIdAsync_CompanyHasBothJobsAndMatchesButNotMatching_ReturnsEmpty()
     {

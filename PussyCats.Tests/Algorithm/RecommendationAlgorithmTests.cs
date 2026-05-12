@@ -49,6 +49,7 @@ public class RecommendationAlgorithmTests
         score.Should().BeApproximately(45.625, 0.0001);
     }
 
+    // This should probably be broken down into several pieces, or removed after adding those pieces individually.
     [Fact]
     public void CalculateScoreBreakdown_ValidInputs_ReturnsComponentScoresAndRoundedOverallScore()
     {
@@ -71,6 +72,12 @@ public class RecommendationAlgorithmTests
         breakdown.PreferenceScore.Should().Be(50);
         breakdown.PromotionScore.Should().Be(40);
         breakdown.OverallScore.Should().Be(45.6);
+    }
+
+    [Fact]
+    public void CalculateScoreBreakdown_ValidInputs_ReturnsCorrectSkillScore()
+    {
+
     }
 
     [Fact]
@@ -120,8 +127,9 @@ public class RecommendationAlgorithmTests
 
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
 
-        breakdown.SkillScore.Should().Be(0);
-        breakdown.OverallScore.Should().Be(75);
+        const int expectedSkillScore = 0, expectedOverallScore = 75;
+        breakdown.SkillScore.Should().Be(expectedSkillScore);
+        breakdown.OverallScore.Should().Be(expectedOverallScore);
     }
 
     [Fact(Skip = "Dynamic weights deferred per MergePlan section 8.")]
