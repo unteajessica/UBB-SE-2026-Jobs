@@ -73,7 +73,7 @@ public class ChatsController : ControllerBase
             if (existing is not null)
                 return Ok(existing);
 
-            var created = await chatRepo.AddAsync(new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), SecondUserId = body.SecondUserId }, cancellationToken).ConfigureAwait(false);
+            var created = await chatRepo.AddAsync(new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), SecondUser = await GetUserOrThrowAsync(body.SecondUserId.Value, cancellationToken) }, cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
 
@@ -100,7 +100,8 @@ public class ChatsController : ControllerBase
             return NotFound();
 
         chat.IsBlocked = true;
-        chat.BlockedByUserId = body.BlockerId;
+        //chat.BlockedByUserId = body.BlockerId;
+        chat.BlockedByUser = await GetUserOrThrowAsync(body.BlockerId, cancellationToken);
         await chatRepo.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
         return NoContent();
     }
@@ -116,7 +117,7 @@ public class ChatsController : ControllerBase
             return Problem(detail: "Only the user who blocked this chat can unblock it.", statusCode: 403);
 
         chat.IsBlocked = false;
-        chat.BlockedByUserId = null;
+        chat.BlockedByUser = null;
         await chatRepo.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
         return NoContent();
     }
@@ -145,7 +146,7 @@ public class ChatsController : ControllerBase
             return NotFound();
 
         existing.IsBlocked = body.IsBlocked;
-        existing.BlockedByUserId = body.BlockedByUserId;
+        existing.BlockedByUser = body.BlockedByUser;
         existing.DeletedAtByUser = body.DeletedAtByUser;
         existing.DeletedAtBySecondParty = body.DeletedAtBySecondParty;
         await chatRepo.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);

@@ -35,7 +35,7 @@ public class ChatRepository : IChatRepository
             .Include(chat => chat.Company)
             .AsNoTracking()
             .Include(chat => chat.BlockedByUser)
-            .Where(chat => chat.User.UserId == userId || chat.SecondUserId == userId)
+            .Where(chat => chat.User.UserId == userId || chat.SecondUser.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -61,8 +61,8 @@ public class ChatRepository : IChatRepository
             .AsNoTracking()
             .Include(chat => chat.BlockedByUser)
             .FirstOrDefaultAsync(
-                chat => (chat.User.UserId == userId && chat.SecondUserId == secondUserId)
-                     || (chat.User.UserId == secondUserId && chat.SecondUserId == userId),
+                chat => (chat.User.UserId == userId && chat.SecondUser.UserId == secondUserId)
+                     || (chat.User.UserId == secondUserId && chat.SecondUser.UserId == userId),
                 cancellationToken)
             .ConfigureAwait(false);
     }
@@ -81,7 +81,7 @@ public class ChatRepository : IChatRepository
                         && chat.Company != null 
                         && chat.Company.CompanyId == company.CompanyId
                         && chat.Job!=null && chat.Job.JobId == jobId
-                        && chat.SecondUserId == null,
+                        && chat.SecondUser.UserId == null,
                 cancellationToken)
             .ConfigureAwait(false);
     }

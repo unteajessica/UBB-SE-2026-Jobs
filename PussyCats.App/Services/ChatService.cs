@@ -72,7 +72,7 @@ public sealed class ChatService : IChatService
             return existing;
         }
 
-        return await chatRepository.AddAsync(new Chat { User = await GetUserAsync(userId, cancellationToken), SecondUserId = secondUserId }, cancellationToken).ConfigureAwait(false);
+        return await chatRepository.AddAsync(new Chat { User = await GetUserAsync(userId, cancellationToken), SecondUser = await GetUserAsync(secondUserId, cancellationToken) }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Chat>> GetChatsForUserAsync(int userId, CancellationToken cancellationToken = default)
@@ -190,7 +190,7 @@ public sealed class ChatService : IChatService
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
         EnsureParticipant(chat, blockerId);
         chat.IsBlocked = true;
-        chat.BlockedByUserId = blockerId;
+        chat.BlockedByUser = new User { UserId = blockerId };
         await chatRepository.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
     }
 
@@ -205,7 +205,7 @@ public sealed class ChatService : IChatService
         }
 
         chat.IsBlocked = false;
-        chat.BlockedByUserId = null;
+        chat.BlockedByUser = null;
         await chatRepository.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
     }
 
@@ -240,7 +240,7 @@ public sealed class ChatService : IChatService
 
     private static void EnsureParticipant(Chat chat, int callerId)
     {
-        if (chat.User.UserId != callerId && chat.SecondUserId != callerId && chat.Company?.CompanyId != callerId)
+        if (chat.User.UserId != callerId && chat.SecondUser?.UserId != callerId && chat.Company?.CompanyId != callerId)
         {
             throw new UnauthorizedAccessException("Only chat participants can access this chat.");
         }
