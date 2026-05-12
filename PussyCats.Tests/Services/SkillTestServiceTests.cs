@@ -66,7 +66,6 @@ public class SkillTestServiceTests
         SkillTestService.IsRetakeEligible(testTooRecent).Should().BeFalse();
     }
 
-
     [Fact]
     public async Task SubmitRetakeAsync_EligibleTest_ReturnsBadge()
     {
@@ -81,13 +80,29 @@ public class SkillTestServiceTests
             .Build());
 
         var badgeResult = await skillTestService.SubmitRetakeAsync(skillTestId, newScore);
-        
-        var updatedTest = await skillTestRepository.GetByIdAsync(skillTestId);
-        updatedTest!.Score.Should().Be(newScore);
-
         badgeResult.Should().NotBeNull();
 
     }
+
+    [Fact]
+    public async Task SubmitRetakeAsync_EligibleTest_UpdatesScore()
+    {
+        int skillTestId = 1;
+        int initialScore = 40;
+        int newScore = 95;
+        DateOnly sixMonthsAgo = DateOnly.FromDateTime(DateTime.Now.AddMonths(-6));
+        skillTestRepository.Seed(new SkillTestBuilder()
+            .WithId(skillTestId)
+            .WithScore(initialScore)
+            .WithAchievedDate(sixMonthsAgo)
+            .Build());
+
+        var badgeResult = await skillTestService.SubmitRetakeAsync(skillTestId, newScore);
+
+        var updatedTest = await skillTestRepository.GetByIdAsync(skillTestId);
+        updatedTest!.Score.Should().Be(newScore);
+    }
+
 
     [Fact]
     public async Task SubmitRetakeAsync_NotYetEligible_ThrowsException()
