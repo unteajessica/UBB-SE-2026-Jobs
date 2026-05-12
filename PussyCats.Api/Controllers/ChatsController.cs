@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Chats;
-using PussyCats.Library.Repositories.Companies;
 using PussyCats.Library.Repositories.Messages;
 using PussyCats.Library.Repositories.Users;
 
@@ -15,18 +14,15 @@ public class ChatsController : ControllerBase
     private readonly IChatRepository chatRepo;
     private readonly IMessageRepository messageRepo;
     private readonly IUserRepository userRepo;
-    private readonly ICompanyRepository companyRepo;
 
     public ChatsController(
         IChatRepository chatRepo,
         IMessageRepository messageRepo,
-        IUserRepository userRepo,
-        ICompanyRepository companyRepo)
+        IUserRepository userRepo)
     {
         this.chatRepo = chatRepo;
         this.messageRepo = messageRepo;
         this.userRepo = userRepo;
-        this.companyRepo = companyRepo;
     }
 
     [HttpGet]
@@ -232,31 +228,6 @@ public class ChatsController : ControllerBase
                 : latest.Timestamp.ToLocalTime().ToString("dd MMM");
         }
         chat.UnreadCount = await messageRepo.GetUnreadCountAsync(chat.ChatId, callerId, cancellationToken).ConfigureAwait(false);
-        chat.OtherPartyName = await ResolveOtherPartyNameAsync(chat, callerId, cancellationToken).ConfigureAwait(false);
-    }
-
-    private async Task<string> ResolveOtherPartyNameAsync(Chat chat, int callerId, CancellationToken cancellationToken)
-    {
-        if (chat.CompanyId.HasValue)
-        {
-            if (chat.User.UserId == callerId)
-            {
-                var company = await companyRepo.GetByIdAsync(chat.CompanyId.Value, cancellationToken).ConfigureAwait(false);
-                return company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
-            }
-            
-            var user = chat.User;
-            return user is not null ? $"{user.FirstName} {user.LastName}".Trim() : $"User {chat.User.UserId}";
-        }
-
-        var otherUserId = chat.User.UserId == callerId ? chat.SecondUserId : chat.User.UserId;
-        if (otherUserId.HasValue)
-        {
-            var otherUser = await userRepo.GetByIdAsync(otherUserId.Value, cancellationToken).ConfigureAwait(false);
-            return otherUser is not null ? $"{otherUser.FirstName} {otherUser.LastName}".Trim() : $"User {otherUserId.Value}";
-        }
-
-        return "Conversation";
     }
 
     public record FindOrCreateChatRequest(int UserId, int? CompanyId, int? SecondUserId, int? JobId);

@@ -955,7 +955,6 @@ public class ChatViewModel : DispatchableObservableObject
                !Nullable.Equals(current.DeletedAtByUser, updated.DeletedAtByUser) ||
                !Nullable.Equals(current.DeletedAtBySecondParty, updated.DeletedAtBySecondParty) ||
                current.UnreadCount != updated.UnreadCount ||
-               !string.Equals(current.OtherPartyName, updated.OtherPartyName, StringComparison.Ordinal) ||
                !string.Equals(current.LastMessage, updated.LastMessage, StringComparison.Ordinal) ||
                !string.Equals(current.LastMessageSnippet, updated.LastMessageSnippet, StringComparison.Ordinal) ||
                !string.Equals(current.LastMessageTime, updated.LastMessageTime, StringComparison.Ordinal);
@@ -1092,7 +1091,7 @@ public class ChatViewModel : DispatchableObservableObject
                 continue;
             }
 
-            if (chat.OtherPartyName.Contains(query, StringComparison.OrdinalIgnoreCase))
+            if (ChatDisplayNameResolver.Resolve(chat).Contains(query, StringComparison.OrdinalIgnoreCase))
             {
                 result.Add(chat);
             }
@@ -1111,7 +1110,7 @@ public class ChatViewModel : DispatchableObservableObject
                 continue;
             }
 
-            if (chat.OtherPartyName.Contains(query, StringComparison.OrdinalIgnoreCase))
+            if (ChatDisplayNameResolver.Resolve(chat).Contains(query, StringComparison.OrdinalIgnoreCase))
             {
                 result.Add(chat);
             }
@@ -1130,7 +1129,7 @@ public class ChatViewModel : DispatchableObservableObject
                 continue;
             }
 
-            if (chat.OtherPartyName.Contains(query, StringComparison.OrdinalIgnoreCase))
+            if (ChatDisplayNameResolver.Resolve(chat).Contains(query, StringComparison.OrdinalIgnoreCase))
             {
                 result.Add(chat);
             }
@@ -1187,7 +1186,25 @@ public sealed class ContactSearchResultViewModel
 
     public static ContactSearchResultViewModel ForChat(Chat chat)
     {
-        return new ContactSearchResultViewModel(ContactSearchResultKind.Chat, chat.ChatId, chat.OtherPartyName, chat.LastMessageSnippet, chat);
+        return new ContactSearchResultViewModel(ContactSearchResultKind.Chat, chat.ChatId, ChatDisplayNameResolver.Resolve(chat), chat.LastMessageSnippet, chat);
+    }
+}
+
+internal static class ChatDisplayNameResolver
+{
+    public static string Resolve(Chat chat)
+    {
+        if (chat.SecondUser is not null)
+        {
+            return chat.SecondUser.Name;
+        }
+
+        if (chat.CompanyId.HasValue)
+        {
+            return chat.Company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
+        }
+
+        return chat.User.Name;
     }
 }
 
