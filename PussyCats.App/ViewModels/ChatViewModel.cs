@@ -1199,9 +1199,9 @@ internal static class ChatDisplayNameResolver
             return chat.SecondUser.Name;
         }
 
-        if (chat.CompanyId.HasValue)
+        if (chat.Company!=null)
         {
-            return chat.Company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
+            return chat.Company?.CompanyName ?? $"Company {chat.Company.CompanyId}";
         }
 
         return chat.User.Name;
