@@ -32,7 +32,7 @@ public class UserSkillRepositoryProxy : IUserSkillRepository
     {
         var requestBody = CreateRequestBody(userSkill);
         using var response = await http.PostAsJsonAsync(
-            $"api/users/{userSkill.UserId}/skills",
+            $"api/users/{userSkill.User.UserId}/skills",
             requestBody,
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
@@ -43,7 +43,7 @@ public class UserSkillRepositoryProxy : IUserSkillRepository
     {
         var requestBody = CreateRequestBody(userSkill);
         using var response = await http.PutAsJsonAsync(
-            $"api/users/{userSkill.UserId}/skills/{userSkill.SkillId}",
+            $"api/users/{userSkill.User.UserId}/skills/{userSkill.Skill.SkillId}",
             requestBody,
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
@@ -70,8 +70,8 @@ public class UserSkillRepositoryProxy : IUserSkillRepository
     {
         return new UserSkill
         {
-            UserId = userSkill.UserId,
-            SkillId = userSkill.SkillId,
+            User = new User { UserId = userSkill.User.UserId },
+            Skill = new Skill { SkillId = userSkill.Skill.SkillId },
             Score = userSkill.Score,
             IsVerified = userSkill.IsVerified,
             AchievedDate = userSkill.AchievedDate,

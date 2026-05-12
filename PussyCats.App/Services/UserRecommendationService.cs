@@ -149,7 +149,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
         var allSkillLabels = new List<string>();
         foreach (var jobSkill in jobSkillRows)
         {
-            var skillName = jobSkill.Skill?.Name ?? $"Skill #{jobSkill.SkillId}";
+            var skillName = jobSkill.Skill?.Name ?? $"Skill #{jobSkill.Skill.SkillId}";
             allSkillLabels.Add($"{skillName} (min {jobSkill.RequiredLevel})");
         }
 
@@ -280,7 +280,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
         var skillIds = new HashSet<int>();
         foreach (var jobSkill in await jobSkillRepository.GetByJobIdAsync(jobId, cancellationToken).ConfigureAwait(false))
         {
-            skillIds.Add(jobSkill.SkillId);
+            skillIds.Add(jobSkill.Skill.SkillId);
         }
 
         return skillIds;

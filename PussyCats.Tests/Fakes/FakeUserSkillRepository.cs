@@ -11,7 +11,7 @@ public class FakeUserSkillRepository : IUserSkillRepository
     {
         foreach (var userSkill in userSkills)
         {
-            store[(userSkill.UserId, userSkill.SkillId)] = userSkill;
+            store[(userSkill.User.UserId, userSkill.Skill.SkillId)] = userSkill;
         }
     }
 
@@ -23,27 +23,27 @@ public class FakeUserSkillRepository : IUserSkillRepository
 
     public Task<IReadOnlyList<UserSkill>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<UserSkill> filtered = store.Values.Where(userSkill => userSkill.UserId == userId).ToList();
+        IReadOnlyList<UserSkill> filtered = store.Values.Where(userSkill => userSkill.User.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
     public Task<IReadOnlyList<UserSkill>> GetVerifiedByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         IReadOnlyList<UserSkill> filtered = store.Values
-            .Where(userSkill => userSkill.UserId == userId && userSkill.IsVerified && userSkill.AchievedDate != null)
+            .Where(userSkill => userSkill.User.UserId == userId && userSkill.IsVerified && userSkill.AchievedDate != null)
             .ToList();
         return Task.FromResult(filtered);
     }
 
     public Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        store[(userSkill.UserId, userSkill.SkillId)] = userSkill;
+        store[(userSkill.User.UserId, userSkill.Skill.SkillId)] = userSkill;
         return Task.FromResult(userSkill);
     }
 
     public Task UpdateAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        store[(userSkill.UserId, userSkill.SkillId)] = userSkill;
+        store[(userSkill.User.UserId, userSkill.Skill.SkillId)] = userSkill;
         return Task.CompletedTask;
     }
 

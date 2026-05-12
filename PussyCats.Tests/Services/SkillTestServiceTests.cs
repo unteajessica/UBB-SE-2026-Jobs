@@ -26,7 +26,7 @@ public class SkillTestServiceTests
         var result = await service.GetTestsForUserAsync(1);
 
         result.Should().HaveCount(1);
-        result[0].UserId.Should().Be(1);
+        result[0].User.UserId.Should().Be(1);
     }
 
     [Fact]

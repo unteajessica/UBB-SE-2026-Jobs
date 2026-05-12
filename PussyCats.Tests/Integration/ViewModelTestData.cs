@@ -86,8 +86,8 @@ internal static class ViewModelTestData
             CompatibilityScore = 82,
             UserSkills =
             [
-                new UserSkill { SkillId = 1, Score = 80, Skill = new Skill { SkillId = 1, Name = "C#" } },
-                new UserSkill { SkillId = 2, Score = 70, Skill = new Skill { SkillId = 2, Name = "SQL" } },
+                new UserSkill { User = new User { UserId = 1 }, Score = 80, Skill = new Skill { SkillId = 1, Name = "C#" } },
+                new UserSkill { User = new User { UserId = 1 }, Score = 70, Skill = new Skill { SkillId = 2, Name = "SQL" } },
             ],
         };
     }

@@ -116,7 +116,7 @@ public class ChatsController : ControllerBase
         if (chat is null)
             return NotFound();
 
-        if (chat.BlockedByUserId != body.UnblockerId)
+        if (chat.BlockedByUser?.UserId != body.UnblockerId)
             return Problem(detail: "Only the user who blocked this chat can unblock it.", statusCode: 403);
 
         chat.IsBlocked = false;

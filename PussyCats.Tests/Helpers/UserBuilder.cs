@@ -80,8 +80,8 @@ public class UserBuilder
         {
             skills.Add(new UserSkill
             {
-                UserId = userId,
-                SkillId = skillId,
+                User = new User { UserId = userId },
+                Skill = new Skill { SkillId = skillId },
                 Score = score,
                 IsVerified = score > 0,
                 AchievedDate = score > 0 ? DateOnly.FromDateTime(DateTime.UtcNow) : null,
@@ -101,7 +101,7 @@ public class UserBuilder
         var now = DateTime.UtcNow;
         foreach (var skill in skills)
         {
-            skill.UserId = userId;
+            skill.User.UserId = userId;
         }
         return new User
         {

@@ -15,7 +15,7 @@ public interface IRecommendationAlgorithm
         User user,
         Job job,
         IReadOnlyList<UserSkill> userSkills,
-        IReadOnlyList<JobSkill> jobSkills);
+        IReadOnlyList<Domain.JobSkill> jobSkills);
 
     /// <summary>
     /// Calculates the score plus its individual component breakdown.
@@ -24,5 +24,5 @@ public interface IRecommendationAlgorithm
         User user,
         Job job,
         IReadOnlyList<UserSkill> userSkills,
-        IReadOnlyList<JobSkill> jobSkills);
+        IReadOnlyList<Domain.JobSkill> jobSkills);
 }

@@ -32,7 +32,7 @@ public class SkillGapService : ISkillGapService
         var userSkillIds = new HashSet<int>();
         foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false))
         {
-            userSkillIds.Add(userSkill.SkillId);
+            userSkillIds.Add(userSkill.Skill.SkillId);
         }
 
         var missingCount = new Dictionary<string, int>();
@@ -40,7 +40,7 @@ public class SkillGapService : ISkillGapService
         {
             foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, cancellationToken).ConfigureAwait(false))
             {
-                if (!userSkillIds.Contains(jobSkill.SkillId))
+                if (!userSkillIds.Contains(jobSkill.Skill.SkillId))
                 {
                     var skillName = jobSkill.Skill.Name;
                     if (!missingCount.ContainsKey(skillName))
@@ -74,7 +74,7 @@ public class SkillGapService : ISkillGapService
         var userSkillMap = new Dictionary<int, UserSkill>();
         foreach (var userSkill in await userSkillService.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false))
         {
-            userSkillMap[userSkill.SkillId] = userSkill;
+            userSkillMap[userSkill.Skill.SkillId] = userSkill;
         }
 
         var requiredScoresPerSkill = new Dictionary<int, (string Name, int UserScore, List<int> RequiredScores)>();
@@ -82,7 +82,7 @@ public class SkillGapService : ISkillGapService
         {
             foreach (var jobSkill in await jobSkillService.GetByJobIdAsync(match.JobId, cancellationToken).ConfigureAwait(false))
             {
-                if (!userSkillMap.TryGetValue(jobSkill.SkillId, out var userSkill))
+                if (!userSkillMap.TryGetValue(jobSkill.Skill.SkillId, out var userSkill))
                 {
                     continue;
                 }
@@ -92,12 +92,12 @@ public class SkillGapService : ISkillGapService
                     continue;
                 }
 
-                if (!requiredScoresPerSkill.ContainsKey(jobSkill.SkillId))
+                if (!requiredScoresPerSkill.ContainsKey(jobSkill.Skill.SkillId))
                 {
-                    requiredScoresPerSkill[jobSkill.SkillId] = (jobSkill.Skill.Name, userSkill.Score, new List<int>());
+                    requiredScoresPerSkill[jobSkill.Skill.SkillId] = (jobSkill.Skill.Name, userSkill.Score, new List<int>());
                 }
 
-                requiredScoresPerSkill[jobSkill.SkillId].RequiredScores.Add(jobSkill.RequiredLevel);
+                requiredScoresPerSkill[jobSkill.Skill.SkillId].RequiredScores.Add(jobSkill.RequiredLevel);
             }
         }
 

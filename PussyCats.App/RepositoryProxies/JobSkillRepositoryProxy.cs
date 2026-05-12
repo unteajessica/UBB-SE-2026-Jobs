@@ -32,7 +32,7 @@ public class JobSkillRepositoryProxy : IJobSkillRepository
     {
         var requestBody = CreateRequestBody(jobSkill);
         using var response = await http.PostAsJsonAsync(
-            $"api/jobs/{jobSkill.JobId}/skills",
+            $"api/jobs/{jobSkill.Job.JobId}/skills",
             requestBody,
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
@@ -43,7 +43,7 @@ public class JobSkillRepositoryProxy : IJobSkillRepository
     {
         var requestBody = CreateRequestBody(jobSkill);
         using var response = await http.PutAsJsonAsync(
-            $"api/jobs/{jobSkill.JobId}/skills/{jobSkill.SkillId}",
+            $"api/jobs/{jobSkill.Job.JobId}/skills/{jobSkill.Skill.SkillId}",
             requestBody,
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
@@ -60,8 +60,8 @@ public class JobSkillRepositoryProxy : IJobSkillRepository
     {
         return new JobSkill
         {
-            JobId = jobSkill.JobId,
-            SkillId = jobSkill.SkillId,
+            Job = jobSkill.Job,
+            Skill = jobSkill.Skill,
             RequiredLevel = jobSkill.RequiredLevel,
         };
     }

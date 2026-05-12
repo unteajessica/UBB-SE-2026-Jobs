@@ -23,7 +23,7 @@ public class FakeSkillTestRepository : ISkillTestRepository
 
     public Task<IReadOnlyList<SkillTest>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SkillTest> filtered = store.Values.Where(skillTest => skillTest.UserId == userId).ToList();
+        IReadOnlyList<SkillTest> filtered = store.Values.Where(skillTest => skillTest.User.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 

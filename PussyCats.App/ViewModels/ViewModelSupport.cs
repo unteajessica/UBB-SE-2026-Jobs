@@ -95,7 +95,7 @@ internal static class ViewModelSupport
             .Take(limit)
             .Select(skill => new SkillDisplay
             {
-                Name = skill.Skill?.Name ?? $"Skill {skill.SkillId}",
+                Name = skill.Skill?.Name ?? $"Skill {skill.Skill.SkillId}",
                 Score = skill.Score,
             })
             .ToList();

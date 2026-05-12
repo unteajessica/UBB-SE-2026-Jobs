@@ -112,12 +112,12 @@ public class DeveloperViewModel : DispatchableObservableObject
         Posts.Clear();
         foreach (var post in posts)
         {
-            var postInteractions = interactions.Where(interaction => interaction.DeveloperPostId == post.DeveloperPostId).ToList();
-            var developer = developerService.GetDeveloperById(post.DeveloperId);
+            var postInteractions = interactions.Where(interaction => interaction.DeveloperPost.DeveloperPostId == post.DeveloperPostId).ToList();
+            var developer = developerService.GetDeveloperById(post.Developer.DeveloperId);
             Posts.Add(new DeveloperFeedPostCardViewModel(
                 post,
                 postInteractions,
-                developer?.Name ?? $"Developer {post.DeveloperId}",
+                developer?.Name ?? $"Developer {post.Developer.DeveloperId}",
                 currentDeveloperId,
                 ToggleLike,
                 ToggleDislike));
@@ -138,7 +138,7 @@ public class DeveloperViewModel : DispatchableObservableObject
     {
         var developerId = session.DeveloperId ?? 1;
         var existing = developerService.GetInteractions()
-            .FirstOrDefault(interaction => interaction.DeveloperId == developerId && interaction.DeveloperPostId == postId);
+            .FirstOrDefault(interaction => interaction.Developer.DeveloperId == developerId && interaction.DeveloperPost.DeveloperPostId == postId);
         if (existing is not null && existing.Type == type)
         {
             developerService.RemoveInteraction(existing.DeveloperInteractionId);
@@ -177,9 +177,9 @@ public sealed class DeveloperFeedPostCardViewModel
         LikeCount = interactions.Count(interaction => interaction.Type == DeveloperInteractionType.Like);
         DislikeCount = interactions.Count(interaction => interaction.Type == DeveloperInteractionType.Dislike);
         IsLikedByCurrentUser = interactions.Any(interaction =>
-            interaction.DeveloperId == currentDeveloperId && interaction.Type == DeveloperInteractionType.Like);
+            interaction.Developer.DeveloperId == currentDeveloperId && interaction.Type == DeveloperInteractionType.Like);
         IsDislikedByCurrentUser = interactions.Any(interaction =>
-            interaction.DeveloperId == currentDeveloperId && interaction.Type == DeveloperInteractionType.Dislike);
+            interaction.Developer.DeveloperId == currentDeveloperId && interaction.Type == DeveloperInteractionType.Dislike);
         LikeCommand = new RelayCommand(() => likeAction(PostId));
         DislikeCommand = new RelayCommand(() => dislikeAction(PostId));
     }

@@ -33,7 +33,7 @@ internal static class ChatDisplayResolver
             return $"Company {companyId}";
         }
 
-        if (chat.SecondUserId.HasValue)
+        if (chat.SecondUser != null)
         {
             var currentUserId = session.UserId;
             var otherUserId = chat.User.UserId == currentUserId ? chat.SecondUserId.Value : chat.User.UserId;

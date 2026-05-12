@@ -19,7 +19,7 @@ public class JobSkillServiceTests
     [Fact]
     public async Task GetByIdAsync_EntryExists_ReturnsSeededEntry()
     {
-        repo.Seed(new JobSkill { JobId = 1, SkillId = 2, RequiredLevel = 60 });
+        repo.Seed(new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 2 }, RequiredLevel = 60 });
 
         var result = await service.GetByIdAsync(1, 2);
 
@@ -38,9 +38,9 @@ public class JobSkillServiceTests
     public async Task GetAllAsync_MultipleEntriesExist_ReturnsEveryEntry()
     {
         repo.Seed(
-            new JobSkill { JobId = 1, SkillId = 1, RequiredLevel = 50 },
-            new JobSkill { JobId = 1, SkillId = 2, RequiredLevel = 70 },
-            new JobSkill { JobId = 2, SkillId = 1, RequiredLevel = 60 });
+            new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 50 },
+            new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 2 }, RequiredLevel = 70 },
+            new JobSkill { Job = new Job { JobId = 2 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 60 });
 
         (await service.GetAllAsync()).Should().HaveCount(3);
     }
@@ -49,19 +49,19 @@ public class JobSkillServiceTests
     public async Task GetByJobIdAsync_FilteredByJobId_ReturnsOnlyEntriesForThatJob()
     {
         repo.Seed(
-            new JobSkill { JobId = 1, SkillId = 1, RequiredLevel = 50 },
-            new JobSkill { JobId = 2, SkillId = 1, RequiredLevel = 60 });
+            new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 50 },
+            new JobSkill { Job = new Job { JobId = 2 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 60 });
 
         var result = await service.GetByJobIdAsync(1);
 
         result.Should().HaveCount(1);
-        result[0].JobId.Should().Be(1);
+        result[0].Job.JobId.Should().Be(1);
     }
 
     [Fact]
     public async Task AddAsync_ValidEntryProvided_PersistsEntry()
     {
-        var entry = new JobSkill { JobId = 1, SkillId = 1, RequiredLevel = 50 };
+        var entry = new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 50 };
 
         await service.AddAsync(entry);
 
@@ -72,9 +72,9 @@ public class JobSkillServiceTests
     [Fact]
     public async Task UpdateAsync_ExistingEntryModified_ReplacesExistingEntryInStore()
     {
-        repo.Seed(new JobSkill { JobId = 1, SkillId = 1, RequiredLevel = 50 });
+        repo.Seed(new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 50 });
 
-        await service.UpdateAsync(new JobSkill { JobId = 1, SkillId = 1, RequiredLevel = 90 });
+        await service.UpdateAsync(new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 90 });
 
         var fetched = await service.GetByIdAsync(1, 1);
         fetched!.RequiredLevel.Should().Be(90);
@@ -83,7 +83,7 @@ public class JobSkillServiceTests
     [Fact]
     public async Task RemoveAsync_EntryExists_DeletesEntryFromStore()
     {
-        repo.Seed(new JobSkill { JobId = 1, SkillId = 1, RequiredLevel = 50 });
+        repo.Seed(new JobSkill { Job = new Job { JobId = 1 }, Skill = new Skill { SkillId = 1 }, RequiredLevel = 50 });
 
         await service.RemoveAsync(1, 1);
 

@@ -37,11 +37,11 @@ public class SkillGapServiceTests
         matchRepo.Seed(
             new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected },
             new Match { MatchId = 2, User = new User { UserId = 1 }, JobId = 20, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 50 });
+        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 50 });
         jobSkillRepo.Seed(
-            new JobSkill { JobId = 10, SkillId = 2, RequiredLevel = 70, Skill = new Skill { SkillId = 2, Name = "Docker" } },
-            new JobSkill { JobId = 10, SkillId = 3, RequiredLevel = 70, Skill = new Skill { SkillId = 3, Name = "Kubernetes" } },
-            new JobSkill { JobId = 20, SkillId = 2, RequiredLevel = 80, Skill = new Skill { SkillId = 2, Name = "Docker" } });
+            new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 2, Name = "Docker" }, RequiredLevel = 70 },
+            new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 3, Name = "Kubernetes" }, RequiredLevel = 70 },
+            new JobSkill { Job = new Job { JobId = 20 }, Skill = new Skill { SkillId = 2, Name = "Docker" }, RequiredLevel = 80 });
 
         var result = await service.GetMissingSkillsAsync(1);
 
@@ -56,11 +56,10 @@ public class SkillGapServiceTests
     public async Task GetUnderscoredSkillsAsync_UserMeetsRequiredLevel_SkipsThoseSkills()
     {
         matchRepo.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 80 });
+        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 80 });
         jobSkillRepo.Seed(new JobSkill
         {
-            JobId = 10,
-            SkillId = 1,
+            Job = new Job { JobId = 10 },
             RequiredLevel = 50,
             Skill = new Skill { SkillId = 1, Name = "C#" },
         });
@@ -76,10 +75,10 @@ public class SkillGapServiceTests
         matchRepo.Seed(
             new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected },
             new Match { MatchId = 2, User = new User { UserId = 1 }, JobId = 20, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 30 });
+        userSkillRepo.Seed(new UserSkill { User = new User{ UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 30 });
         jobSkillRepo.Seed(
-            new JobSkill { JobId = 10, SkillId = 1, RequiredLevel = 70, Skill = new Skill { SkillId = 1, Name = "C#" } },
-            new JobSkill { JobId = 20, SkillId = 1, RequiredLevel = 90, Skill = new Skill { SkillId = 1, Name = "C#" } });
+            new JobSkill { Job = new Job { JobId = 10 }, RequiredLevel = 70, Skill = new Skill { SkillId = 1, Name = "C#" } },
+            new JobSkill { Job = new Job { JobId = 20 }, RequiredLevel = 90, Skill = new Skill { SkillId = 1, Name = "C#" } });
 
         var result = await service.GetUnderscoredSkillsAsync(1);
 
@@ -102,10 +101,10 @@ public class SkillGapServiceTests
     public async Task GetSummaryAsync_UserHasRejections_ReportsGapCounts()
     {
         matchRepo.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { UserId = 1, SkillId = 1, Score = 30 });
+        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 30 });
         jobSkillRepo.Seed(
-            new JobSkill { JobId = 10, SkillId = 1, RequiredLevel = 80, Skill = new Skill { SkillId = 1, Name = "C#" } },
-            new JobSkill { JobId = 10, SkillId = 2, RequiredLevel = 70, Skill = new Skill { SkillId = 2, Name = "SQL" } });
+            new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 1, Name = "C#" }, RequiredLevel = 80 },
+            new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 2, Name = "SQL" }, RequiredLevel = 70 });
 
         var summary = await service.GetSummaryAsync(1);
 

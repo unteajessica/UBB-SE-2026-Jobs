@@ -33,9 +33,9 @@ public class UserSkillsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add(int userId, [FromBody] UserSkill userSkill, CancellationToken cancellationToken)
     {
-        userSkill.UserId = userId;
+        userSkill.User = new User { UserId = userId };
         var saved = await userSkills.AddAsync(userSkill, cancellationToken);
-        return CreatedAtAction(nameof(GetBySkillId), new { userId, skillId = saved.SkillId }, saved);
+        return CreatedAtAction(nameof(GetBySkillId), new { userId, skillId = saved.Skill.SkillId }, saved);
     }
 
     [HttpPut("{skillId}")]
@@ -43,8 +43,8 @@ public class UserSkillsController : ControllerBase
     {
         if (await userSkills.GetAsync(userId, skillId, cancellationToken) is null)
             return NotFound();
-        userSkill.UserId = userId;
-        userSkill.SkillId = skillId;
+        userSkill.User = new User { UserId = userId };
+        userSkill.Skill = new Skill { SkillId = skillId };
         await userSkills.UpdateAsync(userSkill, cancellationToken);
         return NoContent();
     }

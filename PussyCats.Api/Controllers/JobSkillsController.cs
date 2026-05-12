@@ -33,9 +33,9 @@ public class JobSkillsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add(int jobId, [FromBody] JobSkill jobSkill, CancellationToken cancellationToken)
     {
-        jobSkill.JobId = jobId;
+        jobSkill.Job = new Job { JobId = jobId };
         var saved = await jobSkills.AddAsync(jobSkill, cancellationToken);
-        return CreatedAtAction(nameof(GetBySkillId), new { jobId, skillId = saved.SkillId }, saved);
+        return CreatedAtAction(nameof(GetBySkillId), new { jobId, skillId = saved.Skill.SkillId }, saved);
     }
 
     [HttpPut("{skillId}")]
@@ -43,8 +43,8 @@ public class JobSkillsController : ControllerBase
     {
         if (await jobSkills.GetAsync(jobId, skillId, cancellationToken) is null)
             return NotFound();
-        jobSkill.JobId = jobId;
-        jobSkill.SkillId = skillId;
+        jobSkill.Job = new Job { JobId = jobId };
+        jobSkill.Skill = new Skill { SkillId = skillId };
         await jobSkills.UpdateAsync(jobSkill, cancellationToken);
         return NoContent();
     }

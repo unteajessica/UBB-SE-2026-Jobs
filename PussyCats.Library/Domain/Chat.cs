@@ -8,9 +8,11 @@ public class Chat
     public int? CompanyId { get; set; }
     [JsonIgnore] public Company? Company { get; set; }
     public int? SecondUserId { get; set; }
+    public User? SecondUser { get; set; }
     public int? JobId { get; set; }
     public bool IsBlocked { get; set; }
     public int? BlockedByUserId { get; set; }
+    public User? BlockedByUser { get; set; }
     public DateTime? DeletedAtByUser { get; set; }
     public DateTime? DeletedAtBySecondParty { get; set; }
     public string LastMessageSnippet { get; set; } = string.Empty;

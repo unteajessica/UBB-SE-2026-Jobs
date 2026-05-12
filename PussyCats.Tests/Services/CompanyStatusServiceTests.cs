@@ -77,8 +77,8 @@ public class CompanyStatusServiceTests
             new UserBuilder().WithId(2).WithCity("Bucharest, Romania").Build());
         jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).WithLocation("Bucharest, Romania").Build());
         userSkillRepo.Seed(
-            new UserSkill { UserId = 1, SkillId = 1, Score = 60 },
-            new UserSkill { UserId = 2, SkillId = 1, Score = 90 });
+            new UserSkill { User = new User { UserId = 1 }, SkillId = 1, Score = 60 },
+            new UserSkill { User = new User { UserId = 2 }, SkillId = 1, Score = 90 });
         matchRepo.Seed(
             new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Accepted).Build(),
             new MatchBuilder().WithId(2).AppliedFor(2, 10).WithStatus(MatchStatus.Accepted).Build());

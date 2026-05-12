@@ -54,8 +54,8 @@ public class UserStatusServiceTests
             .AppliedFor(1, 10)
             .WithStatus(MatchStatus.Applied)
             .Build());
-        userSkillRepo.Seed(new UserSkill { UserId = 1, SkillId = 100, Score = 80 });
-        jobSkillRepo.Seed(new JobSkill { JobId = 10, SkillId = 100, RequiredLevel = 80 });
+        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 100 }, Score = 80 });
+        jobSkillRepo.Seed(new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 100 }, RequiredLevel = 80 });
 
         var result = await service.GetApplicationsForUserAsync(1);
 

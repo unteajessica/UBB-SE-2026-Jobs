@@ -63,7 +63,7 @@ public sealed class DeveloperService : IDeveloperService
         var post = new DeveloperPost
         {
             DeveloperPostId = nextPostId++,
-            DeveloperId = developerId,
+            Developer = new Developer { DeveloperId = developerId },
             ParameterType = parameterType,
             Value = value.Trim(),
             CreatedAt = DateTime.UtcNow,
@@ -75,7 +75,7 @@ public sealed class DeveloperService : IDeveloperService
     public void AddInteraction(int developerId, int postId, DeveloperInteractionType type)
     {
         var existing = interactions.FirstOrDefault(interaction =>
-            interaction.DeveloperId == developerId && interaction.DeveloperPostId == postId);
+            interaction.Developer.DeveloperId == developerId && interaction.DeveloperPost.DeveloperPostId == postId);
         if (existing is not null)
         {
             existing.Type = type;
@@ -85,8 +85,8 @@ public sealed class DeveloperService : IDeveloperService
         interactions.Add(new DeveloperInteraction
         {
             DeveloperInteractionId = nextInteractionId++,
-            DeveloperId = developerId,
-            DeveloperPostId = postId,
+            Developer = new Developer { DeveloperId = developerId },
+            DeveloperPost = new DeveloperPost { DeveloperPostId = postId },
             Type = type,
         });
     }
@@ -105,7 +105,7 @@ public sealed class DeveloperService : IDeveloperService
         posts.Add(new DeveloperPost
         {
             DeveloperPostId = nextPostId++,
-            DeveloperId = developerId,
+            Developer = new Developer { DeveloperId = developerId },
             ParameterType = parameterType,
             Value = value,
             CreatedAt = DateTime.UtcNow.AddMinutes(-nextPostId * 12),
@@ -117,7 +117,7 @@ public sealed class DeveloperService : IDeveloperService
         return new DeveloperPost
         {
             DeveloperPostId = post.DeveloperPostId,
-            DeveloperId = post.DeveloperId,
+            Developer = post.Developer,
             ParameterType = post.ParameterType,
             Value = post.Value,
             CreatedAt = post.CreatedAt,
@@ -129,8 +129,8 @@ public sealed class DeveloperService : IDeveloperService
         return new DeveloperInteraction
         {
             DeveloperInteractionId = interaction.DeveloperInteractionId,
-            DeveloperId = interaction.DeveloperId,
-            DeveloperPostId = interaction.DeveloperPostId,
+            Developer = interaction.Developer,
+            DeveloperPost = interaction.DeveloperPost,
             Type = interaction.Type,
         };
     }

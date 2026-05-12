@@ -24,6 +24,6 @@ public class PersonalityTestResultConfiguration : IEntityTypeConfiguration<Perso
 
         // UserId is the natural lookup column (GetByUserIdAsync). The User -> PersonalityResult
         // relationship is one-to-zero-or-one, so the FK is unique.
-        builder.HasIndex(result => result.UserId).IsUnique();
+        builder.HasIndex("UserId").IsUnique();
     }
 }

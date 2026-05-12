@@ -6,8 +6,8 @@ public class WorkExperience
 {
     public int WorkExperienceId { get; set; }
 
-    public int UserId { get; set; }
-    [JsonIgnore] public User User { get; set; } = null!;
+    //public int UserId { get; set; }
+    public User User { get; set; } = null!;
 
     public string Company { get; set; } = string.Empty;
     public string JobTitle { get; set; } = string.Empty;

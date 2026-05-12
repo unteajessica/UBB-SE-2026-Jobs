@@ -43,7 +43,7 @@ public class SkillTestBuilder
     public SkillTest Build() => new()
     {
         SkillTestId = skillTestId,
-        UserId = userId,
+        User = new User { UserId = userId },
         Name = name,
         Score = score,
         AchievedDate = achievedDate,

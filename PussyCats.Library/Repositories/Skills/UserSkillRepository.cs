@@ -21,7 +21,7 @@ public class UserSkillRepository : IUserSkillRepository
     {
         return await databaseContext.UserSkills
             .Include(skill => skill.Skill)
-            .FirstOrDefaultAsync(skill => skill.UserId == userId && skill.SkillId == skillId, cancellationToken)
+            .FirstOrDefaultAsync(skill => skill.User.UserId == userId && skill.Skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -33,7 +33,7 @@ public class UserSkillRepository : IUserSkillRepository
         return await databaseContext.UserSkills
             .AsNoTracking()
             .Include(skill => skill.Skill)
-            .Where(skill => skill.UserId == userId)
+            .Where(skill => skill.User.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -51,7 +51,7 @@ public class UserSkillRepository : IUserSkillRepository
         return await databaseContext.UserSkills
             .AsNoTracking()
             .Include(skill => skill.Skill)
-            .Where(skill => skill.UserId == userId && skill.IsVerified && skill.AchievedDate != null)
+            .Where(skill => skill.User.UserId == userId && skill.IsVerified && skill.AchievedDate != null)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -65,7 +65,7 @@ public class UserSkillRepository : IUserSkillRepository
 
     public async Task UpdateAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
-        var tracked = databaseContext.UserSkills.Local.FirstOrDefault(existing => existing.UserId == userSkill.UserId && existing.SkillId == userSkill.SkillId);
+        var tracked = databaseContext.UserSkills.Local.FirstOrDefault(existing => existing.User.UserId == userSkill.User.UserId && existing.Skill.SkillId == userSkill.Skill.SkillId);
         if (tracked is not null)
         {
             databaseContext.Entry(tracked).CurrentValues.SetValues(userSkill);

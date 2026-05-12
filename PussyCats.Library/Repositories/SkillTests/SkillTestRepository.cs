@@ -33,7 +33,7 @@ public class SkillTestRepository : ISkillTestRepository
     {
         return await databaseContext.SkillTests
             .AsNoTracking()
-            .Where(test => test.UserId == userId)
+            .Where(test => test.User.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }

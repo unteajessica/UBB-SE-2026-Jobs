@@ -63,8 +63,8 @@ public class JobBuilder
         {
             requiredSkills.Add(new JobSkill
             {
-                JobId = jobId,
-                SkillId = skillId,
+                Job = new Job { JobId = jobId },
+                Skill = new Skill { SkillId = skillId },
                 RequiredLevel = level,
             });
         }
@@ -75,7 +75,7 @@ public class JobBuilder
     {
         foreach (var skill in requiredSkills)
         {
-            skill.JobId = jobId;
+            skill.Job = new Job { JobId = jobId };
         }
         return new Job
         {

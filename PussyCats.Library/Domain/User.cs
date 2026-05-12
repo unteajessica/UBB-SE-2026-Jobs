@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace PussyCats.Library.Domain;
 
 public class User
@@ -44,5 +46,6 @@ public class User
     public List<ExtraCurricularActivity> ExtraCurricularActivities { get; set; } = new();
     public List<UserSkill> Skills { get; set; } = new();
     public List<Match> Matches { get; set; } = new();
-    public PersonalityTestResult? PersonalityResult { get; set; }
+
+    public PersonalityTestResult? PersonalityResult { get; set; }   
 }

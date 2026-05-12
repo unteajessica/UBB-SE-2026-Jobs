@@ -25,8 +25,12 @@ public class PersonalityTestsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] PersonalityTestResult result, CancellationToken cancellationToken)
     {
+        if (result.User == null)
+        {
+            return BadRequest("User navigation property was not provided or failed to deserialize.");
+        }
         var saved = await personalityTests.AddAsync(result, cancellationToken);
-        return CreatedAtAction(nameof(GetByUserId), new { userId = saved.UserId }, saved);
+        return CreatedAtAction(nameof(GetByUserId), new { userId = saved.User.UserId }, saved);
     }
 
     [HttpPut("{id}")]

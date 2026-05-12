@@ -55,7 +55,7 @@ public class PersonalityResultBuilder
         return new PersonalityTestResult
         {
             PersonalityTestResultId = personalityTestResultId,
-            UserId = userId,
+            User = new User { UserId = userId},
             CompletedAt = completedAt,
             SelectedRole = selectedRole,
             TraitScores = traitScores,

@@ -11,7 +11,7 @@ public class FakeJobSkillRepository : IJobSkillRepository
     {
         foreach (var jobSkill in jobSkills)
         {
-            store[(jobSkill.JobId, jobSkill.SkillId)] = jobSkill;
+            store[(jobSkill.Job.JobId, jobSkill.Skill.SkillId)] = jobSkill;
         }
     }
 
@@ -29,19 +29,19 @@ public class FakeJobSkillRepository : IJobSkillRepository
 
     public Task<IReadOnlyList<JobSkill>> GetByJobIdAsync(int jobId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<JobSkill> filtered = store.Values.Where(js => js.JobId == jobId).ToList();
+        IReadOnlyList<JobSkill> filtered = store.Values.Where(jobSkill => jobSkill.Job.JobId == jobId).ToList();
         return Task.FromResult(filtered);
     }
 
     public Task<JobSkill> AddAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
-        store[(jobSkill.JobId, jobSkill.SkillId)] = jobSkill;
+        store[(jobSkill.Job.JobId, jobSkill.Skill.SkillId)] = jobSkill;
         return Task.FromResult(jobSkill);
     }
 
     public Task UpdateAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
-        store[(jobSkill.JobId, jobSkill.SkillId)] = jobSkill;
+        store[(jobSkill.Job.JobId, jobSkill.Skill.SkillId)] = jobSkill;
         return Task.CompletedTask;
     }
 

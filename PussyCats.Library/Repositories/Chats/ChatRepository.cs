@@ -18,6 +18,7 @@ public class ChatRepository : IChatRepository
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .AsNoTracking()
+            .Include(chat => chat.BlockedByUser)
             .FirstOrDefaultAsync(chat => chat.ChatId == chatId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -27,6 +28,7 @@ public class ChatRepository : IChatRepository
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .AsNoTracking()
+            .Include(chat => chat.BlockedByUser)
             .Where(chat => chat.User.UserId == userId || chat.SecondUserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -37,6 +39,7 @@ public class ChatRepository : IChatRepository
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .AsNoTracking()
+            .Include(chat => chat.BlockedByUser)
             .Where(chat => chat.CompanyId == companyId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -47,6 +50,7 @@ public class ChatRepository : IChatRepository
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .AsNoTracking()
+            .Include(chat => chat.BlockedByUser)
             .FirstOrDefaultAsync(
                 chat => (chat.User.UserId == userId && chat.SecondUserId == secondUserId)
                      || (chat.User.UserId == secondUserId && chat.SecondUserId == userId),
@@ -59,6 +63,7 @@ public class ChatRepository : IChatRepository
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .AsNoTracking()
+            .Include(chat => chat.BlockedByUser)
             .FirstOrDefaultAsync(
                 chat => chat.User.UserId == userId
                      && chat.CompanyId == companyId

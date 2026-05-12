@@ -368,7 +368,7 @@ public class ProfileFormViewModel : DispatchableObservableObject
         userProfile.HasDisabilities = HasDisabilities;
         userProfile.Skills = Skills.Select(skill => new UserSkill
         {
-            UserId = userProfile.UserId,
+            User = new User { UserId = userProfile.UserId },
             Skill = new Skill { Name = skill },
             Score = 0,
             IsVerified = false,

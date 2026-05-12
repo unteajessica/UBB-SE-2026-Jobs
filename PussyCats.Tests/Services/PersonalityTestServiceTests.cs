@@ -110,7 +110,7 @@ public class PersonalityTestServiceTests
         var saved = await repo.GetByUserIdAsync(1);
         saved.Should().NotBeNull();
         saved!.SelectedRole.Should().Be(JobRole.BackendDeveloper);
-        saved.UserId.Should().Be(1);
+        saved.User.UserId.Should().Be(1);
         saved.TraitScores.Should().Contain(personalityTraitScore => personalityTraitScore.Trait == TraitType.Depth && personalityTraitScore.Score == 5);
     }
 
@@ -120,7 +120,7 @@ public class PersonalityTestServiceTests
         repo.Seed(new PersonalityTestResult
         {
             PersonalityTestResultId = 7,
-            UserId = 1,
+            User = new User { UserId = 1 },
             SelectedRole = JobRole.FrontendDeveloper,
         });
         var question = new Question { Trait = TraitType.Depth, SortOrder = 1 };

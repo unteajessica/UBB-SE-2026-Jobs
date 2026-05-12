@@ -115,7 +115,7 @@ public class UserRepository : IUserRepository
         {
             target.WorkExperiences.Add(new WorkExperience
             {
-                UserId = target.UserId,
+                User = target,
                 Company = workExperience.Company,
                 JobTitle = workExperience.JobTitle,
                 StartDate = workExperience.StartDate,
@@ -153,7 +153,7 @@ public class UserRepository : IUserRepository
         {
             target.ExtraCurricularActivities.Add(new ExtraCurricularActivity
             {
-                UserId = target.UserId,
+                User = target,
                 ActivityName = activity.ActivityName,
                 Organization = activity.Organization,
                 Role = activity.Role,
@@ -192,7 +192,7 @@ public class UserRepository : IUserRepository
             if (existing is not null)
             {
                 existing.Skill = catalogSkill;
-                existing.SkillId = catalogSkill.SkillId;
+               // existing.SkillId = catalogSkill.SkillId;
                 if (!existing.IsVerified)
                 {
                     existing.Score = desiredSkill.Score;
@@ -204,9 +204,9 @@ public class UserRepository : IUserRepository
 
             target.Skills.Add(new UserSkill
             {
-                UserId = target.UserId,
+                User = target,
                 Skill = catalogSkill,
-                SkillId = catalogSkill.SkillId,
+                //SkillId = catalogSkill.SkillId,
                 Score = desiredSkill.Score,
                 IsVerified = desiredSkill.IsVerified,
                 AchievedDate = desiredSkill.AchievedDate,

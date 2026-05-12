@@ -21,7 +21,8 @@ public class JobSkillRepository : IJobSkillRepository
     {
         return await databaseContext.JobSkills
             .Include(skill => skill.Skill)
-            .FirstOrDefaultAsync(skill => skill.JobId == jobId && skill.SkillId == skillId, cancellationToken)
+            .Include(skill => skill.Job)
+            .FirstOrDefaultAsync(skill => skill.Job.JobId == jobId && skill.Skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -29,6 +30,8 @@ public class JobSkillRepository : IJobSkillRepository
     {
         return await databaseContext.JobSkills
             .AsNoTracking()
+            .Include(jobSkill => jobSkill.Job)
+            .Include(jobSkill => jobSkill.Skill)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -42,7 +45,7 @@ public class JobSkillRepository : IJobSkillRepository
         return await databaseContext.JobSkills
             .AsNoTracking()
             .Include(skill => skill.Skill)
-            .Where(skill => skill.JobId == jobId)
+            .Where(skill => skill.Job.JobId == jobId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -56,7 +59,7 @@ public class JobSkillRepository : IJobSkillRepository
 
     public async Task UpdateAsync(JobSkill jobSkill, CancellationToken cancellationToken = default)
     {
-        var tracked = databaseContext.JobSkills.Local.FirstOrDefault(existing => existing.JobId == jobSkill.JobId && existing.SkillId == jobSkill.SkillId);
+        var tracked = databaseContext.JobSkills.Local.FirstOrDefault(existing => existing.Job.JobId == jobSkill.Job.JobId && existing.Skill.SkillId == jobSkill.Skill.SkillId);
         if (tracked is not null)
         {
             databaseContext.Entry(tracked).CurrentValues.SetValues(jobSkill);
