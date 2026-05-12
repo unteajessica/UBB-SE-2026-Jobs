@@ -39,7 +39,7 @@ public class PersonalityResultBuilder
     {
         traitScores.Add(new PersonalityTraitScore
         {
-            PersonalityTestResultId = personalityTestResultId,
+            PersonalityTestResult = new PersonalityTestResult { PersonalityTestResultId = personalityTestResultId },
             Trait = trait,
             Score = score,
         });
@@ -50,7 +50,7 @@ public class PersonalityResultBuilder
     {
         foreach (var traitScore in traitScores)
         {
-            traitScore.PersonalityTestResultId = personalityTestResultId;
+            traitScore.PersonalityTestResult = new PersonalityTestResult { PersonalityTestResultId = personalityTestResultId };
         }
         return new PersonalityTestResult
         {
