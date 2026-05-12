@@ -24,7 +24,7 @@ namespace PussyCats.Tests.Services
             chatService = new(chatRepo, messageRepo, userService, companyService, fileStorage);
         }
 
-
+        #region FindOrCreateUser....
         [Fact]
         public async Task FindOrCreateUserCompanyChatAsync_NoExistingChat_CreatesAndReturnsNewChat()
         {
@@ -95,7 +95,9 @@ namespace PussyCats.Tests.Services
             returnedChat!.DeletedAtByUser.Should().BeNull();
             returnedChat!.DeletedAtBySecondParty.Should().BeNull();
         }
+        #endregion
 
+        #region GetChatsFor....
         [Fact]
         public async Task GetChatsForUserAsync_ChatBlockedByOtherParty_ExcludesChat()
         {
@@ -171,8 +173,9 @@ namespace PussyCats.Tests.Services
 
             result.Should().BeEmpty();
         }
+        #endregion
 
-        //---------Message tests-----------
+        #region GetMessagesAsync
 
         [Fact]
         public async Task GetMessagesAsync_ChatNotFound_ThrowsKeyNotFoundException()
@@ -236,5 +239,94 @@ namespace PussyCats.Tests.Services
             result[1].ShowReadReceipt.Should().BeFalse();
             result[1].SenderInitials.Should().Be("Them");
         }
+
+        #endregion GetMessagesAsync
+
+        #region SearchCompaniesAsync and SearchUsersAsync
+        [Fact]
+        public async Task SearchCompaniesAsync_EmptySearchTerm_ReturnsEmpty()
+        {
+            var result = await chatService.SearchCompaniesAsync("   ");
+
+            result.Should().BeEmpty();
+            await companyService.DidNotReceive().GetAllAsync(Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task SearchCompaniesAsync_MatchingTerm_ReturnsFilteredCompanies()
+        {
+            var availableCompanies = new List<Company>
+            {
+                new() { CompanyName = "Acme Corp" },
+                new() { CompanyName = "Other Company" }
+            };
+
+            companyService.GetAllAsync(Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<Company>>(availableCompanies));
+
+            var result = await chatService.SearchCompaniesAsync("acme");
+
+            result.Should().ContainSingle()
+                .Which.CompanyName.Should().Be("Acme Corp");
+        }
+
+        [Fact]
+        public async Task SearchCompaniesAsync_MoreThanMaxResults_ReturnsOnlyMaxResults()
+        {
+            var companies = Enumerable.Range(1, 15)
+                .Select(i => new Company { CompanyName = $"Company {i}" })
+                .ToList();
+
+            companyService.GetAllAsync(Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<Company>>(companies));
+
+            var result = await chatService.SearchCompaniesAsync("Company");
+
+            result.Should().HaveCount(10);
+        }
+
+        [Fact]
+        public async Task SearchUsersAsync_EmptySearchTerm_ReturnsEmpty()
+        {
+            var result = await chatService.SearchUsersAsync("   ");
+
+            result.Should().BeEmpty();
+            await userService.DidNotReceive().GetAllAsync(Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task SearchUsersAsync_MatchingTerm_ReturnsFilteredUsers()
+        {
+            var users = new List<User>
+            {
+                new() { FirstName = "Peter", LastName = "Pann" },
+                new() { FirstName = "Tink", LastName = "Smith" }
+            };
+
+            userService.GetAllAsync(Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<User>>(users));
+
+            var result = await chatService.SearchUsersAsync("peter");
+
+            result.Should().ContainSingle()
+                .Which.FirstName.Should().Be("Peter");
+        }
+
+        [Fact]
+        public async Task SearchUsersAsync_MoreThanMaxResults_ReturnsOnlyMaxResults()
+        {
+            var users = Enumerable.Range(1, 15)
+                .Select(i => new User { FirstName = "Peter", LastName = $"Pann {i}" })
+                .ToList();
+
+            userService.GetAllAsync(Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<User>>(users));
+
+            var result = await chatService.SearchUsersAsync("peter");
+
+            result.Should().HaveCount(10);
+        }
+        #endregion
+
     }
 }
