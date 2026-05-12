@@ -95,5 +95,82 @@ namespace PussyCats.Tests.Services
             returnedChat!.DeletedAtByUser.Should().BeNull();
             returnedChat!.DeletedAtBySecondParty.Should().BeNull();
         }
+
+        [Fact]
+        public async Task GetChatsForUserAsync_ChatBlockedByOtherParty_ExcludesChat()
+        {
+            var userId = 1;
+            var blockedChat = new Chat
+            {
+                IsBlocked = true,
+                BlockedByUser = new User { UserId = 2 }, 
+                User = new User { UserId = userId }
+            };
+
+            chatRepo.GetForUserAsync(userId, Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { blockedChat }));
+
+            var result = await chatService.GetChatsForUserAsync(userId);
+
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task GetChatsForUserAsync_ChatBlockedByCaller_IncludesChat()
+        {
+            var userId = 1;
+            var blockedBySelfChat = new Chat
+            {
+                IsBlocked = true,
+                BlockedByUser = new User { UserId = userId },
+                User = new User { UserId = userId }
+            };
+
+            chatRepo.GetForUserAsync(userId, Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { blockedBySelfChat }));
+
+            var result = await chatService.GetChatsForUserAsync(userId);
+
+            result.Should().ContainSingle();
+        }
+
+        [Fact]
+        public async Task GetChatsForUserAsync_ChatDeletedByUser_ExcludesChat
+            ()
+        {
+            var userId = 1;
+            var deletedChat = new Chat
+            {
+                IsBlocked = false,
+                User = new User { UserId = userId },
+                DeletedAtByUser = DateTime.UtcNow
+            };
+
+            chatRepo.GetForUserAsync(userId, Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { deletedChat }));
+
+            var result = await chatService.GetChatsForUserAsync(userId);
+
+            result.Should().BeEmpty();
+        }
+        [Fact]
+        public async Task GetChatsForCompanyAsync_ChatDeletedByCompany_ExcludesChat()
+        {
+            var companyId = 1;
+            var deletedChat = new Chat
+            {
+                IsBlocked = false,
+                User = new User { UserId = 99 },
+                DeletedAtBySecondParty = DateTime.UtcNow
+            };
+
+            chatRepo.GetForCompanyAsync(companyId, Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { deletedChat }));
+
+            var result = await chatService.GetChatsForCompanyAsync(companyId);
+
+            result.Should().BeEmpty();
+        }
+
     }
 }
