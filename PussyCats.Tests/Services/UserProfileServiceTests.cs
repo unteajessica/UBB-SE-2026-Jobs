@@ -33,13 +33,13 @@ public class UserProfileServiceTests
     private const string PrimarySkillName = "C#";
     private const string SecondarySkillName = "SQL";
 
-    private readonly FakeUserRepository userRepo = new();
-    private readonly FakeSkillTestRepository skillTestRepo = new();
+    private readonly FakeUserRepository userRepository = new();
+    private readonly FakeSkillTestRepository skillTestRepository = new();
     private readonly UserProfileService service;
 
     public UserProfileServiceTests()
     {
-        service = new UserProfileService(userRepo, skillTestRepo);
+        service = new UserProfileService(userRepository, skillTestRepository);
     }
 
 
@@ -55,7 +55,7 @@ public class UserProfileServiceTests
     [Fact]
     public async Task IsProfileAvailableAsync_ProfileExists_ReturnsActiveAccountFlag()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).WithActiveAccount(false).Build());
+        userRepository.Seed(new UserBuilder().WithId(ExistingUserId).WithActiveAccount(false).Build());
 
         (await service.IsProfileAvailableAsync(ExistingUserId)).Should().BeFalse();
     }
@@ -63,11 +63,11 @@ public class UserProfileServiceTests
     [Fact]
     public async Task UpdateAccountStatusAsync_StatusChanged_PersistsStatusAndTouchesLastUpdated()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).WithActiveAccount(true).Build());
+        userRepository.Seed(new UserBuilder().WithId(ExistingUserId).WithActiveAccount(true).Build());
 
         await service.UpdateAccountStatusAsync(ExistingUserId, false);
 
-        var user = await userRepo.GetByIdAsync(ExistingUserId);
+        var user = await userRepository.GetByIdAsync(ExistingUserId);
         user!.ActiveAccount.Should().BeFalse();
         user.LastUpdated.Should().BeAfter(DateTime.UtcNow.AddMinutes(-OneMinute));
     }
@@ -75,21 +75,21 @@ public class UserProfileServiceTests
     [Fact]
     public async Task UpdateProfilePicturePathAsync_PathProvided_WritesPathToUser()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
+        userRepository.Seed(new UserBuilder().WithId(ExistingUserId).Build());
 
         await service.UpdateProfilePicturePathAsync(ExistingUserId, ProfilePicturePath);
 
-        (await userRepo.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().Be(ProfilePicturePath);
+        (await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().Be(ProfilePicturePath);
     }
 
     [Fact]
     public async Task UpdateProfilePicturePathAsync_PathIsNull_HandlesAsEmptyString()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
+        userRepository.Seed(new UserBuilder().WithId(ExistingUserId).Build());
 
         await service.UpdateProfilePicturePathAsync(ExistingUserId, null!);
 
-        (await userRepo.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
+        (await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
     }
 
     [Fact]
@@ -97,11 +97,11 @@ public class UserProfileServiceTests
     {
         var user = new UserBuilder().WithId(ExistingUserId).Build();
         user.ProfilePicturePath = OldProfilePicturePath;
-        userRepo.Seed(user);
+        userRepository.Seed(user);
 
         await service.RemoveProfilePicturePathAsync(ExistingUserId);
 
-        (await userRepo.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
+        (await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
     }
 
     [Fact]
@@ -111,18 +111,18 @@ public class UserProfileServiceTests
 
         await service.SaveAsync(NewUserId, user);
 
-        (await userRepo.GetAllAsync()).Should().HaveCount(1);
+        (await userRepository.GetAllAsync()).Should().HaveCount(1);
     }
 
     [Fact]
     public async Task SaveAsync_UserExists_UpdatesExistingUser()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).WithEmail(OldEmail).Build());
+        userRepository.Seed(new UserBuilder().WithId(ExistingUserId).WithEmail(OldEmail).Build());
         var updated = new UserBuilder().WithId(ExistingUserId).WithEmail(NewEmail).Build();
 
         await service.SaveAsync(ExistingUserId, updated);
 
-        (await userRepo.GetByIdAsync(ExistingUserId))!.Email.Should().Be(NewEmail);
+        (await userRepository.GetByIdAsync(ExistingUserId))!.Email.Should().Be(NewEmail);
     }
 
     [Fact]
@@ -159,8 +159,8 @@ public class UserProfileServiceTests
     public async Task RecalculateLevelAsync_UserHasSkillTests_SumsXpFromTestsAndSetsLevel()
     {
         var user = new UserBuilder().WithId(ExistingUserId).Build();
-        userRepo.Seed(user);
-        skillTestRepo.Seed(
+        userRepository.Seed(user);
+        skillTestRepository.Seed(
             new SkillTestBuilder().WithId(SkillTestIdOne).ForUser(ExistingUserId).WithScore(GoldScore).Build(),
             new SkillTestBuilder().WithId(SkillTestIdTwo).ForUser(ExistingUserId).WithScore(SilverScore).Build(),
             new SkillTestBuilder().WithId(SkillTestIdThree).ForUser(ExistingUserId).WithScore(BronzeScore).Build());

@@ -15,8 +15,8 @@ namespace PussyCats.Tests.Integration;
 
 public class UserProfileViewModelTests
 {
-    private readonly IUserRepository userRepo = new FakeUserRepository();
-    private readonly ISkillTestRepository skillTestRepo = new FakeSkillTestRepository();
+    private readonly IUserRepository userRepository = new FakeUserRepository();
+    private readonly ISkillTestRepository skillTestRepository = new FakeSkillTestRepository();
 
     private readonly IImageStorageService imageStorageService = Substitute.For<IImageStorageService>();
     private readonly ICompletenessService completenessService = Substitute.For<ICompletenessService>();
@@ -27,7 +27,7 @@ public class UserProfileViewModelTests
 
     public UserProfileViewModelTests()
     {
-        profileService = new UserProfileService(userRepo,skillTestRepo);
+        profileService = new UserProfileService(userRepository,skillTestRepository);
         viewModel = new UserProfileViewModel(profileService, imageStorageService, completenessService, session);
     }
 
@@ -35,7 +35,7 @@ public class UserProfileViewModelTests
     public async Task LoadUserAsync_UserExistsInRepo_PopulatesProfileAndCompletenessState()
     {
         var user = BuildUser();
-        await userRepo.AddAsync(user);
+        await userRepository.AddAsync(user);
         completenessService.CalculateCompleteness(Arg.Any<User>()).Returns(80);
         completenessService.GetNextEmptyFieldPrompt(Arg.Any<User>()).Returns("Add a phone number.");
 
@@ -52,12 +52,12 @@ public class UserProfileViewModelTests
     public async Task ToggleAccountStatusAsync_CommandExecuted_UpdatesRepositoryAndLocalState()
     {
         var user = BuildUser(activeAccount: true);
-        await userRepo.AddAsync(user);
+        await userRepository.AddAsync(user);
         await viewModel.LoadUserAsync();
 
         await viewModel.ToggleAccountStatusAsync();
 
-        var persistedUser = await userRepo.GetByIdAsync(6);
+        var persistedUser = await userRepository.GetByIdAsync(6);
         persistedUser!.ActiveAccount.Should().BeFalse();
         viewModel.UserProfile!.ActiveAccount.Should().BeFalse();
     }
@@ -66,7 +66,7 @@ public class UserProfileViewModelTests
     public async Task UploadAvatarAsync_ValidStream_SavesToStorageAndUpdatesRepository()
     {
         var user = BuildUser();
-        await userRepo.AddAsync(user);
+        await userRepository.AddAsync(user);
         await viewModel.LoadUserAsync();
 
         imageStorageService.SaveImageAsync(Arg.Any<Stream>(), "avatar.png", Arg.Any<CancellationToken>())
@@ -76,7 +76,7 @@ public class UserProfileViewModelTests
 
         await viewModel.UploadAvatarAsync(stream, "avatar.png");
 
-        var persistedUser = await userRepo.GetByIdAsync(6);
+        var persistedUser = await userRepository.GetByIdAsync(6);
         persistedUser!.ProfilePicturePath.Should().Be("stored.png");
         viewModel.UserProfile!.ProfilePicturePath.Should().Be("stored.png");
         await imageStorageService.Received(1).SaveImageAsync(stream, "avatar.png", Arg.Any<CancellationToken>());
@@ -87,12 +87,12 @@ public class UserProfileViewModelTests
     {
         var user = BuildUser();
         user.ProfilePicturePath = "stored.png";
-        await userRepo.AddAsync(user);
+        await userRepository.AddAsync(user);
         await viewModel.LoadUserAsync();
 
         await viewModel.RemoveAvatarAsync();
 
-        var persisted = await userRepo.GetByIdAsync(6);
+        var persisted = await userRepository.GetByIdAsync(6);
         persisted!.ProfilePicturePath.Should().BeEmpty();
         viewModel.UserProfile!.ProfilePicturePath.Should().BeEmpty();
         await imageStorageService.Received(1).DeleteImageAsync("stored.png", Arg.Any<CancellationToken>());
@@ -102,7 +102,7 @@ public class UserProfileViewModelTests
     public async Task RecalculateLevelAsync_XPUpdated_PersistsTotalXPAndRaisesEvent()
     {
         var user = BuildUser();
-        await userRepo.AddAsync(user);
+        await userRepository.AddAsync(user);
         await viewModel.LoadUserAsync();
 
         // Mocking the specific level calculation logic usually handled by the service/recommendationRepository
@@ -111,7 +111,7 @@ public class UserProfileViewModelTests
 
         await viewModel.RecalculateLevelAsync();
 
-        var persisted = await userRepo.GetByIdAsync(6);
+        var persisted = await userRepository.GetByIdAsync(6);
         persisted.Should().NotBeNull();
         eventRaised.Should().BeTrue();
     }
@@ -130,7 +130,7 @@ public class UserProfileViewModelTests
                 SelectedRole = JobRole.BackendDeveloper,
             };
         }
-        await userRepo.AddAsync(user);
+        await userRepository.AddAsync(user);
         await viewModel.LoadUserAsync();
 
         viewModel.GetPersonalityButtonText().Should().Be(expected);

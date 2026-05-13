@@ -17,10 +17,10 @@ namespace PussyCats.Tests.Integration;
 
 public class CompanyStatusViewModelTests
 {
-    private readonly FakeMatchRepository matchRepo = new();
-    private readonly FakeUserRepository userRepo = new();
-    private readonly FakeJobRepository jobRepo = new();
-    private readonly FakeUserSkillRepository userSkillRepo = new();
+    private readonly FakeMatchRepository matchRepository = new();
+    private readonly FakeUserRepository userRepository = new();
+    private readonly FakeJobRepository jobRepository = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
 
     private readonly CompanyStatusViewModel viewModel;
 
@@ -28,10 +28,10 @@ public class CompanyStatusViewModelTests
     {
         var session = new SessionContext { CompanyId = 4, Mode = AppMode.Company };
 
-        var userService = new UserService(userRepo);
-        var jobService = new JobService(jobRepo);
-        var userSkillService = new UserSkillService(userSkillRepo);
-        var matchService = new MatchService(matchRepo, jobService, new UserService(userRepo));
+        var userService = new UserService(userRepository);
+        var jobService = new JobService(jobRepository);
+        var userSkillService = new UserSkillService(userSkillRepository);
+        var matchService = new MatchService(matchRepository, jobService, new UserService(userRepository));
 
         var companyStatusService = new CompanyStatusService(
             matchService,
@@ -48,9 +48,9 @@ public class CompanyStatusViewModelTests
         var companyId = 4;
         var applicant = ViewModelTestData.Applicant(matchId: 7, companyId: companyId, status: MatchStatus.Advanced);
 
-        userRepo.Seed(applicant.User);
-        jobRepo.Seed(applicant.Job);
-        matchRepo.Seed(applicant.Match);
+        userRepository.Seed(applicant.User);
+        jobRepository.Seed(applicant.Job);
+        matchRepository.Seed(applicant.Match);
 
         await viewModel.LoadApplicationsAsync();
 
@@ -66,9 +66,9 @@ public class CompanyStatusViewModelTests
         var companyId = 4;
         var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Accepted);
 
-        userRepo.Seed(applicant.User);
-        jobRepo.Seed(applicant.Job);
-        matchRepo.Seed(applicant.Match);
+        userRepository.Seed(applicant.User);
+        jobRepository.Seed(applicant.Job);
+        matchRepository.Seed(applicant.Match);
 
         var loaded = await viewModel.LoadEvaluationAsync(matchId);
 
@@ -86,9 +86,9 @@ public class CompanyStatusViewModelTests
         var companyId = 4;
         var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Rejected);
 
-        userRepo.Seed(applicant.User);
-        jobRepo.Seed(applicant.Job);
-        matchRepo.Seed(applicant.Match);
+        userRepository.Seed(applicant.User);
+        jobRepository.Seed(applicant.Job);
+        matchRepository.Seed(applicant.Match);
 
         var loaded = await viewModel.LoadEvaluationAsync(matchId);
 
@@ -104,9 +104,9 @@ public class CompanyStatusViewModelTests
         var companyId = 4;
         var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Accepted);
 
-        userRepo.Seed(applicant.User);
-        jobRepo.Seed(applicant.Job);
-        matchRepo.Seed(applicant.Match);
+        userRepository.Seed(applicant.User);
+        jobRepository.Seed(applicant.Job);
+        matchRepository.Seed(applicant.Match);
 
         var loaded = await viewModel.LoadEvaluationAsync(matchId);
 
@@ -133,9 +133,9 @@ public class CompanyStatusViewModelTests
         var companyId = 4;
         var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Advanced);
 
-        userRepo.Seed(applicant.User);
-        jobRepo.Seed(applicant.Job);
-        matchRepo.Seed(applicant.Match);
+        userRepository.Seed(applicant.User);
+        jobRepository.Seed(applicant.Job);
+        matchRepository.Seed(applicant.Match);
 
         await viewModel.LoadEvaluationAsync(matchId);
         viewModel.SelectedDecision = MatchStatus.Rejected;
@@ -144,7 +144,7 @@ public class CompanyStatusViewModelTests
         var saved = await viewModel.SubmitDecisionAsync();
 
         saved.Should().BeTrue();
-        var persistedMatch = await matchRepo.GetByIdAsync(matchId);
+        var persistedMatch = await matchRepository.GetByIdAsync(matchId);
         persistedMatch!.Status.Should().Be(MatchStatus.Rejected);
         persistedMatch.FeedbackMessage.Should().Be("Not enough experience.");
         viewModel.SelectedApplicant.Should().BeNull();

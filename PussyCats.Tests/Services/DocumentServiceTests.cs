@@ -13,22 +13,22 @@ public class DocumentServiceTests : IDisposable
     private readonly FakeDocumentRepository documentRepository;
     private readonly ILocalFileStorageService fileStorage;
     private readonly DocumentService service;
-    private readonly string tempPdfPath;
+    private readonly string temporaryPdfPath;
 
     public DocumentServiceTests()
     {
         documentRepository = new FakeDocumentRepository();
         fileStorage = Substitute.For<ILocalFileStorageService>();
         service = new DocumentService(documentRepository, fileStorage);
-        tempPdfPath = Path.Combine(Path.GetTempPath(), $"docsvc-{Guid.NewGuid():N}.pdf");
-        File.WriteAllText(tempPdfPath, "%PDF-1.4 fake");
+        temporaryPdfPath = Path.Combine(Path.GetTempPath(), $"docsvc-{Guid.NewGuid():N}.pdf");
+        File.WriteAllText(temporaryPdfPath, "%PDF-1.4 fake");
     }
 
     public void Dispose()
     {
-        if (File.Exists(tempPdfPath))
+        if (File.Exists(temporaryPdfPath))
         {
-            File.Delete(tempPdfPath);
+            File.Delete(temporaryPdfPath);
         }
     }
 
@@ -73,7 +73,7 @@ public class DocumentServiceTests : IDisposable
         fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(expectedStoragePath);
         var document = new Document { User = new User { UserId = userId }, DocumentName = documentName };
 
-        var saved = await service.UploadDocumentAsync(document, tempPdfPath);
+        var saved = await service.UploadDocumentAsync(document, temporaryPdfPath);
 
         saved.FilePath.Should().Be(expectedStoragePath);
     }
@@ -114,7 +114,7 @@ public class DocumentServiceTests : IDisposable
 
         Func<Task> act = () => service.UploadDocumentAsync(
             new Document { User = new User { UserId = userId }, DocumentName = documentName },
-            tempPdfPath);
+            temporaryPdfPath);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }

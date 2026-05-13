@@ -17,10 +17,10 @@ namespace PussyCats.Tests.Integration;
 
 public class CompanyRecommendationViewModelTests
 {
-    private readonly FakeMatchRepository matchRepo = new();
-    private readonly FakeUserRepository userRepo = new();
-    private readonly FakeJobRepository jobRepo = new();
-    private readonly FakeUserSkillRepository userSkillRepo = new();
+    private readonly FakeMatchRepository matchRepository = new();
+    private readonly FakeUserRepository userRepository = new();
+    private readonly FakeJobRepository jobRepository = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
     private readonly ICompanyRecommendationService recommendationService = Substitute.For<ICompanyRecommendationService>();
     private readonly SessionContext session = new() { CompanyId = 4, Mode = AppMode.Company };
 
@@ -29,7 +29,7 @@ public class CompanyRecommendationViewModelTests
 
     public CompanyRecommendationViewModelTests()
     {
-        matchService = new MatchService(matchRepo, new JobService(jobRepo), new UserService(userRepo));
+        matchService = new MatchService(matchRepository, new JobService(jobRepository), new UserService(userRepository));
         viewModel = new CompanyRecommendationViewModel(recommendationService, matchService, session);
     }
 
@@ -40,16 +40,16 @@ public class CompanyRecommendationViewModelTests
         var companyId = 4;
         var applicantResult = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Applied);
 
-        userRepo.Seed(applicantResult.User);
-        jobRepo.Seed(applicantResult.Job);
-        matchRepo.Seed(applicantResult.Match);
+        userRepository.Seed(applicantResult.User);
+        jobRepository.Seed(applicantResult.Job);
+        matchRepository.Seed(applicantResult.Match);
 
         recommendationService.GetNextApplicant().Returns(applicantResult);
         await viewModel.LoadApplicantsAsync();
 
         await viewModel.AdvanceApplicantAsync();
 
-        var persistedMatch = await matchRepo.GetByIdAsync(matchId);
+        var persistedMatch = await matchRepository.GetByIdAsync(matchId);
         persistedMatch!.Status.Should().Be(MatchStatus.Advanced);
         viewModel.CanUndo.Should().BeTrue();
     }
@@ -61,9 +61,9 @@ public class CompanyRecommendationViewModelTests
         var companyId = 4;
         var applicantResult = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Applied);
 
-        userRepo.Seed(applicantResult.User);
-        jobRepo.Seed(applicantResult.Job);
-        matchRepo.Seed(applicantResult.Match);
+        userRepository.Seed(applicantResult.User);
+        jobRepository.Seed(applicantResult.Job);
+        matchRepository.Seed(applicantResult.Match);
 
         recommendationService.GetNextApplicant().Returns(applicantResult);
         await viewModel.LoadApplicantsAsync();
@@ -71,7 +71,7 @@ public class CompanyRecommendationViewModelTests
         await viewModel.SkipApplicantAsync();
         await viewModel.UndoLastActionAsync();
 
-        var persistedMatch = await matchRepo.GetByIdAsync(matchId);
+        var persistedMatch = await matchRepository.GetByIdAsync(matchId);
         persistedMatch!.Status.Should().Be(MatchStatus.Applied);
         viewModel.CurrentApplicant.Should().BeSameAs(applicantResult);
     }
@@ -82,9 +82,9 @@ public class CompanyRecommendationViewModelTests
         var companyId = 4;
         var applicantResult = ViewModelTestData.Applicant(matchId: 7, companyId: companyId, status: MatchStatus.Applied);
 
-        userRepo.Seed(applicantResult.User);
-        jobRepo.Seed(applicantResult.Job);
-        matchRepo.Seed(applicantResult.Match);
+        userRepository.Seed(applicantResult.User);
+        jobRepository.Seed(applicantResult.Job);
+        matchRepository.Seed(applicantResult.Match);
 
         recommendationService.GetNextApplicant().Returns(applicantResult);
 
@@ -101,9 +101,9 @@ public class CompanyRecommendationViewModelTests
         var applicantResult = ViewModelTestData.Applicant(matchId: 7, companyId: companyId, status: MatchStatus.Applied);
         var breakdown = new CompatibilityBreakdown { OverallScore = 85 };
 
-        userRepo.Seed(applicantResult.User);
-        jobRepo.Seed(applicantResult.Job);
-        matchRepo.Seed(applicantResult.Match);
+        userRepository.Seed(applicantResult.User);
+        jobRepository.Seed(applicantResult.Job);
+        matchRepository.Seed(applicantResult.Match);
 
         recommendationService.GetNextApplicant().Returns(applicantResult);
         recommendationService.GetBreakdownAsync(applicantResult, Arg.Any<CancellationToken>())
