@@ -6,7 +6,7 @@ public class Project
 {
     public int ProjectId { get; set; }
 
-    [JsonIgnore] public User User { get; set; } = null!;//TODO: check if JsonIgnore is needed or works.
+    [JsonIgnore] public User User { get; set; } = null!;
 
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
