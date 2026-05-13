@@ -37,7 +37,7 @@ public class FakeMatchRepository : IMatchRepository
     public Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
 
-        var match = matchesById.Values.FirstOrDefault(match => match.User.UserId == userId && match.JobId == jobId);
+        var match = matchesById.Values.FirstOrDefault(match => match.User.UserId == userId && match.Job.JobId == jobId);
         return Task.FromResult(match);
     }
 

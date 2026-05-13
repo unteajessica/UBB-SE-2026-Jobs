@@ -61,7 +61,10 @@ public class MatchRepository : IMatchRepository
     {
         return await databaseContext.Matches
             .Include(match => match.User)
-            .FirstOrDefaultAsync(match => match.User.UserId == userId && match.JobId == jobId, cancellationToken)
+            .Include(match => match.Job).ThenInclude(job => job.Company)
+            .FirstOrDefaultAsync(match =>
+                match.User.UserId == userId && EF.Property<int>(match, "JobId") == jobId,
+                cancellationToken)
             .ConfigureAwait(false);
     }
 

@@ -29,8 +29,8 @@ public class CooldownServiceTests
         repo.Seed(new Recommendation
         {
             RecommendationId = 1,
-            UserId = 1,
-            JobId = 10,
+            User = new User { UserId = 1 },
+            Job = new Job { JobId = 10 },
             Timestamp = currentDate.AddMinutes(-30),
         });
 
@@ -44,8 +44,8 @@ public class CooldownServiceTests
         repo.Seed(new Recommendation
         {
             RecommendationId = 1,
-            UserId = 1,
-            JobId = 10,
+            User = new User { UserId = 1 },
+            Job = new Job { JobId = 10 },
             Timestamp = currentDate.AddDays(-2),
         });
 
@@ -57,8 +57,8 @@ public class CooldownServiceTests
     {
         var currentDate = DateTime.UtcNow;
         repo.Seed(
-            new Recommendation { RecommendationId = 1, UserId = 1, JobId = 10, Timestamp = currentDate.AddDays(-7) },
-            new Recommendation { RecommendationId = 2, UserId = 1, JobId = 10, Timestamp = currentDate.AddMinutes(-10) });
+            new Recommendation { RecommendationId = 1, User = new User { UserId = 1 }, Job = new Job { JobId = 10 }, Timestamp = currentDate.AddDays(-7) },
+            new Recommendation { RecommendationId = 2, User = new User { UserId = 1 }, Job = new Job { JobId = 10 }, Timestamp = currentDate.AddMinutes(-10) });
 
         (await service.IsOnCooldownAsync(1, 10, currentDate)).Should().BeTrue();
     }
@@ -70,7 +70,7 @@ public class CooldownServiceTests
         var negativeService = new CooldownService(repo, TimeSpan.FromHours(-1));
 
         var now = DateTime.UtcNow;
-        repo.Seed(new Recommendation { RecommendationId = 1, UserId = 1, JobId = 10, Timestamp = now.AddHours(-12) });
+        repo.Seed(new Recommendation { RecommendationId = 1, User = new User { UserId = 1 }, Job = new Job { JobId = 10 }, Timestamp = now.AddHours(-12) });
 
         (await negativeService.IsOnCooldownAsync(1, 10, now)).Should().BeTrue();
         (await zeroService.IsOnCooldownAsync(1, 10, now)).Should().BeTrue();

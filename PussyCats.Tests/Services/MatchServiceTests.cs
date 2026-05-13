@@ -44,13 +44,14 @@ public class MatchServiceTests
     public async Task CreatePendingApplicationAsync_ValidInputs_CreatesMatchInAppliedState()
     {
         userRepo.Seed(new PussyCats.Library.Domain.User { UserId = 1 });
+        jobRepo.Seed(new JobBuilder().WithId(10).Build());
         var matchId = await service.CreatePendingApplicationAsync(userId: 1, jobId: 10);
 
         matchId.Should().BeGreaterThan(0);
         var match = await service.GetByIdAsync(matchId);
         match!.Status.Should().Be(MatchStatus.Applied);
         match.User.UserId.Should().Be(1);
-        match.JobId.Should().Be(10);
+        match.Job.JobId.Should().Be(10);
     }
 
     [Fact]
@@ -266,4 +267,16 @@ public class MatchServiceTests
         stats.MatchesPerPosition.Should().ContainKey("Frontend");
     }
 
+    [Fact]
+    public async Task GetMatchesForUserAsync_UserHasMatches_ReturnsUserMatches()
+    {
+        matchRepo.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(1, 10).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(2, 10).Build());
+
+        var result = await service.GetMatchesForUserAsync(1);
+
+        result.Should().HaveCount(1);
+        result[0].User.UserId.Should().Be(1);
+    }
 }

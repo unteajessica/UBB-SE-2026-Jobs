@@ -26,16 +26,16 @@ public class MatchConfiguration : IEntityTypeConfiguration<Match>
         // erase the application records of every applicant.
         builder.HasOne(match => match.Job)
             .WithMany(job => job.Matches)
-            .HasForeignKey(match => match.JobId)
+            .HasForeignKey("JobId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Indexes per spec — JobId stands alone (joins from the Job side); Status drives the
         // GET /api/users/{id}/matches?status= filter.
-        builder.HasIndex(match => match.JobId);
+        builder.HasIndex("JobId");
         builder.HasIndex(match => match.Status);
         // Composite (UserId, JobId) supports GetByUserIdAndJobIdAsync (hot path in MatchService)
         // and also covers UserId-only queries via the leftmost-prefix rule, so a standalone
         // IX_Matches_UserId would be redundant.
-        builder.HasIndex("UserId", nameof(Match.JobId));
+        builder.HasIndex("UserId", "JobId");
     }
 }

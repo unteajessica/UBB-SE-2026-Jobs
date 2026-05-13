@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
+using PussyCats.Library.Repositories.Jobs;
 using PussyCats.Library.Repositories.Matches;
 using PussyCats.Library.Repositories.Users;
 
@@ -12,11 +13,13 @@ public class MatchesController : ControllerBase
 {
     private readonly IMatchRepository matches;
     private readonly IUserRepository userRepo;
+    private readonly IJobRepository jobRepo;
 
-    public MatchesController(IMatchRepository matches, IUserRepository userRepo)
+    public MatchesController(IMatchRepository matches, IUserRepository userRepo, IJobRepository jobRepo)
     {
         this.matches = matches;
         this.userRepo = userRepo;
+        this.jobRepo = jobRepo;
     }
 
     [HttpGet("{id}")]
@@ -51,10 +54,14 @@ public class MatchesController : ControllerBase
         if (user is null)
             return NotFound($"User {body.UserId} not found.");
 
+        var job = await jobRepo.GetByIdAsync(body.JobId, cancellationToken);
+        if (job is null)
+            return NotFound($"Job {body.JobId} not found.");
+
         var match = new Match
         {
             User = user,
-            JobId = body.JobId,
+            Job = job,
             Status = MatchStatus.Applied,
             Timestamp = DateTime.UtcNow,
             FeedbackMessage = string.Empty,

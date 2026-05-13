@@ -47,7 +47,7 @@ public class MatchBuilder
     {
         MatchId = matchId,
         User = new User { UserId = userId },
-        JobId = jobId,
+        Job = new Job { JobId = jobId },
         Status = status,
         Timestamp = timestamp,
         FeedbackMessage = feedback,
