@@ -1,9 +1,10 @@
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Fakes;
+using PussyCats_App.Services.DocumentService;
+using PussyCats_App.Services.LocalFileStorageService;
 
 namespace PussyCats.Tests.Services;
 

@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
+using PussyCats_App.Services.CompatibilityService;
 
 namespace PussyCats.App.ViewModels;
 

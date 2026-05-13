@@ -3,9 +3,10 @@ using System.IO;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
+using PussyCats_App.Services.ChatService;
+using PussyCats_App.Services.JobService;
 
 namespace PussyCats.App.ViewModels;
 

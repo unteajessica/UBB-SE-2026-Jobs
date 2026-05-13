@@ -1,6 +1,6 @@
 using FluentAssertions;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
+using PussyCats_App.Services.RecommendationAlgorithm;
 
 namespace PussyCats.Tests.Algorithm;
 

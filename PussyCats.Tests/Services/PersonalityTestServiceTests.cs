@@ -1,8 +1,8 @@
 using FluentAssertions;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
+using PussyCats_App.Services.PersonalityTestService;
 
 namespace PussyCats.Tests.Services;
 

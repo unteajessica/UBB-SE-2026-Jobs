@@ -4,9 +4,15 @@ using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
-using PussyCats.Library.Services;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
+using PussyCats_App.Services.CompanyRecommendationService;
+using PussyCats_App.Services.JobService;
+using PussyCats_App.Services.JobSkillService;
+using PussyCats_App.Services.MatchService;
+using PussyCats_App.Services.RecommendationAlgorithm;
+using PussyCats_App.Services.UserService;
+using PussyCats_App.Services.UserSkillService;
 
 namespace PussyCats.Tests.Services;
 

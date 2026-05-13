@@ -5,8 +5,8 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Web.WebView2.Core;
-using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
+using PussyCats_App.Services.PdfExportService;
 
 namespace PussyCats_App.Views.Candidate;
 

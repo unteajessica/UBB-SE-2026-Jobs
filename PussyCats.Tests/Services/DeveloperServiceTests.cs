@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using NSubstitute.ExceptionExtensions;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
+using PussyCats_App.Services.DeveloperService;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PussyCats.App.Services;
+using PussyCats_App.Services.CvParsingService;
 
 namespace PussyCats.Tests.Services;
 

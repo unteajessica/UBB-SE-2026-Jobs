@@ -2,9 +2,9 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
+using PussyCats_App.Services.DeveloperService;
 
 namespace PussyCats.App.ViewModels;
 

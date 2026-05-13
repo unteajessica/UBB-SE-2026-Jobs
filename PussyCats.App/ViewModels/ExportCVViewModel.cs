@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
+using PussyCats_App.Services.PdfExportService;
+using PussyCats_App.Services.UserProfileService;
 
 namespace PussyCats.App.ViewModels;
 

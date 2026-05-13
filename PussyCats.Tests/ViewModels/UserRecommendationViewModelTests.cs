@@ -1,11 +1,11 @@
 using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Tests.Integration;
+using PussyCats_App.Services.UserRecommendationService;
 
 namespace PussyCats.Tests.ViewModels;
 

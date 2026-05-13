@@ -2,8 +2,9 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Controls;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
+using PussyCats_App.Services.CvParsingService;
+using PussyCats_App.Services.UserProfileService;
 
 namespace PussyCats.App.ViewModels;
 

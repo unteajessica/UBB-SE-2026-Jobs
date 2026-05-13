@@ -4,8 +4,8 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.Library.DTOs;
+using PussyCats_App.Services.SkillGapService;
 
 namespace PussyCats.App.ViewModels;
 

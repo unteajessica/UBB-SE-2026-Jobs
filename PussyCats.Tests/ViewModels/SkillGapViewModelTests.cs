@@ -1,11 +1,11 @@
 using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.DTOs;
 using PussyCats.Tests.Helpers;
 using PussyCats.Tests.Integration;
+using PussyCats_App.Services.SkillGapService;
 
 namespace PussyCats.Tests.ViewModels;
 

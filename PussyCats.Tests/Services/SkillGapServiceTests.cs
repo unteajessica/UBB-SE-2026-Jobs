@@ -3,6 +3,9 @@ using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
+using PussyCats_App.Services.JobSkillService;
+using PussyCats_App.Services.SkillGapService;
+using PussyCats_App.Services.UserSkillService;
 
 namespace PussyCats.Tests.Services;
 

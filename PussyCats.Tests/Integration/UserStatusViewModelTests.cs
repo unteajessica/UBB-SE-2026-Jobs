@@ -8,6 +8,12 @@ using PussyCats.Library.Repositories.Jobs;
 using PussyCats.Library.Repositories.Matches;
 using PussyCats.Library.Repositories.Skills;
 using PussyCats.Tests.Fakes;
+using PussyCats_App.Services.CompanyService;
+using PussyCats_App.Services.JobService;
+using PussyCats_App.Services.JobSkillService;
+using PussyCats_App.Services.SkillGapService;
+using PussyCats_App.Services.UserSkillService;
+using PussyCats_App.Services.UserStatusService;
 
 namespace PussyCats.Tests.Integration;
 

@@ -1,10 +1,13 @@
 ﻿using FluentAssertions;
 using NSubstitute;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Chats;
 using PussyCats.Library.Repositories.Messages;
+using PussyCats_App.Services.ChatService;
+using PussyCats_App.Services.CompanyService;
+using PussyCats_App.Services.LocalFileStorageService;
+using PussyCats_App.Services.UserService;
 
 namespace PussyCats.Tests.Services
 {
