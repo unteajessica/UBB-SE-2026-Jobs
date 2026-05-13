@@ -174,6 +174,7 @@
                                         BorderThickness="1" CornerRadius="6" Padding="4">
                                     <ComboBox ItemsSource="{Binding DecisionOptions}"
                                               SelectedItem="{Binding SelectedDecision, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanEditDecision}"
                                               HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent"/>
                                 </Border>
                                 <TextBlock Text="{Binding ValidationErrorDecision}" FontSize="12" Foreground="#B91C1C"/>
@@ -183,6 +184,7 @@
                                 <Border x:Name="FeedbackFieldBorder" BorderBrush="#D1D5DB"
                                         BorderThickness="1" CornerRadius="6" Padding="4">
                                     <TextBox Text="{Binding FeedbackMessage, Mode=TwoWay}"
+                                             IsEnabled="{Binding CanEditDecision}"
                                              AcceptsReturn="True" MinHeight="100"
                                              PlaceholderText="Write your feedback for the applicant..."
                                              TextWrapping="Wrap" BorderThickness="0" Background="Transparent"/>
@@ -194,6 +196,7 @@
 
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button Content="Submit Decision" Click="OnSubmitDecisionClick"  Padding="16,8"
+                                IsEnabled="{Binding CanEditDecision}"
                                 Style="{StaticResource AccentButtonStyle}"/>
                         <Button Content="Cancel"          Click="OnCancelEvaluationClick" Padding="16,8"/>
                     </StackPanel>
