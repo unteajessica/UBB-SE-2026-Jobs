@@ -8,6 +8,30 @@ namespace PussyCats.Tests.Services;
 
 public class UserProfileServiceTests
 {
+    private const int MissingUserId = 99;
+    private const int ExistingUserId = 1;
+    private const int NewUserId = 0;
+    private const int OneMinute = 1;
+
+    private const int SkillTestIdOne = 1;
+    private const int SkillTestIdTwo = 2;
+    private const int SkillTestIdThree = 3;
+    private const int SkillIdOne = 1;
+    private const int SkillIdTwo = 2;
+    private const int GoldScore = 95;
+    private const int SilverScore = 75;
+    private const int BronzeScore = 55;
+
+    private const string OldEmail = "old@x.com";
+    private const string NewEmail = "new@x.com";
+    private const string ProfilePicturePath = "pic.png";
+    private const string OldProfilePicturePath = "old.png";
+    private const string UniversityName = "Cambridge";
+    private const string FirstName = "Ada";
+    private const string LastName = "Lovelace";
+    private const string PrimarySkillName = "C#";
+    private const string SecondarySkillName = "SQL";
+
     private readonly FakeUserRepository userRepo = new();
     private readonly FakeSkillTestRepository skillTestRepo = new();
     private readonly UserProfileService service;
@@ -21,7 +45,7 @@ public class UserProfileServiceTests
     [Fact]
     public async Task IsProfileAvailableAsync_UserIsMissing_ThrowsException()
     {
-        Func<Task> act = () => service.IsProfileAvailableAsync(99);
+        Func<Task> act = () => service.IsProfileAvailableAsync(MissingUserId);
 
         await act.Should().ThrowAsync<Exception>()
             .WithMessage("*No profile found*");
@@ -30,61 +54,61 @@ public class UserProfileServiceTests
     [Fact]
     public async Task IsProfileAvailableAsync_ProfileExists_ReturnsActiveAccountFlag()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).WithActiveAccount(false).Build());
+        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).WithActiveAccount(false).Build());
 
-        (await service.IsProfileAvailableAsync(1)).Should().BeFalse();
+        (await service.IsProfileAvailableAsync(ExistingUserId)).Should().BeFalse();
     }
 
     [Fact]
     public async Task UpdateAccountStatusAsync_StatusChanged_PersistsStatusAndTouchesLastUpdated()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).WithActiveAccount(true).Build());
+        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).WithActiveAccount(true).Build());
 
-        await service.UpdateAccountStatusAsync(1, false);
+        await service.UpdateAccountStatusAsync(ExistingUserId, false);
 
-        var user = await userRepo.GetByIdAsync(1);
+        var user = await userRepo.GetByIdAsync(ExistingUserId);
         user!.ActiveAccount.Should().BeFalse();
-        user.LastUpdated.Should().BeAfter(DateTime.UtcNow.AddMinutes(-1));
+        user.LastUpdated.Should().BeAfter(DateTime.UtcNow.AddMinutes(-OneMinute));
     }
 
     [Fact]
     public async Task UpdateProfilePicturePathAsync_PathProvided_WritesPathToUser()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).Build());
+        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
 
-        await service.UpdateProfilePicturePathAsync(1, "pic.png");
+        await service.UpdateProfilePicturePathAsync(ExistingUserId, ProfilePicturePath);
 
-        (await userRepo.GetByIdAsync(1))!.ProfilePicturePath.Should().Be("pic.png");
+        (await userRepo.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().Be(ProfilePicturePath);
     }
 
     [Fact]
     public async Task UpdateProfilePicturePathAsync_PathIsNull_HandlesAsEmptyString()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).Build());
+        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
 
-        await service.UpdateProfilePicturePathAsync(1, null!);
+        await service.UpdateProfilePicturePathAsync(ExistingUserId, null!);
 
-        (await userRepo.GetByIdAsync(1))!.ProfilePicturePath.Should().BeEmpty();
+        (await userRepo.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
     }
 
     [Fact]
     public async Task RemoveProfilePicturePathAsync_UserHasPicture_ClearsPath()
     {
-        var user = new UserBuilder().WithId(1).Build();
-        user.ProfilePicturePath = "old.png";
+        var user = new UserBuilder().WithId(ExistingUserId).Build();
+        user.ProfilePicturePath = OldProfilePicturePath;
         userRepo.Seed(user);
 
-        await service.RemoveProfilePicturePathAsync(1);
+        await service.RemoveProfilePicturePathAsync(ExistingUserId);
 
-        (await userRepo.GetByIdAsync(1))!.ProfilePicturePath.Should().BeEmpty();
+        (await userRepo.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
     }
 
     [Fact]
     public async Task SaveAsync_UserIsMissing_AddsNewUser()
     {
-        var user = new UserBuilder().WithId(0).Build();
+        var user = new UserBuilder().WithId(NewUserId).Build();
 
-        await service.SaveAsync(0, user);
+        await service.SaveAsync(NewUserId, user);
 
         (await userRepo.GetAllAsync()).Should().HaveCount(1);
     }
@@ -92,12 +116,12 @@ public class UserProfileServiceTests
     [Fact]
     public async Task SaveAsync_UserExists_UpdatesExistingUser()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).WithEmail("old@x.com").Build());
-        var updated = new UserBuilder().WithId(1).WithEmail("new@x.com").Build();
+        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).WithEmail(OldEmail).Build());
+        var updated = new UserBuilder().WithId(ExistingUserId).WithEmail(NewEmail).Build();
 
-        await service.SaveAsync(1, updated);
+        await service.SaveAsync(ExistingUserId, updated);
 
-        (await userRepo.GetByIdAsync(1))!.Email.Should().Be("new@x.com");
+        (await userRepo.GetByIdAsync(ExistingUserId))!.Email.Should().Be(NewEmail);
     }
 
     [Fact]
@@ -109,19 +133,19 @@ public class UserProfileServiceTests
     [Fact]
     public void GenerateParsedCvText_ValidUserProvided_CombinesNameUniversityAndSkillNames()
     {
-        var user = new UserBuilder().WithId(1).WithName("Ada", "Lovelace").Build();
-        user.University = "Cambridge";
+        var user = new UserBuilder().WithId(ExistingUserId).WithName(FirstName, LastName).Build();
+        user.University = UniversityName;
         user.Skills = new List<UserSkill>
         {
-            new() { Skill = new Skill { SkillId = 1, Name = "C#" } },
-            new() { Skill = new Skill { SkillId = 2, Name = "SQL" } },
+            new() { Skill = new Skill { SkillId = SkillIdOne, Name = PrimarySkillName } },
+            new() { Skill = new Skill { SkillId = SkillIdTwo, Name = SecondarySkillName } },
         };
 
         var text = service.GenerateParsedCvText(user);
 
-        text.Should().Contain("Ada Lovelace");
-        text.Should().Contain("Cambridge");
-        text.Should().Contain("C#, SQL");
+        text.Should().Contain($"{FirstName} {LastName}");
+        text.Should().Contain(UniversityName);
+        text.Should().Contain($"{PrimarySkillName}, {SecondarySkillName}");
     }
 
     [Fact]
@@ -133,12 +157,12 @@ public class UserProfileServiceTests
     [Fact]
     public async Task RecalculateLevelAsync_UserHasSkillTests_SumsXpFromTestsAndSetsLevel()
     {
-        var user = new UserBuilder().WithId(1).Build();
+        var user = new UserBuilder().WithId(ExistingUserId).Build();
         userRepo.Seed(user);
         skillTestRepo.Seed(
-            new SkillTestBuilder().WithId(1).ForUser(1).WithScore(95).Build(),
-            new SkillTestBuilder().WithId(2).ForUser(1).WithScore(75).Build(),
-            new SkillTestBuilder().WithId(3).ForUser(1).WithScore(55).Build());
+            new SkillTestBuilder().WithId(SkillTestIdOne).ForUser(ExistingUserId).WithScore(GoldScore).Build(),
+            new SkillTestBuilder().WithId(SkillTestIdTwo).ForUser(ExistingUserId).WithScore(SilverScore).Build(),
+            new SkillTestBuilder().WithId(SkillTestIdThree).ForUser(ExistingUserId).WithScore(BronzeScore).Build());
 
         var totalXp = await service.RecalculateLevelAsync(user);
 
