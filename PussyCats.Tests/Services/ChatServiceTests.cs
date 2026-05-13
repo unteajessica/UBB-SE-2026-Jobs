@@ -11,8 +11,8 @@ namespace PussyCats.Tests.Services
 
     public class ChatServiceTests
     {
-        private readonly IChatRepository chatRepo = Substitute.For<IChatRepository>();
-        private readonly IMessageRepository messageRepo = Substitute.For<IMessageRepository>();
+        private readonly IChatRepository chatRepository = Substitute.For<IChatRepository>();
+        private readonly IMessageRepository messageRepository = Substitute.For<IMessageRepository>();
         private readonly IUserService userService = Substitute.For<IUserService>();
         private readonly ICompanyService companyService = Substitute.For<ICompanyService>();
         private readonly ILocalFileStorageService fileStorage = Substitute.For<ILocalFileStorageService>();
@@ -22,7 +22,7 @@ namespace PussyCats.Tests.Services
 
         public ChatServiceTests()
         {
-            chatService = new(chatRepo, messageRepo, userService, companyService, fileStorage);
+            chatService = new(chatRepository, messageRepository, userService, companyService, fileStorage);
         }
 
         #region FindOrCreateUser....
@@ -33,9 +33,9 @@ namespace PussyCats.Tests.Services
             var user = new User { UserId = 1 };
             var newChat = new Chat();
 
-            chatRepo.FindUserCompanyChatAsync(1, company, null, Arg.Any<CancellationToken>())
+            chatRepository.FindUserCompanyChatAsync(1, company, null, Arg.Any<CancellationToken>())
                 .Returns((Chat?)null);
-            chatRepo.AddAsync(Arg.Any<Chat>(), Arg.Any<CancellationToken>())
+            chatRepository.AddAsync(Arg.Any<Chat>(), Arg.Any<CancellationToken>())
                 .Returns(newChat);
             userService.GetAllAsync(Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<User>>(new List<User> { user })); 
@@ -51,7 +51,7 @@ namespace PussyCats.Tests.Services
             var existingChat = new Chat {ChatId = 1, DeletedAtByUser = DateTime.UtcNow, DeletedAtBySecondParty = DateTime.UtcNow };
             var company = new Company();
 
-            chatRepo.FindUserCompanyChatAsync(1, company, null, Arg.Any<CancellationToken>())
+            chatRepository.FindUserCompanyChatAsync(1, company, null, Arg.Any<CancellationToken>())
                 .Returns(existingChat);
 
             var returnedChat = await chatService.FindOrCreateUserCompanyChatAsync(1, company);
@@ -68,9 +68,9 @@ namespace PussyCats.Tests.Services
             var user2 = new User { UserId = 2 };
             var newChat = new Chat();
 
-            chatRepo.FindUserUserChatAsync(1, 2, Arg.Any<CancellationToken>())
+            chatRepository.FindUserUserChatAsync(1, 2, Arg.Any<CancellationToken>())
                 .Returns((Chat?)null);
-            chatRepo.AddAsync(Arg.Any<Chat>(), Arg.Any<CancellationToken>())
+            chatRepository.AddAsync(Arg.Any<Chat>(), Arg.Any<CancellationToken>())
                 .Returns(newChat);
             userService.GetAllAsync(Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<User>>(new List<User> { user1, user2 }));
@@ -87,7 +87,7 @@ namespace PussyCats.Tests.Services
         {
             var existingChat = new Chat { ChatId = 1, DeletedAtByUser = DateTime.UtcNow, DeletedAtBySecondParty = DateTime.UtcNow };
 
-            chatRepo.FindUserUserChatAsync(1, 2, Arg.Any<CancellationToken>())
+            chatRepository.FindUserUserChatAsync(1, 2, Arg.Any<CancellationToken>())
                 .Returns(existingChat);
 
             var returnedChat = await chatService.FindOrCreateUserChatAsync(1, 2);
@@ -110,7 +110,7 @@ namespace PussyCats.Tests.Services
                 User = new User { UserId = userId }
             };
 
-            chatRepo.GetForUserAsync(userId, Arg.Any<CancellationToken>())
+            chatRepository.GetForUserAsync(userId, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { blockedChat }));
 
             var result = await chatService.GetChatsForUserAsync(userId);
@@ -129,7 +129,7 @@ namespace PussyCats.Tests.Services
                 User = new User { UserId = userId }
             };
 
-            chatRepo.GetForUserAsync(userId, Arg.Any<CancellationToken>())
+            chatRepository.GetForUserAsync(userId, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { blockedBySelfChat }));
 
             var result = await chatService.GetChatsForUserAsync(userId);
@@ -149,7 +149,7 @@ namespace PussyCats.Tests.Services
                 DeletedAtByUser = DateTime.UtcNow
             };
 
-            chatRepo.GetForUserAsync(userId, Arg.Any<CancellationToken>())
+            chatRepository.GetForUserAsync(userId, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { deletedChat }));
 
             var result = await chatService.GetChatsForUserAsync(userId);
@@ -167,7 +167,7 @@ namespace PussyCats.Tests.Services
                 DeletedAtBySecondParty = DateTime.UtcNow
             };
 
-            chatRepo.GetForCompanyAsync(companyId, Arg.Any<CancellationToken>())
+            chatRepository.GetForCompanyAsync(companyId, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<Chat>>(new List<Chat> { deletedChat }));
 
             var result = await chatService.GetChatsForCompanyAsync(companyId);
@@ -181,7 +181,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task GetMessagesAsync_ChatNotFound_ThrowsKeyNotFoundException()
         {
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>())
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>())
                 .Returns((Chat?)null);
 
             var action = async () => await chatService.GetMessagesAsync(1, callerId: 1);
@@ -194,7 +194,7 @@ namespace PussyCats.Tests.Services
         {
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
 
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>())
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>())
                 .Returns(chat);
 
             var act = async () => await chatService.GetMessagesAsync(1, callerId: 99);
@@ -211,8 +211,8 @@ namespace PussyCats.Tests.Services
             var oldMessage = new Message { Timestamp = deletedAt.AddMinutes(-1), Sender = new MessageSender { SenderId = 2 }, Chat = new Chat { ChatId = 1 } };
             var newMessage = new Message { Timestamp = deletedAt.AddMinutes(1), Sender = new MessageSender { SenderId = 2 }, Chat = new Chat { ChatId = 1 } };
 
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
-            messageRepo.GetForChatAsync(1, Arg.Any<CancellationToken>())
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            messageRepository.GetForChatAsync(1, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<Message>>(new List<Message> { oldMessage, newMessage }));
 
             var result = await chatService.GetMessagesAsync(1, callerId);
@@ -229,8 +229,8 @@ namespace PussyCats.Tests.Services
             var ownMessage = new Message { Sender = new MessageSender { SenderId = callerId }, Chat = new Chat { ChatId = 1 }, Timestamp = DateTime.UtcNow };
             var otherMessage = new Message { Sender = new MessageSender { SenderId = 2 }, Chat = new Chat { ChatId = 1 }, Timestamp = DateTime.UtcNow };
 
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
-            messageRepo.GetForChatAsync(1, Arg.Any<CancellationToken>())
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            messageRepository.GetForChatAsync(1, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyList<Message>>(new List<Message> { ownMessage, otherMessage }));
 
             var result = await chatService.GetMessagesAsync(1, callerId);
@@ -341,7 +341,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task SendMessageAsync_ChatNotFound_ThrowsKeyNotFoundException()
         {
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
             await chatService.Invoking(s => s.SendMessageAsync(1, "hello", 1, MessageType.Text))
                 .Should().ThrowAsync<KeyNotFoundException>();
@@ -351,7 +351,7 @@ namespace PussyCats.Tests.Services
         public async Task SendMessageAsync_CallerIsNotParticipant_ThrowsUnauthorizedAccessException()
         {
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.Invoking(s => s.SendMessageAsync(1, "hello", 789, MessageType.Text))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
@@ -361,7 +361,7 @@ namespace PussyCats.Tests.Services
         public async Task SendMessageAsync_BlockedChat_ThrowsInvalidOperationException()
         {
             var chat = new Chat { IsBlocked = true, User = new User { UserId = 1 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.Invoking(s => s.SendMessageAsync(1, "hello", 1, MessageType.Text))
                 .Should().ThrowAsync<InvalidOperationException>();
@@ -371,7 +371,7 @@ namespace PussyCats.Tests.Services
         public async Task SendMessageAsync_TextMessageExceedsMaxLength_ThrowsArgumentException()
         {
             var chat = new Chat { User = new User { UserId = 1 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.Invoking(s => s.SendMessageAsync(1, new string('a', 2001), 1, MessageType.Text))
                 .Should().ThrowAsync<ArgumentException>();
@@ -381,11 +381,11 @@ namespace PussyCats.Tests.Services
         public async Task SendMessageAsync_ValidTextMessage_AddsMessageToRepository()
         {
             var chat = new Chat { User = new User { UserId = 1 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.SendMessageAsync(1, "hello", 1, MessageType.Text);
 
-            await messageRepo.Received(1).AddAsync(
+            await messageRepository.Received(1).AddAsync(
                 Arg.Is<Message>(m => m.Content == "hello" && m.Type == MessageType.Text),
                 Arg.Any<CancellationToken>());
         }
@@ -405,13 +405,13 @@ namespace PussyCats.Tests.Services
 
             try
             {
-                chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+                chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
                 fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
                     .Returns("stored/path.jpg");
 
                 await chatService.SendMessageAsync(1, imagePath, 1, MessageType.Image);
 
-                await messageRepo.Received(1).AddAsync(
+                await messageRepository.Received(1).AddAsync(
                     Arg.Is<Message>(m => m.Content == "stored/path.jpg" && m.OriginalFileName == Path.GetFileName(imagePath)),
                     Arg.Any<CancellationToken>());
             }
@@ -436,13 +436,13 @@ namespace PussyCats.Tests.Services
 
             try
             {
-                chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+                chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
                 fileStorage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
                     .Returns("stored/path.jpg");
 
                 await chatService.SendMessageAsync(1, sentAttachmentPath, 1, MessageType.File);
 
-                await messageRepo.Received(1).AddAsync(
+                await messageRepository.Received(1).AddAsync(
                     Arg.Is<Message>(m => m.Content == "stored/path.jpg" && m.OriginalFileName == Path.GetFileName(sentAttachmentPath)),
                     Arg.Any<CancellationToken>());
             }
@@ -477,7 +477,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task BlockChatAsync_ChatNotFound_ThrowsKeyNotFoundException()
         {
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
             await chatService.Invoking(s => s.BlockChatAsync(1, blockerId: 1))
                 .Should().ThrowAsync<KeyNotFoundException>();
@@ -487,7 +487,7 @@ namespace PussyCats.Tests.Services
         public async Task BlockChatAsync_CallerIsNotParticipant_ThrowsUnauthorizedAccessException()
         {
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.Invoking(s => s.BlockChatAsync(1, blockerId: 99))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
@@ -497,19 +497,19 @@ namespace PussyCats.Tests.Services
         public async Task BlockChatAsync_ValidRequest_BlocksChatAndUpdatesRepository()
         {
             var chat = new Chat { User = new User { UserId = 1 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.BlockChatAsync(1, blockerId: 1);
 
             chat.IsBlocked.Should().BeTrue();
             chat.BlockedByUser!.UserId.Should().Be(1);
-            chatRepo.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
+            chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
 
         [Fact]
         public async Task UnblockChatAsync_ChatNotFound_ThrowsKeyNotFoundException()
         {
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
             await chatService.Invoking(s => s.UnblockChatAsync(1, unblockerId: 1))
                 .Should().ThrowAsync<KeyNotFoundException>();
@@ -520,7 +520,7 @@ namespace PussyCats.Tests.Services
         public async Task UnblockChatAsync_CallerIsNotBlocker_ThrowsUnauthorizedAccessException()
         {
             var chat = new Chat { User = new User { UserId = 1 }, SecondUser = new User { UserId = 2 }, BlockedByUser = new User { UserId = 2 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.Invoking(s => s.UnblockChatAsync(1, unblockerId: 1))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
@@ -530,13 +530,13 @@ namespace PussyCats.Tests.Services
         public async Task UnblockChatAsync_ValidRequest_UnblocksChatAndUpdatesRepository()
         {
             var chat = new Chat { User = new User { UserId = 1 }, BlockedByUser = new User { UserId = 1 }, IsBlocked = true };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.UnblockChatAsync(1, unblockerId: 1);
 
             chat.IsBlocked.Should().BeFalse();
             chat.BlockedByUser.Should().BeNull();
-            chatRepo.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
+            chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
 
         #endregion
@@ -544,7 +544,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task DeleteChatAsync_ChatNotFound_ThrowsKeyNotFoundException()
         {
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
             await chatService.Invoking(s => s.DeleteChatAsync(1, callerId: 1))
                 .Should().ThrowAsync<KeyNotFoundException>();
@@ -554,7 +554,7 @@ namespace PussyCats.Tests.Services
         public async Task DeleteChatAsync_CallerIsNotParticipant_ThrowsUnauthorizedAccessException()
         {
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.Invoking(s => s.DeleteChatAsync(1, callerId: 99))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
@@ -564,26 +564,26 @@ namespace PussyCats.Tests.Services
         public async Task DeleteChatAsync_CallerIsUser_SetsDeletedAtByUser()
         {
             var chat = new Chat { User = new User { UserId = 1 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.DeleteChatAsync(1, callerId: 1);
 
             chat.DeletedAtByUser.Should().NotBeNull();
             chat.DeletedAtBySecondParty.Should().BeNull();
-            chatRepo.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
+            chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
 
         [Fact]
         public async Task DeleteChatAsync_CallerIsSecondParty_SetsDeletedAtBySecondParty()
         {
             var chat = new Chat { User = new User { UserId = 1 }, SecondUser = new User { UserId = 2 } };
-            chatRepo.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
+            chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
             await chatService.DeleteChatAsync(1, callerId: 2);
 
             chat.DeletedAtBySecondParty.Should().NotBeNull();
             chat.DeletedAtByUser.Should().BeNull();
-            chatRepo.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
+            chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
     }
 }

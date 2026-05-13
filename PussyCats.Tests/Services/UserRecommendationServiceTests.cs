@@ -13,6 +13,48 @@ namespace PussyCats.Tests.Services;
 
 public class UserRecommendationServiceTests
 {
+    private const int MissingUserId = 99;
+    private const int ExistingUserId = 1;
+    private const int CompanyId = 5;
+    private const int PrimaryJobId = 10;
+    private const int SecondaryJobId = 20;
+    private const int MatchId = 1;
+    private const int AlternateMatchId = 5;
+    private const int RecommendationId = 1;
+    private const int UndoRecommendationId = 7;
+    private const int AlternateRecommendationId = 8;
+    private const int CooldownHours = 24;
+    private const int RecentMinutes = 30;
+
+    private const double TopScore = 90.0;
+    private const double SecondaryScore = 40.0;
+    private const double DefaultScore = 50.0;
+
+    private const int YearsInternshipFloor = 0;
+    private const int YearsInternshipUpper = 1;
+    private const int YearsEntryFloor = 2;
+    private const int YearsEntryUpper = 3;
+    private const int YearsMidSeniorFloor = 4;
+    private const int YearsMidSeniorUpper = 6;
+    private const int YearsDirectorFloor = 7;
+    private const int YearsDirectorUpper = 9;
+    private const int YearsExecutiveFloor = 10;
+    private const int YearsExecutiveUpper = 25;
+
+    public static IEnumerable<object[]> ExperienceBucketCases =>
+    [
+        new object[] { YearsInternshipFloor, "Internship" },
+        new object[] { YearsInternshipUpper, "Internship" },
+        new object[] { YearsEntryFloor, "Entry" },
+        new object[] { YearsEntryUpper, "Entry" },
+        new object[] { YearsMidSeniorFloor, "MidSenior" },
+        new object[] { YearsMidSeniorUpper, "MidSenior" },
+        new object[] { YearsDirectorFloor, "Director" },
+        new object[] { YearsDirectorUpper, "Director" },
+        new object[] { YearsExecutiveFloor, "Executive" },
+        new object[] { YearsExecutiveUpper, "Executive" },
+    ];
+
     private readonly FakeUserRepository userRepo = new();
     private readonly FakeJobRepository jobRepo = new();
     private readonly FakeUserSkillRepository userSkillRepo = new();
@@ -26,7 +68,7 @@ public class UserRecommendationServiceTests
     {
         var jobService = new JobService(jobRepo);
         var matchService = new MatchService(matchRepo, jobService, new UserService(userRepo));
-        var cooldown = new CooldownService(recommendationRepo, cooldownPeriod ?? TimeSpan.FromHours(24));
+        var cooldown = new CooldownService(recommendationRepo, cooldownPeriod ?? TimeSpan.FromHours(CooldownHours));
         return new UserRecommendationService(
             userRepo,
             jobRepo,
@@ -58,7 +100,7 @@ public class UserRecommendationServiceTests
         userRepo.Seed(new UserBuilder().WithId(userId).Build());
 
         var service = BuildService();
-        var card = await service.GetNextCardAsync(1, UserMatchmakingFilters.Empty());
+        var card = await service.GetNextCardAsync(ExistingUserId, UserMatchmakingFilters.Empty());
 
         card.Should().BeNull();
     }
@@ -207,7 +249,7 @@ public class UserRecommendationServiceTests
             Company = await companyRepo.GetByIdAsync(companyId) ?? throw new InvalidOperationException(),
         };
 
-        var dismissId = await service.ApplyDismissAsync(1, card);
+        var dismissId = await service.ApplyDismissAsync(ExistingUserId, card);
 
         (await recommendationRepo.GetByIdAsync(dismissId)).Should().NotBeNull();
     }
@@ -234,13 +276,13 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task UndoLikeAsync_RecommendationIdIsNull_SkipsRecommendationRemoval()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(5).Build());
-        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, User = new User { UserId = 1 }, Job = new Job { JobId = 10 } });
+        matchRepo.Seed(new MatchBuilder().WithId(AlternateMatchId).Build());
+        recommendationRepo.Seed(new Recommendation { RecommendationId = UndoRecommendationId, UserId = ExistingUserId, JobId = PrimaryJobId });
 
         var service = BuildService();
-        await service.UndoLikeAsync(5, null);
+        await service.UndoLikeAsync(AlternateMatchId, null);
 
-        (await recommendationRepo.GetByIdAsync(7)).Should().NotBeNull();
+        (await recommendationRepo.GetByIdAsync(UndoRecommendationId)).Should().NotBeNull();
     }
 
     [Fact]
@@ -278,16 +320,7 @@ public class UserRecommendationServiceTests
     }
 
     [Theory]
-    [InlineData(0, "Internship")]
-    [InlineData(1, "Internship")]
-    [InlineData(2, "Entry")]
-    [InlineData(3, "Entry")]
-    [InlineData(4, "MidSenior")]
-    [InlineData(6, "MidSenior")]
-    [InlineData(7, "Director")]
-    [InlineData(9, "Director")]
-    [InlineData(10, "Executive")]
-    [InlineData(25, "Executive")]
+    [MemberData(nameof(ExperienceBucketCases))]
     public void MapUserYearsToExperienceBucket_YearsProvided_ClassifiesYearCountIntoCorrectBucket(int years, string expected)
     {
         UserRecommendationService.MapUserYearsToExperienceBucket(years).Should().Be(expected);

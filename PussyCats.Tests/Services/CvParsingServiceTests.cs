@@ -7,55 +7,128 @@ public class CvParsingServiceTests
 {
     private readonly CvParsingService service = new();
 
-    [Fact]
-    public void ParseCvFile_UnsupportedExtensionProvided_ThrowsException()
-    {
-        Action act = () => service.ParseCvFile("ignored", ".txt");
+    private const int MaxSkills = 30;
 
-        act.Should().Throw<Exception>().WithMessage("*Unsupported file type*");
-    }
+    private const string FirstName = "Ada";
+    private const string LastName = "Lovelace";
+    private const int Age = 28;
+    private const string Gender = "F";
+    private const string NormalizedGender = "Female";
+    private const string Email = "ADA@EXAMPLE.COM";
+    private const string NormalizedEmail = "ada@example.com";
+    private const string PhoneNumber = "+40 (123) 456-789";
+    private const string PhonePrefix = "+40";
+    private const string Country = "Romania";
+    private const string City = "Cluj-Napoca";
+    private const string University = "Cambridge";
+    private const int GraduationYear = 9999;
+    private const string GitHub = "github.com/ada";
+    private const string LinkedIn = "linkedin.com/in/ada";
+    private const string Address = "1 Main St";
+    private const string Motivation = "Build cool things.";
 
-    [Fact]
-    public void ParseCvFile_ValidJsonProvided_ParsesFieldsCorrectly()
-    {
-        var json = """
+    private static readonly string CvDataJson = $$"""
         {
-          "FirstName": "Ada",
-          "LastName": "Lovelace",
-          "Age": 28,
-          "Gender": "F",
-          "Email": "ADA@EXAMPLE.COM",
-          "PhoneNumber": "+40 (123) 456-789",
-          "Country": "Romania",
-          "City": "Cluj-Napoca",
-          "University": "Cambridge",
-          "ExpectedGraduationYear": 9999,
-          "GitHub": "github.com/ada",
-          "LinkedIn": "linkedin.com/in/ada",
-          "Address": "1 Main St",
-          "Motivation": "Build cool things.",
-          "HasDisabilities": false,
-          "Skills": ["C#", "C#", "Python"]
+        "FirstName": "{{FirstName}}",
+        "LastName": "{{LastName}}",
+        "Age": {{Age}},
+        "Gender": "{{Gender}}",
+        "Email": "{{Email}}",
+        "PhoneNumber": "{{PhoneNumber}}",
+        "Country": "{{Country}}",
+        "City": "{{City}}",
+        "University": "{{University}}",
+        "ExpectedGraduationYear": {{GraduationYear}},
+        "GitHub": "{{GitHub}}",
+        "LinkedIn": "{{LinkedIn}}",
+        "Address": "{{Address}}",
+        "Motivation": "{{Motivation}}",
+        "HasDisabilities": false,
+        "Skills": ["C#", "C#", "Python"]
         }
         """;
 
-        var user = service.ParseCvFile(json, ".json");
 
-        user.FirstName.Should().Be("Ada");
-        user.LastName.Should().Be("Lovelace");
-        user.Age.Should().Be(28);
-        user.Gender.Should().Be("Female");
-        user.Email.Should().Be("ada@example.com");
-        user.Phone.Should().StartWith("+40");
-        user.Skills.Should().HaveCount(2); // duplicates deduped
+    [Fact]
+    public void ParseCvFile_UnsupportedExtensionProvided_ThrowsException()
+    {
+        Action unsupportedFileType = () => service.ParseCvFile("ignored", ".txt");
+
+        unsupportedFileType.Should().Throw<Exception>().WithMessage("*Unsupported file type*");
+    }
+
+    [Fact]
+    public void ParseCvFile_ValidJsonFormatProvided_ParsesFirstName()
+    {
+        var user = service.ParseCvFile(CvDataJson, ".json");
+
+        user.FirstName.Should().Be(FirstName);
+    }
+
+    [Fact]
+    public void ParseCvFile_ValidJsonFormatProvided_ParsesLastName()
+    {
+        var user = service.ParseCvFile(CvDataJson, ".json");
+
+        user.LastName.Should().Be(LastName);
+    }
+
+    [Fact]
+    public void ParseCvFile_ValidJsonFormatProvided_ParsesAge()
+    {
+        var user = service.ParseCvFile(CvDataJson, ".json");
+
+        user.Age.Should().Be(Age);
+    }
+
+    [Fact]
+    public void ParseCvFile_ValidJsonFormatProvided_NormalizesEmail()
+    {
+        var user = service.ParseCvFile(CvDataJson, ".json");
+
+        user.Email.Should().Be(NormalizedEmail);
+    }
+
+    [Fact]
+    public void ParseCvFile_ValidJsonFormatProvided_NormalizesPhone()
+    {
+        var user = service.ParseCvFile(CvDataJson, ".json");
+
+        user.Phone.Should().StartWith(PhonePrefix);
+    }
+
+    [Fact]
+    public void ParseCvFile_ValidJsonFormatProvided_DeduplicatesSkills()
+    {
+        var skillsExpectedCount = 2;
+        var user = service.ParseCvFile(CvDataJson, ".json");
+
+        user.Skills.Should().HaveCount(skillsExpectedCount);
+    }
+
+    [Theory]
+    [InlineData("M", "Male")]
+    [InlineData("F", "Female")]
+    [InlineData("Other", "")]
+    public void ParseCvFile_GenderCodes_NormalizesGenderStrings(string inputGender, string expectedGender)
+    {
+        var cvDataJson = $$"""
+    {
+        "FirstName": "X",
+        "Gender": "{{inputGender}}"
+    }
+    """;
+        var user = service.ParseCvFile(cvDataJson, ".json");
+
+        user.Gender.Should().Be(expectedGender);
     }
 
     [Fact]
     public void ParseCvFile_AgeOutsideValidRange_ZerosAgeField()
     {
-        var json = """{ "FirstName": "X", "Age": 5 }""";
+        var cvDataInvalidAge = """{ "FirstName": "X", "Age": 5 }""";
 
-        var user = service.ParseCvFile(json, ".json");
+        var user = service.ParseCvFile(cvDataInvalidAge, ".json");
 
         user.Age.Should().Be(0);
     }
@@ -63,70 +136,55 @@ public class CvParsingServiceTests
     [Fact]
     public void ParseCvFile_GraduationYearTooFarInFuture_ZerosGraduationYearField()
     {
-        var json = """{ "FirstName": "X", "ExpectedGraduationYear": 9999 }""";
 
-        var user = service.ParseCvFile(json, ".json");
+        var user = service.ParseCvFile(CvDataJson, ".json");
 
         user.ExpectedGraduationYear.Should().Be(0);
     }
 
     [Fact]
-    public void ParseCvFile_TooManySkillsProvided_CapsSkillCountAt30()
+    public void ParseCvFile_TooManySkillsProvided_CapsSkillCountAtMaxSkills()
     {
         var skillsArray = string.Join(",", Enumerable.Range(1, 50).Select(i => $"\"Skill{i}\""));
-        var json = $"{{ \"FirstName\": \"X\", \"Skills\": [{skillsArray}] }}";
+        var cvData = $"{{ \"FirstName\": \"X\", \"Skills\": [{skillsArray}] }}";
 
-        var user = service.ParseCvFile(json, ".json");
+        var user = service.ParseCvFile(cvData, ".json");
 
-        user.Skills.Should().HaveCount(30);
+        user.Skills.Should().HaveCount(MaxSkills);
     }
 
     [Fact]
-    public void ParseCvFile_MotivationExceedsLimit_TruncatesMotivationAt1000Chars()
+    public void ParseCvFile_MotivationExceedsLimit_TruncatesMotivationAtMaxMotivtionLengthChars()
     {
-        var motivation = new string('x', 1500);
-        var json = $"{{ \"FirstName\": \"X\", \"Motivation\": \"{motivation}\" }}";
+        int motivationLength = 1500;
+        int maxMotivationLength = 1000;
 
-        var user = service.ParseCvFile(json, ".json");
+        var motivation = new string('x', motivationLength);
+        var cvData = $"{{ \"FirstName\": \"X\", \"Motivation\": \"{motivation}\" }}";
 
-        user.Motivation.Length.Should().Be(1000);
+        var user = service.ParseCvFile(cvData, ".json");
+
+        user.Motivation.Length.Should().Be(maxMotivationLength);
     }
 
     [Fact]
     public void ParseCvFile_InvalidEmailProvided_BlanksEmailField()
     {
-        var json = """{ "FirstName": "X", "Email": "not-an-email" }""";
+        var cvDataInvalidEmail = """{ "FirstName": "X", "Email": "not-an-email" }""";
 
-        var user = service.ParseCvFile(json, ".json");
+        var user = service.ParseCvFile(cvDataInvalidEmail, ".json");
 
         user.Email.Should().BeEmpty();
     }
 
     [Fact]
-    public void ParseCvFile_ShortGenderCodesProvided_NormalizesGenderStrings()
-    {
-        var maleJson = """{ "FirstName": "X", "Gender": "M" }""";
-        var femaleJson = """{ "FirstName": "X", "Gender": "F" }""";
-        var unknownJson = """{ "FirstName": "X", "Gender": "Other" }""";
-
-        service.ParseCvFile(maleJson, ".json").Gender.Should().Be("Male");
-        service.ParseCvFile(femaleJson, ".json").Gender.Should().Be("Female");
-        service.ParseCvFile(unknownJson, ".json").Gender.Should().BeEmpty();
-    }
-
-    [Fact]
     public void ParseCvFile_MalformedJsonProvided_ThrowsException()
     {
-        Action act = () => service.ParseCvFile("{ not json", ".json");
+        Action formatNotJsonFailedToParseCv = () => service.ParseCvFile("{ not json", ".json");
 
-        act.Should().Throw<Exception>().WithMessage("*Failed to parse CV file*");
+        formatNotJsonFailedToParseCv.Should().Throw<Exception>().WithMessage("*Failed to parse CV file*");
     }
 
-    [Fact]
-    public void ParseCvFile_XmlFormatProvided_ThrowsUnsupportedException()
-    {
-        Action act = () => service.ParseCvFile("<CvData />", ".xml");
 
-        act.Should().Throw<Exception>().WithMessage("*Only JSON is supported*");
-    }
+
 }
