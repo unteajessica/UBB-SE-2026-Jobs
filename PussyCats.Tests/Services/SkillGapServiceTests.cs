@@ -8,23 +8,23 @@ namespace PussyCats.Tests.Services;
 
 public class SkillGapServiceTests
 {
-    private readonly FakeMatchRepository matchRepo = new();
-    private readonly FakeJobSkillRepository jobSkillRepo = new();
-    private readonly FakeUserSkillRepository userSkillRepo = new();
+    private readonly FakeMatchRepository matchRepository = new();
+    private readonly FakeJobSkillRepository jobSkillRepository = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
     private readonly SkillGapService service;
 
     public SkillGapServiceTests()
     {
         service = new SkillGapService(
-            matchRepo,
-            new JobSkillService(jobSkillRepo),
-            new UserSkillService(userSkillRepo));
+            matchRepository,
+            new JobSkillService(jobSkillRepository),
+            new UserSkillService(userSkillRepository));
     }
 
     [Fact]
     public async Task GetMissingSkillsAsync_NoRejectionsExist_ReturnsEmptyList()
     {
-        matchRepo.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 1, Status = MatchStatus.Applied });
+        matchRepository.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, Job = new Job { JobId = 1 }, Status = MatchStatus.Applied });
 
         var result = await service.GetMissingSkillsAsync(1);
 
@@ -34,11 +34,11 @@ public class SkillGapServiceTests
     [Fact]
     public async Task GetMissingSkillsAsync_RejectionsExist_AggregatesSkillsUserLacksAcrossRejectedJobs()
     {
-        matchRepo.Seed(
-            new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected },
-            new Match { MatchId = 2, User = new User { UserId = 1 }, JobId = 20, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 50 });
-        jobSkillRepo.Seed(
+        matchRepository.Seed(
+            new Match { MatchId = 1, User = new User { UserId = 1 }, Job = new Job { JobId = 10 }, Status = MatchStatus.Rejected },
+            new Match { MatchId = 2, User = new User { UserId = 1 }, Job = new Job { JobId = 20 }, Status = MatchStatus.Rejected });
+        userSkillRepository.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 50 });
+        jobSkillRepository.Seed(
             new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 2, Name = "Docker" }, RequiredLevel = 70 },
             new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 3, Name = "Kubernetes" }, RequiredLevel = 70 },
             new JobSkill { Job = new Job { JobId = 20 }, Skill = new Skill { SkillId = 2, Name = "Docker" }, RequiredLevel = 80 });
@@ -55,9 +55,9 @@ public class SkillGapServiceTests
     [Fact]
     public async Task GetUnderscoredSkillsAsync_UserMeetsRequiredLevel_SkipsThoseSkills()
     {
-        matchRepo.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 80 });
-        jobSkillRepo.Seed(new JobSkill
+        matchRepository.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, Job = new Job { JobId = 10 }, Status = MatchStatus.Rejected });
+        userSkillRepository.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 80 });
+        jobSkillRepository.Seed(new JobSkill
         {
             Job = new Job { JobId = 10 },
             RequiredLevel = 50,
@@ -72,11 +72,11 @@ public class SkillGapServiceTests
     [Fact]
     public async Task GetUnderscoredSkillsAsync_UserBelowRequiredLevel_ReturnsAverageRequiredScore()
     {
-        matchRepo.Seed(
-            new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected },
-            new Match { MatchId = 2, User = new User { UserId = 1 }, JobId = 20, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { User = new User{ UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 30 });
-        jobSkillRepo.Seed(
+        matchRepository.Seed(
+            new Match { MatchId = 1, User = new User { UserId = 1 }, Job = new Job { JobId = 10 }, Status = MatchStatus.Rejected },
+            new Match { MatchId = 2, User = new User { UserId = 1 }, Job = new Job { JobId = 20 }, Status = MatchStatus.Rejected });
+        userSkillRepository.Seed(new UserSkill { User = new User{ UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 30 });
+        jobSkillRepository.Seed(
             new JobSkill { Job = new Job { JobId = 10 }, RequiredLevel = 70, Skill = new Skill { SkillId = 1, Name = "C#" } },
             new JobSkill { Job = new Job { JobId = 20 }, RequiredLevel = 90, Skill = new Skill { SkillId = 1, Name = "C#" } });
 
@@ -100,9 +100,9 @@ public class SkillGapServiceTests
     [Fact]
     public async Task GetSummaryAsync_UserHasRejections_ReportsGapCounts()
     {
-        matchRepo.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, JobId = 10, Status = MatchStatus.Rejected });
-        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 30 });
-        jobSkillRepo.Seed(
+        matchRepository.Seed(new Match { MatchId = 1, User = new User { UserId = 1 }, Job = new Job { JobId = 10 }, Status = MatchStatus.Rejected });
+        userSkillRepository.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 30 });
+        jobSkillRepository.Seed(
             new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 1, Name = "C#" }, RequiredLevel = 80 },
             new JobSkill { Job = new Job { JobId = 10 }, Skill = new Skill { SkillId = 2, Name = "SQL" }, RequiredLevel = 70 });
 

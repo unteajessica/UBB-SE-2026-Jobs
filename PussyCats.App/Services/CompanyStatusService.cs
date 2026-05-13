@@ -42,8 +42,14 @@ public class CompanyStatusService : ICompanyStatusService
 
         foreach (var match in visibleMatches)
         {
-            var user = match.User;
-            var job = await jobService.GetByIdAsync(match.JobId, cancellationToken).ConfigureAwait(false);
+            var user = await userService.GetByIdAsync(match.User.UserId, cancellationToken).ConfigureAwait(false);
+
+            if(user is null)
+            {
+                continue;
+            }
+
+            var job = await jobService.GetByIdAsync(match.Job.JobId, cancellationToken).ConfigureAwait(false);
             if (job is null)
             {
                 continue;

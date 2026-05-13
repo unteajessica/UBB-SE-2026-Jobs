@@ -9,118 +9,139 @@ namespace PussyCats.Tests.Services;
 
 public class CompanyStatusServiceTests
 {
-    private readonly FakeMatchRepository matchRepo = new();
-    private readonly FakeJobRepository jobRepo = new();
-    private readonly FakeUserRepository userRepo = new();
-    private readonly FakeUserSkillRepository userSkillRepo = new();
+    private readonly FakeMatchRepository matchRepository = new();
+    private readonly FakeJobRepository jobRepository = new();
+    private readonly FakeUserRepository userRepository = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
     private readonly CompanyStatusService service;
 
     public CompanyStatusServiceTests()
     {
-        var jobService = new JobService(jobRepo);
+        var jobService = new JobService(jobRepository);
         service = new CompanyStatusService(
-            new MatchService(matchRepo, jobService, new UserService(userRepo)),
-            new UserService(userRepo),
+            new MatchService(matchRepository, jobService, new UserService(userRepository)),
+            new UserService(userRepository),
             jobService,
-            new UserSkillService(userSkillRepo));
+            new UserSkillService(userSkillRepository));
     }
 
     [Fact]
     public async Task GetApplicantsForCompanyAsync_MatchesAreNotYetDecided_ReturnsOnlyDecidedMatches()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).Build(), new UserBuilder().WithId(2).Build());
-        jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
-        matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Applied).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(2, 10).WithStatus(MatchStatus.Accepted).Build());
+        const int firstUserId = 1, secondUserId = 2;
+        const int jobId = 10, companyId = 5;
+        userRepository.Seed(new UserBuilder().WithId(firstUserId).Build(), new UserBuilder().WithId(secondUserId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(firstUserId, jobId).WithStatus(MatchStatus.Applied).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(secondUserId, jobId).WithStatus(MatchStatus.Accepted).Build());
 
-        var result = await service.GetApplicantsForCompanyAsync(5);
+        var result = await service.GetApplicantsForCompanyAsync(companyId);
 
-        result.Should().HaveCount(1);
-        result[0].Match.MatchId.Should().Be(2);
+        const int expectedNumberOfApplicants = 1, expectedApplicantId = 2;
+
+        result.Should().HaveCount(expectedNumberOfApplicants);
+        result[0].Match.MatchId.Should().Be(expectedApplicantId);
     }
 
     [Fact]
     public async Task GetApplicantsForCompanyAsync_MatchesAreAdvancedOrRejected_IncludesAdvancedAndRejectedMatches()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).Build(), new UserBuilder().WithId(2).Build());
-        jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
-        matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Advanced).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(2, 10).WithStatus(MatchStatus.Rejected).Build());
+        const int firstUserId = 1, secondUserId = 2;
+        const int jobId = 10, companyId = 5;
+        userRepository.Seed(new UserBuilder().WithId(firstUserId).Build(), new UserBuilder().WithId(secondUserId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(firstUserId, jobId).WithStatus(MatchStatus.Advanced).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(secondUserId, jobId).WithStatus(MatchStatus.Rejected).Build());
 
-        var result = await service.GetApplicantsForCompanyAsync(5);
+        var result = await service.GetApplicantsForCompanyAsync(companyId);
 
-        result.Should().HaveCount(2);
+        int expectedNumberOfApplicants = 2;
+        result.Should().HaveCount(expectedNumberOfApplicants);
     }
 
-    /*[Fact]
+    [Fact]
     public async Task GetApplicantsForCompanyAsync_UserOrJobIsMissing_SkipsMatchesWithMissingData()
     {
-        jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
-        matchRepo.Seed(new MatchBuilder()
+        const int jobId = 10, companyId = 5;
+        const int nonExistentUserId = 99;
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(new MatchBuilder()
             .WithId(1)
-            .AppliedFor(99, 10)
+            .AppliedFor(nonExistentUserId, jobId)
             .WithStatus(MatchStatus.Accepted)
             .Build());
 
-        var result = await service.GetApplicantsForCompanyAsync(5);
-
+        var result = await service.GetApplicantsForCompanyAsync(companyId);
         result.Should().BeEmpty();
-    }*/
+    }
 
     [Fact]
     public async Task GetApplicantsForCompanyAsync_MultipleApplicantsExist_SortsDescendingByCompatibilityScore()
     {
-        userRepo.Seed(
-            new UserBuilder().WithId(1).WithCity("Bucharest").Build(),
-            new UserBuilder().WithId(2).WithCity("Bucharest, Romania").Build());
-        jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).WithLocation("Bucharest, Romania").Build());
-        userSkillRepo.Seed(
-            new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 60 },
-            new UserSkill { User = new User { UserId = 2 }, Skill = new Skill { SkillId = 1 }, Score = 90 });
-        matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Accepted).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(2, 10).WithStatus(MatchStatus.Accepted).Build());
+        const int firstUserId = 1, secondUserId = 2;
+        const string firstUserCity = "Bucharest", secondUserCity = "Bucharest, Romania";
+        const int jobId = 10, companyId = 5;
+        const int skillId = 1, firstUserScore = 60, secondUserScore = 90;
 
-        var result = await service.GetApplicantsForCompanyAsync(5);
+        userRepository.Seed(
+            new UserBuilder().WithId(firstUserId).WithCity(firstUserCity).Build(),
+            new UserBuilder().WithId(secondUserId).WithCity(secondUserCity).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).WithLocation("Bucharest, Romania").Build());
+        userSkillRepository.Seed(
+            new UserSkill { User = new User { UserId = firstUserId }, Skill = new Skill { SkillId = skillId }, Score = firstUserScore },
+            new UserSkill { User = new User { UserId = secondUserId }, Skill = new Skill { SkillId = skillId }, Score = secondUserScore });
+        matchRepository.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(firstUserId, jobId).WithStatus(MatchStatus.Accepted).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(secondUserId, jobId).WithStatus(MatchStatus.Accepted).Build());
 
-        result.Should().HaveCount(2);
+        var result = await service.GetApplicantsForCompanyAsync(companyId);
+
+        const int expectedNumberOfApplicants = 2;
+        result.Should().HaveCount(expectedNumberOfApplicants);
         result[0].CompatibilityScore.Should().BeGreaterThan(result[1].CompatibilityScore);
     }
 
-    /*[Fact]
+    [Fact]
     public async Task GetApplicantsForCompanyAsync_JobLocationIncludesCountry_AppliesLocationBonus()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).WithCity("Bucharest").Build());
-        jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).WithLocation("Bucharest, Romania").Build());
+        const int userId = 1, jobId = 10, companyId = 5, skillId = 1, userSkillScore = 50;
+        const string city = "Bucharest", jobLocation = "Bucharest, Romania";
+        userRepository.Seed(new UserBuilder().WithId(userId).WithCity(city).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).WithLocation(jobLocation).Build());
 
-        userSkillRepo.Seed(new UserSkill { User = new User { UserId = 1 }, Skill = new Skill { SkillId = 1 }, Score = 50 });
+        userSkillRepository.Seed(new UserSkill { User = new User { UserId = userId }, Skill = new Skill { SkillId = skillId }, Score = userSkillScore });
 
-        matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Accepted).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).AppliedFor(userId, jobId).WithStatus(MatchStatus.Accepted).Build());
 
-        var result = await service.GetApplicantsForCompanyAsync(5);
+        var result = await service.GetApplicantsForCompanyAsync(companyId);
 
-        result[0].CompatibilityScore.Should().Be(60);
-    }*/
+        const int expectedCompatibilityScore = 60; // 50 base score + 10 location bonus
+
+        result[0].CompatibilityScore.Should().Be(expectedCompatibilityScore);
+    }
 
     [Fact]
     public async Task GetApplicantByMatchIdAsync_MatchExists_ReturnsSpecificApplicant()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).Build());
-        jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Accepted).Build());
+        const int userId = 1, jobId = 10, companyId = 5;
+        const int matchId = 1;
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).WithStatus(MatchStatus.Accepted).Build());
 
-        var result = await service.GetApplicantByMatchIdAsync(5, 1);
+        var result = await service.GetApplicantByMatchIdAsync(companyId, matchId);
 
         result.Should().NotBeNull();
-        result!.Match.MatchId.Should().Be(1);
+        result!.Match.MatchId.Should().Be(matchId);
     }
 
     [Fact]
     public async Task GetApplicantByMatchIdAsync_MatchIsMissing_ReturnsNull()
     {
-        var result = await service.GetApplicantByMatchIdAsync(5, 999);
+        const int nonExistentCompanyId = 5, nonExistentMatchId = 999;
+        var result = await service.GetApplicantByMatchIdAsync(nonExistentCompanyId, nonExistentMatchId);
 
         result.Should().BeNull();
     }

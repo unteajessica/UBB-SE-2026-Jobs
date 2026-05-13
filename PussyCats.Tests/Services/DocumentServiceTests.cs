@@ -9,16 +9,16 @@ namespace PussyCats.Tests.Services;
 
 public class DocumentServiceTests : IDisposable
 {
-    private readonly FakeDocumentRepository repo;
+    private readonly FakeDocumentRepository documentRepository;
     private readonly ILocalFileStorageService fileStorage;
     private readonly DocumentService service;
     private readonly string tempPdfPath;
 
     public DocumentServiceTests()
     {
-        repo = new FakeDocumentRepository();
+        documentRepository = new FakeDocumentRepository();
         fileStorage = Substitute.For<ILocalFileStorageService>();
-        service = new DocumentService(repo, fileStorage);
+        service = new DocumentService(documentRepository, fileStorage);
         tempPdfPath = Path.Combine(Path.GetTempPath(), $"docsvc-{Guid.NewGuid():N}.pdf");
         File.WriteAllText(tempPdfPath, "%PDF-1.4 fake");
     }
@@ -34,7 +34,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task GetDocumentsByUserIdAsync_UserHasDocuments_ReturnsUserDocuments()
     {
-        repo.Seed(
+        documentRepository.Seed(
             new Document { DocumentId = 1, User = new User { UserId = 1 }, DocumentName = "CV.pdf" },
             new Document { DocumentId = 2, User = new User { UserId = 2 }, DocumentName = "Other.pdf" });
 
@@ -94,7 +94,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task DeleteDocumentAsync_DocumentExists_RemovesFileAndMetadata()
     {
-        repo.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = "uploads/x.pdf" });
+        documentRepository.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = "uploads/x.pdf" });
 
         await service.DeleteDocumentAsync(5);
 
@@ -114,7 +114,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task DeleteDocumentAsync_FilePathIsBlank_SkipsStorageCall()
     {
-        repo.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = string.Empty });
+        documentRepository.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = string.Empty });
 
         await service.DeleteDocumentAsync(5);
 
@@ -124,7 +124,7 @@ public class DocumentServiceTests : IDisposable
     [Fact]
     public async Task GetDocumentAbsolutePathAsync_DocumentExists_ReturnsStoragePath()
     {
-        repo.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = "uploads/x.pdf" });
+        documentRepository.Seed(new Document { DocumentId = 5, User = new User { UserId = 1 }, FilePath = "uploads/x.pdf" });
         fileStorage.GetFilePath("uploads/x.pdf").Returns(@"C:\files\uploads\x.pdf");
 
         var path = await service.GetDocumentAbsolutePathAsync(5);

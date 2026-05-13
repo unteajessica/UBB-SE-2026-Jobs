@@ -62,10 +62,13 @@ public class MatchService : IMatchService
         var user = await userService.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
 
+        var job = await jobService.GetByIdAsync(jobId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"Job {jobId} not found.");
+
         var match = new Match
         {
             User = user,
-            JobId = jobId,
+            Job = job,
             Status = MatchStatus.Applied,
             Timestamp = DateTime.UtcNow,
             FeedbackMessage = string.Empty,
@@ -101,7 +104,7 @@ public class MatchService : IMatchService
         var matches = new List<Match>();
         foreach (var match in await matchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false))
         {
-            if (companyJobIds.Contains(match.JobId))
+            if (companyJobIds.Contains(match.Job.JobId))
             {
                 matches.Add(match);
             }

@@ -12,22 +12,22 @@ namespace PussyCats.Tests.Services;
 
 public class CompanyRecommendationServiceTests
 {
-    private readonly FakeMatchRepository matchRepo = new();
-    private readonly FakeJobRepository jobRepo = new();
-    private readonly FakeUserRepository userRepo = new();
-    private readonly FakeUserSkillRepository userSkillRepo = new();
-    private readonly FakeJobSkillRepository jobSkillRepo = new();
+    private readonly FakeMatchRepository matchRepository = new();
+    private readonly FakeJobRepository jobRepository = new();
+    private readonly FakeUserRepository userRepository = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
+    private readonly FakeJobSkillRepository jobSkillRepository = new();
     private readonly IRecommendationAlgorithm algorithm = Substitute.For<IRecommendationAlgorithm>();
 
     private CompanyRecommendationService BuildService()
     {
-        var jobService = new JobService(jobRepo);
+        var jobService = new JobService(jobRepository);
         return new CompanyRecommendationService(
-            new MatchService(matchRepo, jobService, new UserService(userRepo)),
-            new UserService(userRepo),
+            new MatchService(matchRepository, jobService, new UserService(userRepository)),
+            new UserService(userRepository),
             jobService,
-            new UserSkillService(userSkillRepo),
-            new JobSkillService(jobSkillRepo),
+            new UserSkillService(userSkillRepository),
+            new JobSkillService(jobSkillRepository),
             algorithm);
     }
 
@@ -169,9 +169,9 @@ public class CompanyRecommendationServiceTests
 
         var applicant = new UserApplicationResult
         {
-            User = new UserBuilder().WithId(1).Build(),
+            User = new UserBuilder().WithId(userId).Build(),
             Match = new MatchBuilder().Build(),
-            Job = new JobBuilder().WithId(10).Build(),
+            Job = new JobBuilder().WithId(jobId).Build(),
             UserSkills = Array.Empty<UserSkill>(),
         };
 
@@ -223,15 +223,16 @@ public class CompanyRecommendationServiceTests
     [Fact]
     public async Task ServiceInstances_MultipleCreated_DoNotShareState()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).Build());
-        jobRepo.Seed(new JobBuilder().WithId(10).WithCompanyId(5).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).WithStatus(MatchStatus.Applied).Build());
-        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(50.0);
+        const int userId = 1, jobId = 10, companyId = 5;
+        const double compatibilityScore = 50;
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).AppliedFor(userId, jobId).WithStatus(MatchStatus.Applied).Build());
+        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(compatibilityScore);
 
         var serviceA = BuildService();
         var serviceB = BuildService();
-        await serviceA.LoadApplicantsAsync(5);
-
+        await serviceA.LoadApplicantsAsync(companyId);
         serviceA.HasMore.Should().Be(true);
         serviceB.HasMore.Should().Be(false);
     }

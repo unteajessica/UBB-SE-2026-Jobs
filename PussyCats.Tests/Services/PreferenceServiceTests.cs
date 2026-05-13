@@ -8,18 +8,30 @@ namespace PussyCats.Tests.Services;
 
 public class PreferenceServiceTests
 {
-    private readonly FakeUserRepository repo = new();
+    private const int MissingUserId = 99;
+    private const int ExistingUserId = 1;
+
+    private const string ExistingRoles = "BackendDeveloper,FrontendDeveloper";
+    private const string ExistingLocation = "Cluj-Napoca, Romania";
+    private const string ExpectedSearchLocation = "Cluj-Napoca";
+
+    private const string SavedLocation = "Berlin, Germany";
+    private const string SavedRoleCsv = "BackendDeveloper,DevOpsEngineer";
+    private const string AnyLocation = "Anywhere";
+    private const string SearchQuery = "cluj";
+
+    private readonly FakeUserRepository userRepository = new();
     private readonly PreferenceService service;
 
     public PreferenceServiceTests()
     {
-        service = new PreferenceService(repo);
+        service = new PreferenceService(userRepository);
     }
 
     [Fact]
     public async Task GetByUserIdAsync_UserIsMissing_ReturnsEmptyPreferences()
     {
-        var result = await service.GetByUserIdAsync(99);
+        var result = await service.GetByUserIdAsync(MissingUserId);
 
         result.Roles.Should().BeEmpty();
         result.WorkMode.Should().Be(default);
@@ -29,29 +41,29 @@ public class PreferenceServiceTests
     [Fact]
     public async Task GetByUserIdAsync_UserExists_TranslatesUserFieldsIntoUserPreferences()
     {
-        var user = new UserBuilder().WithId(1).Build();
-        user.PreferredEmploymentType = "BackendDeveloper,FrontendDeveloper";
+        var user = new UserBuilder().WithId(ExistingUserId).Build();
+        user.PreferredEmploymentType = ExistingRoles;
         user.WorkModePreference = "Remote";
-        user.LocationPreference = "Cluj-Napoca, Romania";
-        repo.Seed(user);
+        user.LocationPreference = ExistingLocation;
+        userRepository.Seed(user);
 
-        var result = await service.GetByUserIdAsync(1);
+        var result = await service.GetByUserIdAsync(ExistingUserId);
 
         result.Roles.Should().Equal(JobRole.BackendDeveloper, JobRole.FrontendDeveloper);
         result.WorkMode.Should().Be(WorkMode.Remote);
-        result.Location.Should().Be("Cluj-Napoca, Romania");
+        result.Location.Should().Be(ExistingLocation);
     }
 
     [Fact]
     public async Task GetByUserIdAsync_FieldsAreBlank_SkipsBlankFields()
     {
-        var user = new UserBuilder().WithId(1).Build();
+        var user = new UserBuilder().WithId(ExistingUserId).Build();
         user.PreferredEmploymentType = string.Empty;
         user.WorkModePreference = "Remote";
         user.LocationPreference = string.Empty;
-        repo.Seed(user);
+        userRepository.Seed(user);
 
-        var result = await service.GetByUserIdAsync(1);
+        var result = await service.GetByUserIdAsync(ExistingUserId);
 
         result.Roles.Should().BeEmpty();
         result.WorkMode.Should().Be(WorkMode.Remote);
@@ -61,28 +73,28 @@ public class PreferenceServiceTests
     [Fact]
     public async Task SavePreferencesAsync_ValidPreferencesProvided_WritesCombinedRoleString()
     {
-        repo.Seed(new UserBuilder().WithId(1).Build());
+        userRepository.Seed(new UserBuilder().WithId(ExistingUserId).Build());
 
         await service.SavePreferencesAsync(
-            1,
+            ExistingUserId,
             new[] { JobRole.BackendDeveloper, JobRole.DevOpsEngineer },
             WorkMode.Hybrid,
-            "Berlin, Germany");
+            SavedLocation);
 
-        var user = await repo.GetByIdAsync(1);
-        user!.PreferredEmploymentType.Should().Be("BackendDeveloper,DevOpsEngineer");
+        var user = await userRepository.GetByIdAsync(ExistingUserId);
+        user!.PreferredEmploymentType.Should().Be(SavedRoleCsv);
         user.WorkModePreference.Should().Be("Hybrid");
-        user.LocationPreference.Should().Be("Berlin, Germany");
+        user.LocationPreference.Should().Be(SavedLocation);
     }
 
     [Fact]
     public async Task SavePreferencesAsync_TooFewRolesProvided_ThrowsArgumentException()
     {
         Func<Task> act = () => service.SavePreferencesAsync(
-            1,
+            ExistingUserId,
             Array.Empty<JobRole>(),
             WorkMode.Remote,
-            "Anywhere");
+            AnyLocation);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -91,7 +103,7 @@ public class PreferenceServiceTests
     public async Task SavePreferencesAsync_TooManyRolesProvided_ThrowsArgumentException()
     {
         Func<Task> act = () => service.SavePreferencesAsync(
-            1,
+            ExistingUserId,
             new[]
             {
                 JobRole.BackendDeveloper,
@@ -100,7 +112,7 @@ public class PreferenceServiceTests
                 JobRole.DataAnalyst,
             },
             WorkMode.Remote,
-            "Anywhere");
+            AnyLocation);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -109,10 +121,10 @@ public class PreferenceServiceTests
     public async Task SavePreferencesAsync_UserIsMissing_SilentlyReturns()
     {
         Func<Task> act = () => service.SavePreferencesAsync(
-            99,
+            MissingUserId,
             new[] { JobRole.BackendDeveloper },
             WorkMode.Remote,
-            "Anywhere");
+            AnyLocation);
 
         await act.Should().NotThrowAsync();
     }
@@ -127,9 +139,9 @@ public class PreferenceServiceTests
     [Fact]
     public async Task SearchLocationsAsync_ValidQueryProvided_MatchesCaseInsensitively()
     {
-        var matches = await service.SearchLocationsAsync("cluj");
+        var matches = await service.SearchLocationsAsync(SearchQuery);
 
         matches.Should().NotBeEmpty();
-        matches.Should().Contain(loc => loc.Contains("Cluj-Napoca", StringComparison.Ordinal));
+        matches.Should().Contain(loc => loc.Contains(ExpectedSearchLocation, StringComparison.Ordinal));
     }
 }

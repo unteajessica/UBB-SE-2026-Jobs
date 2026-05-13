@@ -8,12 +8,12 @@ namespace PussyCats.Tests.Services;
 
 public class PersonalityTestServiceTests
 {
-    private readonly FakePersonalityTestRepository repo = new();
+    private readonly FakePersonalityTestRepository personalityTestRepository = new();
     private readonly PersonalityTestService service;
 
     public PersonalityTestServiceTests()
     {
-        service = new PersonalityTestService(repo);
+        service = new PersonalityTestService(personalityTestRepository);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class PersonalityTestServiceTests
 
         await service.SaveResultAsync(1, answers, JobRole.BackendDeveloper);
 
-        var saved = await repo.GetByUserIdAsync(1);
+        var saved = await personalityTestRepository.GetByUserIdAsync(1);
         saved.Should().NotBeNull();
         saved!.SelectedRole.Should().Be(JobRole.BackendDeveloper);
         saved.User.UserId.Should().Be(1);
@@ -117,7 +117,7 @@ public class PersonalityTestServiceTests
     [Fact]
     public async Task SaveResultAsync_ResultAlreadyExistsForUser_UpdatesExistingResultKeepingId()
     {
-        repo.Seed(new PersonalityTestResult
+        personalityTestRepository.Seed(new PersonalityTestResult
         {
             PersonalityTestResultId = 7,
             User = new User { UserId = 1 },
@@ -128,7 +128,7 @@ public class PersonalityTestServiceTests
 
         await service.SaveResultAsync(1, answers, JobRole.BackendDeveloper);
 
-        var saved = await repo.GetByUserIdAsync(1);
+        var saved = await personalityTestRepository.GetByUserIdAsync(1);
         saved!.PersonalityTestResultId.Should().Be(7);
         saved.SelectedRole.Should().Be(JobRole.BackendDeveloper);
     }
