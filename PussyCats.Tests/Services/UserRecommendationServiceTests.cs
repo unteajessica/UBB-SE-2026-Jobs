@@ -108,8 +108,8 @@ public class UserRecommendationServiceTests
         recommendationRepo.Seed(new Recommendation
         {
             RecommendationId = 1,
-            UserId = 1,
-            JobId = 10,
+            User = new User { UserId = 1 },
+            Job = new Job { JobId = 10 },
             Timestamp = DateTime.UtcNow.AddMinutes(-30),
         });
         algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(50.0);
@@ -129,8 +129,8 @@ public class UserRecommendationServiceTests
         recommendationRepo.Seed(new Recommendation
         {
             RecommendationId = 1,
-            UserId = 1,
-            JobId = 10,
+            User = new User { UserId = 1 },
+            Job = new Job { JobId = 10 },
             Timestamp = DateTime.UtcNow.AddMinutes(-30),
         });
         algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(50.0);
@@ -203,7 +203,7 @@ public class UserRecommendationServiceTests
     public async Task UndoLikeAsync_IdsProvided_RemovesMatchAndRecommendation()
     {
         matchRepo.Seed(new MatchBuilder().WithId(5).AppliedFor(1, 10).Build());
-        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 });
+        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, User = new User { UserId = 1 }, Job = new Job { JobId = 10 } });
 
         var service = BuildService();
         await service.UndoLikeAsync(5, 7);
@@ -216,7 +216,7 @@ public class UserRecommendationServiceTests
     public async Task UndoLikeAsync_RecommendationIdIsNull_SkipsRecommendationRemoval()
     {
         matchRepo.Seed(new MatchBuilder().WithId(5).Build());
-        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 });
+        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, User = new User { UserId = 1 }, Job = new Job { JobId = 10 } });
 
         var service = BuildService();
         await service.UndoLikeAsync(5, null);
@@ -228,8 +228,8 @@ public class UserRecommendationServiceTests
     public async Task UndoDismissAsync_DistinctIdsProvided_RemovesDismissAndDisplayRecommendations()
     {
         recommendationRepo.Seed(
-            new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 },
-            new Recommendation { RecommendationId = 8, UserId = 1, JobId = 10 });
+            new Recommendation { RecommendationId = 7, User = new User { UserId = 1 }, Job = new Job { JobId = 10 } },
+            new Recommendation { RecommendationId = 8, User = new User { UserId = 1 }, Job = new Job { JobId = 10 } });
 
         var service = BuildService();
         await service.UndoDismissAsync(7, 8);
@@ -241,7 +241,7 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task UndoDismissAsync_IdenticalIdsProvided_RemovesSingleRecommendation()
     {
-        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 });
+        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, User = new User { UserId = 1 }, Job = new Job { JobId = 10 } });
 
         var service = BuildService();
         await service.UndoDismissAsync(7, 7);

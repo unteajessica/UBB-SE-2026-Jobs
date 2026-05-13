@@ -75,6 +75,42 @@ public class CompanyStatusViewModelTests
     }
 
     [Fact]
+    public async Task LoadEvaluationAsync_FinalDecisionMatch_DisablesDecisionEditing()
+    {
+        var matchId = 13;
+        var companyId = 4;
+        var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Rejected);
+
+        userRepo.Seed(applicant.User);
+        jobRepo.Seed(applicant.Job);
+        matchRepo.Seed(applicant.Match);
+
+        var loaded = await viewModel.LoadEvaluationAsync(matchId);
+
+        loaded.Should().BeTrue();
+        viewModel.SelectedDecision.Should().Be(MatchStatus.Rejected);
+        viewModel.CanEditDecision.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LoadEvaluationAsync_AcceptedMatch_DisablesDecisionEditing()
+    {
+        var matchId = 14;
+        var companyId = 4;
+        var applicant = ViewModelTestData.Applicant(matchId: matchId, companyId: companyId, status: MatchStatus.Accepted);
+
+        userRepo.Seed(applicant.User);
+        jobRepo.Seed(applicant.Job);
+        matchRepo.Seed(applicant.Match);
+
+        var loaded = await viewModel.LoadEvaluationAsync(matchId);
+
+        loaded.Should().BeTrue();
+        viewModel.SelectedDecision.Should().Be(MatchStatus.Accepted);
+        viewModel.CanEditDecision.Should().BeFalse();
+    }
+
+    [Fact]
     public void ValidateAll_EmptyState_ReportsMissingDecisionAndFeedbackErrors()
     {
         var isValid = viewModel.ValidateAll();

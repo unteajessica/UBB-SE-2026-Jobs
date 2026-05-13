@@ -15,7 +15,7 @@ public class RecommendationConfiguration : IEntityTypeConfiguration<Recommendati
         // own profile; once the user is gone there is nothing meaningful to keep.
         builder.HasOne(recommendation => recommendation.User)
             .WithMany()
-            .HasForeignKey(recommendation => recommendation.UserId)
+            .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // Restrict on Job -> Recommendation. SQL Server forbids two cascade paths converging on
@@ -23,12 +23,12 @@ public class RecommendationConfiguration : IEntityTypeConfiguration<Recommendati
         // against accidentally deleting recommendations across all users when a job is removed.
         builder.HasOne(recommendation => recommendation.Job)
             .WithMany()
-            .HasForeignKey(recommendation => recommendation.JobId)
+            .HasForeignKey("JobId")
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(recommendation => recommendation.UserId);
-        builder.HasIndex(recommendation => recommendation.JobId);
+        builder.HasIndex("UserId");
+        builder.HasIndex("JobId");
         // (UserId, JobId, Timestamp DESC) supports GetLatestByUserIdAndJobIdAsync without a sort.
-        builder.HasIndex(recommendation => new { recommendation.UserId, recommendation.JobId, recommendation.Timestamp });
+        builder.HasIndex("UserId", "JobId", nameof(Recommendation.Timestamp));
     }
 }
