@@ -20,7 +20,7 @@ public class PreferenceServiceTests
     private const string AnyLocation = "Anywhere";
     private const string SearchQuery = "cluj";
 
-    private readonly FakeUserRepository repo = new();
+    private readonly FakeUserRepository userRepository = new();
     private readonly PreferenceService service;
 
     public PreferenceServiceTests()
@@ -45,7 +45,7 @@ public class PreferenceServiceTests
         user.PreferredEmploymentType = ExistingRoles;
         user.WorkModePreference = "Remote";
         user.LocationPreference = ExistingLocation;
-        repo.Seed(user);
+        userRepository.Seed(user);
 
         var result = await service.GetByUserIdAsync(ExistingUserId);
 
@@ -73,7 +73,7 @@ public class PreferenceServiceTests
     [Fact]
     public async Task SavePreferencesAsync_ValidPreferencesProvided_WritesCombinedRoleString()
     {
-        repo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
+        userRepository.Seed(new UserBuilder().WithId(ExistingUserId).Build());
 
         await service.SavePreferencesAsync(
             ExistingUserId,
@@ -81,7 +81,7 @@ public class PreferenceServiceTests
             WorkMode.Hybrid,
             SavedLocation);
 
-        var user = await repo.GetByIdAsync(ExistingUserId);
+        var user = await userRepository.GetByIdAsync(ExistingUserId);
         user!.PreferredEmploymentType.Should().Be(SavedRoleCsv);
         user.WorkModePreference.Should().Be("Hybrid");
         user.LocationPreference.Should().Be(SavedLocation);
