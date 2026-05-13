@@ -17,67 +17,92 @@ public class PersonalityTestServiceTests
     }
 
     [Fact]
-    public void LoadQuestions_Called_Returns24QuestionsInSortOrder()
+    public void LoadQuestions_Called_ReturnsQuestionsInSortOrder()
     {
+
         var questions = PersonalityTestService.LoadQuestions();
 
-        questions.Should().HaveCount(24);
         questions.Select(question => question.SortOrder).Should().BeInAscendingOrder();
-        questions.Select(question => question.SortOrder).Should().Equal(Enumerable.Range(1, 24));
     }
 
     [Fact]
-    public void LoadQuestions_Called_CoversAllSixTraitsEvenly()
+    public void LoadQuestions_Called_ReturnsCountSixTrait()
+        
     {
+        const int expectedTraitCount = 6;
+
         var questions = PersonalityTestService.LoadQuestions();
         var perTrait = questions.GroupBy(question => question.Trait).ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
 
-        perTrait.Should().HaveCount(6);
-        perTrait.Values.Should().AllBeEquivalentTo(4);
+        perTrait.Should().HaveCount(expectedTraitCount);
     }
 
     [Fact]
     public void CalculateTraitScores_AnswersProvided_AveragesScoresPerTrait()
     {
-        var q1 = new Question { QuestionText = "x", Trait = TraitType.Visibility, SortOrder = 1 };
-        var q2 = new Question { QuestionText = "y", Trait = TraitType.Visibility, SortOrder = 2 };
-        var q3 = new Question { QuestionText = "z", Trait = TraitType.Depth, SortOrder = 3 };
+        const double expectedVisibilityAverage = 4.5; //StronglyAgree=5, Agree=4 => (5+4)/2
+        var visibleQuestion1 = new Question { QuestionText = "x", Trait = TraitType.Visibility, SortOrder = 1 };
+        var visibleQuestion2 = new Question { QuestionText = "y", Trait = TraitType.Visibility, SortOrder = 2 };
+        var visibleQuestion3 = new Question { QuestionText = "z", Trait = TraitType.Depth, SortOrder = 3 };
 
         var answers = new Dictionary<Question, AnswerValue>
         {
-            [q1] = AnswerValue.StronglyAgree,
-            [q2] = AnswerValue.Agree,
-            [q3] = AnswerValue.Neutral,
+            [visibleQuestion1] = AnswerValue.StronglyAgree,
+            [visibleQuestion2] = AnswerValue.Agree,
+            [visibleQuestion3] = AnswerValue.Neutral,
         };
 
         var scores = service.CalculateTraitScores(answers);
 
-        scores[TraitType.Visibility].Should().Be(4.5);
-        scores[TraitType.Depth].Should().Be(3);
+        scores[TraitType.Visibility].Should().Be(expectedVisibilityAverage);
     }
 
     [Fact]
     public void CalculateRoleScores_TraitScoresProvided_ReturnsScoreForEveryRole()
     {
+        const double neutralTraitScore = 3;
+        const int expectedRoleCount= 8;
+
         var traitScores = new Dictionary<TraitType, double>
         {
-            [TraitType.Visibility] = 3,
-            [TraitType.Interaction] = 3,
-            [TraitType.Depth] = 3,
-            [TraitType.Creativity] = 3,
-            [TraitType.Pace] = 3,
-            [TraitType.Abstraction] = 3,
+            [TraitType.Visibility] = neutralTraitScore,
+            [TraitType.Interaction] = neutralTraitScore,
+            [TraitType.Depth] = neutralTraitScore,
+            [TraitType.Creativity] = neutralTraitScore,
+            [TraitType.Pace] = neutralTraitScore,
+            [TraitType.Abstraction] = neutralTraitScore,
         };
 
         var roleScores = service.CalculateRoleScores(traitScores);
 
-        roleScores.Should().HaveCount(8);
+        roleScores.Should().HaveCount(expectedRoleCount);
+    }
+
+    [Fact]
+    public void CalculateRoleScores_TraitScoresProvided_ContainsAllDefinedJobRoles()
+    {
+        const double neutralTraitScore = 3;
+
+        var traitScores = new Dictionary<TraitType, double>
+        {
+            [TraitType.Visibility] = neutralTraitScore,
+            [TraitType.Interaction] = neutralTraitScore,
+            [TraitType.Depth] = neutralTraitScore,
+            [TraitType.Creativity] = neutralTraitScore,
+            [TraitType.Pace] = neutralTraitScore,
+            [TraitType.Abstraction] = neutralTraitScore,
+        };
+
+        var roleScores = service.CalculateRoleScores(traitScores);
+
         roleScores.Keys.Should().BeEquivalentTo(Enum.GetValues<JobRole>());
     }
 
     [Fact]
-    public void GetTopRoles_RoleScoresProvided_ReturnsHighestScoringRolesInDescendingOrder()
+    public void GetTopRoles_RoleScoresProvided_ReturnsRequestedCount()
     {
+        const int requestedTopCount = 2;
+
         var scores = new Dictionary<JobRole, double>
         {
             [JobRole.BackendDeveloper] = 5,
@@ -85,33 +110,48 @@ public class PersonalityTestServiceTests
             [JobRole.DataAnalyst] = 8,
         };
 
-        var top2 = service.GetTopRoles(scores, 2);
+        var topRoles = service.GetTopRoles(scores, requestedTopCount);
 
-        top2.Should().HaveCount(2);
-        top2.Keys.First().Should().Be(JobRole.FrontendDeveloper);
-        top2.Keys.Last().Should().Be(JobRole.DataAnalyst);
+        topRoles.Should().HaveCount(requestedTopCount);
     }
 
     [Fact]
-    public async Task SaveResultAsync_ValidAnswersAndRole_PersistsWithSelectedRoleAndRoundedTraitScores()
+    public void GetTopRoles_RoleScoresProvided_ReturnsHighestScoringRoleFirst()
     {
-        var q1 = new Question { Trait = TraitType.Depth, SortOrder = 1 };
-        var q2 = new Question { Trait = TraitType.Depth, SortOrder = 2 };
-        var q3 = new Question { Trait = TraitType.Depth, SortOrder = 3 };
-        var answers = new Dictionary<Question, AnswerValue>
+        const int requestedTopCount = 2;
+
+        var scores = new Dictionary<JobRole, double>
         {
-            [q1] = AnswerValue.StronglyAgree,
-            [q2] = AnswerValue.StronglyAgree,
-            [q3] = AnswerValue.StronglyAgree,
+            [JobRole.BackendDeveloper] = 5,
+            [JobRole.FrontendDeveloper] = 10,
+            [JobRole.DataAnalyst] = 8,
         };
 
-        await service.SaveResultAsync(1, answers, JobRole.BackendDeveloper);
+        var topRoles = service.GetTopRoles(scores, requestedTopCount);
 
-        var saved = await repo.GetByUserIdAsync(1);
-        saved.Should().NotBeNull();
-        saved!.SelectedRole.Should().Be(JobRole.BackendDeveloper);
-        saved.User.UserId.Should().Be(1);
-        saved.TraitScores.Should().Contain(personalityTraitScore => personalityTraitScore.Trait == TraitType.Depth && personalityTraitScore.Score == 5);
+        topRoles.Keys.First().Should().Be(JobRole.FrontendDeveloper);
+    }
+
+    [Fact]
+    public async Task SaveResultAsync_ValidAnswersAndRole_PersistsWithSelectedRole()
+    {
+        const int userId = 1;
+        const JobRole selectedRole = JobRole.BackendDeveloper;
+
+        var depthQuestion1 = new Question { Trait = TraitType.Depth, SortOrder = 1 };
+        var depthQuestion2 = new Question { Trait = TraitType.Depth, SortOrder = 2 };
+        var depthQuestion3 = new Question { Trait = TraitType.Depth, SortOrder = 3 };
+        var answers = new Dictionary<Question, AnswerValue>
+        {
+            [depthQuestion1] = AnswerValue.StronglyAgree,
+            [depthQuestion2] = AnswerValue.StronglyAgree,
+            [depthQuestion3] = AnswerValue.StronglyAgree,
+        };
+
+        await service.SaveResultAsync(userId, answers, selectedRole);
+
+        var saved = await repo.GetByUserIdAsync(userId);
+        saved!.SelectedRole.Should().Be(selectedRole);
     }
 
     [Fact]

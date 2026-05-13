@@ -149,14 +149,14 @@ public class PersonalityTestService : IPersonalityTestService
         var traitScores = CalculateTraitScores(answers);
 
         var traitScoreEntities = traitScores
-            .Select(kvp => new PersonalityTraitScore
+            .Select(traitWithScore => new PersonalityTraitScore
             {
-                Trait = kvp.Key,
-                Score = (int)Math.Round(kvp.Value),
+                Trait = traitWithScore.Key,
+                Score = (int)Math.Round(traitWithScore.Value),
             })
             .ToList();
 
-        var result = new PersonalityTestResult
+        var newResult = new PersonalityTestResult
         {
             User = new User { UserId = userId },
             CompletedAt = DateTime.UtcNow,
@@ -164,15 +164,15 @@ public class PersonalityTestService : IPersonalityTestService
             TraitScores = traitScoreEntities,
         };
 
-        var existing = await personalityTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
-        if (existing is null)
+        var existingResult = await personalityTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        if (existingResult is null)
         {
-            await personalityTestRepository.AddAsync(result, cancellationToken).ConfigureAwait(false);
+            await personalityTestRepository.AddAsync(newResult, cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            result.PersonalityTestResultId = existing.PersonalityTestResultId;
-            await personalityTestRepository.UpdateAsync(result, cancellationToken).ConfigureAwait(false);
+            newResult.PersonalityTestResultId = existingResult.PersonalityTestResultId;
+            await personalityTestRepository.UpdateAsync(newResult, cancellationToken).ConfigureAwait(false);
         }
     }
 
