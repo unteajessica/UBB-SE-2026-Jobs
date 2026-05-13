@@ -135,7 +135,7 @@ public class UserRepository : IUserRepository
         {
             target.Projects.Add(new Project
             {
-                UserId = target.UserId,
+                User = target,
                 Name = project.Name,
                 Description = project.Description,
                 Url = project.Url,

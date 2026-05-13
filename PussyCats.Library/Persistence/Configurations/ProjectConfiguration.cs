@@ -20,7 +20,10 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.PrimitiveCollection(project => project.Technologies)
             .HasColumnType("nvarchar(max)");
 
-        // Cascade configured on UserConfiguration (User -> Projects).
-        builder.HasIndex(project => project.UserId);
+        builder.HasOne(project => project.User)
+            .WithMany(user => user.Projects)
+            .HasForeignKey("UserId")
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex("UserId");
     }
 }
