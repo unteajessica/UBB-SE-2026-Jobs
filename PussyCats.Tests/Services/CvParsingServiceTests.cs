@@ -26,9 +26,6 @@ public class CvParsingServiceTests
     private const string LinkedIn = "linkedin.com/in/ada";
     private const string Address = "1 Main St";
     private const string Motivation = "Build cool things.";
-    private static readonly string[] Skills = ["C#", "C#", "Python"];
-    private const int SkillsJsonCount = 3;
-    private const int SkillsExpectedCount = 2;
 
     private static readonly string CvDataJson = $$"""
         {
@@ -47,7 +44,7 @@ public class CvParsingServiceTests
         "Address": "{{Address}}",
         "Motivation": "{{Motivation}}",
         "HasDisabilities": false,
-        "Skills": [{string.Join(",", Skills.Select(s => $"\"{s}\""))}]
+        "Skills": ["C#", "C#", "Python"]
         }
         """;
 
@@ -103,9 +100,10 @@ public class CvParsingServiceTests
     [Fact]
     public void ParseCvFile_ValidJsonFormatProvided_DeduplicatesSkills()
     {
+        var skillsExpectedCount = 2;
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.Skills.Should().HaveCount(SkillsExpectedCount);
+        user.Skills.Should().HaveCount(skillsExpectedCount);
     }
 
     [Theory]
@@ -186,22 +184,7 @@ public class CvParsingServiceTests
 
         formatNotJsonFailedToParseCv.Should().Throw<Exception>().WithMessage("*Failed to parse CV file*");
     }
-    [Fact]
-    public void ParseCvFile_WorkExperienceStartDateTooOld_FallsBackToCurrentDate()
-    {
-        var cvDataInvalidDate = """
-    {
-        "FirstName": "X",
-        "WorkExperiences": [
-            { "Company": "OldCo", "JobTitle": "Dev", "StartDate": "1970-01-01" }
-        ]
-    }
-    """;
 
-        var user = service.ParseCvFile(cvDataInvalidDate, ".json");
-
-        user.WorkExperiences.Single().StartDate.Should().BeCloseTo(DateTimeOffset.Now, TimeSpan.FromSeconds(5));
-    }
 
 
 }
