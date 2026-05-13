@@ -36,9 +36,16 @@ public class RecommendationRepositoryProxy : IRecommendationRepository
 
     public async Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
     {
+        var request = new
+        {
+            UserId = recommendation.User.UserId,
+            JobId = recommendation.Job.JobId,
+            recommendation.Timestamp,
+        };
+
         using var response = await http.PostAsJsonAsync(
             "api/recommendations",
-            recommendation,
+            request,
             RepositoryProxyJson.Options,
             cancellationToken).ConfigureAwait(false);
         return await RepositoryProxyJson.ReadRequiredAsync<Recommendation>(response, cancellationToken).ConfigureAwait(false);

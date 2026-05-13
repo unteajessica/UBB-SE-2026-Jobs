@@ -8,14 +8,14 @@ namespace PussyCats.Tests.Services;
 
 public class MatchServiceTests
 {
-    private readonly FakeMatchRepository matchRepo = new();
-    private readonly FakeJobRepository jobRepo = new();
-    private readonly FakeUserRepository userRepo = new();
+    private readonly FakeMatchRepository matchRepository = new();
+    private readonly FakeJobRepository jobRepository = new();
+    private readonly FakeUserRepository userRepository = new();
     private readonly MatchService service;
 
     public MatchServiceTests()
     {
-        service = new MatchService(matchRepo, new JobService(jobRepo), new UserService(userRepo));
+        service = new MatchService(matchRepository, new JobService(jobRepository), new UserService(userRepository));
     }
 
     [Theory]
@@ -43,22 +43,26 @@ public class MatchServiceTests
     [Fact]
     public async Task CreatePendingApplicationAsync_ValidInputs_CreatesMatchInAppliedState()
     {
-        userRepo.Seed(new PussyCats.Library.Domain.User { UserId = 1 });
-        var matchId = await service.CreatePendingApplicationAsync(userId: 1, jobId: 10);
+        const int userId = 1, jobId = 10;
+        userRepository.Seed(new PussyCats.Library.Domain.User { UserId = userId });
+        jobRepository.Seed(new JobBuilder().WithId(jobId).Build());
+        var matchId = await service.CreatePendingApplicationAsync(userId, jobId);
 
         matchId.Should().BeGreaterThan(0);
         var match = await service.GetByIdAsync(matchId);
+
         match!.Status.Should().Be(MatchStatus.Applied);
-        match.User.UserId.Should().Be(1);
-        match.JobId.Should().Be(10);
+        match.User.UserId.Should().Be(userId);
+        match.Job.JobId.Should().Be(jobId);
     }
 
     [Fact]
     public async Task CreatePendingApplicationAsync_MatchAlreadyExists_ThrowsInvalidOperationException()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, 10).Build());
+        const int userId = 1, jobId = 10;
+        matchRepository.Seed(new MatchBuilder().WithId(1).AppliedFor(userId, jobId).Build());
 
-        Func<Task> act = () => service.CreatePendingApplicationAsync(1, 10);
+        Func<Task> act = () => service.CreatePendingApplicationAsync(userId, jobId);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*already exists*");
@@ -67,31 +71,34 @@ public class MatchServiceTests
     [Fact]
     public async Task SubmitDecisionAsync_StatusIsApplied_AcceptsMatch()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
+        const string feedback = "Welcome";
+        const int matchId = 1;
 
-        await service.SubmitDecisionAsync(1, MatchStatus.Accepted, "Welcome");
+        await service.SubmitDecisionAsync(matchId, MatchStatus.Accepted, feedback);
 
-        var match = await service.GetByIdAsync(1);
+        var match = await service.GetByIdAsync(matchId);
         match!.Status.Should().Be(MatchStatus.Accepted);
-        match.FeedbackMessage.Should().Be("Welcome");
+        match.FeedbackMessage.Should().Be(feedback);
     }
 
     [Fact]
     public async Task SubmitDecisionAsync_StatusIsAppliedAndFeedbackProvided_RejectsMatchWithFeedback()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
+        const int matchId = 1;
+        matchRepository.Seed(new MatchBuilder().WithId(matchId).WithStatus(MatchStatus.Applied).Build());
 
-        await service.SubmitDecisionAsync(1, MatchStatus.Rejected, "Lacking experience");
+        await service.SubmitDecisionAsync(matchId, MatchStatus.Rejected, "Lacking experience");
 
-        (await service.GetByIdAsync(1))!.Status.Should().Be(MatchStatus.Rejected);
+        (await service.GetByIdAsync(matchId))!.Status.Should().Be(MatchStatus.Rejected);
     }
 
     [Fact]
     public async Task SubmitDecisionAsync_RejectingWithoutFeedback_ThrowsArgumentException()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
 
-        Func<Task> act = () => service.SubmitDecisionAsync(1, MatchStatus.Rejected, "   ");
+        Func<Task> act = () => service.SubmitDecisionAsync(1, MatchStatus.Rejected, string.Empty);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*Feedback is required*");
@@ -100,9 +107,10 @@ public class MatchServiceTests
     [Fact]
     public async Task SubmitDecisionAsync_TargetStatusIsInvalid_ThrowsArgumentException()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
+        const int matchId = 1;
+        matchRepository.Seed(new MatchBuilder().WithId(matchId).WithStatus(MatchStatus.Applied).Build());
 
-        Func<Task> act = () => service.SubmitDecisionAsync(1, MatchStatus.Applied, "x");
+        Func<Task> act = () => service.SubmitDecisionAsync(matchId, MatchStatus.Applied, "x");
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -110,7 +118,7 @@ public class MatchServiceTests
     [Fact]
     public async Task SubmitDecisionAsync_TransitionNotAllowed_ThrowsInvalidOperationException()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Accepted).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Accepted).Build());
 
         Func<Task> act = () => service.SubmitDecisionAsync(1, MatchStatus.Rejected, "x");
 
@@ -128,7 +136,7 @@ public class MatchServiceTests
     [Fact]
     public async Task AdvanceAsync_StatusIsApplied_MovesToAdvanced()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Applied).Build());
 
         await service.AdvanceAsync(1);
 
@@ -138,7 +146,7 @@ public class MatchServiceTests
     [Fact]
     public async Task AdvanceAsync_StatusIsNotApplied_ThrowsInvalidOperationException()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Advanced).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).WithStatus(MatchStatus.Advanced).Build());
 
         Func<Task> act = () => service.AdvanceAsync(1);
 
@@ -148,7 +156,7 @@ public class MatchServiceTests
     [Fact]
     public async Task RevertToAppliedAsync_Called_ResetsStatusAndFeedback()
     {
-        matchRepo.Seed(new MatchBuilder()
+        matchRepository.Seed(new MatchBuilder()
             .WithId(1)
             .WithStatus(MatchStatus.Rejected)
             .WithFeedback("Sorry")
@@ -168,13 +176,14 @@ public class MatchServiceTests
         int firstCompanyId = 5, secondCompanyId = 99;
         int numberOfHoursAgo = 2;
         int expectedNumberOfMatches = 2;
-        jobRepo.Seed(
+        const int firstUserId = 1, secondUserId = 2, thirdUserId = 3;
+        jobRepository.Seed(
             new JobBuilder().WithId(firstJobId).WithCompanyId(firstCompanyId).Build(),
             new JobBuilder().WithId(secondJobId).WithCompanyId(secondCompanyId).Build());
-        matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, firstJobId).WithTimestamp(DateTime.UtcNow.AddHours(-numberOfHoursAgo)).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(2, firstJobId).WithTimestamp(DateTime.UtcNow).Build(),
-            new MatchBuilder().WithId(3).AppliedFor(3, secondJobId).Build());
+        matchRepository.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(firstUserId, firstJobId).WithTimestamp(DateTime.UtcNow.AddHours(-numberOfHoursAgo)).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(secondUserId, firstJobId).WithTimestamp(DateTime.UtcNow).Build(),
+            new MatchBuilder().WithId(3).AppliedFor(thirdUserId, secondJobId).Build());
 
         var matches = await service.GetByCompanyIdAsync(firstCompanyId);
 
@@ -188,13 +197,14 @@ public class MatchServiceTests
         int firstCompanyId = 5, secondCompanyId = 99;
         int numberOfHoursAgo = 2;
         int expectedFirstMatchId = 2, expectedSecondMatchId = 1;
-        jobRepo.Seed(
+        const int firstUserId = 1, secondUserId = 2, thirdUserId = 3;
+        jobRepository.Seed(
             new JobBuilder().WithId(firstJobId).WithCompanyId(firstCompanyId).Build(),
             new JobBuilder().WithId(secondJobId).WithCompanyId(secondCompanyId).Build());
-        matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, firstJobId).WithTimestamp(DateTime.UtcNow.AddHours(-numberOfHoursAgo)).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(2, firstJobId).WithTimestamp(DateTime.UtcNow).Build(),
-            new MatchBuilder().WithId(3).AppliedFor(3, secondJobId).Build());
+        matchRepository.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(firstUserId, firstJobId).WithTimestamp(DateTime.UtcNow.AddHours(-numberOfHoursAgo)).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(secondUserId, firstJobId).WithTimestamp(DateTime.UtcNow).Build(),
+            new MatchBuilder().WithId(3).AppliedFor(thirdUserId, secondJobId).Build());
 
         var matches = await service.GetByCompanyIdAsync(firstCompanyId);
 
@@ -206,7 +216,7 @@ public class MatchServiceTests
     public async Task GetByCompanyIdAsync_CompanyHasJobsButNoMatches_ReturnsEmpty()
     {
         int jobId = 10, companyId = 5;
-        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
         var matches = await service.GetByCompanyIdAsync(companyId);
         matches.Should().BeEmpty();
     }
@@ -216,10 +226,10 @@ public class MatchServiceTests
     {
         int firstJobId = 10, secondJobId = 20;
         int firstCompanyId = 5, secondCompanyId = 99;
-        jobRepo.Seed(
+        jobRepository.Seed(
             new JobBuilder().WithId(firstJobId).WithCompanyId(firstCompanyId).Build(),
             new JobBuilder().WithId(secondJobId).WithCompanyId(secondCompanyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, secondJobId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(1).AppliedFor(1, secondJobId).Build());
         var matches = await service.GetByCompanyIdAsync(firstCompanyId);
         matches.Should().BeEmpty();
     }
@@ -236,34 +246,55 @@ public class MatchServiceTests
     [Fact]
     public async Task GetMatchStatisticsAsync_MatchesExistAcrossTimeRanges_CountsWithinEachWindow()
     {
+        const int userId = 1;
+        const int firstJobId = 10, secondJobId = 11, thirdJobId = 12, fourthJobId = 13;
+        const int firstJobDaysAgo = 10, secondJobMonthsAgo = 3, thirdJobMonthsAgo = 9, fourthJobYearsAgo = 2;
         var currentDate = DateTime.Now;
-        matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, 10).WithTimestamp(currentDate.AddDays(-10)).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(1, 11).WithTimestamp(currentDate.AddMonths(-3)).Build(),
-            new MatchBuilder().WithId(3).AppliedFor(1, 12).WithTimestamp(currentDate.AddMonths(-9)).Build(),
-            new MatchBuilder().WithId(4).AppliedFor(1, 13).WithTimestamp(currentDate.AddYears(-2)).Build());
+        matchRepository.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(userId, firstJobId).WithTimestamp(currentDate.AddDays(-firstJobDaysAgo)).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(userId, secondJobId).WithTimestamp(currentDate.AddMonths(-secondJobMonthsAgo)).Build(),
+            new MatchBuilder().WithId(3).AppliedFor(userId, thirdJobId).WithTimestamp(currentDate.AddMonths(-thirdJobMonthsAgo)).Build(),
+            new MatchBuilder().WithId(4).AppliedFor(userId, fourthJobId).WithTimestamp(currentDate.AddYears(-fourthJobYearsAgo)).Build());
 
-        var stats = await service.GetMatchStatisticsAsync(1);
+        var stats = await service.GetMatchStatisticsAsync(userId);
 
-        stats.TotalMatches.Should().Be(4);
-        stats.MatchesLastMonth.Should().Be(1);
-        stats.MatchesLastSixMonths.Should().Be(2);
-        stats.MatchesLastYear.Should().Be(3);
+        const int expectedTotalMatches = 4;
+        const int expectedMatchesLastMonth = 1, expectedMatchesLastSixMonths = 2, expectedMatchesLastYear = 3;
+        stats.TotalMatches.Should().Be(expectedTotalMatches);
+        stats.MatchesLastMonth.Should().Be(expectedMatchesLastMonth);
+        stats.MatchesLastSixMonths.Should().Be(expectedMatchesLastSixMonths);
+        stats.MatchesLastYear.Should().Be(expectedMatchesLastYear);
     }
 
     [Fact]
     public async Task GetMatchStatisticsAsync_MatchesExistForDifferentRoles_GroupsMatchesByPositionLabel()
     {
-        var match1 = new MatchBuilder().WithId(1).AppliedFor(1, 10).Build();
-        match1.Job = new JobBuilder().WithId(10).WithRole(JobRole.BackendDeveloper).Build();
-        var match2 = new MatchBuilder().WithId(2).AppliedFor(1, 11).Build();
-        match2.Job = new JobBuilder().WithId(11).WithRole(JobRole.FrontendDeveloper).Build();
-        matchRepo.Seed(match1, match2);
+        const int userId = 1, firstJobId = 10, secondJobId = 11;
+        var match1 = new MatchBuilder().WithId(1).AppliedFor(userId, firstJobId).Build();
+        match1.Job = new JobBuilder().WithId(firstJobId).WithRole(JobRole.BackendDeveloper).Build();
+        var match2 = new MatchBuilder().WithId(2).AppliedFor(userId, secondJobId).Build();
+        match2.Job = new JobBuilder().WithId(secondJobId).WithRole(JobRole.FrontendDeveloper).Build();
+        matchRepository.Seed(match1, match2);
 
-        var stats = await service.GetMatchStatisticsAsync(1);
+        var stats = await service.GetMatchStatisticsAsync(userId);
 
         stats.MatchesPerPosition.Should().ContainKey("Backend");
         stats.MatchesPerPosition.Should().ContainKey("Frontend");
     }
 
+    [Fact]
+    public async Task GetMatchesForUserAsync_UserHasMatches_ReturnsUserMatches()
+    {
+        const int firstUserId = 1, secondUserId = 2;
+        const int jobId = 10;
+        matchRepository.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(firstUserId, jobId).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(secondUserId, jobId).Build());
+
+        var result = await service.GetMatchesForUserAsync(firstUserId);
+
+        const int expectedNumberOfMatches = 1;
+        result.Should().HaveCount(expectedNumberOfMatches);
+        result[0].User.UserId.Should().Be(firstUserId);
+    }
 }

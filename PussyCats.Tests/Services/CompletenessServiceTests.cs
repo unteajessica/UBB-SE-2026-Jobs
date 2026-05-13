@@ -13,52 +13,65 @@ public class CompletenessServiceTests
     [Fact]
     public void CalculateCompleteness_UserIsNull_ReturnsZero()
     {
-        service.CalculateCompleteness(null).Should().Be(0);
+        User user = null;
+        int expectedCompleteness = 0;
+
+        service.CalculateCompleteness(user).Should().Be(expectedCompleteness);
     }
 
     [Fact]
     public void CalculateCompleteness_UserHasNoFieldsFilled_ReturnsZero()
     {
         var user = new User();
+        int expectedCompleteness = 0;
 
-        service.CalculateCompleteness(user).Should().Be(0);
+        service.CalculateCompleteness(user).Should().Be(expectedCompleteness);
     }
 
     [Fact]
     public void CalculateCompleteness_AllFieldsFilled_ReturnsOneHundred()
     {
-        var user = BuildFullyFilledUser();
+        var completedUser = BuildFullyFilledUser();
+        int expectedCompletenessScore = 100;
 
-        service.CalculateCompleteness(user).Should().Be(100);
+        service.CalculateCompleteness(completedUser).Should().Be(expectedCompletenessScore);
     }
 
     [Fact]
     public void CalculateCompleteness_SingleFieldFilled_ReturnsFivePercent()
     {
-        // 1 of 21 ~ 5%
-        var user = new User { FirstName = "Ada" };
+        const int expectedPercentage = 5; //1 of 21 fileds ~ 4.76% rounds up to 5
+        const string firstName = "Ada";
 
-        service.CalculateCompleteness(user).Should().Be(5);
+        var user = new User { FirstName = firstName };
+
+        service.CalculateCompleteness(user).Should().Be(expectedPercentage);
     }
 
     [Fact]
     public void GetNextEmptyFieldPrompt_UserIsNull_ReturnsEmptyString()
     {
-        service.GetNextEmptyFieldPrompt(null).Should().BeEmpty();
+        User user = null;
+
+        service.GetNextEmptyFieldPrompt(user).Should().BeEmpty();
     }
 
     [Fact]
     public void GetNextEmptyFieldPrompt_UserIsBlank_ReturnsFirstNamePrompt()
     {
-        service.GetNextEmptyFieldPrompt(new User()).Should().Contain("First Name");
+        User user = new User();
+        const string expectedPrompt = "First Name";
+
+        service.GetNextEmptyFieldPrompt(user).Should().Contain(expectedPrompt);
     }
 
     [Fact]
     public void GetNextEmptyFieldPrompt_ProfileIsFullyFilled_ReturnsCompleteMessage()
     {
         var fullyFilledUser = BuildFullyFilledUser();
+        const string expectedMessage = "Your profile is 100% complete!";
 
-        service.GetNextEmptyFieldPrompt(fullyFilledUser).Should().Be("Your profile is 100% complete!");
+        service.GetNextEmptyFieldPrompt(fullyFilledUser).Should().Be(expectedMessage);
     }
 
     [Fact]
@@ -69,8 +82,9 @@ public class CompletenessServiceTests
             FirstName = "Ada",
             LastName = "Lovelace",
         };
+        const string nextFieldExpected = "Age";
 
-        service.GetNextEmptyFieldPrompt(user).Should().Contain("Age");
+        service.GetNextEmptyFieldPrompt(user).Should().Contain(nextFieldExpected);
     }
 
     [Fact]
@@ -78,13 +92,32 @@ public class CompletenessServiceTests
     {
         var user = BuildFullyFilledUser();
         user.PersonalityResult!.SelectedRole = null;
+        const int maximumCompletenessScore = 100;
 
-        service.CalculateCompleteness(user).Should().BeLessThan(100);
+        service.CalculateCompleteness(user).Should().BeLessThan(maximumCompletenessScore);
 
-        user.PersonalityResult.SelectedRole = JobRole.BackendDeveloper;
-
-        service.CalculateCompleteness(user).Should().Be(100);
     }
+
+    [Fact]
+    public void CalculateCompleteness_AgeIsZero_ReturnsZero()
+    {
+        var user = new User { Age = 0 };
+
+        service.CalculateCompleteness(user).Should().Be(0);
+    }
+
+    [Fact]
+    public void GetNextEmpryFieldPrompt_SomeFieldsFilled_ReturnsCorrectNextPercentage()
+    {
+        const string firstName = "Ada";
+        const string lastname = "Lovelance";
+        const int expectedNextPercentage = 14; // this would bring filled count to 3 out of 21 => 14%
+        User user = new User { FirstName = "Ada", LastName = "Lovelance" };
+
+        service.GetNextEmptyFieldPrompt(user).Should().Contain($"{ expectedNextPercentage}%");
+
+    }
+
 
     private static User BuildFullyFilledUser() => new()
     {

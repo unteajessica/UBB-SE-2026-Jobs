@@ -103,7 +103,7 @@ public class UserProfileViewModelTests
         await userRepo.AddAsync(user);
         await viewModel.LoadUserAsync();
 
-        // Mocking the specific level calculation logic usually handled by the service/repo
+        // Mocking the specific level calculation logic usually handled by the service/recommendationRepository
         var eventRaised = false;
         viewModel.LevelUpdated += () => eventRaised = true;
 

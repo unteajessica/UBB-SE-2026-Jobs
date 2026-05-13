@@ -5,94 +5,133 @@ namespace PussyCats.Tests.Services;
 
 public class UserLevelServiceTests
 {
+    private const int LevelOne = 1;
+    private const int LevelTwo = 2;
+    private const int LevelThree = 3;
+    private const int LevelFour = 4;
+    private const int LevelFive = 5;
+    private const int AboveMaxLevel = 99;
+
+    private const int ZeroProgressPercent = 0;
+    private const int HalfwayProgressPercent = 50;
+    private const int FullProgressPercent = 100;
+    private const int NegativeXp = -1;
+    private const int MaxLevelSampleXp = 1500;
+    private const int SampleXp = 50;
+
+    public static IEnumerable<object[]> ExperienceThresholdCases =>
+    [
+        new object[] { LevelOne, SimpleModelOperations.Level1ExperiencePoints },
+        new object[] { LevelTwo, SimpleModelOperations.Level2ExperiencePoints },
+        new object[] { LevelThree, SimpleModelOperations.Level3ExperiencePoints },
+        new object[] { LevelFour, SimpleModelOperations.Level4ExperiencePoints },
+        new object[] { LevelFive, SimpleModelOperations.Level5ExperiencePoints },
+        new object[] { AboveMaxLevel, SimpleModelOperations.Level5ExperiencePoints },
+    ];
+
+    public static IEnumerable<object[]> MaxLevelCases =>
+    [
+        new object[] { LevelFive },
+        new object[] { AboveMaxLevel },
+    ];
+
+    public static IEnumerable<object[]> NextLevelThresholdCases =>
+    [
+        new object[] { LevelOne, SimpleModelOperations.Level2ExperiencePoints },
+        new object[] { LevelTwo, SimpleModelOperations.Level3ExperiencePoints },
+        new object[] { LevelThree, SimpleModelOperations.Level4ExperiencePoints },
+        new object[] { LevelFour, SimpleModelOperations.Level5ExperiencePoints },
+    ];
+
+    public static IEnumerable<object[]> LevelFloorCases =>
+    [
+        new object[] { SimpleModelOperations.Level1ExperiencePoints, LevelOne },
+        new object[] { SimpleModelOperations.Level2ExperiencePoints, LevelTwo },
+    ];
+
+    public static IEnumerable<object[]> LevelMappingCases =>
+    [
+        new object[] { 0, LevelOne },
+        new object[] { 800, LevelFive },
+    ];
+
     [Theory]
-    [InlineData(1, SimpleModelOperations.Level1ExperiencePoints)]
-    [InlineData(2, SimpleModelOperations.Level2ExperiencePoints)]
-    [InlineData(3, SimpleModelOperations.Level3ExperiencePoints)]
-    [InlineData(4, SimpleModelOperations.Level4ExperiencePoints)]
-    [InlineData(5, SimpleModelOperations.Level5ExperiencePoints)]
-    [InlineData(99, SimpleModelOperations.Level5ExperiencePoints)]
+    [MemberData(nameof(ExperienceThresholdCases))]
     public void GetExperiencePointsRequiredForLevel_LevelProvided_MapsToThreshold(int level, int expectedXp)
     {
         UserLevelService.GetExperiencePointsRequiredForLevel(level).Should().Be(expectedXp);
     }
 
     [Theory]
-    [InlineData(5)]
-    [InlineData(99)]
+    [MemberData(nameof(MaxLevelCases))]
     public void GetNextLevelExperiencePoints_AtMaxLevel_ReturnsZero(int level)
     {
         UserLevelService.GetNextLevelExperiencePoints(level).Should().Be(SimpleModelOperations.Level1ExperiencePoints);
     }
 
     [Theory]
-    [InlineData(1, SimpleModelOperations.Level2ExperiencePoints)]
-    [InlineData(2, SimpleModelOperations.Level3ExperiencePoints)]
-    [InlineData(3, SimpleModelOperations.Level4ExperiencePoints)]
-    [InlineData(4, SimpleModelOperations.Level5ExperiencePoints)]
+    [MemberData(nameof(NextLevelThresholdCases))]
     public void GetNextLevelExperiencePoints_BelowMaxLevel_ReturnsNextThreshold(int level, int expectedXp)
     {
         UserLevelService.GetNextLevelExperiencePoints(level).Should().Be(expectedXp);
     }
 
     [Theory]
-    [InlineData(SimpleModelOperations.Level1ExperiencePoints, 1)]
-    [InlineData(SimpleModelOperations.Level2ExperiencePoints, 2)]
+    [MemberData(nameof(LevelFloorCases))]
     public void GetLevelProgressPercent_AtLevelFloor_ReturnsZero(int xp, int level)
     {
-        UserLevelService.GetLevelProgressPercent(xp, level).Should().Be(0);
+        UserLevelService.GetLevelProgressPercent(xp, level).Should().Be(ZeroProgressPercent);
     }
 
     [Fact]
     public void GetLevelProgressPercent_AtMaxLevel_ReturnsOneHundred()
     {
-        UserLevelService.GetLevelProgressPercent(1500, 5).Should().Be(100);
+        UserLevelService.GetLevelProgressPercent(MaxLevelSampleXp, LevelFive).Should().Be(FullProgressPercent);
     }
 
     [Fact]
     public void GetLevelProgressPercent_HalfwayThroughLevel_ReturnsProportionalProgress()
     {
         var halfwayInLevel1 = SimpleModelOperations.Level2ExperiencePoints / 2;
-        UserLevelService.GetLevelProgressPercent(halfwayInLevel1, 1).Should().Be(50);
+        UserLevelService.GetLevelProgressPercent(halfwayInLevel1, LevelOne).Should().Be(HalfwayProgressPercent);
     }
 
     [Fact]
     public void GetLevelProgressPercent_NegativeXpProvided_ThrowsArgumentException()
     {
-        Action act = () => UserLevelService.GetLevelProgressPercent(-1, 1);
+        Action act = () => UserLevelService.GetLevelProgressPercent(NegativeXp, LevelOne);
         act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
     public void GetExperiencePointsToNextLevel_AtMaxLevel_ReturnsZero()
     {
-        UserLevelService.GetExperiencePointsToNextLevel(1500, 5).Should().Be(0);
+        UserLevelService.GetExperiencePointsToNextLevel(MaxLevelSampleXp, LevelFive).Should().Be(ZeroProgressPercent);
     }
 
     [Fact]
     public void GetExperiencePointsToNextLevel_BelowMaxLevel_ReturnsRemainingXp()
     {
-        var remaining = UserLevelService.GetExperiencePointsToNextLevel(50, 1);
-        remaining.Should().Be(SimpleModelOperations.Level2ExperiencePoints - 50);
+        var remaining = UserLevelService.GetExperiencePointsToNextLevel(SampleXp, LevelOne);
+        remaining.Should().Be(SimpleModelOperations.Level2ExperiencePoints - SampleXp);
     }
 
     [Fact]
     public void GetExperiencePointsToNextLevel_NegativeXpProvided_ThrowsArgumentException()
     {
-        Action act = () => UserLevelService.GetExperiencePointsToNextLevel(-1, 1);
+        Action act = () => UserLevelService.GetExperiencePointsToNextLevel(NegativeXp, LevelOne);
         act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
     public void CalculateLevelNumber_NegativeXpProvided_ThrowsArgumentException()
     {
-        Action act = () => UserLevelService.CalculateLevelNumber(-1);
+        Action act = () => UserLevelService.CalculateLevelNumber(NegativeXp);
         act.Should().Throw<ArgumentException>();
     }
 
     [Theory]
-    [InlineData(0, 1)]
-    [InlineData(800, 5)]
+    [MemberData(nameof(LevelMappingCases))]
     public void CalculateLevelNumber_ValidXpProvided_MapsXpToLevel(int xp, int expectedLevel)
     {
         UserLevelService.CalculateLevelNumber(xp).Should().Be(expectedLevel);
