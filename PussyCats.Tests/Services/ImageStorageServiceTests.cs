@@ -68,4 +68,15 @@ public class ImageStorageServiceTests
 
         act.Should().NotThrow();
     }
+
+    [Fact]
+    public void CheckFileSize_StreamOverLimit_ThrowsInvalidOperationException()
+    {
+        using var stream = new MemoryStream(new byte[20 * 1024 * 1024+1]);
+
+        Action act = () => service.CheckFileSize(stream);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*20 MB*");
+    }
 }

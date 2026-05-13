@@ -28,7 +28,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<IReadOnlyList<Chat>> GetForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        System.Diagnostics.Debug.WriteLine("HEREEEEE "+userId);
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .Include(chat => chat.SecondUser)

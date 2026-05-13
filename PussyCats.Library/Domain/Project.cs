@@ -6,7 +6,6 @@ public class Project
 {
     public int ProjectId { get; set; }
 
-    public int UserId { get; set; }
     [JsonIgnore] public User User { get; set; } = null!;
 
     public string Name { get; set; } = string.Empty;
