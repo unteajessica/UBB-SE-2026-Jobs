@@ -13,7 +13,7 @@ namespace PussyCats.Tests.Integration;
 
 public class ProfileFormViewModelTests
 {
-    private readonly IUserRepository userRepo = new FakeUserRepository();
+    private readonly IUserRepository userRepository = new FakeUserRepository();
     private readonly ISkillTestRepository skillTestRepository= new FakeSkillTestRepository();
     private readonly ICvParsingService cvParsingService = Substitute.For<ICvParsingService>();
     private readonly SessionContext session = new() { UserId = 15 };
@@ -23,7 +23,7 @@ public class ProfileFormViewModelTests
 
     public ProfileFormViewModelTests()
     {
-        profileService = new UserProfileService(userRepo,skillTestRepository);
+        profileService = new UserProfileService(userRepository,skillTestRepository);
         viewModel = new ProfileFormViewModel(profileService, cvParsingService, session);
     }
 
@@ -51,7 +51,7 @@ public class ProfileFormViewModelTests
         viewModel.IsInfoBarOpen.Should().BeTrue();
         viewModel.InfoBarMessage.Should().Contain("Please fill in required fields");
 
-        var persisted = await userRepo.GetByIdAsync(15);
+        var persisted = await userRepository.GetByIdAsync(15);
         persisted.Should().BeNull();
     }
 
@@ -66,7 +66,7 @@ public class ProfileFormViewModelTests
         var saved = await viewModel.SaveProfileAsync();
 
         saved.Should().BeTrue();
-        var persisted = await userRepo.GetByIdAsync(15);
+        var persisted = await userRepository.GetByIdAsync(15);
         persisted.Should().NotBeNull();
         persisted!.FirstName.Should().Be("Ada");
         persisted.Email.Should().Be("ada@example.com");

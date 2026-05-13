@@ -19,11 +19,11 @@ namespace PussyCats.Tests.Integration;
 
 public class UserStatusViewModelTests
 {
-    private readonly IMatchRepository matchRepo = new FakeMatchRepository();
-    private readonly IJobRepository jobRepo = new FakeJobRepository();
-    private readonly IUserSkillRepository userSkillRepo = new FakeUserSkillRepository();
-    private readonly IJobSkillRepository jobSkillRepo = new FakeJobSkillRepository();
-    private readonly ICompanyRepository companyRepo = new FakeCompanyRepository();
+    private readonly IMatchRepository matchRepository = new FakeMatchRepository();
+    private readonly IJobRepository jobRepository = new FakeJobRepository();
+    private readonly IUserSkillRepository userSkillRepository = new FakeUserSkillRepository();
+    private readonly IJobSkillRepository jobSkillRepository = new FakeJobSkillRepository();
+    private readonly ICompanyRepository companyRepository = new FakeCompanyRepository();
     
     private readonly SessionContext session = new() { UserId = 12 };
 
@@ -31,13 +31,13 @@ public class UserStatusViewModelTests
 
     public UserStatusViewModelTests()
     {
-        var jobService = new JobService(jobRepo);
-        var userSkillService = new UserSkillService(userSkillRepo);
-        var jobSkillService = new JobSkillService(jobSkillRepo);
-        var companyService = new CompanyService(companyRepo);
+        var jobService = new JobService(jobRepository);
+        var userSkillService = new UserSkillService(userSkillRepository);
+        var jobSkillService = new JobSkillService(jobSkillRepository);
+        var companyService = new CompanyService(companyRepository);
 
-        var statusService = new UserStatusService(matchRepo, jobService,companyService, userSkillService, jobSkillService);
-        var skillGapService = new SkillGapService(matchRepo, jobSkillService,userSkillService);
+        var statusService = new UserStatusService(matchRepository, jobService,companyService, userSkillService, jobSkillService);
+        var skillGapService = new SkillGapService(matchRepository, jobSkillService,userSkillService);
 
         viewModel = new UserStatusViewModel(statusService, skillGapService, session);
     }
@@ -47,8 +47,8 @@ public class UserStatusViewModelTests
     {
         var applicant = ViewModelTestData.Applicant(matchId: 1, status: MatchStatus.Applied);
         
-        await jobRepo.AddAsync(applicant.Job);
-        await matchRepo.AddAsync(applicant.Match);
+        await jobRepository.AddAsync(applicant.Job);
+        await matchRepository.AddAsync(applicant.Match);
 
         await viewModel.LoadMatchesAsync();
 
@@ -61,8 +61,8 @@ public class UserStatusViewModelTests
     public async Task ApplyFilter_NoMatchesForStatus_SetsEmptyStateAndMessage()
     {
         var applicant = ViewModelTestData.Applicant(matchId: 1, status: MatchStatus.Applied);
-        await jobRepo.AddAsync(applicant.Job);
-        await matchRepo.AddAsync(applicant.Match);
+        await jobRepository.AddAsync(applicant.Job);
+        await matchRepository.AddAsync(applicant.Match);
         await viewModel.LoadMatchesAsync();
 
         viewModel.ApplyFilter("Accepted");

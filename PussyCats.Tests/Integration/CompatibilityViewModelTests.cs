@@ -13,10 +13,10 @@ namespace PussyCats.Tests.Integration;
 
 public class CompatibilityViewModelTests
 {
-    private readonly FakeUserRepository userRepo = new();
-    private readonly FakeUserSkillRepository userSkillRepo = new();
-    private readonly FakeJobSkillRepository jobSkillRepo = new();
-    private readonly FakeJobRepository jobRepo = new();
+    private readonly FakeUserRepository userRepository = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
+    private readonly FakeJobSkillRepository jobSkillRepository = new();
+    private readonly FakeJobRepository jobRepository = new();
 
     [Fact]
     public async Task LoadAllRolesAsync_RolesExist_PopulatesResultsAndTracksSelection()
@@ -24,8 +24,8 @@ public class CompatibilityViewModelTests
         var companyId = 4;
         var applicantResult = ViewModelTestData.Applicant(matchId: 7, companyId: companyId, status: MatchStatus.Applied);
 
-        userRepo.Seed(applicantResult.User);
-        jobRepo.Seed(applicantResult.Job);
+        userRepository.Seed(applicantResult.User);
+        jobRepository.Seed(applicantResult.Job);
 
         var service = Substitute.For<ICompatibilityService>();
         var result = new RoleResult

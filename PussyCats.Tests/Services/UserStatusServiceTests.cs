@@ -26,21 +26,21 @@ public class UserStatusServiceTests
     private const string KnownCompanyName = "Acme";
     private const string UnknownCompanyName = "Unknown Company";
 
-    private readonly FakeMatchRepository matchRepo = new();
-    private readonly FakeJobRepository jobRepo = new();
-    private readonly FakeCompanyRepository companyRepo = new();
-    private readonly FakeUserSkillRepository userSkillRepo = new();
-    private readonly FakeJobSkillRepository jobSkillRepo = new();
+    private readonly FakeMatchRepository matchRepository = new();
+    private readonly FakeJobRepository jobRepository = new();
+    private readonly FakeCompanyRepository companyRepository = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
+    private readonly FakeJobSkillRepository jobSkillRepository = new();
     private readonly UserStatusService service;
 
     public UserStatusServiceTests()
     {
         service = new UserStatusService(
-            matchRepo,
-            new JobService(jobRepo),
-            new CompanyService(companyRepo),
-            new UserSkillService(userSkillRepo),
-            new JobSkillService(jobSkillRepo));
+            matchRepository,
+            new JobService(jobRepository),
+            new CompanyService(companyRepository),
+            new UserSkillService(userSkillRepository),
+            new JobSkillService(jobSkillRepository));
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class UserStatusServiceTests
     [Fact]
     public async Task GetApplicationsForUserAsync_MatchHasMissingJob_SkipsInvalidMatches()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, MissingJobId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, MissingJobId).Build());
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
@@ -64,15 +64,15 @@ public class UserStatusServiceTests
     [Fact]
     public async Task GetApplicationsForUserAsync_ValidMatchExists_ReturnsApplicationCardWithCorrectCompanyAndScore()
     {
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).WithName(KnownCompanyName).Build());
-        jobRepo.Seed(new JobBuilder().WithId(JobId).WithCompanyId(CompanyId).Build());
-        matchRepo.Seed(new MatchBuilder()
+        companyRepository.Seed(new CompanyBuilder().WithId(CompanyId).WithName(KnownCompanyName).Build());
+        jobRepository.Seed(new JobBuilder().WithId(JobId).WithCompanyId(CompanyId).Build());
+        matchRepository.Seed(new MatchBuilder()
             .WithId(MatchId)
             .AppliedFor(UserId, JobId)
             .WithStatus(MatchStatus.Applied)
             .Build());
-        userSkillRepo.Seed(new UserSkill { User = new User { UserId = UserId }, Skill = new Skill { SkillId = SkillId }, Score = SkillScore });
-        jobSkillRepo.Seed(new JobSkill { Job = new Job { JobId = JobId }, Skill = new Skill { SkillId = SkillId }, RequiredLevel = RequiredSkillLevel });
+        userSkillRepository.Seed(new UserSkill { User = new User { UserId = UserId }, Skill = new Skill { SkillId = SkillId }, Score = SkillScore });
+        jobSkillRepository.Seed(new JobSkill { Job = new Job { JobId = JobId }, Skill = new Skill { SkillId = SkillId }, RequiredLevel = RequiredSkillLevel });
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
@@ -86,9 +86,9 @@ public class UserStatusServiceTests
     [Fact]
     public async Task GetApplicationsForUserAsync_JobHasNoRequiredSkills_ReturnsFullCompatibilityScore()
     {
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(JobId).WithCompanyId(CompanyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, JobId).Build());
+        companyRepository.Seed(new CompanyBuilder().WithId(CompanyId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(JobId).WithCompanyId(CompanyId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, JobId).Build());
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
@@ -98,8 +98,8 @@ public class UserStatusServiceTests
     [Fact]
     public async Task GetApplicationsForUserAsync_CompanyIsMissing_FallsBackToUnknownCompanyName()
     {
-        jobRepo.Seed(new JobBuilder().WithId(JobId).WithCompanyId(MissingCompanyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, JobId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(JobId).WithCompanyId(MissingCompanyId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, JobId).Build());
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
