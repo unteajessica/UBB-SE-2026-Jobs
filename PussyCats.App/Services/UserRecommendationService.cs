@@ -130,8 +130,8 @@ public sealed class UserRecommendationService : IUserRecommendationService
     {
         var displayRecommendation = new Recommendation
         {
-            UserId = userId,
-            JobId = job.JobId,
+            User = new User { UserId = userId },
+            Job = job,
             Timestamp = DateTime.UtcNow,
         };
 
@@ -179,8 +179,8 @@ public sealed class UserRecommendationService : IUserRecommendationService
     {
         var dismissedRecommendation = new Recommendation
         {
-            UserId = userId,
-            JobId = card.Job.JobId,
+            User = new User { UserId = userId },
+            Job = card.Job,
             Timestamp = DateTime.UtcNow,
         };
 

@@ -235,7 +235,7 @@ public class UserRecommendationServiceTests
     public async Task UndoLikeAsync_RecommendationIdIsNull_SkipsRecommendationRemoval()
     {
         matchRepo.Seed(new MatchBuilder().WithId(5).Build());
-        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, UserId = 1, JobId = 10 });
+        recommendationRepo.Seed(new Recommendation { RecommendationId = 7, User = new User { UserId = 1 }, Job = new Job { JobId = 10 } });
 
         var service = BuildService();
         await service.UndoLikeAsync(5, null);

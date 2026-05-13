@@ -78,6 +78,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         {
             if (SetProperty(ref selectedMatch, value))
             {
+                OnPropertyChanged(nameof(CanEditDecision));
                 RaiseContactVisibilityProperties();
             }
         }
@@ -158,6 +159,8 @@ public class CompanyStatusViewModel : DispatchableObservableObject
         get => pageMessage;
         private set => SetProperty(ref pageMessage, value);
     }
+
+    public bool CanEditDecision => SelectedMatch?.Status is MatchStatus.Applied or MatchStatus.Advanced;
 
     public ICommand RefreshCommand => refreshCommand;
 

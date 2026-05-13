@@ -52,7 +52,7 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         var appliedMatches = new List<Match>();
         foreach (var match in allMatches)
         {
-            if (match.Status == MatchStatus.Applied && companyJobIds.Contains(match.JobId))
+            if (match.Status == MatchStatus.Applied && companyJobIds.Contains(match.Job.JobId))
             {
                 appliedMatches.Add(match);
             }
@@ -62,7 +62,7 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         foreach (var match in appliedMatches)
         {
             var user = match.User;
-            var job = await jobService.GetByIdAsync(match.JobId, cancellationToken).ConfigureAwait(false);
+            var job = await jobService.GetByIdAsync(match.Job.JobId, cancellationToken).ConfigureAwait(false);
             if (job is null)
             {
                 continue;

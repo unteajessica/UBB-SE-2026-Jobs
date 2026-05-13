@@ -14,12 +14,14 @@ public class RecommendationRepository : IRecommendationRepository
     }
 
     /// <summary>
-    /// Tracked single-row lookup. No User/Job include — callers that need them ask for the User
-    /// or Job repository directly.
+    /// Tracked single-row lookup. Includes User and Job so callers receive a complete
+    /// Recommendation object now that the relationship is represented by navigation properties.
     /// </summary>
     public async Task<Recommendation?> GetByIdAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Recommendations
+            .Include(recommendation => recommendation.User)
+            .Include(recommendation => recommendation.Job).ThenInclude(job => job.Company)
             .FirstOrDefaultAsync(recommendation => recommendation.RecommendationId == recommendationId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -28,6 +30,8 @@ public class RecommendationRepository : IRecommendationRepository
     {
         return await databaseContext.Recommendations
             .AsNoTracking()
+            .Include(recommendation => recommendation.User)
+            .Include(recommendation => recommendation.Job).ThenInclude(job => job.Company)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -41,7 +45,11 @@ public class RecommendationRepository : IRecommendationRepository
     {
         return await databaseContext.Recommendations
             .AsNoTracking()
-            .Where(recommendation => recommendation.UserId == userId && recommendation.JobId == jobId)
+            .Include(recommendation => recommendation.User)
+            .Include(recommendation => recommendation.Job).ThenInclude(job => job.Company)
+            .Where(recommendation =>
+                EF.Property<int>(recommendation, "UserId") == userId &&
+                EF.Property<int>(recommendation, "JobId") == jobId)
             .OrderByDescending(recommendation => recommendation.Timestamp)
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
