@@ -13,32 +13,35 @@ public class CompletenessServiceTests
     [Fact]
     public void CalculateCompleteness_UserIsNull_ReturnsZero()
     {
-        service.CalculateCompleteness(null).Should().Be(0);
+        const int expectedCompleteness = 0;
+        service.CalculateCompleteness(null).Should().Be(expectedCompleteness);
     }
 
     [Fact]
     public void CalculateCompleteness_UserHasNoFieldsFilled_ReturnsZero()
     {
         var user = new User();
-
-        service.CalculateCompleteness(user).Should().Be(0);
+        const int expectedCompleteness = 0;
+        service.CalculateCompleteness(user).Should().Be(expectedCompleteness);
     }
 
     [Fact]
     public void CalculateCompleteness_AllFieldsFilled_ReturnsOneHundred()
     {
         var user = BuildFullyFilledUser();
+        const int expectedCompleteness = 100;
 
-        service.CalculateCompleteness(user).Should().Be(100);
+        service.CalculateCompleteness(user).Should().Be(expectedCompleteness);
     }
 
     [Fact]
     public void CalculateCompleteness_SingleFieldFilled_ReturnsFivePercent()
     {
-        // 1 of 21 ~ 5%
+        // 1 of 21 ~= 5%
         var user = new User { FirstName = "Ada" };
 
-        service.CalculateCompleteness(user).Should().Be(5);
+        const int expectedCompleteness = 5;
+        service.CalculateCompleteness(user).Should().Be(expectedCompleteness);
     }
 
     [Fact]
@@ -78,12 +81,13 @@ public class CompletenessServiceTests
     {
         var user = BuildFullyFilledUser();
         user.PersonalityResult!.SelectedRole = null;
+        const int maximumCompletenessScore = 100;
 
-        service.CalculateCompleteness(user).Should().BeLessThan(100);
+        service.CalculateCompleteness(user).Should().BeLessThan(maximumCompletenessScore);
 
         user.PersonalityResult.SelectedRole = JobRole.BackendDeveloper;
 
-        service.CalculateCompleteness(user).Should().Be(100);
+        service.CalculateCompleteness(user).Should().Be(maximumCompletenessScore);
     }
 
     private static User BuildFullyFilledUser() => new()

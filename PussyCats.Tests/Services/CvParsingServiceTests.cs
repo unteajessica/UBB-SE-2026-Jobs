@@ -10,9 +10,11 @@ public class CvParsingServiceTests
     [Fact]
     public void ParseCvFile_UnsupportedExtensionProvided_ThrowsException()
     {
-        Action act = () => service.ParseCvFile("ignored", ".txt");
+        const string fileContent = "ignored", fileType = ".txt";
+        const string expectedErrorMessage = "*Unsupported file type*";
+        Action act = () => service.ParseCvFile(fileContent, fileType);
 
-        act.Should().Throw<Exception>().WithMessage("*Unsupported file type*");
+        act.Should().Throw<Exception>().WithMessage(expectedErrorMessage);
     }
 
     [Fact]

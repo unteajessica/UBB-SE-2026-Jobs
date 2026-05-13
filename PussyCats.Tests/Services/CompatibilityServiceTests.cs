@@ -200,6 +200,7 @@ public class CompatibilityServiceTests
             },
         };
 
-        service.GetSuggestions(roleResult).Should().HaveCount(1);
+        int expectedNumberOfSuggestions = 1;
+        service.GetSuggestions(roleResult).Should().HaveCount(expectedNumberOfSuggestions);
     }
 }
