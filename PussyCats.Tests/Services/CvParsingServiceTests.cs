@@ -145,7 +145,7 @@ public class CvParsingServiceTests
     [Fact]
     public void ParseCvFile_TooManySkillsProvided_CapsSkillCountAtMaxSkills()
     {
-        var skillsArray = string.Join(",", Enumerable.Range(1, 50).Select(i => $"\"Skill{i}\""));
+        var skillsArray = string.Join(",", Enumerable.Range(1, 50).Select(skillNumber => $"\"Skill{skillNumber}\""));
         var cvData = $"{{ \"FirstName\": \"X\", \"Skills\": [{skillsArray}] }}";
 
         var user = service.ParseCvFile(cvData, ".json");

@@ -204,7 +204,7 @@ public sealed partial class ProfileFormPage : Page
         => eventArguments.Cancel = eventArguments.NewText.Any(char.IsDigit);
 
     private void PhoneNumberTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs eventArguments)
-        => eventArguments.Cancel = eventArguments.NewText.Any(c => !char.IsDigit(c));
+        => eventArguments.Cancel = eventArguments.NewText.Any(digit => !char.IsDigit(digit));
 
     private async void SaveButton_Click(object sender, RoutedEventArgs eventArguments)
     {

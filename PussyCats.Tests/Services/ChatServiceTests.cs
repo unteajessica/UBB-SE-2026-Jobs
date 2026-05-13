@@ -275,7 +275,7 @@ namespace PussyCats.Tests.Services
         public async Task SearchCompaniesAsync_MoreThanMaxResults_ReturnsOnlyMaxResults()
         {
             var companies = Enumerable.Range(1, 15)
-                .Select(i => new Company { CompanyName = $"Company {i}" })
+                .Select(companyNumber => new Company { CompanyName = $"Company {companyNumber}" })
                 .ToList();
 
             companyService.GetAllAsync(Arg.Any<CancellationToken>())
@@ -317,7 +317,7 @@ namespace PussyCats.Tests.Services
         public async Task SearchUsersAsync_MoreThanMaxResults_ReturnsOnlyMaxResults()
         {
             var users = Enumerable.Range(1, 15)
-                .Select(i => new User { FirstName = "Peter", LastName = $"Pann {i}" })
+                .Select(userNumber => new User { FirstName = "Peter", LastName = $"Pann {userNumber}" })
                 .ToList();
 
             userService.GetAllAsync(Arg.Any<CancellationToken>())
@@ -334,7 +334,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task SendMessageAsync_EmptyOrNullContent_ThrowsArgumentException()
         {
-            await chatService.Invoking(s => s.SendMessageAsync(1, "   ", 1, MessageType.Text))
+            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "   ", 1, MessageType.Text))
                 .Should().ThrowAsync<ArgumentException>();
         }
 
@@ -343,7 +343,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(s => s.SendMessageAsync(1, "hello", 1, MessageType.Text))
+            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "hello", 1, MessageType.Text))
                 .Should().ThrowAsync<KeyNotFoundException>();
         }
 
@@ -353,7 +353,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(s => s.SendMessageAsync(1, "hello", 789, MessageType.Text))
+            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "hello", 789, MessageType.Text))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
@@ -363,7 +363,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { IsBlocked = true, User = new User { UserId = 1 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(s => s.SendMessageAsync(1, "hello", 1, MessageType.Text))
+            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "hello", 1, MessageType.Text))
                 .Should().ThrowAsync<InvalidOperationException>();
         }
 
@@ -373,7 +373,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 1 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(s => s.SendMessageAsync(1, new string('a', 2001), 1, MessageType.Text))
+            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, new string('a', 2001), 1, MessageType.Text))
                 .Should().ThrowAsync<ArgumentException>();
         }
 
@@ -386,7 +386,7 @@ namespace PussyCats.Tests.Services
             await chatService.SendMessageAsync(1, "hello", 1, MessageType.Text);
 
             await messageRepository.Received(1).AddAsync(
-                Arg.Is<Message>(m => m.Content == "hello" && m.Type == MessageType.Text),
+                Arg.Is<Message>(message => message.Content == "hello" && message.Type == MessageType.Text),
                 Arg.Any<CancellationToken>());
         }
 
@@ -412,7 +412,7 @@ namespace PussyCats.Tests.Services
                 await chatService.SendMessageAsync(1, imagePath, 1, MessageType.Image);
 
                 await messageRepository.Received(1).AddAsync(
-                    Arg.Is<Message>(m => m.Content == "stored/path.jpg" && m.OriginalFileName == Path.GetFileName(imagePath)),
+                    Arg.Is<Message>(message => message.Content == "stored/path.jpg" && message.OriginalFileName == Path.GetFileName(imagePath)),
                     Arg.Any<CancellationToken>());
             }
             finally
@@ -443,7 +443,7 @@ namespace PussyCats.Tests.Services
                 await chatService.SendMessageAsync(1, sentAttachmentPath, 1, MessageType.File);
 
                 await messageRepository.Received(1).AddAsync(
-                    Arg.Is<Message>(m => m.Content == "stored/path.jpg" && m.OriginalFileName == Path.GetFileName(sentAttachmentPath)),
+                    Arg.Is<Message>(message => message.Content == "stored/path.jpg" && message.OriginalFileName == Path.GetFileName(sentAttachmentPath)),
                     Arg.Any<CancellationToken>());
             }
             finally
@@ -456,7 +456,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task OpenMessageAttachmentAsync_EmptyPath_ThrowsArgumentException()
         {
-            await chatService.Invoking(s => s.OpenMessageAttachmentAsync("   "))
+            await chatService.Invoking(chatService => chatService.OpenMessageAttachmentAsync("   "))
                 .Should().ThrowAsync<ArgumentException>();
         }
 
@@ -479,7 +479,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(s => s.BlockChatAsync(1, blockerId: 1))
+            await chatService.Invoking(chatService => chatService.BlockChatAsync(1, blockerId: 1))
                 .Should().ThrowAsync<KeyNotFoundException>();
         }
 
@@ -489,7 +489,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(s => s.BlockChatAsync(1, blockerId: 99))
+            await chatService.Invoking(chatService => chatService.BlockChatAsync(1, blockerId: 99))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
@@ -511,7 +511,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(s => s.UnblockChatAsync(1, unblockerId: 1))
+            await chatService.Invoking(chatService => chatService.UnblockChatAsync(1, unblockerId: 1))
                 .Should().ThrowAsync<KeyNotFoundException>();
         }
 
@@ -522,7 +522,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 1 }, SecondUser = new User { UserId = 2 }, BlockedByUser = new User { UserId = 2 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(s => s.UnblockChatAsync(1, unblockerId: 1))
+            await chatService.Invoking(chatService => chatService.UnblockChatAsync(1, unblockerId: 1))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
@@ -546,7 +546,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(s => s.DeleteChatAsync(1, callerId: 1))
+            await chatService.Invoking(chatService => chatService.DeleteChatAsync(1, callerId: 1))
                 .Should().ThrowAsync<KeyNotFoundException>();
         }
 
@@ -556,7 +556,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(s => s.DeleteChatAsync(1, callerId: 99))
+            await chatService.Invoking(chatService => chatService.DeleteChatAsync(1, callerId: 99))
                 .Should().ThrowAsync<UnauthorizedAccessException>();
         }
 

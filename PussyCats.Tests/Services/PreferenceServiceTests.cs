@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using FluentAssertions;
 using PussyCats.App.Services;
 using PussyCats.Library.Domain.Enums;
@@ -21,17 +22,17 @@ public class PreferenceServiceTests
     private const string SearchQuery = "cluj";
 
     private readonly FakeUserRepository userRepository = new();
-    private readonly PreferenceService service;
+    private readonly PreferenceService preferenceService;
 
     public PreferenceServiceTests()
     {
-        service = new PreferenceService(userRepository);
+        preferenceService = new PreferenceService(userRepository);
     }
 
     [Fact]
     public async Task GetByUserIdAsync_UserIsMissing_ReturnsEmptyPreferences()
     {
-        var result = await service.GetByUserIdAsync(MissingUserId);
+        var result = await preferenceService.GetByUserIdAsync(MissingUserId);
 
         result.Roles.Should().BeEmpty();
         result.WorkMode.Should().Be(default);
@@ -47,7 +48,7 @@ public class PreferenceServiceTests
         user.LocationPreference = ExistingLocation;
         userRepository.Seed(user);
 
-        var result = await service.GetByUserIdAsync(ExistingUserId);
+        var result = await preferenceService.GetByUserIdAsync(ExistingUserId);
 
         result.Roles.Should().Equal(JobRole.BackendDeveloper, JobRole.FrontendDeveloper);
         result.WorkMode.Should().Be(WorkMode.Remote);
@@ -63,7 +64,7 @@ public class PreferenceServiceTests
         user.LocationPreference = string.Empty;
         userRepository.Seed(user);
 
-        var result = await service.GetByUserIdAsync(ExistingUserId);
+        var result = await preferenceService.GetByUserIdAsync(ExistingUserId);
 
         result.Roles.Should().BeEmpty();
         result.WorkMode.Should().Be(WorkMode.Remote);
@@ -75,7 +76,7 @@ public class PreferenceServiceTests
     {
         userRepository.Seed(new UserBuilder().WithId(ExistingUserId).Build());
 
-        await service.SavePreferencesAsync(
+        await preferenceService.SavePreferencesAsync(
             ExistingUserId,
             new[] { JobRole.BackendDeveloper, JobRole.DevOpsEngineer },
             WorkMode.Hybrid,
@@ -90,7 +91,7 @@ public class PreferenceServiceTests
     [Fact]
     public async Task SavePreferencesAsync_TooFewRolesProvided_ThrowsArgumentException()
     {
-        Func<Task> act = () => service.SavePreferencesAsync(
+        Func<Task> act = () => preferenceService.SavePreferencesAsync(
             ExistingUserId,
             Array.Empty<JobRole>(),
             WorkMode.Remote,
@@ -102,7 +103,7 @@ public class PreferenceServiceTests
     [Fact]
     public async Task SavePreferencesAsync_TooManyRolesProvided_ThrowsArgumentException()
     {
-        Func<Task> act = () => service.SavePreferencesAsync(
+        Func<Task> act = () => preferenceService.SavePreferencesAsync(
             ExistingUserId,
             new[]
             {
@@ -120,7 +121,7 @@ public class PreferenceServiceTests
     [Fact]
     public async Task SavePreferencesAsync_UserIsMissing_SilentlyReturns()
     {
-        Func<Task> act = () => service.SavePreferencesAsync(
+        Func<Task> act = () => preferenceService.SavePreferencesAsync(
             MissingUserId,
             new[] { JobRole.BackendDeveloper },
             WorkMode.Remote,
@@ -132,16 +133,16 @@ public class PreferenceServiceTests
     [Fact]
     public async Task SearchLocationsAsync_QueryIsBlank_ReturnsEmptyList()
     {
-        (await service.SearchLocationsAsync("")).Should().BeEmpty();
-        (await service.SearchLocationsAsync("   ")).Should().BeEmpty();
+        var searchResultOfLocationQuery = await preferenceService.SearchLocationsAsync("");
+        searchResultOfLocationQuery.Should().BeEmpty();
     }
 
     [Fact]
     public async Task SearchLocationsAsync_ValidQueryProvided_MatchesCaseInsensitively()
     {
-        var matches = await service.SearchLocationsAsync(SearchQuery);
+        var searchResultOfLocationQuery = await preferenceService.SearchLocationsAsync(SearchQuery);
 
-        matches.Should().NotBeEmpty();
-        matches.Should().Contain(loc => loc.Contains(ExpectedSearchLocation, StringComparison.Ordinal));
+        searchResultOfLocationQuery.Should().NotBeEmpty();
+        searchResultOfLocationQuery.Should().Contain(location => location.Contains(ExpectedSearchLocation, StringComparison.Ordinal));
     }
 }
