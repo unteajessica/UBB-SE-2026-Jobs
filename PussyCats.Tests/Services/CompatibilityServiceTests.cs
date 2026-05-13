@@ -9,21 +9,21 @@ namespace PussyCats.Tests.Services;
 
 public class CompatibilityServiceTests
 {
-    private readonly FakeUserSkillRepository userSkillRepo = new();
-    private readonly FakeSkillGroupRepository skillGroupRepo = new();
-    private readonly FakeUserRepository userRepo = new();
+    private readonly FakeUserSkillRepository userSkillRepository = new();
+    private readonly FakeSkillGroupRepository skillGroupRepository = new();
+    private readonly FakeUserRepository userRepository = new();
     private readonly CompatibilityService service;
 
     public CompatibilityServiceTests()
     {
-        service = new CompatibilityService(userSkillRepo, skillGroupRepo, userRepo);
+        service = new CompatibilityService(userSkillRepository, skillGroupRepository, userRepository);
     }
 
     [Fact]
     public async Task CalculateForRoleAsync_RoleHasNoGroups_ReturnsInvalidScore()
     {
         const int invalidScore = -1, userId = 1;
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
 
         var expectedRoleResult = await service.CalculateForRoleAsync(userId, JobRole.BackendDeveloper);
 
@@ -36,8 +36,8 @@ public class CompatibilityServiceTests
     {
         const int userId = 1, skillId = 1, score = 80;
         const string skillName = "C#";
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
-        userSkillRepo.Seed(new UserSkill
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
+        userSkillRepository.Seed(new UserSkill
         {
             User = new User { UserId = userId },
             Skill = new Skill { SkillId = skillId, Name = skillName },
@@ -45,7 +45,7 @@ public class CompatibilityServiceTests
             IsVerified = true,
             AchievedDate = DateOnly.FromDateTime(DateTime.UtcNow),
         });
-        skillGroupRepo.Seed(new SkillGroup
+        skillGroupRepository.Seed(new SkillGroup
         {
             SkillGroupId = 1,
             GroupName = "Backend Languages",
@@ -66,8 +66,8 @@ public class CompatibilityServiceTests
         var user = new UserBuilder().WithId(userId).Build();
         // ParsedCv format: line 0 = name, line 1 = university, line 2 = comma-separated skill list
         user.ParsedCv = "Ada Lovelace\nCambridge\nC#, Python";
-        userRepo.Seed(user);
-        skillGroupRepo.Seed(new SkillGroup
+        userRepository.Seed(user);
+        skillGroupRepository.Seed(new SkillGroup
         {
             SkillGroupId = 1,
             Weight = 1,
@@ -85,21 +85,21 @@ public class CompatibilityServiceTests
     [Fact]
     public async Task CalculateForRoleAsync_ManyGroupsExist_CapsSuggestionsAtThree()
     {
-        const int userId = 1, nrGroups = 5;
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        const int userId = 1, numberOfGroups = 5;
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
         var groups = new List<SkillGroup>();
-        for (int i = 1; i <= nrGroups; i++)
+        for (int groupIndex = 1; groupIndex <= numberOfGroups; groupIndex++)
         {
             groups.Add(new SkillGroup
             {
-                SkillGroupId = i,
-                GroupName = $"Group {i}",
+                SkillGroupId = groupIndex,
+                GroupName = $"Group {groupIndex}",
                 Weight = 1,
                 JobRole = JobRole.BackendDeveloper,
-                Skills = new List<Skill> { new() { SkillId = i, Name = $"Skill{i}" } },
+                Skills = new List<Skill> { new() { SkillId = groupIndex, Name = $"Skill{groupIndex}" } },
             });
         }
-        skillGroupRepo.Seed(groups.ToArray());
+        skillGroupRepository.Seed(groups.ToArray());
 
         var result = await service.CalculateForRoleAsync(userId, JobRole.BackendDeveloper);
         const int cappedAmountOfSuggestions = 3;
@@ -111,8 +111,8 @@ public class CompatibilityServiceTests
     public async Task CalculateForRoleAsync_UserHasNoSkills_ReturnsZeroScore()
     {
         const int userId = 1;
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
-        skillGroupRepo.Seed(new SkillGroup
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
+        skillGroupRepository.Seed(new SkillGroup
         {
             SkillGroupId = 1,
             GroupName = "Backend Languages",
@@ -130,7 +130,7 @@ public class CompatibilityServiceTests
     {
         const int userId = 1;
         const string firstSkillName = "C#", secondSkillName = "Docker";
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
 
         UserSkill firstUserSkill = new UserSkill
         {
@@ -150,7 +150,7 @@ public class CompatibilityServiceTests
             AchievedDate = DateOnly.FromDateTime(DateTime.UtcNow),
         };
         
-        userSkillRepo.Seed(firstUserSkill, secondUserSkill);
+        userSkillRepository.Seed(firstUserSkill, secondUserSkill);
 
         SkillGroup firstSkillGroup = new SkillGroup
         {
@@ -170,7 +170,7 @@ public class CompatibilityServiceTests
             Skills = new List<Skill> { new() { SkillId = 2, Name = secondSkillName } },
         };
 
-        skillGroupRepo.Seed(firstSkillGroup, secondSkillGroup);
+        skillGroupRepository.Seed(firstSkillGroup, secondSkillGroup);
 
         var expectedRoleResult = await service.CalculateForRoleAsync(userId, JobRole.BackendDeveloper);
         const int expectedScore = 70; // average of 80 and 60
@@ -181,7 +181,7 @@ public class CompatibilityServiceTests
     [Fact]
     public async Task CalculateAllAsync_Called_ReturnsOneResultPerRole()
     {
-        userRepo.Seed(new UserBuilder().WithId(1).Build());
+        userRepository.Seed(new UserBuilder().WithId(1).Build());
 
         var results = await service.CalculateAllAsync(1);
 
@@ -200,6 +200,7 @@ public class CompatibilityServiceTests
             },
         };
 
-        service.GetSuggestions(roleResult).Should().HaveCount(1);
+        int expectedNumberOfSuggestions = 1;
+        service.GetSuggestions(roleResult).Should().HaveCount(expectedNumberOfSuggestions);
     }
 }
