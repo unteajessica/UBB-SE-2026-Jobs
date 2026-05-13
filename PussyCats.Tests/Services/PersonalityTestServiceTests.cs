@@ -150,7 +150,7 @@ public class PersonalityTestServiceTests
 
         await service.SaveResultAsync(userId, answers, selectedRole);
 
-        var saved = await repo.GetByUserIdAsync(userId);
+        var saved = await personalityTestRepository.GetByUserIdAsync(userId);
         saved!.SelectedRole.Should().Be(selectedRole);
     }
 

@@ -59,11 +59,11 @@ public class CompanyRecommendationServiceTests
         const int otherComapnyMatchId = 3;
         const double compatibilityScore = 50.0;
 
-        userRepo.Seed(new UserBuilder().WithId(userId1).Build(), new UserBuilder().WithId(userId2).Build());
-        jobRepo.Seed(
+        userRepository.Seed(new UserBuilder().WithId(userId1).Build(), new UserBuilder().WithId(userId2).Build());
+        jobRepository.Seed(
             new JobBuilder().WithId(targetJobId).WithCompanyId(targetCompanyId).Build(),
             new JobBuilder().WithId(otherJobId).WithCompanyId(otherCompanyId).Build());
-        matchRepo.Seed(
+        matchRepository.Seed(
             new MatchBuilder().WithId(appliedMatchId).AppliedFor(userId1, targetJobId).WithStatus(MatchStatus.Applied).Build(),
             new MatchBuilder().WithId(rejectedMatchId).AppliedFor(userId2, targetJobId).WithStatus(MatchStatus.Rejected).Build(),
             new MatchBuilder().WithId(otherComapnyMatchId).AppliedFor(userId1,otherJobId).WithStatus(MatchStatus.Applied).Build());
@@ -89,9 +89,9 @@ public class CompanyRecommendationServiceTests
         const double lowScore = 40.0;
         const double highScore = 80.0;
 
-        userRepo.Seed(new UserBuilder().WithId(lowerScoringUserId).Build(), new UserBuilder().WithId(higherScoringUserId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
-        matchRepo.Seed(
+        userRepository.Seed(new UserBuilder().WithId(lowerScoringUserId).Build(), new UserBuilder().WithId(higherScoringUserId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(
             new MatchBuilder().WithId(matchId1).AppliedFor(lowerScoringUserId, jobId).WithStatus(MatchStatus.Applied).Build(),
             new MatchBuilder().WithId(matchId2).AppliedFor(higherScoringUserId, jobId).WithStatus(MatchStatus.Applied).Build());
         algorithm.CalculateCompatibilityScore(
@@ -123,9 +123,9 @@ public class CompanyRecommendationServiceTests
         const double compatibilityScore = 50.0;
 
 
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).WithStatus(MatchStatus.Applied).Build());
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).WithStatus(MatchStatus.Applied).Build());
         algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(compatibilityScore);
 
         var service = BuildService();
@@ -145,9 +145,9 @@ public class CompanyRecommendationServiceTests
         const int matchId = 1;
         const double compatibilityScore = 50.0;
 
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).WithStatus(MatchStatus.Applied).Build());
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).WithStatus(MatchStatus.Applied).Build());
         algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(compatibilityScore);
 
         var service = BuildService();
@@ -162,9 +162,10 @@ public class CompanyRecommendationServiceTests
     [Fact]
     public async Task GetBreakdownAsync_Called_DelegatesToAlgorithm()
     {
-        const int score = 75;
+        const int overallScore = 75;
+        const int userId = 1, jobId = 10;
 
-        var breakdown = new CompatibilityBreakdown { OverallScore = score };
+        var breakdown = new CompatibilityBreakdown { OverallScore = overallScore };
         algorithm.CalculateScoreBreakdown(default!, default!, default!, default!).ReturnsForAnyArgs(breakdown);
 
         var applicant = new UserApplicationResult
@@ -178,7 +179,7 @@ public class CompanyRecommendationServiceTests
         var service = BuildService();
         var result = await service.GetBreakdownAsync(applicant);
 
-        result!.OverallScore.Should().Be(score);
+        result!.OverallScore.Should().Be(overallScore);
     }
 
     [Fact]
@@ -194,9 +195,9 @@ public class CompanyRecommendationServiceTests
         const double lowScore = 40.0;
         const double highScore = 80.0;
 
-        userRepo.Seed(new UserBuilder().WithId(firstUserId).Build(), new UserBuilder().WithId(secondUserId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
-        matchRepo.Seed(
+        userRepository.Seed(new UserBuilder().WithId(firstUserId).Build(), new UserBuilder().WithId(secondUserId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(
             new MatchBuilder().WithId(matchId1).AppliedFor(firstUserId, jobId).WithStatus(MatchStatus.Applied).Build(),
             new MatchBuilder().WithId(matchId2).AppliedFor(secondUserId, jobId).WithStatus(MatchStatus.Applied).Build());
         algorithm.CalculateCompatibilityScore(
@@ -254,9 +255,9 @@ public class CompanyRecommendationServiceTests
         const int userId = 1;
         const int matchId = 1;
 
-        userRepo.Seed(new UserBuilder().WithId(userId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, missingJobId).WithStatus(MatchStatus.Applied).Build());
+        userRepository.Seed(new UserBuilder().WithId(userId).Build());
+        jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepository.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, missingJobId).WithStatus(MatchStatus.Applied).Build());
 
         var service = BuildService();
         await service.LoadApplicantsAsync(companyId);

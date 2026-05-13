@@ -145,7 +145,7 @@ public class UserRecommendationServiceTests
             new JobBuilder().WithId(availableJobId).WithCompanyId(companyId).Build());
         companyRepo.Seed(new CompanyBuilder().WithId(companyId).Build());
 
-        recommendationRepo.Seed(new Recommendation { UserId = userId, JobId = recentJobId, Timestamp = DateTime.UtcNow });
+        recommendationRepo.Seed(new Recommendation { User = new User { UserId = userId }, Job = new Job { JobId = recentJobId }, Timestamp = DateTime.UtcNow });
         algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(expectedCompatibilityScore);
 
         var card = await BuildService().GetNextCardAsync(userId, UserMatchmakingFilters.Empty());
@@ -170,8 +170,8 @@ public class UserRecommendationServiceTests
         recommendationRepo.Seed(new Recommendation
         {
             RecommendationId = recommendationId,
-            UserId = userId,
-            JobId = jobId,
+            User = new User { UserId = userId },
+            Job = new Job { JobId = jobId },
             Timestamp = DateTime.UtcNow.AddMinutes(-30),
         });
         algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(defaultScore);
@@ -263,7 +263,7 @@ public class UserRecommendationServiceTests
         int jobId = 10;
 
         matchRepo.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).Build());
-        recommendationRepo.Seed(new Recommendation { RecommendationId = recommendationId, UserId = userId, JobId = jobId });
+        recommendationRepo.Seed(new Recommendation { RecommendationId = recommendationId, User = new User { UserId = userId }, Job = new Job { JobId = jobId } });
 
         UserRecommendationService service = BuildService();
         await service.UndoLikeAsync(matchId, recommendationId);
@@ -277,7 +277,7 @@ public class UserRecommendationServiceTests
     public async Task UndoLikeAsync_RecommendationIdIsNull_SkipsRecommendationRemoval()
     {
         matchRepo.Seed(new MatchBuilder().WithId(AlternateMatchId).Build());
-        recommendationRepo.Seed(new Recommendation { RecommendationId = UndoRecommendationId, UserId = ExistingUserId, JobId = PrimaryJobId });
+        recommendationRepo.Seed(new Recommendation { RecommendationId = UndoRecommendationId, User = new User { UserId = ExistingUserId }, Job = new Job { JobId = PrimaryJobId } });
 
         var service = BuildService();
         await service.UndoLikeAsync(AlternateMatchId, null);
@@ -294,8 +294,8 @@ public class UserRecommendationServiceTests
         int jobId = 10;
 
         recommendationRepo.Seed(
-            new Recommendation { RecommendationId = dismissId, UserId = userId, JobId = jobId },
-            new Recommendation { RecommendationId = displayId, UserId = userId, JobId = jobId });
+            new Recommendation { RecommendationId = dismissId, User = new User { UserId = userId }, Job = new Job { JobId = jobId }  },
+            new Recommendation { RecommendationId = displayId, User = new User { UserId = userId }, Job = new Job { JobId = jobId } });
 
         UserRecommendationService service = BuildService();
         await service.UndoDismissAsync(dismissId, displayId);
@@ -311,7 +311,7 @@ public class UserRecommendationServiceTests
         int userId = 1;
         int jobId = 10;
 
-        recommendationRepo.Seed(new Recommendation { RecommendationId = recommendationId, UserId = userId, JobId = jobId });
+        recommendationRepo.Seed(new Recommendation { RecommendationId = recommendationId, User = new User { UserId = userId }, Job = new Job { JobId = jobId } });
 
         UserRecommendationService service = BuildService();
         await service.UndoDismissAsync(recommendationId, recommendationId);

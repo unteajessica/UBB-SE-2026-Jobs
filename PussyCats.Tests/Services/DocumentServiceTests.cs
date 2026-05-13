@@ -125,7 +125,7 @@ public class DocumentServiceTests : IDisposable
         const int userId = 1;
         const string filePath = "uploads/x.pdf";
 
-        repo.Seed(new Document { DocumentId = documentId, User = new User { UserId = userId }, FilePath = filePath });
+        documentRepository.Seed(new Document { DocumentId = documentId, User = new User { UserId = userId }, FilePath = filePath });
 
         await service.DeleteDocumentAsync(documentId);
 
@@ -151,7 +151,7 @@ public class DocumentServiceTests : IDisposable
         const string relativePath = "uploads/x.pdf";
         const string absolutePath = @"C:\files\uploads\x.pdf";
 
-        repo.Seed(new Document { DocumentId = documentId, User = new User { UserId = userId }, FilePath = relativePath });
+        documentRepository.Seed(new Document { DocumentId = documentId, User = new User { UserId = userId }, FilePath = relativePath });
         fileStorage.GetFilePath(relativePath).Returns(absolutePath);
 
         var path = await service.GetDocumentAbsolutePathAsync(documentId);
