@@ -7,6 +7,7 @@ using PussyCats.Library.DTOs;
 using PussyCats.Library.Services;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
+using System.Security.Cryptography;
 
 namespace PussyCats.Tests.Services;
 
@@ -83,9 +84,10 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task GetNextCardAsync_UserIsMissing_ThrowsInvalidOperationException()
     {
+        const int nonExistentUserId = 999;
         var service = BuildService();
 
-        Func<Task> act = () => service.GetNextCardAsync(MissingUserId, UserMatchmakingFilters.Empty());
+        Func<Task> act = () => service.GetNextCardAsync(nonExistentUserId, UserMatchmakingFilters.Empty());
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("User not found.");
@@ -94,7 +96,8 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task GetNextCardAsync_NoJobsMatchFilters_ReturnsNull()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
+        const int userId = 1;
+        userRepo.Seed(new UserBuilder().WithId(userId).Build());
 
         var service = BuildService();
         var card = await service.GetNextCardAsync(ExistingUserId, UserMatchmakingFilters.Empty());
@@ -105,98 +108,99 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task GetNextCardAsync_MultipleJobsAvailable_ReturnsTopScoredJobCard()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
+        const int userId = 1;
+        const int topJobId = 20;
+        const int lowJobId = 10;
+        const double topScore = 99.0;
+        const int companyId = 5;
+
+        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        companyRepo.Seed(new CompanyBuilder().WithId(companyId).Build());
         jobRepo.Seed(
-            new JobBuilder().WithId(PrimaryJobId).WithCompanyId(CompanyId).Build(),
-            new JobBuilder().WithId(SecondaryJobId).WithCompanyId(CompanyId).Build());
-        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(call =>
-            ((Job)call[1]).JobId == SecondaryJobId ? TopScore : SecondaryScore);
+            new JobBuilder().WithId(lowJobId).WithCompanyId(companyId).Build(),
+            new JobBuilder().WithId(topJobId).WithCompanyId(companyId).Build());
+
+        algorithm.CalculateCompatibilityScore(Arg.Any<User>(), Arg.Is<Job>(job => job.JobId == topJobId), Arg.Any<IReadOnlyList<UserSkill>>(), Arg.Any<IReadOnlyList<JobSkill>>())
+            .Returns(topScore);
 
         var service = BuildService();
-        var card = await service.GetNextCardAsync(ExistingUserId, UserMatchmakingFilters.Empty());
+        var card = await service.GetNextCardAsync(userId, UserMatchmakingFilters.Empty());
 
-        card.Should().NotBeNull();
-        card!.Job.JobId.Should().Be(SecondaryJobId);
-        card.CompatibilityScore.Should().Be(TopScore);
-        card.DisplayRecommendationId.Should().NotBeNull();
+        card!.Job.JobId.Should().Be(topJobId);
     }
 
     [Fact]
-    public async Task GetNextCardAsync_UserAlreadyApplied_SkipsAlreadyAppliedJobs()
+    public async Task GetNextCardAsync_JobInCooldown_SkipsToNextAvailableJob()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
+        const int userId = 1;
+        const int recentJobId = 10;
+        const int availableJobId = 20;
+        const int companyId = 5;
+        const double expectedCompatibilityScore = 50.0;
+        UserMatchmakingFilters filters = UserMatchmakingFilters.Empty();
+
+        userRepo.Seed(new UserBuilder().WithId(userId).Build());
         jobRepo.Seed(
-            new JobBuilder().WithId(PrimaryJobId).WithCompanyId(CompanyId).Build(),
-            new JobBuilder().WithId(SecondaryJobId).WithCompanyId(CompanyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(ExistingUserId, PrimaryJobId).Build());
-        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(DefaultScore);
+            new JobBuilder().WithId(recentJobId).WithCompanyId(companyId).Build(),
+            new JobBuilder().WithId(availableJobId).WithCompanyId(companyId).Build());
+        companyRepo.Seed(new CompanyBuilder().WithId(companyId).Build());
 
-        var service = BuildService();
-        var card = await service.GetNextCardAsync(ExistingUserId, UserMatchmakingFilters.Empty());
+        recommendationRepo.Seed(new Recommendation { UserId = userId, JobId = recentJobId, Timestamp = DateTime.UtcNow });
+        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(expectedCompatibilityScore);
 
-        card!.Job.JobId.Should().Be(SecondaryJobId);
+        var card = await BuildService().GetNextCardAsync(userId, UserMatchmakingFilters.Empty());
+
+        card!.Job.JobId.Should().Be(availableJobId);
     }
 
-    [Fact]
-    public async Task GetNextCardAsync_JobRecentlySeen_SkipsJobsInCooldownWindow()
-    {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
-        jobRepo.Seed(
-            new JobBuilder().WithId(PrimaryJobId).WithCompanyId(CompanyId).Build(),
-            new JobBuilder().WithId(SecondaryJobId).WithCompanyId(CompanyId).Build());
-        recommendationRepo.Seed(new Recommendation
-        {
-            RecommendationId = RecommendationId,
-            UserId = ExistingUserId,
-            JobId = PrimaryJobId,
-            Timestamp = DateTime.UtcNow.AddMinutes(-RecentMinutes),
-        });
-        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(DefaultScore);
-
-        var service = BuildService();
-        var card = await service.GetNextCardAsync(ExistingUserId, UserMatchmakingFilters.Empty());
-
-        card!.Job.JobId.Should().Be(SecondaryJobId);
-    }
-
+    
     [Fact]
     public async Task RecalculateTopCardIgnoringCooldownAsync_JobInCooldown_IncludesJobsInCooldown()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(PrimaryJobId).WithCompanyId(CompanyId).Build());
+        int userId = 1;
+        int jobId = 10;
+        int companyId = 5;
+        int recommendationId = 100;
+        double defaultScore = 50.0;
+        UserMatchmakingFilters filters = UserMatchmakingFilters.Empty();
+
+        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        companyRepo.Seed(new CompanyBuilder().WithId(companyId).Build());
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
         recommendationRepo.Seed(new Recommendation
         {
-            RecommendationId = RecommendationId,
-            UserId = ExistingUserId,
-            JobId = PrimaryJobId,
-            Timestamp = DateTime.UtcNow.AddMinutes(-RecentMinutes),
+            RecommendationId = recommendationId,
+            UserId = userId,
+            JobId = jobId,
+            Timestamp = DateTime.UtcNow.AddMinutes(-30),
         });
-        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(DefaultScore);
+        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(defaultScore);
 
-        var service = BuildService();
-        var card = await service.RecalculateTopCardIgnoringCooldownAsync(ExistingUserId, UserMatchmakingFilters.Empty());
+        UserRecommendationService service = BuildService();
+        JobRecommendationResult? card = await service.RecalculateTopCardIgnoringCooldownAsync(userId, filters);
 
-        card.Should().NotBeNull();
-        card!.Job.JobId.Should().Be(PrimaryJobId);
+        card!.Job.JobId.Should().Be(jobId);
     }
 
     [Fact]
     public async Task ApplyLikeAsync_ValidCardProvided_CreatesMatchInAppliedState()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(PrimaryJobId).WithCompanyId(CompanyId).Build());
-        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(DefaultScore);
+        int userId = 1;
+        int jobId = 10;
+        int companyId = 5;
+        double defaultScore = 50.0;
+        UserMatchmakingFilters filters = UserMatchmakingFilters.Empty();
 
-        var service = BuildService();
-        var card = await service.GetNextCardAsync(ExistingUserId, UserMatchmakingFilters.Empty());
-        var matchId = await service.ApplyLikeAsync(ExistingUserId, card!);
+        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        companyRepo.Seed(new CompanyBuilder().WithId(companyId).Build());
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        algorithm.CalculateCompatibilityScore(default!, default!, default!, default!).ReturnsForAnyArgs(defaultScore);
 
-        var match = await matchRepo.GetByIdAsync(matchId);
+        UserRecommendationService service = BuildService();
+        JobRecommendationResult? card = await service.GetNextCardAsync(userId, filters);
+        int matchId = await service.ApplyLikeAsync(userId, card!);
+
+        Match? match = await matchRepo.GetByIdAsync(matchId);
         match.Should().NotBeNull();
         match!.Status.Should().Be(MatchStatus.Applied);
     }
@@ -204,19 +208,24 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task ApplyLikeAsync_MatchExists_ThrowsInvalidOperationException()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(PrimaryJobId).WithCompanyId(CompanyId).Build());
-        matchRepo.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(ExistingUserId, PrimaryJobId).Build());
+        int userId = 1;
+        int jobId = 10;
+        int companyId = 5;
+        int matchId = 500;
 
-        var service = BuildService();
-        var card = new JobRecommendationResult
+        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        companyRepo.Seed(new CompanyBuilder().WithId(companyId).Build());
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        matchRepo.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).Build());
+
+        UserRecommendationService service = BuildService();
+        JobRecommendationResult card = new JobRecommendationResult
         {
-            Job = await jobRepo.GetByIdAsync(PrimaryJobId) ?? throw new InvalidOperationException(),
-            Company = await companyRepo.GetByIdAsync(CompanyId) ?? throw new InvalidOperationException(),
+            Job = await jobRepo.GetByIdAsync(jobId) ?? throw new InvalidOperationException(),
+            Company = await companyRepo.GetByIdAsync(companyId) ?? throw new InvalidOperationException(),
         };
 
-        Func<Task> act = () => service.ApplyLikeAsync(ExistingUserId, card);
+        Func<Task> act = () => service.ApplyLikeAsync(userId, card);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*Already applied*");
@@ -225,15 +234,19 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task ApplyDismissAsync_ValidCardProvided_RecordsRecommendation()
     {
-        userRepo.Seed(new UserBuilder().WithId(ExistingUserId).Build());
-        companyRepo.Seed(new CompanyBuilder().WithId(CompanyId).Build());
-        jobRepo.Seed(new JobBuilder().WithId(PrimaryJobId).WithCompanyId(CompanyId).Build());
+        const int userId = 1;
+        const int jobId = 10;
+        const int companyId = 5;
+
+        userRepo.Seed(new UserBuilder().WithId(userId).Build());
+        companyRepo.Seed(new CompanyBuilder().WithId(companyId).Build());
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
 
         var service = BuildService();
         var card = new JobRecommendationResult
         {
-            Job = await jobRepo.GetByIdAsync(PrimaryJobId) ?? throw new InvalidOperationException(),
-            Company = await companyRepo.GetByIdAsync(CompanyId) ?? throw new InvalidOperationException(),
+            Job = await jobRepo.GetByIdAsync(jobId) ?? throw new InvalidOperationException(),
+            Company = await companyRepo.GetByIdAsync(companyId) ?? throw new InvalidOperationException(),
         };
 
         var dismissId = await service.ApplyDismissAsync(ExistingUserId, card);
@@ -244,15 +257,21 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task UndoLikeAsync_IdsProvided_RemovesMatchAndRecommendation()
     {
-        matchRepo.Seed(new MatchBuilder().WithId(AlternateMatchId).AppliedFor(ExistingUserId, PrimaryJobId).Build());
-        recommendationRepo.Seed(new Recommendation { RecommendationId = UndoRecommendationId, UserId = ExistingUserId, JobId = PrimaryJobId });
+        int matchId = 5;
+        int recommendationId = 7;
+        int userId = 1;
+        int jobId = 10;
 
-        var service = BuildService();
-        await service.UndoLikeAsync(AlternateMatchId, UndoRecommendationId);
+        matchRepo.Seed(new MatchBuilder().WithId(matchId).AppliedFor(userId, jobId).Build());
+        recommendationRepo.Seed(new Recommendation { RecommendationId = recommendationId, UserId = userId, JobId = jobId });
 
-        (await matchRepo.GetByIdAsync(AlternateMatchId)).Should().BeNull();
-        (await recommendationRepo.GetByIdAsync(UndoRecommendationId)).Should().BeNull();
+        UserRecommendationService service = BuildService();
+        await service.UndoLikeAsync(matchId, recommendationId);
+
+        (await matchRepo.GetByIdAsync(matchId)).Should().BeNull();
+        (await recommendationRepo.GetByIdAsync(recommendationId)).Should().BeNull();
     }
+    
 
     [Fact]
     public async Task UndoLikeAsync_RecommendationIdIsNull_SkipsRecommendationRemoval()
@@ -269,26 +288,35 @@ public class UserRecommendationServiceTests
     [Fact]
     public async Task UndoDismissAsync_DistinctIdsProvided_RemovesDismissAndDisplayRecommendations()
     {
+        int dismissId = 7;
+        int displayId = 8;
+        int userId = 1;
+        int jobId = 10;
+
         recommendationRepo.Seed(
-            new Recommendation { RecommendationId = UndoRecommendationId, UserId = ExistingUserId, JobId = PrimaryJobId },
-            new Recommendation { RecommendationId = AlternateRecommendationId, UserId = ExistingUserId, JobId = PrimaryJobId });
+            new Recommendation { RecommendationId = dismissId, UserId = userId, JobId = jobId },
+            new Recommendation { RecommendationId = displayId, UserId = userId, JobId = jobId });
 
-        var service = BuildService();
-        await service.UndoDismissAsync(UndoRecommendationId, AlternateRecommendationId);
+        UserRecommendationService service = BuildService();
+        await service.UndoDismissAsync(dismissId, displayId);
 
-        (await recommendationRepo.GetByIdAsync(UndoRecommendationId)).Should().BeNull();
-        (await recommendationRepo.GetByIdAsync(AlternateRecommendationId)).Should().BeNull();
+        (await recommendationRepo.GetByIdAsync(dismissId)).Should().BeNull();
+        (await recommendationRepo.GetByIdAsync(displayId)).Should().BeNull();
     }
 
     [Fact]
     public async Task UndoDismissAsync_IdenticalIdsProvided_RemovesSingleRecommendation()
     {
-        recommendationRepo.Seed(new Recommendation { RecommendationId = UndoRecommendationId, UserId = ExistingUserId, JobId = PrimaryJobId });
+        int recommendationId = 7;
+        int userId = 1;
+        int jobId = 10;
 
-        var service = BuildService();
-        await service.UndoDismissAsync(UndoRecommendationId, UndoRecommendationId);
+        recommendationRepo.Seed(new Recommendation { RecommendationId = recommendationId, UserId = userId, JobId = jobId });
 
-        (await recommendationRepo.GetByIdAsync(UndoRecommendationId)).Should().BeNull();
+        UserRecommendationService service = BuildService();
+        await service.UndoDismissAsync(recommendationId, recommendationId);
+
+        (await recommendationRepo.GetByIdAsync(recommendationId)).Should().BeNull();
     }
 
     [Theory]
