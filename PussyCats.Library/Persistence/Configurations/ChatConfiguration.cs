@@ -16,7 +16,6 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         builder.Ignore(chat => chat.LastMessageTime);
         builder.Ignore(chat => chat.LastMessage);
         builder.Ignore(chat => chat.UnreadCount);
-        builder.Ignore(chat => chat.OtherPartyName);
 
         // UserId is the primary participant (always a user/candidate).
         builder.HasOne(chat => chat.User)
@@ -27,25 +26,25 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         // SecondUser is the other user in a user-to-user chat (nullable).
         builder.HasOne(chat => chat.SecondUser)
             .WithMany()
-            .HasForeignKey(chat => chat.SecondUserId)
+            .HasForeignKey("SecondUserId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // CompanyId is set for user-to-company chats (nullable).
         builder.HasOne(chat => chat.Company)
             .WithMany()
-            .HasForeignKey(chat => chat.CompanyId)
+            .HasForeignKey("CompanyId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // JobId links the chat to a specific job posting (nullable).
-        builder.HasOne<Job>()
+        builder.HasOne(chat=>chat.Job)
             .WithMany()
-            .HasForeignKey(chat => chat.JobId)
+            .HasForeignKey("JobId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // BlockedByUser is the user who blocked the chat (nullable).
         builder.HasOne(chat => chat.BlockedByUser)
             .WithMany()
-            .HasForeignKey(chat => chat.BlockedByUserId)
+            .HasForeignKey("BlockedByUserId")
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

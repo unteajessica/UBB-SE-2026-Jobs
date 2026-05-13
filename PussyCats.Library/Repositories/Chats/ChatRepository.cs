@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Persistence;
@@ -18,6 +19,7 @@ public class ChatRepository : IChatRepository
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .Include(chat => chat.SecondUser)
+            .Include(chat => chat.Company)
             .AsNoTracking()
             .Include(chat => chat.BlockedByUser)
             .FirstOrDefaultAsync(chat => chat.ChatId == chatId, cancellationToken)
@@ -26,12 +28,14 @@ public class ChatRepository : IChatRepository
 
     public async Task<IReadOnlyList<Chat>> GetForUserAsync(int userId, CancellationToken cancellationToken = default)
     {
+        System.Diagnostics.Debug.WriteLine("HEREEEEE "+userId);
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .Include(chat => chat.SecondUser)
+            .Include(chat => chat.Company)
             .AsNoTracking()
             .Include(chat => chat.BlockedByUser)
-            .Where(chat => chat.User.UserId == userId || chat.SecondUserId == userId)
+            .Where(chat => chat.User.UserId == userId || chat.SecondUser.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -43,7 +47,8 @@ public class ChatRepository : IChatRepository
             .Include(chat => chat.SecondUser)
             .AsNoTracking()
             .Include(chat => chat.BlockedByUser)
-            .Where(chat => chat.CompanyId == companyId)
+            .Where(chat => chat.Company!=null && chat.Company.CompanyId == companyId)
+            .Include(chat => chat.Company)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -56,24 +61,27 @@ public class ChatRepository : IChatRepository
             .AsNoTracking()
             .Include(chat => chat.BlockedByUser)
             .FirstOrDefaultAsync(
-                chat => (chat.User.UserId == userId && chat.SecondUserId == secondUserId)
-                     || (chat.User.UserId == secondUserId && chat.SecondUserId == userId),
+                chat => (chat.User.UserId == userId && chat.SecondUser.UserId == secondUserId)
+                     || (chat.User.UserId == secondUserId && chat.SecondUser.UserId == userId),
                 cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<Chat?> FindUserCompanyChatAsync(int userId, int companyId, int? jobId, CancellationToken cancellationToken = default)
+    public async Task<Chat?> FindUserCompanyChatAsync(int userId, Company company, int? jobId,
+        CancellationToken cancellationToken = default)
     {
         return await databaseContext.Chats
             .Include(chat => chat.User)
             .Include(chat => chat.SecondUser)
+            .Include(chat => chat.Company)
             .AsNoTracking()
             .Include(chat => chat.BlockedByUser)
             .FirstOrDefaultAsync(
                 chat => chat.User.UserId == userId
-                     && chat.CompanyId == companyId
-                     && chat.JobId == jobId
-                     && chat.SecondUserId == null,
+                        && chat.Company != null 
+                        && chat.Company.CompanyId == company.CompanyId
+                        && chat.Job!=null && chat.Job.JobId == jobId
+                        && chat.SecondUser.UserId == null,
                 cancellationToken)
             .ConfigureAwait(false);
     }

@@ -165,25 +165,71 @@ public class MatchServiceTests
     [Fact]
     public async Task GetByCompanyIdAsync_CompanyHasJobs_FiltersViaJobsOwnedByCompany()
     {
+        int firstJobId = 10, secondJobId = 20;
+        int firstCompanyId = 5, secondCompanyId = 99;
+        int numberOfHoursAgo = 2;
+        int expectedNumberOfMatches = 2;
         jobRepo.Seed(
-            new JobBuilder().WithId(10).WithCompanyId(5).Build(),
-            new JobBuilder().WithId(20).WithCompanyId(99).Build());
+            new JobBuilder().WithId(firstJobId).WithCompanyId(firstCompanyId).Build(),
+            new JobBuilder().WithId(secondJobId).WithCompanyId(secondCompanyId).Build());
         matchRepo.Seed(
-            new MatchBuilder().WithId(1).AppliedFor(1, 10).WithTimestamp(DateTime.UtcNow.AddHours(-2)).Build(),
-            new MatchBuilder().WithId(2).AppliedFor(2, 10).WithTimestamp(DateTime.UtcNow).Build(),
-            new MatchBuilder().WithId(3).AppliedFor(3, 20).Build());
+            new MatchBuilder().WithId(1).AppliedFor(1, firstJobId).WithTimestamp(DateTime.UtcNow.AddHours(-numberOfHoursAgo)).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(2, firstJobId).WithTimestamp(DateTime.UtcNow).Build(),
+            new MatchBuilder().WithId(3).AppliedFor(3, secondJobId).Build());
 
-        var matches = await service.GetByCompanyIdAsync(5);
+        var matches = await service.GetByCompanyIdAsync(firstCompanyId);
 
-        matches.Should().HaveCount(2);
-        matches[0].MatchId.Should().Be(2);
-        matches[1].MatchId.Should().Be(1);
+        matches.Should().HaveCount(expectedNumberOfMatches);
+    }
+
+    [Fact]
+    public async Task GetByCompanyIdAsync_CompanyHasJobs_ReturnsSortedDescendinglyByTime()
+    {
+        int firstJobId = 10, secondJobId = 20;
+        int firstCompanyId = 5, secondCompanyId = 99;
+        int numberOfHoursAgo = 2;
+        int expectedFirstMatchId = 2, expectedSecondMatchId = 1;
+        jobRepo.Seed(
+            new JobBuilder().WithId(firstJobId).WithCompanyId(firstCompanyId).Build(),
+            new JobBuilder().WithId(secondJobId).WithCompanyId(secondCompanyId).Build());
+        matchRepo.Seed(
+            new MatchBuilder().WithId(1).AppliedFor(1, firstJobId).WithTimestamp(DateTime.UtcNow.AddHours(-numberOfHoursAgo)).Build(),
+            new MatchBuilder().WithId(2).AppliedFor(2, firstJobId).WithTimestamp(DateTime.UtcNow).Build(),
+            new MatchBuilder().WithId(3).AppliedFor(3, secondJobId).Build());
+
+        var matches = await service.GetByCompanyIdAsync(firstCompanyId);
+
+        matches[0].MatchId.Should().Be(expectedFirstMatchId);
+        matches[1].MatchId.Should().Be(expectedSecondMatchId);
+    }
+
+    [Fact]
+    public async Task GetByCompanyIdAsync_CompanyHasJobsButNoMatches_ReturnsEmpty()
+    {
+        int jobId = 10, companyId = 5;
+        jobRepo.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
+        var matches = await service.GetByCompanyIdAsync(companyId);
+        matches.Should().BeEmpty();
+    }
+        
+    [Fact]
+    public async Task GetByCompanyIdAsync_CompanyHasBothJobsAndMatchesButNotMatching_ReturnsEmpty()
+    {
+        int firstJobId = 10, secondJobId = 20;
+        int firstCompanyId = 5, secondCompanyId = 99;
+        jobRepo.Seed(
+            new JobBuilder().WithId(firstJobId).WithCompanyId(firstCompanyId).Build(),
+            new JobBuilder().WithId(secondJobId).WithCompanyId(secondCompanyId).Build());
+        matchRepo.Seed(new MatchBuilder().WithId(1).AppliedFor(1, secondJobId).Build());
+        var matches = await service.GetByCompanyIdAsync(firstCompanyId);
+        matches.Should().BeEmpty();
     }
 
     [Fact]
     public async Task GetByCompanyIdAsync_CompanyHasNoJobs_ReturnsEmpty()
     {
-        var matches = await service.GetByCompanyIdAsync(99);
+        int companyId = 99;
+        var matches = await service.GetByCompanyIdAsync(companyId);
 
         matches.Should().BeEmpty();
     }

@@ -5,25 +5,25 @@ namespace PussyCats.Tests.Fakes;
 
 public class FakeSkillTestRepository : ISkillTestRepository
 {
-    private readonly Dictionary<int, SkillTest> store = new();
+    private readonly Dictionary<int, SkillTest> skillTestsById = new();
 
     public void Seed(params SkillTest[] skillTests)
     {
         foreach (var skillTest in skillTests)
         {
-            store[skillTest.SkillTestId] = skillTest;
+            this.skillTestsById[skillTest.SkillTestId] = skillTest;
         }
     }
 
     public Task<SkillTest?> GetByIdAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        store.TryGetValue(skillTestId, out var skillTest);
+        skillTestsById.TryGetValue(skillTestId, out var skillTest);
         return Task.FromResult(skillTest);
     }
 
     public Task<IReadOnlyList<SkillTest>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SkillTest> filtered = store.Values.Where(skillTest => skillTest.User.UserId == userId).ToList();
+        IReadOnlyList<SkillTest> filtered = skillTestsById.Values.Where(skillTest => skillTest.User.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
@@ -33,13 +33,13 @@ public class FakeSkillTestRepository : ISkillTestRepository
         {
             skillTest.SkillTestId = NextId();
         }
-        store[skillTest.SkillTestId] = skillTest;
+        skillTestsById[skillTest.SkillTestId] = skillTest;
         return Task.FromResult(skillTest);
     }
 
     public Task UpdateScoreAsync(int skillTestId, int score, CancellationToken cancellationToken = default)
     {
-        if (store.TryGetValue(skillTestId, out var skillTest))
+        if (skillTestsById.TryGetValue(skillTestId, out var skillTest))
         {
             skillTest.Score = score;
         }
@@ -48,7 +48,7 @@ public class FakeSkillTestRepository : ISkillTestRepository
 
     public Task UpdateAchievedDateAsync(int skillTestId, DateOnly achievedDate, CancellationToken cancellationToken = default)
     {
-        if (store.TryGetValue(skillTestId, out var skillTest))
+        if (skillTestsById.TryGetValue(skillTestId, out var skillTest))
         {
             skillTest.AchievedDate = achievedDate;
         }
@@ -57,9 +57,9 @@ public class FakeSkillTestRepository : ISkillTestRepository
 
     public Task RemoveAsync(int skillTestId, CancellationToken cancellationToken = default)
     {
-        store.Remove(skillTestId);
+        skillTestsById.Remove(skillTestId);
         return Task.CompletedTask;
     }
 
-    private int NextId() => store.Count == 0 ? 1 : store.Keys.Max() + 1;
+    private int NextId() => skillTestsById.Count == 0 ? 1 : skillTestsById.Keys.Max() + 1;
 }

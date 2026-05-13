@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Chats;
-using PussyCats.Library.Repositories.Companies;
 using PussyCats.Library.Repositories.Messages;
 using PussyCats.Library.Repositories.Users;
 
@@ -15,18 +14,15 @@ public class ChatsController : ControllerBase
     private readonly IChatRepository chatRepo;
     private readonly IMessageRepository messageRepo;
     private readonly IUserRepository userRepo;
-    private readonly ICompanyRepository companyRepo;
 
     public ChatsController(
         IChatRepository chatRepo,
         IMessageRepository messageRepo,
-        IUserRepository userRepo,
-        ICompanyRepository companyRepo)
+        IUserRepository userRepo)
     {
         this.chatRepo = chatRepo;
         this.messageRepo = messageRepo;
         this.userRepo = userRepo;
-        this.companyRepo = companyRepo;
     }
 
     [HttpGet]
@@ -77,18 +73,18 @@ public class ChatsController : ControllerBase
             if (existing is not null)
                 return Ok(existing);
 
-            var created = await chatRepo.AddAsync(new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), SecondUserId = body.SecondUserId }, cancellationToken).ConfigureAwait(false);
+            var created = await chatRepo.AddAsync(new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), SecondUser = await GetUserOrThrowAsync(body.SecondUserId.Value, cancellationToken) }, cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
 
-        if (body.CompanyId.HasValue)
+        if (body.Company!=null)
         {
-            var existing = await chatRepo.FindUserCompanyChatAsync(body.UserId, body.CompanyId.Value, body.JobId, cancellationToken).ConfigureAwait(false);
+            var existing = await chatRepo.FindUserCompanyChatAsync(body.UserId, body.Company, body.Job?.JobId, cancellationToken).ConfigureAwait(false);
             if (existing is not null)
                 return Ok(existing);
 
             var created = await chatRepo.AddAsync(
-                new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), CompanyId = body.CompanyId, JobId = body.JobId },
+                new Chat { User = await GetUserOrThrowAsync(body.UserId, cancellationToken), Company = body.Company, Job = body.Job },
                 cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = created.ChatId }, created);
         }
@@ -104,7 +100,8 @@ public class ChatsController : ControllerBase
             return NotFound();
 
         chat.IsBlocked = true;
-        chat.BlockedByUserId = body.BlockerId;
+        //chat.BlockedByUserId = body.BlockerId;
+        chat.BlockedByUser = await GetUserOrThrowAsync(body.BlockerId, cancellationToken);
         await chatRepo.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
         return NoContent();
     }
@@ -120,7 +117,7 @@ public class ChatsController : ControllerBase
             return Problem(detail: "Only the user who blocked this chat can unblock it.", statusCode: 403);
 
         chat.IsBlocked = false;
-        chat.BlockedByUserId = null;
+        chat.BlockedByUser = null;
         await chatRepo.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
         return NoContent();
     }
@@ -149,7 +146,7 @@ public class ChatsController : ControllerBase
             return NotFound();
 
         existing.IsBlocked = body.IsBlocked;
-        existing.BlockedByUserId = body.BlockedByUserId;
+        existing.BlockedByUser = body.BlockedByUser;
         existing.DeletedAtByUser = body.DeletedAtByUser;
         existing.DeletedAtBySecondParty = body.DeletedAtBySecondParty;
         await chatRepo.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
@@ -232,34 +229,9 @@ public class ChatsController : ControllerBase
                 : latest.Timestamp.ToLocalTime().ToString("dd MMM");
         }
         chat.UnreadCount = await messageRepo.GetUnreadCountAsync(chat.ChatId, callerId, cancellationToken).ConfigureAwait(false);
-        chat.OtherPartyName = await ResolveOtherPartyNameAsync(chat, callerId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<string> ResolveOtherPartyNameAsync(Chat chat, int callerId, CancellationToken cancellationToken)
-    {
-        if (chat.CompanyId.HasValue)
-        {
-            if (chat.User.UserId == callerId)
-            {
-                var company = await companyRepo.GetByIdAsync(chat.CompanyId.Value, cancellationToken).ConfigureAwait(false);
-                return company?.CompanyName ?? $"Company {chat.CompanyId.Value}";
-            }
-            
-            var user = chat.User;
-            return user is not null ? $"{user.FirstName} {user.LastName}".Trim() : $"User {chat.User.UserId}";
-        }
-
-        var otherUserId = chat.User.UserId == callerId ? chat.SecondUserId : chat.User.UserId;
-        if (otherUserId.HasValue)
-        {
-            var otherUser = await userRepo.GetByIdAsync(otherUserId.Value, cancellationToken).ConfigureAwait(false);
-            return otherUser is not null ? $"{otherUser.FirstName} {otherUser.LastName}".Trim() : $"User {otherUserId.Value}";
-        }
-
-        return "Conversation";
-    }
-
-    public record FindOrCreateChatRequest(int UserId, int? CompanyId, int? SecondUserId, int? JobId);
+    public record FindOrCreateChatRequest(int UserId, Company? Company, int? SecondUserId, Job? Job);
     public record BlockRequest(int BlockerId);
     public record UnblockRequest(int UnblockerId);
     public record AddMessageRequest(int SenderId, string Content, MessageType Type, string? OriginalFileName);

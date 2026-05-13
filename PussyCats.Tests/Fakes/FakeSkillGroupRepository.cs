@@ -6,25 +6,25 @@ namespace PussyCats.Tests.Fakes;
 
 public class FakeSkillGroupRepository : ISkillGroupRepository
 {
-    private readonly Dictionary<int, SkillGroup> store = new();
+    private readonly Dictionary<int, SkillGroup> skillGroupsById = new();
 
     public void Seed(params SkillGroup[] skillGroups)
     {
         foreach (var skillGroup in skillGroups)
         {
-            store[skillGroup.SkillGroupId] = skillGroup;
+            skillGroupsById[skillGroup.SkillGroupId] = skillGroup;
         }
     }
 
     public Task<IReadOnlyList<SkillGroup>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SkillGroup> snapshot = store.Values.ToList();
+        IReadOnlyList<SkillGroup> snapshot = skillGroupsById.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
     public Task<IReadOnlyList<SkillGroup>> GetByJobRoleAsync(JobRole jobRole, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SkillGroup> filtered = store.Values.Where(skillGroup => skillGroup.JobRole == jobRole).ToList();
+        IReadOnlyList<SkillGroup> filtered = skillGroupsById.Values.Where(skillGroup => skillGroup.JobRole == jobRole).ToList();
         return Task.FromResult(filtered);
     }
 }

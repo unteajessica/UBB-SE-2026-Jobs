@@ -35,7 +35,7 @@ public class CompletenessServiceTests
     [Fact]
     public void CalculateCompleteness_SingleFieldFilled_ReturnsFivePercent()
     {
-        // 1 of 21 ≈ 5%
+        // 1 of 21 ~ 5%
         var user = new User { FirstName = "Ada" };
 
         service.CalculateCompleteness(user).Should().Be(5);

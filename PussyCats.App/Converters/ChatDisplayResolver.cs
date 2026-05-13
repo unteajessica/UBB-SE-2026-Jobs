@@ -11,9 +11,9 @@ internal static class ChatDisplayResolver
 
     public static string ResolveChatName(Chat chat)
     {
-        if (!string.IsNullOrWhiteSpace(chat.OtherPartyName))
+        if (chat.SecondUser is not null)
         {
-            return chat.OtherPartyName;
+            return chat.SecondUser.Name;
         }
 
         var session = App.Services.GetService(typeof(SessionContext)) as SessionContext;
@@ -27,17 +27,16 @@ internal static class ChatDisplayResolver
             return $"User {chat.User.UserId}";
         }
 
-        if (chat.CompanyId.HasValue)
+        if (chat.Company!=null)
         {
-            var companyId = chat.CompanyId.Value;
+            var companyId = chat.Company.CompanyId;
             return $"Company {companyId}";
         }
 
         if (chat.SecondUser != null)
         {
             var currentUserId = session.UserId;
-            var otherUserId = chat.User.UserId == currentUserId ? chat.SecondUserId.Value : chat.User.UserId;
-            return $"User {otherUserId}";
+            return chat.User.UserId == currentUserId ? chat.SecondUser.Name : chat.User.Name;
         }
 
         return DefaultChatName;

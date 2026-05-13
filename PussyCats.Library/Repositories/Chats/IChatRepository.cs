@@ -12,7 +12,8 @@ public interface IChatRepository
 
     Task<Chat?> FindUserUserChatAsync(int userId, int secondUserId, CancellationToken cancellationToken = default);
 
-    Task<Chat?> FindUserCompanyChatAsync(int userId, int companyId, int? jobId, CancellationToken cancellationToken = default);
+    Task<Chat?> FindUserCompanyChatAsync(int userId, Company company, int? jobId,
+        CancellationToken cancellationToken = default);
 
     Task<Chat> AddAsync(Chat chat, CancellationToken cancellationToken = default);
 

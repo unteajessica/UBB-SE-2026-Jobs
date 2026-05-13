@@ -5,37 +5,39 @@ namespace PussyCats.Tests.Fakes;
 
 public class FakeMatchRepository : IMatchRepository
 {
-    private readonly Dictionary<int, Match> store = new();
+    private readonly Dictionary<int, Match> matchesById = new();
 
     public void Seed(params Match[] matches)
     {
         foreach (var match in matches)
         {
-            store[match.MatchId] = match;
+            matchesById[match.MatchId] = match;
         }
     }
 
     public Task<Match?> GetByIdAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        store.TryGetValue(matchId, out var match);
+        matchesById.TryGetValue(matchId, out var match);
         return Task.FromResult(match);
     }
 
     public Task<IReadOnlyList<Match>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Match> snapshot = store.Values.ToList();
+        IReadOnlyList<Match> snapshot = matchesById.Values.ToList();
         return Task.FromResult(snapshot);
     }
 
     public Task<IReadOnlyList<Match>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Match> filtered = store.Values.Where(match => match.User.UserId == userId).ToList();
+
+        IReadOnlyList<Match> filtered = matchesById.Values.Where(match => match.User.UserId == userId).ToList();
         return Task.FromResult(filtered);
     }
 
     public Task<Match?> GetByUserIdAndJobIdAsync(int userId, int jobId, CancellationToken cancellationToken = default)
     {
-        var match = store.Values.FirstOrDefault(match => match.User.UserId == userId && match.Job.JobId == jobId);
+
+        var match = matchesById.Values.FirstOrDefault(match => match.User.UserId == userId && match.Job.JobId == jobId);
         return Task.FromResult(match);
     }
 
@@ -45,21 +47,21 @@ public class FakeMatchRepository : IMatchRepository
         {
             match.MatchId = NextId();
         }
-        store[match.MatchId] = match;
+        matchesById[match.MatchId] = match;
         return Task.FromResult(match);
     }
 
     public Task UpdateAsync(Match match, CancellationToken cancellationToken = default)
     {
-        store[match.MatchId] = match;
+        matchesById[match.MatchId] = match;
         return Task.CompletedTask;
     }
 
     public Task RemoveAsync(int matchId, CancellationToken cancellationToken = default)
     {
-        store.Remove(matchId);
+        matchesById.Remove(matchId);
         return Task.CompletedTask;
     }
 
-    private int NextId() => store.Count == 0 ? 1 : store.Keys.Max() + 1;
+    private int NextId() => matchesById.Count == 0 ? 1 : matchesById.Keys.Max() + 1;
 }

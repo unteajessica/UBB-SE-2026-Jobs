@@ -5,13 +5,10 @@ public class Chat
 {
     public int ChatId { get; set; }
     public User User { get; set; } = null!;
-    public int? CompanyId { get; set; }
-    [JsonIgnore] public Company? Company { get; set; }
-    public int? SecondUserId { get; set; }
+    public Company? Company { get; set; }
     public User? SecondUser { get; set; }
-    public int? JobId { get; set; }
+    public Job? Job { get; set; }
     public bool IsBlocked { get; set; }
-    public int? BlockedByUserId { get; set; }
     public User? BlockedByUser { get; set; }
     public DateTime? DeletedAtByUser { get; set; }
     public DateTime? DeletedAtBySecondParty { get; set; }
@@ -19,5 +16,4 @@ public class Chat
     public string LastMessageTime { get; set; } = string.Empty;
     public string LastMessage { get; set; } = string.Empty;
     public int UnreadCount { get; set; }
-    public string OtherPartyName { get; set; } = string.Empty;
 }

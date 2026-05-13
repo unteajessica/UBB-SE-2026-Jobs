@@ -5,25 +5,26 @@ namespace PussyCats.Tests.Fakes;
 
 public class FakeDocumentRepository : IDocumentRepository
 {
-    private readonly Dictionary<int, Document> store = new();
+    private readonly Dictionary<int, Document> documentsById = new();
 
     public void Seed(params Document[] documents)
     {
         foreach (var document in documents)
         {
-            store[document.DocumentId] = document;
+            documentsById[document.DocumentId] = document;
         }
     }
 
     public Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        store.TryGetValue(documentId, out var document);
+        documentsById.TryGetValue(documentId, out var document);
         return Task.FromResult(document);
     }
 
     public Task<IReadOnlyList<Document>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Document> filtered = store.Values.Where(document => document.User.UserId == userId).ToList();
+        IReadOnlyList<Document> filtered = documentsById.Values.Where(document => document.User.UserId == userId).ToList();
+
         return Task.FromResult(filtered);
     }
 
@@ -33,15 +34,15 @@ public class FakeDocumentRepository : IDocumentRepository
         {
             document.DocumentId = NextId();
         }
-        store[document.DocumentId] = document;
+        documentsById[document.DocumentId] = document;
         return Task.FromResult(document);
     }
 
     public Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        store.Remove(documentId);
+        documentsById.Remove(documentId);
         return Task.CompletedTask;
     }
 
-    private int NextId() => store.Count == 0 ? 1 : store.Keys.Max() + 1;
+    private int NextId() => documentsById.Count == 0 ? 1 : documentsById.Keys.Max() + 1;
 }

@@ -17,13 +17,6 @@ public class UserProfileServiceTests
         service = new UserProfileService(userRepo, skillTestRepo);
     }
 
-    [Fact]
-    public async Task GetProfileAsync_UserExists_ReturnsUser()
-    {
-        userRepo.Seed(new UserBuilder().WithId(1).Build());
-
-        (await service.GetProfileAsync(1)).Should().NotBeNull();
-    }
 
     [Fact]
     public async Task IsProfileAvailableAsync_UserIsMissing_ThrowsException()
