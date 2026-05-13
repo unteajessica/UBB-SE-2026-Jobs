@@ -11,7 +11,7 @@ namespace PussyCats.Tests.Fakes
 
         public Task<Chat?> GetByIdAsync(int chatId, CancellationToken cancellationToken = default)
         {
-            var chat = chats.FirstOrDefault(c => c.ChatId == chatId);
+            var chat = chats.FirstOrDefault(chat => chat.ChatId == chatId);
             return Task.FromResult(chat);
         }
 
@@ -69,7 +69,7 @@ namespace PussyCats.Tests.Fakes
 
         public Task UpdateAsync(Chat chat, CancellationToken cancellationToken = default)
         {
-            var index = chats.FindIndex(c => c.ChatId == chat.ChatId);
+            var index = chats.FindIndex(chatItem => chatItem.ChatId == chat.ChatId);
 
             if (index >= 0)
             {

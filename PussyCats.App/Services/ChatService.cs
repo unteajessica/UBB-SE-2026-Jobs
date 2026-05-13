@@ -286,7 +286,7 @@ public sealed class ChatService : IChatService
     private async Task<User> GetUserAsync(int userId, CancellationToken cancellationToken)
     {
         var users = await userService.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        return users.FirstOrDefault(u => u.UserId == userId)
+        return users.FirstOrDefault(user => user.UserId == userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
     }
 
