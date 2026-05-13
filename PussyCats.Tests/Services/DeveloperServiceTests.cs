@@ -53,5 +53,37 @@ namespace PussyCats.Tests.Services
             post.Developer.DeveloperId.Should().Be(developer.DeveloperId);
             post.Value.Should().Be(postMessage);
         }
+
+        [Fact]
+        public void AddInteraction_NoPreviousInteraction_AddsInteraction()
+        {
+            Developer developer = new Developer
+            {
+                DeveloperId = 1,
+                Name = "John"
+            };
+            var post = developerService.AddPost(developer.DeveloperId, DeveloperPostParameterType.WeightedDistanceScoreWeight, "Hello world!");
+
+            developerService.AddInteraction(developer.DeveloperId, post.DeveloperPostId, DeveloperInteractionType.Like);
+            var interactions = developerService.GetInteractions();
+            interactions.Should().Contain(interaction => interaction.Developer.DeveloperId == developer.DeveloperId);
+        }
+
+        [Fact]
+        public void AddInteraction_ExistingInteraction_UpdatesInteractionType()
+        {
+            Developer developer = new Developer
+            {
+                DeveloperId = 1,
+                Name = "John"
+            };
+            var post = developerService.AddPost(developer.DeveloperId, DeveloperPostParameterType.WeightedDistanceScoreWeight, "Hello world!");
+
+            developerService.AddInteraction(developer.DeveloperId, post.DeveloperPostId, DeveloperInteractionType.Like);
+            developerService.AddInteraction(developer.DeveloperId, post.DeveloperPostId, DeveloperInteractionType.Dislike);
+
+            var interactions = developerService.GetInteractions();
+            interactions.Should().Contain(interaction => interaction.Type == DeveloperInteractionType.Dislike);
+        }
     }
 }
