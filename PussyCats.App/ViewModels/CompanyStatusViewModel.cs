@@ -7,7 +7,7 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats_App.Services.CompanyStatusService;
-using PussyCats_App.Services.MatchService;
+using PussyCats.Library.Services.Matches;
 
 namespace PussyCats.App.ViewModels;
 

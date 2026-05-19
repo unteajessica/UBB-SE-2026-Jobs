@@ -3,8 +3,8 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Fakes;
-using PussyCats_App.Services.DocumentService;
-using PussyCats_App.Services.LocalFileStorageService;
+using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.FileStorage;
 
 namespace PussyCats.Tests.Services;
 

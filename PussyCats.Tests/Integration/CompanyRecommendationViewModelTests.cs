@@ -8,10 +8,10 @@ using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
+using PussyCats.Library.Services.Jobs;
+using PussyCats.Library.Services.Matches;
+using PussyCats.Library.Services.Users;
 using PussyCats_App.Services.CompanyRecommendationService;
-using PussyCats_App.Services.JobService;
-using PussyCats_App.Services.MatchService;
-using PussyCats_App.Services.UserService;
 
 namespace PussyCats.Tests.Integration;
 

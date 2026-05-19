@@ -1,9 +1,9 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Documents;
-using PussyCats_App.Services.LocalFileStorageService;
+using PussyCats.Library.Services.FileStorage;
 
-namespace PussyCats_App.Services.DocumentService;
+namespace PussyCats.Library.Services.Documents;
 
 public class DocumentService : IDocumentService
 {
@@ -16,9 +16,24 @@ public class DocumentService : IDocumentService
         this.fileStorage = fileStorage;
     }
 
+    public async Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
+    {
+        return await documentRepository.GetByIdAsync(documentId, cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<Document>> GetDocumentsByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await documentRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<Document> AddAsync(Document document, CancellationToken cancellationToken = default)
+    {
+        return await documentRepository.AddAsync(document, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
+    {
+        await documentRepository.RemoveAsync(documentId, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Document> UploadDocumentAsync(Document document, string filePath, CancellationToken cancellationToken = default)

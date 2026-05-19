@@ -1,4 +1,6 @@
+using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Skills;
+using PussyCats.Library.Services.Users;
 using PussyCats.Web.ServiceProxies;
 using PussyCats.Web.Configuration;
 
@@ -16,6 +18,16 @@ builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient<ISkillService, SkillServiceProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiConfig.BaseUrl);
+});
+
+builder.Services.AddHttpClient<IUserService, UserServiceProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiConfig.BaseUrl);
+});
+
+builder.Services.AddHttpClient<IJobService, JobServiceProxy>(client =>
 {
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });

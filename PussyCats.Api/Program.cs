@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PussyCats.Api.Configuration;
 using PussyCats.Library.Persistence;
 using Scalar.AspNetCore;
 using PussyCats.Library.Repositories.Chats;
@@ -13,7 +14,12 @@ using PussyCats.Library.Repositories.Skills;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
 using System.Text.Json.Serialization;
+using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.FileStorage;
+using PussyCats.Library.Services.Jobs;
+using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.Skills;
+using PussyCats.Library.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
@@ -49,6 +55,13 @@ builder.Services.AddScoped<ISkillGroupRepository, SkillGroupRepository>();
 builder.Services.AddScoped<ISkillTestRepository, SkillTestRepository>();
 builder.Services.AddScoped<IPersonalityTestRepository, PersonalityTestRepository>();
 builder.Services.AddScoped<IRecommendationRepository, RecommendationRepository>();
+
+// Library/Services seam — see docs/ServiceApiRefactor.md
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IMatchService, MatchService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
 
 var app = builder.Build();
 

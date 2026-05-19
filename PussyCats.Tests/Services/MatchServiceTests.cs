@@ -3,9 +3,9 @@ using PussyCats.App.Services;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
-using PussyCats_App.Services.JobService;
-using PussyCats_App.Services.MatchService;
-using PussyCats_App.Services.UserService;
+using PussyCats.Library.Services.Jobs;
+using PussyCats.Library.Services.Matches;
+using PussyCats.Library.Services.Users;
 
 namespace PussyCats.Tests.Services;
 

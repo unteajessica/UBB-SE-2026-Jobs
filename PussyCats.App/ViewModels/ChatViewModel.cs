@@ -6,7 +6,7 @@ using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats_App.Services.ChatService;
-using PussyCats_App.Services.JobService;
+using PussyCats.Library.Services.Jobs;
 
 namespace PussyCats.App.ViewModels;
 

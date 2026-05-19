@@ -1,7 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Repositories.Users;
 
-namespace PussyCats_App.Services.UserService;
+namespace PussyCats.Library.Services.Users;
 
 public class UserService : IUserService
 {
@@ -35,5 +35,17 @@ public class UserService : IUserService
     public async Task RemoveAsync(int userId, CancellationToken cancellationToken = default)
     {
         await userRepository.RemoveAsync(userId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task SetActiveAsync(int userId, bool isActive, CancellationToken cancellationToken = default)
+    {
+        await userRepository.UpdateActiveAccountAsync(userId, isActive, cancellationToken).ConfigureAwait(false);
+        await userRepository.TouchLastUpdatedAsync(userId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task SetProfilePicturePathAsync(int userId, string profilePicturePath, CancellationToken cancellationToken = default)
+    {
+        await userRepository.UpdateProfilePicturePathAsync(userId, profilePicturePath ?? string.Empty, cancellationToken).ConfigureAwait(false);
+        await userRepository.TouchLastUpdatedAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 }

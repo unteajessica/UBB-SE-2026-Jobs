@@ -2,7 +2,7 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 
-namespace PussyCats_App.Services.MatchService;
+namespace PussyCats.Library.Services.Matches;
 
 public interface IMatchService
 {
@@ -17,6 +17,8 @@ public interface IMatchService
     Task<IReadOnlyList<Match>> GetAllMatchesAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Match>> GetByCompanyIdAsync(int companyId, CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(Match match, CancellationToken cancellationToken = default);
 
     Task<int> CreatePendingApplicationAsync(int userId, int jobId, CancellationToken cancellationToken = default);
 

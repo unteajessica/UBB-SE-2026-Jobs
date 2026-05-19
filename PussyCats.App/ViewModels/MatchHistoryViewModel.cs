@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
-using PussyCats_App.Services.MatchService;
+using PussyCats.Library.Services.Matches;
 
 namespace PussyCats.App.ViewModels;
 

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.RepositoryProxies;
+using PussyCats.Library.Services.FileStorage;
 using PussyCats_App.Services.LocalFileStorageService;
 
 namespace PussyCats.Tests.Services;

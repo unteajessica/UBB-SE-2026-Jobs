@@ -4,8 +4,8 @@ using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Fakes;
-using PussyCats_App.Services.DocumentService;
-using PussyCats_App.Services.UserService;
+using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.Users;
 
 namespace PussyCats.Tests.ViewModels;
 

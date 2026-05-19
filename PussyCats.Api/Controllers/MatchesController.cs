@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
-using PussyCats.Library.Repositories.Jobs;
-using PussyCats.Library.Repositories.Matches;
-using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services.Matches;
 
 namespace PussyCats.Api.Controllers;
 
@@ -11,15 +9,11 @@ namespace PussyCats.Api.Controllers;
 [Route("api/matches")]
 public class MatchesController : ControllerBase
 {
-    private readonly IMatchRepository matches;
-    private readonly IUserRepository userRepo;
-    private readonly IJobRepository jobRepo;
+    private readonly IMatchService matches;
 
-    public MatchesController(IMatchRepository matches, IUserRepository userRepo, IJobRepository jobRepo)
+    public MatchesController(IMatchService matches)
     {
         this.matches = matches;
-        this.userRepo = userRepo;
-        this.jobRepo = jobRepo;
     }
 
     [HttpGet("{id}")]
@@ -39,36 +33,28 @@ public class MatchesController : ControllerBase
         }
 
         if (userId.HasValue)
-            return Ok(await matches.GetByUserIdAsync(userId.Value, cancellationToken));
+            return Ok(await matches.GetMatchesForUserAsync(userId.Value, cancellationToken));
 
-        return Ok(await matches.GetAllAsync(cancellationToken));
+        return Ok(await matches.GetAllMatchesAsync(cancellationToken));
     }
 
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateMatchRequest body, CancellationToken cancellationToken)
     {
-        if (await matches.GetByUserIdAndJobIdAsync(body.UserId, body.JobId, cancellationToken) is not null)
-            return Problem(detail: "A match already exists for this user and job.", statusCode: 409);
-
-        var user = await userRepo.GetByIdAsync(body.UserId, cancellationToken);
-        if (user is null)
-            return NotFound($"User {body.UserId} not found.");
-
-        var job = await jobRepo.GetByIdAsync(body.JobId, cancellationToken);
-        if (job is null)
-            return NotFound($"Job {body.JobId} not found.");
-
-        var match = new Match
+        try
         {
-            User = user,
-            Job = job,
-            Status = MatchStatus.Applied,
-            Timestamp = DateTime.UtcNow,
-            FeedbackMessage = string.Empty,
-        };
-
-        var saved = await matches.AddAsync(match, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = saved.MatchId }, saved);
+            var matchId = await matches.CreatePendingApplicationAsync(body.UserId, body.JobId, cancellationToken);
+            var created = await matches.GetByIdAsync(matchId, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = matchId }, created);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: 409);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
@@ -87,48 +73,48 @@ public class MatchesController : ControllerBase
     {
         if (await matches.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await matches.RemoveAsync(id, cancellationToken);
+        await matches.RemoveApplicationAsync(id, cancellationToken);
         return NoContent();
     }
 
     [HttpPatch("{id}/decision")]
     public async Task<IActionResult> SubmitDecision(int id, [FromBody] SubmitDecisionRequest body, CancellationToken cancellationToken)
     {
-        var match = await matches.GetByIdAsync(id, cancellationToken);
-        if (match is null)
+        try
+        {
+            await matches.SubmitDecisionAsync(id, body.Decision, body.Feedback ?? string.Empty, cancellationToken);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-
-        if (!MatchStatusTransitions.IsDecisionTransitionAllowed(match.Status, body.Decision))
-            return Problem(
-                detail: $"Cannot transition match from {match.Status} to {body.Decision}.",
-                statusCode: 422);
-
-        if (body.Decision == MatchStatus.Rejected && string.IsNullOrWhiteSpace(body.Feedback))
-            return Problem(detail: "Feedback is required when rejecting.", statusCode: 400);
-
-        match.Status = body.Decision;
-        match.FeedbackMessage = (body.Feedback ?? string.Empty).Trim();
-        match.Timestamp = DateTime.UtcNow;
-        await matches.UpdateAsync(match, cancellationToken);
-        return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: 400);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: 422);
+        }
     }
 
     [HttpPatch("{id}/advance")]
     public async Task<IActionResult> Advance(int id, CancellationToken cancellationToken)
     {
-        var match = await matches.GetByIdAsync(id, cancellationToken);
-        if (match is null)
+        try
+        {
+            await matches.AdvanceAsync(id, cancellationToken);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-
-        if (match.Status != MatchStatus.Applied)
-            return Problem(
-                detail: $"Cannot advance match with status {match.Status}. Expected Applied.",
-                statusCode: 422);
-
-        match.Status = MatchStatus.Advanced;
-        match.Timestamp = DateTime.UtcNow;
-        await matches.UpdateAsync(match, cancellationToken);
-        return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: 422);
+        }
     }
 
     public record CreateMatchRequest(int UserId, int JobId);
