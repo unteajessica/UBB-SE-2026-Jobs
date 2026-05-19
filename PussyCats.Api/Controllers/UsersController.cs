@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
-using PussyCats.Library.Repositories.Documents;
-using PussyCats.Library.Repositories.Matches;
-using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.Matches;
+using PussyCats.Library.Services.Users;
 
 namespace PussyCats.Api.Controllers;
 
@@ -10,11 +10,11 @@ namespace PussyCats.Api.Controllers;
 [Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserRepository users;
-    private readonly IMatchRepository matches;
-    private readonly IDocumentRepository documents;
+    private readonly IUserService users;
+    private readonly IMatchService matches;
+    private readonly IDocumentService documents;
 
-    public UsersController(IUserRepository users, IMatchRepository matches, IDocumentRepository documents)
+    public UsersController(IUserService users, IMatchService matches, IDocumentService documents)
     {
         this.users = users;
         this.matches = matches;
@@ -64,8 +64,7 @@ public class UsersController : ControllerBase
     {
         if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await users.UpdateActiveAccountAsync(id, body.IsActive, cancellationToken);
-        await users.TouchLastUpdatedAsync(id, cancellationToken);
+        await users.SetActiveAsync(id, body.IsActive, cancellationToken);
         return NoContent();
     }
 
@@ -74,8 +73,7 @@ public class UsersController : ControllerBase
     {
         if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await users.UpdateProfilePicturePathAsync(id, body.Path ?? string.Empty, cancellationToken);
-        await users.TouchLastUpdatedAsync(id, cancellationToken);
+        await users.SetProfilePicturePathAsync(id, body.Path ?? string.Empty, cancellationToken);
         return NoContent();
     }
 
@@ -84,8 +82,7 @@ public class UsersController : ControllerBase
     {
         if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await users.UpdateProfilePicturePathAsync(id, string.Empty, cancellationToken);
-        await users.TouchLastUpdatedAsync(id, cancellationToken);
+        await users.SetProfilePicturePathAsync(id, string.Empty, cancellationToken);
         return NoContent();
     }
 
@@ -94,7 +91,7 @@ public class UsersController : ControllerBase
     {
         if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        return Ok(await matches.GetByUserIdAsync(id, cancellationToken));
+        return Ok(await matches.GetMatchesForUserAsync(id, cancellationToken));
     }
 
     [HttpGet("{id}/documents")]
@@ -102,7 +99,7 @@ public class UsersController : ControllerBase
     {
         if (await users.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        return Ok(await documents.GetByUserIdAsync(id, cancellationToken));
+        return Ok(await documents.GetDocumentsByUserIdAsync(id, cancellationToken));
     }
 
     [HttpPost("{id}/cv")]

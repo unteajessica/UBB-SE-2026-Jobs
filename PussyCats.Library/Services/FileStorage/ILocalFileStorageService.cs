@@ -1,4 +1,4 @@
-namespace PussyCats_App.Services.LocalFileStorageService;
+namespace PussyCats.Library.Services.FileStorage;
 
 public interface ILocalFileStorageService
 {

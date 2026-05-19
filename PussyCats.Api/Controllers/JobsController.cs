@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
-using PussyCats.Library.Repositories.Jobs;
+using PussyCats.Library.Services.Jobs;
 
 namespace PussyCats.Api.Controllers;
 
@@ -8,9 +8,9 @@ namespace PussyCats.Api.Controllers;
 [Route("api/jobs")]
 public class JobsController : ControllerBase
 {
-    private readonly IJobRepository jobs;
+    private readonly IJobService jobs;
 
-    public JobsController(IJobRepository jobs)
+    public JobsController(IJobService jobs)
     {
         this.jobs = jobs;
     }

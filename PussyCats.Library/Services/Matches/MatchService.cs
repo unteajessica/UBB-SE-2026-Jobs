@@ -2,10 +2,10 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Repositories.Matches;
-using PussyCats_App.Services.JobService;
-using PussyCats_App.Services.UserService;
+using PussyCats.Library.Services.Jobs;
+using PussyCats.Library.Services.Users;
 
-namespace PussyCats_App.Services.MatchService;
+namespace PussyCats.Library.Services.Matches;
 
 public class MatchService : IMatchService
 {
@@ -83,6 +83,11 @@ public class MatchService : IMatchService
     public async Task RemoveApplicationAsync(int matchId, CancellationToken cancellationToken = default)
     {
         await matchRepository.RemoveAsync(matchId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpdateAsync(Match match, CancellationToken cancellationToken = default)
+    {
+        await matchRepository.UpdateAsync(match, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Match>> GetAllMatchesAsync(CancellationToken cancellationToken = default)

@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
-using PussyCats_App.Services.DocumentService;
-using PussyCats_App.Services.UserService;
+using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.Users;
 
 namespace PussyCats.App.ViewModels;
 

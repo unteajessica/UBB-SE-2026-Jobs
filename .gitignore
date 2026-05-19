@@ -485,3 +485,9 @@ $RECYCLE.BIN/
 # Claude Code local settings
 .claude/
 /PussyCats.Library/Domain/Chat.cs
+
+# Local-only working docs (Tech Lead working copies, not shared with team)
+CLAUDE.md
+Assignment5_Plan.md
+Assignment5_Plan(1).md
+Assignment 5.pdf

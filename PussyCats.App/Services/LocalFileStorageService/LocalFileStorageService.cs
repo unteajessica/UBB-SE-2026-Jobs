@@ -1,4 +1,5 @@
 using PussyCats.App.RepositoryProxies;
+using PussyCats.Library.Services.FileStorage;
 
 namespace PussyCats_App.Services.LocalFileStorageService;
 

@@ -2,9 +2,9 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Chats;
 using PussyCats.Library.Repositories.Messages;
+using PussyCats.Library.Services.FileStorage;
+using PussyCats.Library.Services.Users;
 using PussyCats_App.Services.CompanyService;
-using PussyCats_App.Services.LocalFileStorageService;
-using PussyCats_App.Services.UserService;
 
 namespace PussyCats_App.Services.ChatService;
 
