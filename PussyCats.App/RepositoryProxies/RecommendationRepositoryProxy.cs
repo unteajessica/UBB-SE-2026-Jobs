@@ -51,6 +51,17 @@ public class RecommendationRepositoryProxy : IRecommendationRepository
         return await RepositoryProxyJson.ReadRequiredAsync<Recommendation>(response, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task UpdateAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
+    {
+        var request = new { recommendation.Timestamp };
+        using var response = await http.PutAsJsonAsync(
+            $"api/recommendations/{recommendation.RecommendationId}",
+            request,
+            RepositoryProxyJson.Options,
+            cancellationToken).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+    }
+
     public async Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         using var response = await http.DeleteAsync($"api/recommendations/{recommendationId}", cancellationToken).ConfigureAwait(false);

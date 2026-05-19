@@ -1,4 +1,5 @@
 using PussyCats.Library.Services.Jobs;
+using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.Users;
 using PussyCats.Web.ServiceProxies;
@@ -28,6 +29,11 @@ builder.Services.AddHttpClient<IUserService, UserServiceProxy>(client =>
 });
 
 builder.Services.AddHttpClient<IJobService, JobServiceProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiConfig.BaseUrl);
+});
+
+builder.Services.AddHttpClient<IRecommendationService, RecommendationServiceProxy>(client =>
 {
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });

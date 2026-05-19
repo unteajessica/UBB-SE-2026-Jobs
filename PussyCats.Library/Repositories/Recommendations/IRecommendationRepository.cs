@@ -12,5 +12,7 @@ public interface IRecommendationRepository
 
     Task<Recommendation> AddAsync(Recommendation recommendation, CancellationToken cancellationToken = default);
 
+    Task UpdateAsync(Recommendation recommendation, CancellationToken cancellationToken = default);
+
     Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default);
 }

@@ -1,0 +1,26 @@
+@model PussyCats.Library.Domain.Recommendation
+@{
+    ViewData["Title"] = "Recommendation Details";
+}
+
+<h1>Recommendation #@Model.RecommendationId</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">User</dt>
+    <dd class="col-sm-9">@Model.User.FirstName @Model.User.LastName (@Model.User.Email)</dd>
+
+    <dt class="col-sm-3">Job</dt>
+    <dd class="col-sm-9">@Model.Job.JobTitle</dd>
+
+    <dt class="col-sm-3">Company</dt>
+    <dd class="col-sm-9">@Model.Job.Company?.CompanyName</dd>
+
+    <dt class="col-sm-3">Location</dt>
+    <dd class="col-sm-9">@Model.Job.Location</dd>
+
+    <dt class="col-sm-3">Timestamp</dt>
+    <dd class="col-sm-9">@Model.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+</dl>
+
+<a class="btn btn-secondary" asp-action="Index">Back</a>
+<a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.RecommendationId">Edit</a>

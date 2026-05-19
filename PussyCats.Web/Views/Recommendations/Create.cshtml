@@ -1,0 +1,42 @@
+@model PussyCats.Web.Models.RecommendationFormModel
+@{
+    ViewData["Title"] = "Create Recommendation";
+    var userOptions = ViewBag.Users as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
+    var jobOptions = ViewBag.Jobs as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
+}
+
+<h1>Create Recommendation</h1>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="UserId" class="form-label"></label>
+        <select asp-for="UserId" asp-items="userOptions" class="form-select">
+            <option value="">-- select user --</option>
+        </select>
+        <span asp-validation-for="UserId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="JobId" class="form-label"></label>
+        <select asp-for="JobId" asp-items="jobOptions" class="form-select">
+            <option value="">-- select job --</option>
+        </select>
+        <span asp-validation-for="JobId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Timestamp" class="form-label"></label>
+        <input asp-for="Timestamp" type="datetime-local" class="form-control" />
+        <span asp-validation-for="Timestamp" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

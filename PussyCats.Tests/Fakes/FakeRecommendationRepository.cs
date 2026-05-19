@@ -50,6 +50,12 @@ public class FakeRecommendationRepository : IRecommendationRepository
         return Task.FromResult(recommendation);
     }
 
+    public Task UpdateAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
+    {
+        recommendationsById[recommendation.RecommendationId] = recommendation;
+        return Task.CompletedTask;
+    }
+
     public Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         recommendationsById.Remove(recommendationId);

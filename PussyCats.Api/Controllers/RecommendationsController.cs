@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using PussyCats.Library.Domain;
-using PussyCats.Library.Repositories.Jobs;
-using PussyCats.Library.Repositories.Recommendations;
-using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services.Recommendations;
 
 namespace PussyCats.Api.Controllers;
 
@@ -10,18 +7,11 @@ namespace PussyCats.Api.Controllers;
 [Route("api/recommendations")]
 public class RecommendationsController : ControllerBase
 {
-    private readonly IRecommendationRepository recommendations;
-    private readonly IUserRepository users;
-    private readonly IJobRepository jobs;
+    private readonly IRecommendationService recommendations;
 
-    public RecommendationsController(
-        IRecommendationRepository recommendations,
-        IUserRepository users,
-        IJobRepository jobs)
+    public RecommendationsController(IRecommendationService recommendations)
     {
         this.recommendations = recommendations;
-        this.users = users;
-        this.jobs = jobs;
     }
 
     [HttpGet("{id}")]
@@ -36,7 +26,7 @@ public class RecommendationsController : ControllerBase
     {
         if (userId.HasValue && jobId.HasValue)
         {
-            var recommendation = await recommendations.GetLatestByUserIdAndJobIdAsync(userId.Value, jobId.Value, cancellationToken);
+            var recommendation = await recommendations.GetLatestForUserAndJobAsync(userId.Value, jobId.Value, cancellationToken);
             return Ok(recommendation);
         }
 
@@ -46,23 +36,30 @@ public class RecommendationsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateRecommendationRequest body, CancellationToken cancellationToken)
     {
-        var user = await users.GetByIdAsync(body.UserId, cancellationToken);
-        if (user is null)
-            return NotFound($"User {body.UserId} not found.");
-
-        var job = await jobs.GetByIdAsync(body.JobId, cancellationToken);
-        if (job is null)
-            return NotFound($"Job {body.JobId} not found.");
-
-        var recommendation = new Recommendation
+        try
         {
-            User = user,
-            Job = job,
-            Timestamp = body.Timestamp == default ? DateTime.UtcNow : body.Timestamp,
-        };
+            DateTime? timestamp = body.Timestamp == default ? null : body.Timestamp;
+            var saved = await recommendations.AddAsync(body.UserId, body.JobId, timestamp, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = saved.RecommendationId }, saved);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
 
-        var saved = await recommendations.AddAsync(recommendation, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = saved.RecommendationId }, saved);
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateRecommendationRequest body, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await recommendations.UpdateTimestampAsync(id, body.Timestamp, cancellationToken);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpDelete("{id}")]
@@ -76,4 +73,5 @@ public class RecommendationsController : ControllerBase
     }
 
     public record CreateRecommendationRequest(int UserId, int JobId, DateTime Timestamp);
+    public record UpdateRecommendationRequest(DateTime Timestamp);
 }

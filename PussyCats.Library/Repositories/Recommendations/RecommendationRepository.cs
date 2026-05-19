@@ -66,6 +66,12 @@ public class RecommendationRepository : IRecommendationRepository
         return recommendation;
     }
 
+    public async Task UpdateAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
+    {
+        databaseContext.Recommendations.Update(recommendation);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task RemoveAsync(int recommendationId, CancellationToken cancellationToken = default)
     {
         var recommendation = await databaseContext.Recommendations.FindAsync(new object?[] { recommendationId }, cancellationToken).ConfigureAwait(false);

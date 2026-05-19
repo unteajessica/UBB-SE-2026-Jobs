@@ -18,6 +18,7 @@ using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.FileStorage;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Matches;
+using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.Users;
 
@@ -61,6 +62,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
 
 var app = builder.Build();

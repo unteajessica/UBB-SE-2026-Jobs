@@ -1,0 +1,35 @@
+@model IEnumerable<PussyCats.Library.Domain.Recommendation>
+@{
+    ViewData["Title"] = "Recommendations";
+}
+
+<h1>Recommendations</h1>
+<p><a class="btn btn-primary" asp-action="Create">Create New</a></p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Job</th>
+            <th>Company</th>
+            <th>Timestamp</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.User.FirstName @item.User.LastName</td>
+                <td>@item.Job.JobTitle</td>
+                <td>@item.Job.Company?.CompanyName</td>
+                <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.RecommendationId">Details</a> |
+                    <a asp-action="Edit" asp-route-id="@item.RecommendationId">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.RecommendationId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
