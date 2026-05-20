@@ -22,6 +22,37 @@ public class SkillTestsController : ControllerBase
         return skillTest is null ? NotFound() : Ok(skillTest);
     }
 
+    [HttpGet("{id}/retake-eligibility")]
+    public async Task<IActionResult> GetRetakeEligibility(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            bool canRetake = await skillTests.CanRetakeTestAsync(id, cancellationToken);
+            return Ok(new { CanRetake = canRetake });
+
+        }
+        catch (Exception ex)
+        {
+            // Log the exception as needed
+            return NotFound(new { Message = ex.Message });
+        }
+    }
+
+    [HttpPost("{id}/retake")]
+    public async Task<IActionResult> SubmitRetake(int id, int newScore, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var badge = await skillTests.SubmitRetakeAsync(id, newScore, cancellationToken);
+            return Ok(badge);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception as needed
+            return NotFound(new { Message = ex.Message });
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken cancellationToken)
     {
