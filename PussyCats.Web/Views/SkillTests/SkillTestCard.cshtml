@@ -1,0 +1,59 @@
+﻿@model PussyCats.Library.Domain.SkillTest
+@inject PussyCats.Library.Services.SkillTests.ISkillTestService SkillTestService
+
+@{
+    // Server-side evaluation equivalent to LoadCardAsync in WinUI
+    bool isRetakeEnabled = Model.SkillTestId > 0 && await SkillTestService.CanRetakeTestAsync(Model.SkillTestId);
+
+    // Fallback tier formatting
+    var badge = PussyCats.Library.Services.SimpleModelOperations.AssignTier(Model.Score);
+    string dateFormatted = PussyCats.Library.Services.SkillTests.ISkillTestService.AchievedDateFormatted(Model);
+}
+
+<div class="p-3 border-0 rounded-3 shadow-sm d-flex align-items-center justify-content-between text-white"
+     style="background-color: #3D2E4D; min-height: 85px;">
+
+    <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center justify-content-center bg-dark bg-opacity-20 rounded" style="width: 55px; height: 55px;">
+            @if (badge != null && !string.IsNullOrEmpty(badge.IconPath))
+            {
+                <img src="~/@badge.IconPath.Replace("ms-appx:///", "")" width="45" height="45" alt="Badge" />
+            }
+            else
+            {
+                <i class="bi bi-award-fill text-muted fs-3"></i>
+            }
+        </div>
+
+        <div class="d-flex flex-column">
+            <span class="fw-medium text-uppercase text-white" style="font-size: 14px;">
+                @(string.IsNullOrEmpty(Model.Name) ? "UNKNOWN" : Model.Name) TEST
+            </span>
+            <span style="color: #BDA4CC; font-size: 12px;">SCORE: @Model.Score%</span>
+            <span style="color: #BDA4CC; font-size: 12px;">@dateFormatted</span>
+        </div>
+    </div>
+
+    <div>
+        <form asp-action="Retake" method="post" class="m-0">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.SkillTestId" />
+
+            @if (isRetakeEnabled)
+            {
+                <button type="submit" class="btn text-white fw-bold px-3 btn-sm"
+                        style="background-color: #9A74B3; font-size: 12px; border-radius: 6px;">
+                    RETAKE
+                </button>
+            }
+            else
+            {
+                <button type="button" class="btn text-white fw-bold px-3 btn-sm disabled"
+                        style="background-color: #9A74B3; opacity: 0.4; font-size: 12px; border-radius: 6px;"
+                        disabled>
+                    RETAKE
+                </button>
+            }
+        </form>
+    </div>
+</div>

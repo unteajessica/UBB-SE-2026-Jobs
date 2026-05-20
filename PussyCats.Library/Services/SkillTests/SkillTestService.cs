@@ -1,4 +1,4 @@
-using PussyCats.App.Services;
+using PussyCats.Library.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Repositories.SkillTests;
 

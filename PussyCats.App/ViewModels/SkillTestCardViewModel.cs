@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PussyCats.App.Services;
+using PussyCats.Library.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.SkillTests;
 

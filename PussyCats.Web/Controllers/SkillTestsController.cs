@@ -8,11 +8,11 @@ namespace PussyCats.Web.Controllers
     //[Authorize] // Guard all actions from unauthorized users per requirements
     public class SkillTestsController : Controller
     {
-        private readonly ISkillTestService _skillTestService;
+        private readonly ISkillTestService skillTestService;
 
         public SkillTestsController(ISkillTestService skillTestService)
         {
-            _skillTestService = skillTestService;
+            this.skillTestService = skillTestService;
         }
 
         // 1. GET: /SkillTests
@@ -23,88 +23,31 @@ namespace PussyCats.Web.Controllers
             // e.g., int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int mockUserId = 1;
 
-            var tests = await _skillTestService.GetTestsForUserAsync(mockUserId);
+            var tests = await skillTestService.GetTestsForUserAsync(mockUserId);
             return View(tests);
         }
 
-        // 2. GET: /SkillTests/Details/5
-        public async Task<IActionResult> Details(int id)
-        {
-            var skillTest = await _skillTestService.GetSkillTestByIdAsync(id);
-            if (skillTest == null)
-            {
-                return NotFound();
-            }
-            return View(skillTest);
-        }
-
-        // 3. GET: /SkillTests/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: /SkillTests/Create
+        // POST: /SkillTests/Retake
+        // Matches the behavior of RetakeCommand/RetakeAsync in your CardViewModel
         [HttpPost]
-        [ValidateAntiForgeryToken] // Guard against CSRF attacks per assignment rule
-        public async Task<IActionResult> Create([Bind("Name,Score,AchievedDate")] SkillTest skillTest)
+        [ValidateAntiForgeryToken] // Anti-forgery guard token required per plan rules
+        public async Task<IActionResult> Retake(int id)
         {
-            if (ModelState.IsValid) // Server-side validation check
+            // Verify if user can retake first (mirroring your safety checks)
+            bool isEligible = await skillTestService.CanRetakeTestAsync(id);
+            if (!isEligible)
             {
-                await _skillTestService.AddSkillTestAsync(skillTest);
+                TempData["ErrorMessage"] = "This test is locked! You cannot retake it yet.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(skillTest);
-        }
 
-        // 4. GET: /SkillTests/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            var skillTest = await _skillTestService.GetSkillTestByIdAsync(id);
-            if (skillTest == null)
-            {
-                return NotFound();
-            }
-            return View(skillTest);
-        }
+            // Generate random score between 0 and 100 exactly like WinUI code
+            int randomScore = Random.Shared.Next(0, 101);
 
-        // POST: /SkillTests/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SkillTestId,Name,Score,AchievedDate")] SkillTest skillTest)
-        {
-            if (id != skillTest.SkillTestId)
-            {
-                return NotFound();
-            }
+            // Submit payload back into the service layer proxy API pipeline
+            await skillTestService.SubmitRetakeAsync(id, randomScore);
 
-            if (ModelState.IsValid)
-            {
-                // Update score and date via service layer
-                await _skillTestService.UpdateScoreAsync(id, skillTest.Score);
-                await _skillTestService.UpdateAchievedDateAsync(id, skillTest.AchievedDate);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(skillTest);
-        }
-
-        // 5. GET: /SkillTests/Delete/5
-        public async Task<IActionResult> Delete(int id)
-        {
-            var skillTest = await _skillTestService.GetSkillTestByIdAsync(id);
-            if (skillTest == null)
-            {
-                return NotFound();
-            }
-            return View(skillTest);
-        }
-
-        // POST: /SkillTests/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await _skillTestService.RemoveAsync(id);
+            TempData["SuccessMessage"] = $"Test retaken successfully! New score achieved: {randomScore}%";
             return RedirectToAction(nameof(Index));
         }
     }

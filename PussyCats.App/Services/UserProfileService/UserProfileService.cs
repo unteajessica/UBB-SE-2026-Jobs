@@ -3,6 +3,7 @@ using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services;
 
 namespace PussyCats_App.Services.UserProfileService;
 

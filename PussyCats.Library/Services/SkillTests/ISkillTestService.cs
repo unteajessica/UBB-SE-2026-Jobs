@@ -18,4 +18,8 @@ public interface ISkillTestService
 
     Task UpdateAchievedDateAsync(int skillTestId, DateOnly newDate, CancellationToken cancellationToken = default);
     Task RemoveAsync(int skillTestId, CancellationToken cancellationToken = default);
+    static string AchievedDateFormatted(SkillTest skillTest)
+    {
+        return skillTest.AchievedDate.ToString("dd.MM.yyyy");
+    }
 }

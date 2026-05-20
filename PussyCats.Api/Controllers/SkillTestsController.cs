@@ -39,11 +39,11 @@ public class SkillTestsController : ControllerBase
     }
 
     [HttpPost("{id}/retake")]
-    public async Task<IActionResult> SubmitRetake(int id, int newScore, CancellationToken cancellationToken)
+    public async Task<IActionResult> SubmitRetake(int id, [FromBody] RetakeRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            var badge = await skillTests.SubmitRetakeAsync(id, newScore, cancellationToken);
+            var badge = await skillTests.SubmitRetakeAsync(id, request.Score, cancellationToken);
             return Ok(badge);
         }
         catch (Exception ex)
@@ -96,4 +96,5 @@ public class SkillTestsController : ControllerBase
 
     public record UpdateScoreRequest(int Score);
     public record UpdateDateRequest(DateOnly AchievedDate);
+    public record RetakeRequest(int Score);
 }
