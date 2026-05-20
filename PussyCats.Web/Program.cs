@@ -1,3 +1,4 @@
+using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats.Library.Services.Recommendations;
@@ -44,6 +45,11 @@ builder.Services.AddHttpClient<IRecommendationService, RecommendationServiceProx
 });
 builder.Services.AddHttpClient<IPersonalityTestService, PersonalityTestServiceProxy>(client =>
 { 
+    client.BaseAddress = new Uri(apiConfig.BaseUrl);
+});
+
+builder.Services.AddHttpClient<IDocumentService, DocumentServiceProxy>(client =>
+{
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
 

@@ -1,0 +1,33 @@
+@model IEnumerable<PussyCats.Library.Domain.Document>
+@{
+	ViewData["Title"] = "Documents";
+}
+
+<h1>Documents</h1>
+<p><a class="btn btn-primary" asp-action="Create">Create New</a></p>
+
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>User</th>
+			<th>Upload Date</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>@item.DocumentName</td>
+				<td>@item.User?.Name</td>
+				<td>@item.UploadDate.ToString("g")</td>
+				<td>
+					<a asp-action="Details" asp-route-id="@item.DocumentId">Details</a> |
+					<a asp-action="Edit" asp-route-id="@item.DocumentId">Edit</a> |
+					<a asp-action="Delete" asp-route-id="@item.DocumentId">Delete</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>

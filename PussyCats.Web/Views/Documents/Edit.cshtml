@@ -1,0 +1,36 @@
+@model PussyCats.Library.Domain.Document
+@{
+	ViewData["Title"] = "Edit Document";
+}
+
+<h1>Edit Document</h1>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+	@Html.AntiForgeryToken()
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+	<input type="hidden" name="id" value="@Model.DocumentId" />
+
+	<div class="mb-3">
+		<label for="documentName" class="form-label">Document Name</label>
+		<input type="text" id="documentName" name="documentName" value="@Model.DocumentName" class="form-control" required />
+	</div>
+
+	<div class="mb-3">
+		<label for="file" class="form-label">Update File (Optional)</label>
+		<input type="file" id="file" name="file" class="form-control" />
+		<small class="form-text text-muted">Upload a new file to replace the current one</small>
+	</div>
+
+	<div class="mb-3">
+		<p><strong>Current File:</strong> <a href="/@Model.FilePath" target="_blank">@Model.FilePath</a></p>
+	</div>
+
+	<button type="submit" class="btn btn-primary">Save</button>
+	<a class="btn btn-secondary" asp-action="Index">Cancel</a>
+</form>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}
+
