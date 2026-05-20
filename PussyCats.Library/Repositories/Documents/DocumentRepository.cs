@@ -13,6 +13,15 @@ public class DocumentRepository : IDocumentRepository
         this.databaseContext = databaseContext;
     }
 
+    public async Task<IReadOnlyList<Document>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await databaseContext.Documents
+            .AsNoTracking()
+            .Include(document => document.User)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Tracked — typical caller (FilesController.Delete) mutates immediately. No User include
     /// because the path is already enough to serve the file.
@@ -49,6 +58,12 @@ public class DocumentRepository : IDocumentRepository
         return document;
     }
 
+    public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
+    {
+        databaseContext.Documents.Update(document);
+        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
     {
         var document = await databaseContext.Documents.FindAsync(new object?[] { documentId }, cancellationToken).ConfigureAwait(false);
@@ -60,3 +75,4 @@ public class DocumentRepository : IDocumentRepository
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }
+
