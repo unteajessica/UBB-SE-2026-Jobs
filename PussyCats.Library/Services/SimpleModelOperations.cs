@@ -1,7 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 
-namespace PussyCats.App.Services;
+namespace PussyCats.Library.Services;
 
 // Single source-of-truth for skill-test tier thresholds, XP awards per tier,
 // and per-level XP thresholds. SkillTestService and UserProfileService both
