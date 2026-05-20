@@ -1,0 +1,66 @@
+﻿@model PussyCats.Web.Models.SelectRoleModel
+@{
+    ViewData["Title"] = "Choose your role:";
+}
+
+<div class="container py-4" style="max-width: 700px;">
+    <h1 class="text-center mb-2">Your Top 3 recommended roles:</h1>
+    <p class="text-center text-muted mb-4">
+        
+    </p>
+
+    <form asp-action="SaveResult" method="post">
+        @Html.AntiForgeryToken()
+
+        @foreach (var answer in Model.Answers)
+        {
+            <input type="hidden" name="Answers[@answer.Key]" value="@answer.Value" />
+        }
+
+        <div class="row justify-content-center g-3 mb-4">
+            @foreach (var role in Model.TopRoles)
+            {
+                <div class="col-auto">
+                    <div class="card text-center p-3" style="width: 180px; cursor: pointer;"
+                         onclick="selectCard(this, '@role.Role')">
+                        <p class="fw-semibold mb-1">@role.DisplayName</p>
+                        <p class="text-muted small mb-2">
+                            Scor: @role.Score.ToString("F2")
+                        </p>
+                        <div class="form-check d-flex justify-content-center">
+                            <input class="form-check-input" type="radio"
+                                   name="SelectedRole"
+                                   value="@role.Role"
+                                   id="role_@role.Role"
+                                   required />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary px-4">
+                Save Result
+            </button>
+            <a asp-action="Take" class="btn btn-secondary ms-2">Retry</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function selectCard(card, role) {
+
+            document.querySelectorAll('.card').forEach(c => {
+                c.style.borderColor = '';
+                c.style.backgroundColor = '';
+            });
+
+            card.style.borderColor = '#0d6efd';
+            card.style.backgroundColor = '#f0f5ff';
+
+            document.getElementById('role_' + role).checked = true;
+        }
+    </script>
+}

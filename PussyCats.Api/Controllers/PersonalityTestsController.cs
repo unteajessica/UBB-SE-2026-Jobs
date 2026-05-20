@@ -1,6 +1,8 @@
+
 using Microsoft.AspNetCore.Mvc;
-using PussyCats.Library.Domain;
-using PussyCats.Library.Repositories.PersonalityTests;
+using PussyCats.Library.DTOs;
+using PussyCats.Library.Domain.Enums;
+using PussyCats.Library.Services.PersonalityTestService;
 
 namespace PussyCats.Api.Controllers;
 
@@ -8,45 +10,56 @@ namespace PussyCats.Api.Controllers;
 [Route("api/personality-tests")]
 public class PersonalityTestsController : ControllerBase
 {
-    private readonly IPersonalityTestRepository personalityTests;
+    private readonly IPersonalityTestService service;
 
-    public PersonalityTestsController(IPersonalityTestRepository personalityTests)
+    public PersonalityTestsController(IPersonalityTestService service)
     {
-        this.personalityTests = personalityTests;
+        this.service = service;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken cancellationToken)
     {
-        var result = await personalityTests.GetByUserIdAsync(userId, cancellationToken);
+        var result = await service.GetByUserIdAsync(userId, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
+    public record SavePersonalityTestRequest(int UserId, JobRole SelectedRole, List<PersonalityTestAnswer> Answers);
+
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] PersonalityTestResult result, CancellationToken cancellationToken)
+    public async Task<IActionResult> Save([FromBody] SavePersonalityTestRequest request, CancellationToken cancellationToken)
     {
-        if (result.User == null)
-        {
-            return BadRequest("User navigation property was not provided or failed to deserialize.");
-        }
-        var saved = await personalityTests.AddAsync(result, cancellationToken);
-        return CreatedAtAction(nameof(GetByUserId), new { userId = saved.User.UserId }, saved);
-    }
+        var questions = PersonalityTestService.LoadQuestions();
+        var answersDict = request.Answers
+            .Select(a => new
+            {
+                Question = questions.FirstOrDefault(q => q.SortOrder == a.SortOrder),
+                Answer = (AnswerValue)a.Answer,
+            })
+            .Where(x => x.Question is not null)
+            .ToDictionary(x => x.Question!, x => x.Answer);
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] PersonalityTestResult result, CancellationToken cancellationToken)
-    {
-        // IPersonalityTestRepository has no GetByIdAsync; existence is not pre-checked.
-        // EF will throw DbUpdateConcurrencyException if the row is missing.
-        result.PersonalityTestResultId = id;
-        await personalityTests.UpdateAsync(result, cancellationToken);
-        return NoContent();
+        await service.SaveResultAsync(request.UserId, answersDict, request.SelectedRole, cancellationToken);
+        return Ok();
     }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
+    [HttpPost("calculate")]
+    public IActionResult Calculate([FromBody] SavePersonalityTestRequest request)
     {
-        await personalityTests.RemoveAsync(id, cancellationToken);
-        return NoContent();
+        var questions = PersonalityTestService.LoadQuestions();
+
+        var answersDict = request.Answers
+            .Select(a => new
+            {
+                Question = questions.FirstOrDefault(q => q.SortOrder == a.SortOrder),
+                Answer = (AnswerValue)a.Answer,
+            })
+            .Where(x => x.Question is not null)
+            .ToDictionary(x => x.Question!, x => x.Answer);
+
+        var traits = service.CalculateTraitScores(answersDict);
+        var roles = service.CalculateRoleScores(traits);
+        var top = service.GetTopRoles(roles, 3);
+
+        return Ok(top);
     }
 }
