@@ -19,6 +19,16 @@ public class DocumentsController : ControllerBase
         this.users = users;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] int? userId, CancellationToken cancellationToken)
+    {
+        if (userId.HasValue)
+        {
+            return Ok(await documents.GetDocumentsByUserIdAsync(userId.Value, cancellationToken));
+        }
+        return Ok(await documents.GetAllAsync(cancellationToken));
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
@@ -26,16 +36,15 @@ public class DocumentsController : ControllerBase
         return document is null ? NotFound() : Ok(document);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken cancellationToken)
-        => Ok(await documents.GetDocumentsByUserIdAsync(userId, cancellationToken));
-
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] DocumentAddRequest body, CancellationToken cancellationToken)
     {
-        var user = await users.GetByIdAsync(body.UserId, cancellationToken);
+        const int mockUserId = 1;
+        int resolvedUserId = body.UserId > 0 ? body.UserId : mockUserId;
+
+        var user = await users.GetByIdAsync(resolvedUserId, cancellationToken);
         if (user is null)
-            return NotFound($"User {body.UserId} not found.");
+            return NotFound($"User {resolvedUserId} not found.");
 
         var document = new Document
         {
@@ -46,6 +55,20 @@ public class DocumentsController : ControllerBase
         document.DocumentId = 0;
         var saved = await documents.AddAsync(document, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.DocumentId }, saved);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] DocumentUpdateRequest body, CancellationToken cancellationToken)
+    {
+        var existing = await documents.GetByIdAsync(id, cancellationToken);
+        if (existing is null)
+            return NotFound();
+
+        existing.DocumentName = body.DocumentName;
+        existing.FilePath = body.FilePath;
+
+        await documents.UpdateAsync(existing, cancellationToken);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]

@@ -15,6 +15,12 @@ public class FakeDocumentRepository : IDocumentRepository
         }
     }
 
+    public Task<IReadOnlyList<Document>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<Document> all = documentsById.Values.ToList();
+        return Task.FromResult(all);
+    }
+
     public Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
         documentsById.TryGetValue(documentId, out var document);
@@ -38,6 +44,12 @@ public class FakeDocumentRepository : IDocumentRepository
         return Task.FromResult(document);
     }
 
+    public Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
+    {
+        documentsById[document.DocumentId] = document;
+        return Task.CompletedTask;
+    }
+
     public Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
     {
         documentsById.Remove(documentId);
@@ -46,3 +58,4 @@ public class FakeDocumentRepository : IDocumentRepository
 
     private int NextId() => documentsById.Count == 0 ? 1 : documentsById.Keys.Max() + 1;
 }
+
