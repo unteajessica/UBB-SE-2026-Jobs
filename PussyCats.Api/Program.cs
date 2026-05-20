@@ -21,6 +21,7 @@ using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
+using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
 using Scalar.AspNetCore;
 
@@ -76,6 +77,7 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
 builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
 
 var app = builder.Build();

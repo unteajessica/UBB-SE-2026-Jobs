@@ -6,12 +6,12 @@ using PussyCats.Library.Services.CompletenessService;
 namespace PussyCats.Web.Controllers
 {
     //[Authorize] // Fulfills security constraints
-    public class ProfileController : Controller
+    public class UserProfileController : Controller
     {
         private readonly IUserProfileService userProfileService;
         private readonly ICompletenessService completenessService;
 
-        public ProfileController(IUserProfileService profileService, ICompletenessService completenessService)
+        public UserProfileController(IUserProfileService profileService, ICompletenessService completenessService)
         {
             userProfileService = profileService;
             this.completenessService = completenessService;
