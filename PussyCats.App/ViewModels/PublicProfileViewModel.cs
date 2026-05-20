@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using PussyCats.Library.Domain;
-using PussyCats_App.Services.UserProfileService;
+using PussyCats.Library.Services.UserProfileService;
 
 namespace PussyCats.App.ViewModels;
 

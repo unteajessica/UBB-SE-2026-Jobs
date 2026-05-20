@@ -1,6 +1,6 @@
 using PussyCats.Library.Domain;
 
-namespace PussyCats_App.Services.UserProfileService;
+namespace PussyCats.Library.Services.UserProfileService;
 
 /// <summary>Candidate profile read/write, including CV text generation and level recalculation.</summary>
 public interface IUserProfileService
