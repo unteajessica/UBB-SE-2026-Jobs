@@ -23,7 +23,7 @@ using PussyCats_App.Services.CompanyRecommendationService;
 using PussyCats_App.Services.CompanyService;
 using PussyCats_App.Services.CompanyStatusService;
 using PussyCats_App.Services.CompatibilityService;
-using PussyCats_App.Services.CompletenessService;
+using PussyCats.Library.Services.CompletenessService;
 using PussyCats_App.Services.CooldownService;
 using PussyCats_App.Services.CvParsingService;
 using PussyCats_App.Services.DeveloperService;

@@ -1,3 +1,4 @@
+using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats.Library.Services.Recommendations;
@@ -17,6 +18,7 @@ var apiConfig = builder.Configuration
 
 builder.Services.AddSingleton(apiConfig);
 builder.Services.AddHttpClient();
+builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

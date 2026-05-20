@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.UserProfileService;
+using PussyCats.Library.Services.CompletenessService;
 
 namespace PussyCats.Web.Controllers
 {
     //[Authorize] // Fulfills security constraints
     public class ProfileController : Controller
     {
-        private readonly IUserProfileService _profileService;
-        private readonly ICompletenessService _completenessService;
+        private readonly IUserProfileService userProfileService;
+        private readonly ICompletenessService completenessService;
 
         public ProfileController(IUserProfileService profileService, ICompletenessService completenessService)
         {
-            _profileService = profileService;
-            _completenessService = completenessService;
+            userProfileService = profileService;
+            this.completenessService = completenessService;
         }
 
         // GET: /Profile
@@ -21,13 +22,13 @@ namespace PussyCats.Web.Controllers
         {
             int mockUserId = 1; // Swap with true identity contexts later
 
-            var user = await _profileService.GetProfileAsync(mockUserId);
+            var user = await userProfileService.GetProfileAsync(mockUserId);
             if (user == null) return NotFound();
 
             // Calculate support metadata exactly like your WinUI viewmodel logic
-            ViewBag.CompletenessPercentage = _completenessService.CalculateCompleteness(user);
-            ViewBag.NextFieldPrompt = _completenessService.GetNextEmptyFieldPrompt(user);
-            ViewBag.TotalXp = await _profileService.RecalculateLevelAsync(user);
+            ViewBag.CompletenessPercentage = completenessService.CalculateCompleteness(user);
+            ViewBag.NextFieldPrompt = completenessService.GetNextEmptyFieldPrompt(user);
+            ViewBag.TotalXp = await userProfileService.RecalculateLevelAsync(user);
 
             return View(user);
         }
@@ -38,10 +39,10 @@ namespace PussyCats.Web.Controllers
         public async Task<IActionResult> ToggleStatus()
         {
             int mockUserId = 1;
-            var user = await _profileService.GetProfileAsync(mockUserId);
+            var user = await userProfileService.GetProfileAsync(mockUserId);
             if (user == null) return NotFound();
 
-            await _profileService.UpdateAccountStatusAsync(mockUserId, !user.ActiveAccount);
+            await userProfileService.UpdateAccountStatusAsync(mockUserId, !user.ActiveAccount);
             return RedirectToAction(nameof(Index));
         }
     }
