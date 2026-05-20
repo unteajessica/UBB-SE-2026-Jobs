@@ -1,6 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
-using PussyCats.Library.Domain;
+using PussyCats.Library.DTOs;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.PersonalityTestService;
 
@@ -24,9 +24,7 @@ public class PersonalityTestsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    public record PersonalityTestAnswerDto(string QuestionText, TraitType Trait, int SortOrder, int Answer);
-
-    public record SavePersonalityTestRequest(int UserId, JobRole SelectedRole, List<PersonalityTestAnswerDto> Answers);
+    public record SavePersonalityTestRequest(int UserId, JobRole SelectedRole, List<PersonalityTestAnswer> Answers);
 
     [HttpPost]
     public async Task<IActionResult> Save([FromBody] SavePersonalityTestRequest request, CancellationToken cancellationToken)
@@ -44,12 +42,12 @@ public class PersonalityTestsController : ControllerBase
         await service.SaveResultAsync(request.UserId, answersDict, request.SelectedRole, cancellationToken);
         return Ok();
     }
-    [HttpPost("preview")]
-    public IActionResult PreviewResults([FromBody] List<PersonalityTestAnswerDto> answers)
+    [HttpPost("calculate")]
+    public IActionResult Calculate([FromBody] SavePersonalityTestRequest request)
     {
         var questions = PersonalityTestService.LoadQuestions();
 
-        var answersDict = answers
+        var answersDict = request.Answers
             .Select(a => new
             {
                 Question = questions.FirstOrDefault(q => q.SortOrder == a.SortOrder),

@@ -49,7 +49,30 @@ public class PersonalityTestServiceProxy : IPersonalityTestService
         var response = await http.PostAsJsonAsync("api/personality-tests", payload, JsonOptions, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
+    public async Task<IReadOnlyDictionary<JobRole, double>> CalculateAsync(int userId,IReadOnlyDictionary<Question, AnswerValue> answers, CancellationToken ct = default)
+    {
 
+        var payload = new
+        {
+            UserId = userId,
+            SelectedRole = 0,
+            Answers = answers.Select(kv => new
+            {
+                QuestionText = kv.Key.QuestionText,
+                Trait = kv.Key.Trait,
+                SortOrder = kv.Key.SortOrder,
+                Answer = (int)kv.Value
+            }).ToList()
+        };
+
+        var response = await http.PostAsJsonAsync(
+            "api/personality-tests/calculate", payload, JsonOptions, ct);
+
+        response.EnsureSuccessStatusCode();
+
+        return (await response.Content.ReadFromJsonAsync<Dictionary<JobRole, double>>(JsonOptions, cancellationToken: ct))!;
+    }
+    
     public IReadOnlyDictionary<TraitType, double> CalculateTraitScores(IReadOnlyDictionary<Question, AnswerValue> answers)
         => throw new NotSupportedException();
 

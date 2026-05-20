@@ -32,26 +32,24 @@ public class PersonalityTestController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Submit(Dictionary<int, int> answers)
+    public async Task<IActionResult> Submit(Dictionary<int, int> answers)
     {
-        Console.WriteLine(service.GetType().Name);
         var questions = PersonalityTestService.LoadQuestions();
 
         var answersDict = questions
-            .Where(q => answers.ContainsKey(q.SortOrder))
-            .ToDictionary(q => q, q => (AnswerValue)answers[q.SortOrder]);
-
-        var traits = service.CalculateTraitScores(answersDict);
-        var roles = service.CalculateRoleScores(traits);
-        var top = service.GetTopRoles(roles, 3);
+            .Where(question => answers.ContainsKey(question.SortOrder))
+            .ToDictionary(question => question, q => (AnswerValue)answers[q.SortOrder]);
+        //replace also here userdId with auth
+        var top = await service.CalculateAsync(1, answersDict, CancellationToken.None);
 
         var model = new SelectRoleModel
         {
             TopRoles = top.Select(r => new RoleOption
             {
                 Role = r.Key,
-                DisplayName = System.Text.RegularExpressions.Regex
-                    .Replace(r.Key.ToString(), "(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " "),
+                /*DisplayName = System.Text.RegularExpressions.Regex
+                    .Replace(r.Key.ToString(), "(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " "),*/
+                DisplayName = r.Key.ToString(),
                 Score = r.Value
             }).ToList(),
             Answers = answers
