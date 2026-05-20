@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
-using PussyCats.Library.Repositories.SkillTests;
+using PussyCats.Library.Services.SkillTests;
 
 namespace PussyCats.Api.Controllers;
 
@@ -8,9 +8,9 @@ namespace PussyCats.Api.Controllers;
 [Route("api/skill-tests")]
 public class SkillTestsController : ControllerBase
 {
-    private readonly ISkillTestRepository skillTests;
+    private readonly ISkillTestService skillTests;
 
-    public SkillTestsController(ISkillTestRepository skillTests)
+    public SkillTestsController(ISkillTestService skillTests)
     {
         this.skillTests = skillTests;
     }
@@ -18,26 +18,59 @@ public class SkillTestsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var skillTest = await skillTests.GetByIdAsync(id, cancellationToken);
+        var skillTest = await skillTests.GetSkillTestByIdAsync(id, cancellationToken);
         return skillTest is null ? NotFound() : Ok(skillTest);
+    }
+
+    [HttpGet("{id}/retake-eligibility")]
+    public async Task<IActionResult> GetRetakeEligibility(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            bool canRetake = await skillTests.CanRetakeTestAsync(id, cancellationToken);
+            return Ok(new { CanRetake = canRetake });
+
+        }
+        catch (Exception ex)
+        {
+            // Log the exception as needed
+            return NotFound(new { Message = ex.Message });
+        }
+    }
+
+    [HttpPost("{id}/retake")]
+    public async Task<IActionResult> SubmitRetake(int id, [FromBody] RetakeRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var badge = await skillTests.SubmitRetakeAsync(id, request.Score, cancellationToken);
+            return Ok(badge);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception as needed
+            return NotFound(new { Message = ex.Message });
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetByUserId([FromQuery] int userId, CancellationToken cancellationToken)
-        => Ok(await skillTests.GetByUserIdAsync(userId, cancellationToken));
+    {
+        return Ok(await skillTests.GetTestsForUserAsync(userId, cancellationToken));
+    }
 
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] SkillTest skillTest, CancellationToken cancellationToken)
     {
         skillTest.SkillTestId = 0;
-        var saved = await skillTests.AddAsync(skillTest, cancellationToken);
+        var saved = await skillTests.AddSkillTestAsync(skillTest, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = saved.SkillTestId }, saved);
     }
 
     [HttpPatch("{id}/score")]
     public async Task<IActionResult> UpdateScore(int id, [FromBody] UpdateScoreRequest body, CancellationToken cancellationToken)
     {
-        if (await skillTests.GetByIdAsync(id, cancellationToken) is null)
+        if (await skillTests.GetSkillTestByIdAsync(id, cancellationToken) is null)
             return NotFound();
         await skillTests.UpdateScoreAsync(id, body.Score, cancellationToken);
         return NoContent();
@@ -46,7 +79,7 @@ public class SkillTestsController : ControllerBase
     [HttpPatch("{id}/date")]
     public async Task<IActionResult> UpdateDate(int id, [FromBody] UpdateDateRequest body, CancellationToken cancellationToken)
     {
-        if (await skillTests.GetByIdAsync(id, cancellationToken) is null)
+        if (await skillTests.GetSkillTestByIdAsync(id, cancellationToken) is null)
             return NotFound();
         await skillTests.UpdateAchievedDateAsync(id, body.AchievedDate, cancellationToken);
         return NoContent();
@@ -55,7 +88,7 @@ public class SkillTestsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {
-        if (await skillTests.GetByIdAsync(id, cancellationToken) is null)
+        if (await skillTests.GetSkillTestByIdAsync(id, cancellationToken) is null)
             return NotFound();
         await skillTests.RemoveAsync(id, cancellationToken);
         return NoContent();
@@ -63,4 +96,5 @@ public class SkillTestsController : ControllerBase
 
     public record UpdateScoreRequest(int Score);
     public record UpdateDateRequest(DateOnly AchievedDate);
+    public record RetakeRequest(int Score);
 }

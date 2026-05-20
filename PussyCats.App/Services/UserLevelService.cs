@@ -1,3 +1,5 @@
+using PussyCats.Library.Services;
+
 namespace PussyCats.App.Services;
 
 // Deviation from original: original UserLevelService took a UserLevel value object

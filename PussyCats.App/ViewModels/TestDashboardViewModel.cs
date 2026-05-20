@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
-using PussyCats_App.Services.SkillTestService;
+using PussyCats.Library.Services.SkillTests;
 
 namespace PussyCats.App.ViewModels;
 
