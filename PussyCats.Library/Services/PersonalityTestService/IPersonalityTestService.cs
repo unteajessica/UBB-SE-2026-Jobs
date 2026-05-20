@@ -1,7 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 
-namespace PussyCats_App.Services.PersonalityTestService;
+namespace PussyCats.Library.Services.PersonalityTestService;
 
 /// <summary>Personality trait scoring, role recommendation, and result persistence.</summary>
 public interface IPersonalityTestService
@@ -13,4 +13,6 @@ public interface IPersonalityTestService
     IReadOnlyDictionary<JobRole, double> GetTopRoles(IReadOnlyDictionary<JobRole, double> roleScores, int count);
 
     Task SaveResultAsync(int userId, IReadOnlyDictionary<Question, AnswerValue> answers, JobRole selectedRole, CancellationToken cancellationToken = default);
+    Task<PersonalityTestResult?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<JobRole, double>> CalculateAsync(int userId, IReadOnlyDictionary<Question, AnswerValue> answers, CancellationToken cancellationToken = default);
 }

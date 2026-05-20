@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
-using PussyCats_App.Services.PersonalityTestService;
+using PussyCats.Library.Services.PersonalityTestService;
 
 namespace PussyCats.App.ViewModels;
 

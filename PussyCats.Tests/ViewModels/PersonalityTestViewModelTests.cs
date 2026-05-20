@@ -5,7 +5,7 @@ using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
-using PussyCats_App.Services.PersonalityTestService;
+using PussyCats.Library.Services.PersonalityTestService;
 
 namespace PussyCats.Tests.Integration;
 

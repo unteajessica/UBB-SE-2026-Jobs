@@ -1,0 +1,53 @@
+﻿@model IReadOnlyList<PussyCats.Library.Domain.Question>
+@{
+    ViewData["Title"] = "Personality Test";
+}
+
+<div class="container py-4" style="max-width: 700px;">
+    <h1 class="text-center mb-1">Personality Test</h1>
+    <p class="text-center text-muted mb-1">Discover Your Ideal IT Career Path</p>
+    <p class="text-center text-muted small mb-3">Answer 24 questions to receive personalized role recommendations.</p>
+    <p class="text-center small mb-4">Scale: 1 = Strongly Disagree &nbsp;|&nbsp; 2 = Disagree &nbsp;|&nbsp; 3 = Neutral &nbsp;|&nbsp; 4 = Agree &nbsp;|&nbsp; 5 = Strongly Agree</p>
+
+    <form asp-action="Submit" method="post">
+        @Html.AntiForgeryToken()
+
+        @foreach (var question in Model)
+        {
+            <div class="card mb-3 p-3">
+                <p class="text-center mb-3">@question.QuestionText</p>
+                <div class="d-flex justify-content-center gap-4">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        var label = i switch
+                        {
+                            1 => "Strongly Disagree",
+                            2 => "Disagree",
+                            3 => "Neutral",
+                            4 => "Agree",
+                            5 => "Strongly Agree",
+                            _ => ""
+                        };
+                        <div class="form-check text-center">
+                            <input class="form-check-input" type="radio"
+                                   name="answers[@question.SortOrder]"
+                                   value="@i"
+                                   title="@label"
+                                   required />
+                            <label class="form-check-label small">@i</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4">Submit Test</button>
+            <a class="btn btn-secondary ms-2" asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
