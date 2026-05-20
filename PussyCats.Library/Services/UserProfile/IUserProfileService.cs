@@ -17,8 +17,6 @@ public interface IUserProfileService
 
     Task RemoveProfilePicturePathAsync(int userId, CancellationToken cancellationToken = default);
 
-    string GenerateParsedCvText(User user);
-
     Task SaveAsync(int userId, User user, CancellationToken cancellationToken = default);
 
     Task<int> RecalculateLevelAsync(User user, CancellationToken cancellationToken = default);

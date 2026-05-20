@@ -55,20 +55,6 @@ public class UserProfileService : IUserProfileService
         await UpdateProfilePicturePathAsync(userId, string.Empty, cancellationToken).ConfigureAwait(false);
     }
 
-    public string GenerateParsedCvText(User user)
-    {
-        if (user is null)
-        {
-            return string.Empty;
-        }
-
-        var parsedCvTextBuilder = new StringBuilder();
-        parsedCvTextBuilder.AppendLine($"{user.FirstName} {user.LastName}".Trim());
-        parsedCvTextBuilder.AppendLine(user.University ?? string.Empty);
-        parsedCvTextBuilder.AppendLine(string.Join(", ", user.Skills.Select(skill => skill.Skill?.Name ?? string.Empty).Where(name => !string.IsNullOrEmpty(name))));
-        return parsedCvTextBuilder.ToString().TrimEnd();
-    }
-
     public async Task SaveAsync(int userId, User user, CancellationToken cancellationToken = default)
     {
         var existing = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);

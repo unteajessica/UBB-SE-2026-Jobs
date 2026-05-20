@@ -77,6 +77,7 @@ builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
 builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

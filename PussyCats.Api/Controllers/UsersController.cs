@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.Matches;
+using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
+using PussyCats.Library.Services;
 
 namespace PussyCats.Api.Controllers;
 
@@ -13,12 +15,14 @@ public class UsersController : ControllerBase
     private readonly IUserService users;
     private readonly IMatchService matches;
     private readonly IDocumentService documents;
+    private readonly IUserProfileService userProfileService;
 
-    public UsersController(IUserService users, IMatchService matches, IDocumentService documents)
+    public UsersController(IUserService users, IMatchService matches, IDocumentService documents, IUserProfileService userProfileService)
     {
         this.users = users;
         this.matches = matches;
         this.documents = documents;
+        this.userProfileService = userProfileService;
     }
 
     [HttpGet]
@@ -108,7 +112,44 @@ public class UsersController : ControllerBase
 
     [HttpGet("{id}/compatibility")]
     public IActionResult GetCompatibility(int id) =>
+
         Problem("Compatibility computation is wired in Phase 5.", statusCode: 501);
+
+    [HttpGet("{id}/experience")]
+    public async Task<IActionResult> RecalculateExperience(int id, CancellationToken cancellationToken)
+    {
+        var user = await users.GetByIdAsync(id, cancellationToken);
+        if (user is null) return NotFound();
+
+        int experiencePoints = await userProfileService.RecalculateLevelAsync(user, cancellationToken);
+        return Ok(new { TotalExperiencePoints = experiencePoints });
+    }
+
+    [HttpGet("{id}/skill-tests")]
+    public async Task<IActionResult> GetSkillTests(int id, CancellationToken cancellationToken)
+    {
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
+            return NotFound();
+        return Ok(await userProfileService.GetSkillTestsForUserAsync(id, cancellationToken));
+    }
+
+    [HttpGet("{id}/is-active")]
+    public async Task<IActionResult> IsProfileAvailable(int id, CancellationToken cancellationToken)
+    {
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
+            return NotFound();
+        return Ok(await userProfileService.IsProfileAvailableAsync(id, cancellationToken));
+    }
+    
+    // This might not be needed, but I'll leave it here just in case.
+    [HttpGet("{id}/parsed-cv")]
+    public async Task<IActionResult> GetParsedCv(int id, CancellationToken cancellationToken)
+    {
+        var user = await users.GetByIdAsync(id, cancellationToken);
+        if (user is null) return NotFound();
+        string parsedCv = Helpers.GenerateParsedCvText(user);
+        return Ok(new { ParsedCv = parsedCv });
+    }
 
     public record UpdateActiveRequest(bool IsActive);
     public record UpdateProfilePictureRequest(string? Path);
