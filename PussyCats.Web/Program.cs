@@ -1,8 +1,11 @@
+using PussyCats.Library.Services.CompletenessService;
+using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
+using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.ServiceProxies;
@@ -16,6 +19,7 @@ var apiConfig = builder.Configuration
 
 builder.Services.AddSingleton(apiConfig);
 builder.Services.AddHttpClient();
+builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -48,8 +52,16 @@ builder.Services.AddHttpClient<IPersonalityTestService, PersonalityTestServicePr
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
 
+builder.Services.AddHttpClient<IDocumentService, DocumentServiceProxy>(client =>
+{  
+  client.BaseAddress = new Uri(apiConfig.BaseUrl);
+});
 builder.Services.AddHttpClient<ISkillTestService, SkillTestServiceProxy>(client =>
 { 
+    client.BaseAddress = new Uri(apiConfig.BaseUrl);
+});
+builder.Services.AddHttpClient<IUserProfileService, UserProfileServiceProxy>(client =>
+{
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
 

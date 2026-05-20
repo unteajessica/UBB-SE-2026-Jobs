@@ -2,9 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
-using PussyCats_App.Services.CompletenessService;
+using PussyCats.Library.Services.CompletenessService;
 using PussyCats_App.Services.ImageStorageService;
-using PussyCats_App.Services.UserProfileService;
+using PussyCats.Library.Services.UserProfileService;
 
 namespace PussyCats.App.ViewModels;
 

@@ -22,12 +22,16 @@ using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
+using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(
@@ -77,6 +81,8 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
 builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 var app = builder.Build();

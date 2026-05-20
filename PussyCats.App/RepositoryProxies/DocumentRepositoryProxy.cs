@@ -14,6 +14,11 @@ public class DocumentRepositoryProxy : IDocumentRepository
         this.http = http;
     }
 
+    public async Task<IReadOnlyList<Document>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await RepositoryProxyJson.GetListAsync<Document>(http, "api/documents", cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
         return await RepositoryProxyJson.GetOrNullAsync<Document>(http, $"api/documents/{documentId}", cancellationToken).ConfigureAwait(false);
@@ -36,9 +41,16 @@ public class DocumentRepositoryProxy : IDocumentRepository
         return await RepositoryProxyJson.ReadRequiredAsync<Document>(response, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
+    {
+        using var response = await http.PutAsJsonAsync($"api/documents/{document.DocumentId}", document, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+    }
+
     public async Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
     {
         using var response = await http.DeleteAsync($"api/documents/{documentId}", cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
     }
 }
+

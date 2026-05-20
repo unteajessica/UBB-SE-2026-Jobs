@@ -1,0 +1,132 @@
+﻿@model PussyCats.Library.Domain.User
+@{
+    ViewData["Title"] = "My Profile";
+    int completeness = ViewBag.CompletenessPercentage ?? 0;
+    string nextPrompt = ViewBag.NextFieldPrompt ?? "";
+    int totalXp = ViewBag.TotalXp ?? 0;
+
+    // Progress calculation mirroring UserLevelService.GetLevelProgressPercent
+    int progressPercent = (totalXp % 100); // Tweak to match your math utility rules if different
+}
+
+<div class="container py-4">
+    <div class="card mb-4 border-0 shadow-sm text-white" style="background-color: #2c1e3d;">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">Profile Completeness</span>
+                <span class="badge bg-purple font-monospace">@completeness%</span>
+            </div>
+            <div class="progress mb-2" style="height: 10px;">
+                <div class="progress-bar bg-info" role="progressbar" style="width: @completeness%;" aria-valuenow="@completeness" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            @if (!string.IsNullOrEmpty(nextPrompt))
+            {
+                <small class="text-white-50"><i class="bi bi-lightbulb"></i> Tip: @nextPrompt</small>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 text-center">
+            <div class="p-4 bg-light rounded-3 shadow-sm d-flex flex-column align-items-center justify-content-center h-100">
+                @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+                {
+                    <img src="https://localhost:7134/api/files/@Model.ProfilePicturePath" class="rounded-circle img-thumbnail mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="Avatar" />
+                }
+                else
+                {
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px; font-size: 3rem;">
+                        @Model.FirstName[0]@Model.LastName[0]
+                    </div>
+                }
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary disabled" disabled>Upload avatar</button>
+                    <button class="btn btn-sm btn-outline-danger disabled" disabled>Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="p-4 bg-light rounded-3 shadow-sm h-100 d-flex flex-column justify-content-center">
+                <div class="row align-items-center g-3">
+                    <div class="col-sm-5">
+                        <div class="p-3 text-white rounded-3 text-center shadow-sm" style="background-color: #9b72a8;">
+                            <span class="d-block small fw-bold mb-2 text-uppercase">Account Status</span>
+                            <form asp-action="ToggleStatus" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <div class="form-check form-switch d-inline-block text-start">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="statusSwitch" onchange="this.form.submit()" @(Model.ActiveAccount ? "checked" : "") />
+                                    <label class="form-check-label text-white fw-bold" for="statusSwitch">
+                                        @(Model.ActiveAccount ? "Active" : "Inactive")
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-7">
+                        <h5 class="mb-1 text-dark fw-bold">Level @Model.CurrentLevel</h5>
+                        <div class="progress mb-1" style="height: 12px;">
+                            <div class="progress-bar" role="progressbar" style="width: @progressPercent%; background-color: purple;" aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <span class="text-muted small">@totalXp XP recorded on profile</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="p-4 bg-white rounded-3 shadow-sm border">
+                <h4 class="mb-4 border-bottom pb-2 text-muted">Personal Information</h4>
+                <dl class="row fs-6">
+                    <dt class="col-sm-4 text-muted">First Name:</dt>
+                    <dd class="col-sm-8 fw-medium">@Model.FirstName</dd>
+
+                    <dt class="col-sm-4 text-muted">Last Name:</dt>
+                    <dd class="col-sm-8 fw-medium">@Model.LastName</dd>
+
+                    <dt class="col-sm-4 text-muted">Email Address:</dt>
+                    <dd class="col-sm-8 text-primary">@Model.Email</dd>
+
+                    <dt class="col-sm-4 text-muted">Phone Number:</dt>
+                    <dd class="col-sm-8">@Model.Phone</dd>
+
+                    <dt class="col-sm-4 text-muted">GitHub:</dt>
+                    <dd class="col-sm-8"><a href="@Model.GitHub" target="_blank">@Model.GitHub</a></dd>
+
+                    <dt class="col-sm-4 text-muted">LinkedIn:</dt>
+                    <dd class="col-sm-8"><a href="@Model.LinkedIn" target="_blank">@Model.LinkedIn</a></dd>
+
+                    <dt class="col-sm-4 text-muted">Gender:</dt>
+                    <dd class="col-sm-8">@Model.Gender</dd>
+
+                    <dt class="col-sm-4 text-muted">University:</dt>
+                    <dd class="col-sm-8">@Model.University</dd>
+
+                    <dt class="col-sm-4 text-muted">Graduation Year:</dt>
+                    <dd class="col-sm-8">@Model.ExpectedGraduationYear</dd>
+
+                    <dt class="col-sm-4 text-muted">Location:</dt>
+                    <dd class="col-sm-8">@Model.City, @Model.Country</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 bg-light rounded-3 shadow-sm d-flex flex-column gap-2 border">
+                <h5 class="mb-3 text-muted">Actions</h5>
+                <button class="btn btn-outline-secondary w-100 text-start disabled" disabled><i class="bi bi-pencil"></i> Edit Profile</button>
+                <button class="btn btn-outline-secondary w-100 text-start disabled" disabled><i class="bi bi-person-badge"></i> Take Personality Test</button>
+                <button class="btn btn-outline-secondary w-100 text-start disabled" disabled><i class="bi bi-file-earmark-pdf"></i> Download CV PDF</button>
+                <button class="btn btn-outline-secondary w-100 text-start disabled" disabled><i class="bi bi-folder"></i> View Documents</button>
+                <button class="btn btn-outline-secondary w-100 text-start disabled" disabled><i class="bi bi-clock-history"></i> Match History</button>
+
+                <a asp-controller="SkillTests" asp-action="Index" class="btn btn-primary w-100 text-start">
+                    <i class="bi bi-lightning-charge"></i> Go to Skill Tests
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

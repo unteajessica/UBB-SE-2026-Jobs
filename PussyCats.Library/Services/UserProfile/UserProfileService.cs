@@ -1,11 +1,9 @@
 using System.Text;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
-using PussyCats.Library.Services;
 
-namespace PussyCats_App.Services.UserProfileService;
+namespace PussyCats.Library.Services.UserProfileService;
 
 public class UserProfileService : IUserProfileService
 {
@@ -55,20 +53,6 @@ public class UserProfileService : IUserProfileService
     public async Task RemoveProfilePicturePathAsync(int userId, CancellationToken cancellationToken = default)
     {
         await UpdateProfilePicturePathAsync(userId, string.Empty, cancellationToken).ConfigureAwait(false);
-    }
-
-    public string GenerateParsedCvText(User user)
-    {
-        if (user is null)
-        {
-            return string.Empty;
-        }
-
-        var parsedCvTextBuilder = new StringBuilder();
-        parsedCvTextBuilder.AppendLine($"{user.FirstName} {user.LastName}".Trim());
-        parsedCvTextBuilder.AppendLine(user.University ?? string.Empty);
-        parsedCvTextBuilder.AppendLine(string.Join(", ", user.Skills.Select(skill => skill.Skill?.Name ?? string.Empty).Where(name => !string.IsNullOrEmpty(name))));
-        return parsedCvTextBuilder.ToString().TrimEnd();
     }
 
     public async Task SaveAsync(int userId, User user, CancellationToken cancellationToken = default)

@@ -16,6 +16,11 @@ public class DocumentService : IDocumentService
         this.fileStorage = fileStorage;
     }
 
+    public async Task<IReadOnlyList<Document>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await documentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
         return await documentRepository.GetByIdAsync(documentId, cancellationToken).ConfigureAwait(false);
@@ -29,6 +34,11 @@ public class DocumentService : IDocumentService
     public async Task<Document> AddAsync(Document document, CancellationToken cancellationToken = default)
     {
         return await documentRepository.AddAsync(document, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
+    {
+        await documentRepository.UpdateAsync(document, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)

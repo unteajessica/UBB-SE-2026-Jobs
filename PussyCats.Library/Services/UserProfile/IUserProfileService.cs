@@ -1,6 +1,6 @@
 using PussyCats.Library.Domain;
 
-namespace PussyCats_App.Services.UserProfileService;
+namespace PussyCats.Library.Services.UserProfileService;
 
 /// <summary>Candidate profile read/write, including CV text generation and level recalculation.</summary>
 public interface IUserProfileService
@@ -16,8 +16,6 @@ public interface IUserProfileService
     Task UpdateProfilePicturePathAsync(int userId, string newPath, CancellationToken cancellationToken = default);
 
     Task RemoveProfilePicturePathAsync(int userId, CancellationToken cancellationToken = default);
-
-    string GenerateParsedCvText(User user);
 
     Task SaveAsync(int userId, User user, CancellationToken cancellationToken = default);
 

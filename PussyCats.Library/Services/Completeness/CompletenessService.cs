@@ -1,6 +1,6 @@
 using PussyCats.Library.Domain;
 
-namespace PussyCats_App.Services.CompletenessService;
+namespace PussyCats.Library.Services.CompletenessService;
 
 public class CompletenessService : ICompletenessService
 {
