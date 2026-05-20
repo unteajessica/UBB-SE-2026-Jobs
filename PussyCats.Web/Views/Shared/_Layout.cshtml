@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject PussyCats.Web.Configuration.ApiConfiguration ApiConfiguration
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -36,7 +37,10 @@
                             <a class="nav-link text-dark" asp-controller="SkillTests" asp-action="Index">Skill Tests</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="Index">Profile</a>
+	                        <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="Index">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Company" asp-action="Profile" asp-route-id="@ApiConfiguration.TemporaryCompanyId">Company</a>
                         </li>
                     </ul>
                 </div>

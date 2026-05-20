@@ -1,0 +1,75 @@
+﻿@using PussyCats.Library.Domain
+@model Company
+
+@{
+    ViewData["Title"] = "Company Profile";
+
+    string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[1][0]}".ToUpperInvariant()
+            : name[..Math.Min(2, name.Length)].ToUpperInvariant();
+    }
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="javascript:history.back()" class="btn btn-primary">&larr; Back</a>
+    <h4 class="mb-0 fw-semibold">Company Profile</h4>
+</div>
+
+@if (ViewBag.ErrorMessage is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+else if (Model is not null)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <div class="d-flex align-items-center justify-content-center bg-primary rounded-2 mb-3"
+                 style="width:64px; height:64px;">
+                <span class="text-white fw-bold fs-4">
+                    @(string.IsNullOrWhiteSpace(Model.LogoText)
+                        ? GetInitials(Model.CompanyName)
+                        : Model.LogoText)
+                </span>
+            </div>
+
+            <h5 class="fw-semibold">@Model.CompanyName</h5>
+
+            <ul class="list-unstyled text-secondary mb-0 mt-2">
+                <li class="mb-1">
+                    <span class="me-2">&#9993;</span>
+                    @(string.IsNullOrWhiteSpace(Model.Email) ? "—" : Model.Email)
+                </li>
+                <li>
+                    <span class="me-2">&#128222;</span>
+                    @(string.IsNullOrWhiteSpace(Model.Phone) ? "—" : Model.Phone)
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h6 class="fw-semibold mb-3">Open Positions</h6>
+
+            @if (Model.Jobs.Count == 0)
+            {
+                <p class="text-secondary mb-0">No open positions at this time.</p>
+            }
+            else
+            {
+                foreach (var job in Model.Jobs)
+                {
+                    <div class="bg-light rounded p-3 mb-2">
+                        <div class="fw-semibold">@job.JobTitle</div>
+                        <div class="text-secondary small">@job.Location</div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
