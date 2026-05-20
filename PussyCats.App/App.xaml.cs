@@ -34,7 +34,7 @@ using PussyCats_App.Services.PersonalityTestService;
 using PussyCats_App.Services.PreferenceService;
 using PussyCats_App.Services.RecommendationAlgorithm;
 using PussyCats_App.Services.SkillGapService;
-using PussyCats_App.Services.SkillTestService;
+using PussyCats.Library.Services.SkillTests;
 using PussyCats_App.Services.UserProfileService;
 using PussyCats_App.Services.UserRecommendationService;
 using PussyCats_App.Services.UserSkillService;
