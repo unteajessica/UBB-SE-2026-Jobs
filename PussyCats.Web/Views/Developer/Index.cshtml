@@ -1,0 +1,90 @@
+@model IReadOnlyList<PussyCats.Web.Models.DeveloperPostViewModel>
+@using PussyCats.Library.Domain.Enums
+@{
+    ViewData["Title"] = "Developer Hub";
+    var createModel = ViewBag.CreateModel as PussyCats.Web.Models.DeveloperPostCreateModel
+                      ?? new PussyCats.Web.Models.DeveloperPostCreateModel();
+    var parameterTypes = Enum.GetValues<DeveloperPostParameterType>()
+        .Where(p => p != DeveloperPostParameterType.Unknown);
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Developer Hub</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">Propose an Algorithm Parameter</div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="text-danger mb-2"></div>
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Parameter</label>
+                        <select asp-for="@createModel.ParameterType" class="form-select"
+                                asp-items="@(new SelectList(parameterTypes.Select(p => new { Value = p.ToString(), Text = PussyCats.Library.Domain.Enums.DeveloperPostParameterTypeMapper.ToDisplayName(p) }), "Value", "Text"))">
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Value</label>
+                        <input asp-for="@createModel.Value" class="form-control" placeholder="e.g. 0.35 or internship" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Post</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No proposals yet. Be the first to post!</div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var post in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                                     style="width:40px;height:40px;font-weight:bold;">
+                                    @post.AuthorInitial
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">@post.AuthorName</div>
+                                    <small class="text-muted">@post.CreatedAt</small>
+                                </div>
+                                <span class="badge bg-secondary ms-auto">@post.TypeLabel</span>
+                            </div>
+                            <p class="mb-1 text-muted small">@post.ParameterDisplayName</p>
+                            <p class="fs-5 fw-bold mb-3">@post.Value</p>
+                            <div class="d-flex gap-2">
+                                <form asp-action="Interact" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="postId" value="@post.PostId" />
+                                    <input type="hidden" name="action" value="like" />
+                                    <button type="submit"
+                                            class="btn btn-sm @(post.IsLikedByCurrentUser ? "btn-success" : "btn-outline-success")">
+                                        👍 @post.LikeCount
+                                    </button>
+                                </form>
+                                <form asp-action="Interact" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="postId" value="@post.PostId" />
+                                    <input type="hidden" name="action" value="dislike" />
+                                    <button type="submit"
+                                            class="btn btn-sm @(post.IsDislikedByCurrentUser ? "btn-danger" : "btn-outline-danger")">
+                                        👎 @post.DislikeCount
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
