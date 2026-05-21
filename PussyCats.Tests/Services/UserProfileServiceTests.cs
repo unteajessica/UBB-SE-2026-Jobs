@@ -128,7 +128,7 @@ public class UserProfileServiceTests
     [Fact]
     public void GenerateParsedCvText_UserIsNull_ReturnsEmptyString()
     {
-        service.GenerateParsedCvText(null!).Should().BeEmpty();
+        PussyCats.Library.Services.Helpers.GenerateParsedCvText(null!).Should().BeEmpty();
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public class UserProfileServiceTests
             new() { Skill = new Skill { SkillId = SkillIdTwo, Name = SecondarySkillName } },
         };
 
-        var text = service.GenerateParsedCvText(user);
+        var text = PussyCats.Library.Services.Helpers.GenerateParsedCvText(user);
 
         text.Should().Contain($"{FirstName} {LastName}");
         text.Should().Contain(UniversityName);

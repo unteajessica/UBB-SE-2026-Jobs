@@ -2,7 +2,7 @@ using System.Globalization;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
 
-namespace PussyCats_App.Services.RecommendationAlgorithm;
+namespace PussyCats.Library.Services.RecommendationAlgorithm;
 
 public class RecommendationAlgorithm : IRecommendationAlgorithm
 {

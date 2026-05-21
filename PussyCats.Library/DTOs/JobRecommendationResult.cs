@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using PussyCats.Library.Domain;
 
 namespace PussyCats.Library.DTOs;
@@ -11,17 +12,21 @@ public sealed class JobRecommendationResult
     public IReadOnlyList<string> TopSkillLabels { get; init; } = new List<string>();
     public IReadOnlyList<string> AllSkillLabels { get; init; } = new List<string>();
 
+    // Display-only helpers — [JsonIgnore] keeps them out of the wire format so a
+    // partially-bound card (e.g. only Job.JobId set when posting back from a form)
+    // doesn't trip on null nav properties during serialization.
+    [JsonIgnore]
     public string JobTitleLine
     {
         get
         {
-            var title = Job.JobTitle.Trim();
+            var title = Job?.JobTitle?.Trim() ?? string.Empty;
             if (!string.IsNullOrEmpty(title))
             {
                 return title.Length > 80 ? title[..80] + "..." : title;
             }
 
-            var trimmedDescription = Job.JobDescription.Trim();
+            var trimmedDescription = Job?.JobDescription?.Trim() ?? string.Empty;
             if (string.IsNullOrEmpty(trimmedDescription))
             {
                 return string.Empty;
@@ -32,15 +37,20 @@ public sealed class JobRecommendationResult
         }
     }
 
-    public string DescriptionExcerpt => BuildExcerpt(Job.JobDescription, 200);
+    [JsonIgnore]
+    public string DescriptionExcerpt => BuildExcerpt(Job?.JobDescription ?? string.Empty, 200);
 
-    public string LocationEmploymentLine => $"{Job.Location} - {Job.EmploymentType}";
+    [JsonIgnore]
+    public string LocationEmploymentLine => $"{Job?.Location} - {Job?.EmploymentType}";
 
+    [JsonIgnore]
     public string MatchScoreDisplay => $"{CompatibilityScore:0.#}%";
 
+    [JsonIgnore]
     public string MatchLineLabel => $"Match: {MatchScoreDisplay}";
 
-    public string ContactLine => $"{Company.Email} - {Company.Phone}";
+    [JsonIgnore]
+    public string ContactLine => $"{Company?.Email} - {Company?.Phone}";
 
     public static string BuildExcerpt(string description, int maxChars)
     {

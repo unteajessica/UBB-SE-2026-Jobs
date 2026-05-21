@@ -1,7 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
 
-namespace PussyCats_App.Services.RecommendationAlgorithm;
+namespace PussyCats.Library.Services.RecommendationAlgorithm;
 
 /// <summary>
 /// Computes job-applicant compatibility for the recommendation services.
