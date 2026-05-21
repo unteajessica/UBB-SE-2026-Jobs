@@ -34,11 +34,6 @@ builder.Services.AddSingleton(apiConfig);
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 
-// Add services to the container.
-// Non-nullable nav properties on domain entities (e.g. Job.Company = null!) are implicitly
-// treated as [Required] by model validation. Forms only carry IDs (Job.JobId), so the nav
-// properties never bind and ModelState would fail on every POST. Suppress the implicit rule
-// — same fix the API applied in Phase 6c (see docs/MergeStatus.md).
 builder.Services.AddControllersWithViews(options =>
 {
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
@@ -57,8 +52,6 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
-// JobBrowser stores Undo state (LastAction / LastMatchId / LastDismissId / LastDisplayId)
-// in HttpContext.Session, so the session middleware needs to be registered + activated.
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

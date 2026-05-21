@@ -37,8 +37,6 @@ public class CompletenessService : ICompletenessService
             case 15: return user.WorkExperiences != null && user.WorkExperiences.Count > 0;
             case 16: return user.Projects != null && user.Projects.Count > 0;
             case 17: return user.ExtraCurricularActivities != null && user.ExtraCurricularActivities.Count > 0;
-            // deviation: original UserProfile.PreferredJobRoles (list) has no direct equivalent on User;
-            // PersonalityResult.SelectedRole is the closest — a role chosen after the personality test.
             case 18: return user.PersonalityResult?.SelectedRole != null;
             case 19: return !string.IsNullOrWhiteSpace(user.WorkModePreference);
             case 20: return !string.IsNullOrWhiteSpace(user.LocationPreference);

@@ -1,7 +1,3 @@
-// justification: PdfExportService relies on WebView2 for HTML→PDF
-// conversion; Microsoft.UI dependency is intrinsic to the chosen
-// approach. Considered a service-layer exception per the layering
-// rule in CodingStyle.
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;

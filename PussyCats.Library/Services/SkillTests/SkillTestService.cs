@@ -6,7 +6,6 @@ namespace PussyCats.Library.Services.SkillTests;
 
 public class SkillTestService : ISkillTestService
 {
-    // Skill-test-specific rule, not a tier rule - stays on this class.
     private const int RetakeEligibilityMonths = 3;
 
     private readonly ISkillTestRepository skillTestRepository;

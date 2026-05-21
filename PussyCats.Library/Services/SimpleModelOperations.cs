@@ -3,9 +3,6 @@ using PussyCats.Library.Domain.Enums;
 
 namespace PussyCats.Library.Services;
 
-// Single source-of-truth for skill-test tier thresholds, XP awards per tier,
-// and per-level XP thresholds. SkillTestService and UserProfileService both
-// reference these — neither redefines locally.
 public static class SimpleModelOperations
 {
     public const float GoldScoreThreshold = 90f;

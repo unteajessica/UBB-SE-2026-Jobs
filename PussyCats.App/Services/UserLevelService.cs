@@ -2,11 +2,6 @@ using PussyCats.Library.Services;
 
 namespace PussyCats.App.Services;
 
-// Deviation from original: original UserLevelService took a UserLevel value object
-// with ExperiencePointsRequired / NextLevelExperiencePoints fields. UserLevel was
-// collapsed into User.CurrentLevel + User.TotalExperiencePoints during 3b.1, so the
-// signatures here take an int currentLevel and derive the boundary XP from
-// SimpleModelOperations.LevelN constants. Algorithm is preserved.
 public static class UserLevelService
 {
     private const int FullProgressPercentage = 100;
@@ -77,8 +72,6 @@ public static class UserLevelService
 
     public static int GetNextLevelExperiencePoints(int currentLevel)
     {
-        // Returns Level1ExperiencePoints (0) when capped at max; original used
-        // LEVEL_1_ExperiencePoints (0) as the "no next level" sentinel.
         return currentLevel switch
         {
             >= 5 => SimpleModelOperations.Level1ExperiencePoints,

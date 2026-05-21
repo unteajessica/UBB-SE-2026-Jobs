@@ -14,11 +14,7 @@ public interface IUserService
 
     Task RemoveAsync(int userId, CancellationToken cancellationToken = default);
 
-    // Wraps repo UpdateActiveAccountAsync + TouchLastUpdatedAsync atomically (the
-    // sequencing is business logic that controllers are not allowed to own).
     Task SetActiveAsync(int userId, bool isActive, CancellationToken cancellationToken = default);
 
-    // Wraps repo UpdateProfilePicturePathAsync + TouchLastUpdatedAsync. Pass an
-    // empty string to clear the picture.
     Task SetProfilePicturePathAsync(int userId, string profilePicturePath, CancellationToken cancellationToken = default);
 }

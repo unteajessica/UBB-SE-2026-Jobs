@@ -76,19 +76,17 @@ public class RecommendationsController : ControllerBase
         return NoContent();
     }
 
-    // 1. Fetch next candidate card based on filter request payload
     [HttpPost("{userId}/next")]
     public async Task<IActionResult> GetNextCard(int userId, [FromBody] UserMatchmakingFilters filters, CancellationToken cancellationToken)
     {
         var card = await userRecommendationService.GetNextCardAsync(userId, filters, cancellationToken);
         if (card is null)
         {
-            return NoContent(); // Returns HTTP 204 if deck runs out of filtered matching jobs
+            return NoContent();
         }
         return Ok(card);
     }
 
-    // 2. Fetch fallback top card ignoring item cooldown metrics
     [HttpPost("{userId}/fallback")]
     public async Task<IActionResult> GetFallbackCard(int userId, [FromBody] UserMatchmakingFilters filters, CancellationToken cancellationToken)
     {
@@ -100,7 +98,6 @@ public class RecommendationsController : ControllerBase
         return Ok(card);
     }
 
-    // 3. User swipes Right (Apply Like)
     [HttpPost("{userId}/like")]
     public async Task<IActionResult> ApplyLike(int userId, [FromBody] JobRecommendationResult card, CancellationToken cancellationToken)
     {
@@ -115,7 +112,6 @@ public class RecommendationsController : ControllerBase
         }
     }
 
-    // 4. User swipes Left (Dismiss)
     [HttpPost("{userId}/dismiss")]
     public async Task<IActionResult> ApplyDismiss(int userId, [FromBody] JobRecommendationResult card, CancellationToken cancellationToken)
     {
@@ -123,7 +119,6 @@ public class RecommendationsController : ControllerBase
         return Ok(dismissRecommendationId);
     }
 
-    // 5. User triggers an Undo application action
     [HttpPost("undo-like")]
     public async Task<IActionResult> UndoLike([FromQuery] int matchId, [FromQuery] int? displayId, CancellationToken cancellationToken)
     {
@@ -131,7 +126,6 @@ public class RecommendationsController : ControllerBase
         return NoContent();
     }
 
-    // 6. User triggers an Undo dismissal action
     [HttpPost("undo-dismiss")]
     public async Task<IActionResult> UndoDismiss([FromQuery] int dismissId, [FromQuery] int? displayId, CancellationToken cancellationToken)
     {

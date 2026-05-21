@@ -33,7 +33,6 @@ public class SkillTestsController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Log the exception as needed
             return NotFound(new { Message = ex.Message });
         }
     }
@@ -48,7 +47,6 @@ public class SkillTestsController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Log the exception as needed
             return NotFound(new { Message = ex.Message });
         }
     }

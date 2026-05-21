@@ -84,7 +84,6 @@ builder.Services.AddScoped<ISkillTestRepository, SkillTestRepository>();
 builder.Services.AddScoped<IPersonalityTestRepository, PersonalityTestRepository>();
 builder.Services.AddScoped<IRecommendationRepository, RecommendationRepository>();
 
-// Library/Services seam — see docs/ServiceApiRefactor.md
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
