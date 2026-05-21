@@ -8,13 +8,18 @@ namespace PussyCats.App.ViewModels;
 public class DocumentListViewModel : DispatchableObservableObject
 {
     private readonly IDocumentService documentService;
+    private readonly ILocalDocumentFileService localDocumentFileService;
     private readonly SessionContext session;
     private List<Document> documents = new();
     private string statusMessage = string.Empty;
 
-    public DocumentListViewModel(IDocumentService documentService, SessionContext session)
+    public DocumentListViewModel(
+        IDocumentService documentService,
+        ILocalDocumentFileService localDocumentFileService,
+        SessionContext session)
     {
         this.documentService = documentService;
+        this.localDocumentFileService = localDocumentFileService;
         this.session = session;
     }
 
@@ -41,7 +46,7 @@ public class DocumentListViewModel : DispatchableObservableObject
 
     public async Task DeleteDocumentAsync(int documentId, CancellationToken cancellationToken = default)
     {
-        await documentService.DeleteDocumentAsync(documentId, cancellationToken);
+        await localDocumentFileService.DeleteDocumentAsync(documentId, cancellationToken);
         await LoadDocumentsAsync(cancellationToken);
     }
 
@@ -49,7 +54,7 @@ public class DocumentListViewModel : DispatchableObservableObject
     {
         try
         {
-            var fullPath = await documentService.GetDocumentAbsolutePathAsync(documentId, cancellationToken);
+            var fullPath = await localDocumentFileService.GetDocumentAbsolutePathAsync(documentId, cancellationToken);
             StatusMessage = string.Empty;
             return fullPath;
         }

@@ -4,7 +4,7 @@ using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
 using PussyCats.Library.Services.Jobs;
-using PussyCats_App.Services.JobSkillService;
+using PussyCats.Library.Services.JobSkills;
 using PussyCats_App.Services.UserSkillService;
 using PussyCats_App.Services.UserStatusService;
 using PussyCats.Library.Services.CompanyService;

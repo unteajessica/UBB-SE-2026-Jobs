@@ -20,5 +20,13 @@ public interface IDocumentService
 
     Task DeleteDocumentAsync(int documentId, CancellationToken cancellationToken = default);
 
-    Task<string> GetDocumentAbsolutePathAsync(int documentId, CancellationToken cancellationToken = default);
+    Task<Document> UploadDocumentFromStreamAsync(
+        int userId,
+        string documentName,
+        string originalFileName,
+        string contentType,
+        Stream fileStream,
+        bool isCv,
+        CancellationToken cancellationToken = default);
+
 }

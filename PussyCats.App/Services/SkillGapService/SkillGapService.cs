@@ -2,7 +2,7 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Repositories.Matches;
-using PussyCats_App.Services.JobSkillService;
+using PussyCats.Library.Services.JobSkills;
 using PussyCats_App.Services.UserSkillService;
 
 namespace PussyCats_App.Services.SkillGapService;

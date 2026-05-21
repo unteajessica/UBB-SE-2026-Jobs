@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.Recommendations;
+using PussyCats.Library.Services.UserRecommendationService;
 
 namespace PussyCats.Api.Controllers;
 
@@ -8,10 +10,12 @@ namespace PussyCats.Api.Controllers;
 public class RecommendationsController : ControllerBase
 {
     private readonly IRecommendationService recommendations;
+    private readonly IUserRecommendationService userRecommendationService; // Injected matchmaking service
 
-    public RecommendationsController(IRecommendationService recommendations)
+    public RecommendationsController(IRecommendationService recommendations, IUserRecommendationService userRecommendationService)
     {
         this.recommendations = recommendations;
+        this.userRecommendationService = userRecommendationService;
     }
 
     [HttpGet("{id}")]
@@ -69,6 +73,69 @@ public class RecommendationsController : ControllerBase
             return NotFound();
 
         await recommendations.RemoveAsync(id, cancellationToken);
+        return NoContent();
+    }
+
+    // 1. Fetch next candidate card based on filter request payload
+    [HttpPost("{userId}/next")]
+    public async Task<IActionResult> GetNextCard(int userId, [FromBody] UserMatchmakingFilters filters, CancellationToken cancellationToken)
+    {
+        var card = await userRecommendationService.GetNextCardAsync(userId, filters, cancellationToken);
+        if (card is null)
+        {
+            return NoContent(); // Returns HTTP 204 if deck runs out of filtered matching jobs
+        }
+        return Ok(card);
+    }
+
+    // 2. Fetch fallback top card ignoring item cooldown metrics
+    [HttpPost("{userId}/fallback")]
+    public async Task<IActionResult> GetFallbackCard(int userId, [FromBody] UserMatchmakingFilters filters, CancellationToken cancellationToken)
+    {
+        var card = await userRecommendationService.RecalculateTopCardIgnoringCooldownAsync(userId, filters, cancellationToken);
+        if (card is null)
+        {
+            return NoContent();
+        }
+        return Ok(card);
+    }
+
+    // 3. User swipes Right (Apply Like)
+    [HttpPost("{userId}/like")]
+    public async Task<IActionResult> ApplyLike(int userId, [FromBody] JobRecommendationResult card, CancellationToken cancellationToken)
+    {
+        try
+        {
+            int matchId = await userRecommendationService.ApplyLikeAsync(userId, card, cancellationToken);
+            return Ok(matchId);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    // 4. User swipes Left (Dismiss)
+    [HttpPost("{userId}/dismiss")]
+    public async Task<IActionResult> ApplyDismiss(int userId, [FromBody] JobRecommendationResult card, CancellationToken cancellationToken)
+    {
+        int dismissRecommendationId = await userRecommendationService.ApplyDismissAsync(userId, card, cancellationToken);
+        return Ok(dismissRecommendationId);
+    }
+
+    // 5. User triggers an Undo application action
+    [HttpPost("undo-like")]
+    public async Task<IActionResult> UndoLike([FromQuery] int matchId, [FromQuery] int? displayId, CancellationToken cancellationToken)
+    {
+        await userRecommendationService.UndoLikeAsync(matchId, displayId, cancellationToken);
+        return NoContent();
+    }
+
+    // 6. User triggers an Undo dismissal action
+    [HttpPost("undo-dismiss")]
+    public async Task<IActionResult> UndoDismiss([FromQuery] int dismissId, [FromQuery] int? displayId, CancellationToken cancellationToken)
+    {
+        await userRecommendationService.UndoDismissAsync(dismissId, displayId, cancellationToken);
         return NoContent();
     }
 

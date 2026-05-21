@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
-using PussyCats.Library.Repositories.Skills;
+using PussyCats.Library.Services.JobSkills;
 
 namespace PussyCats.Api.Controllers;
 
@@ -8,9 +8,9 @@ namespace PussyCats.Api.Controllers;
 [Route("api/jobs/{jobId}/skills")]
 public class JobSkillsController : ControllerBase
 {
-    private readonly IJobSkillRepository jobSkills;
+    private readonly IJobSkillService jobSkills;
 
-    public JobSkillsController(IJobSkillRepository jobSkills)
+    public JobSkillsController(IJobSkillService jobSkills)
     {
         this.jobSkills = jobSkills;
     }
@@ -26,7 +26,7 @@ public class JobSkillsController : ControllerBase
     [HttpGet("{skillId}")]
     public async Task<IActionResult> GetBySkillId(int jobId, int skillId, CancellationToken cancellationToken)
     {
-        var jobSkill = await jobSkills.GetAsync(jobId, skillId, cancellationToken);
+        var jobSkill = await jobSkills.GetByIdAsync(jobId, skillId, cancellationToken);
         return jobSkill is null ? NotFound() : Ok(jobSkill);
     }
 
@@ -41,7 +41,7 @@ public class JobSkillsController : ControllerBase
     [HttpPut("{skillId}")]
     public async Task<IActionResult> Update(int jobId, int skillId, [FromBody] JobSkill jobSkill, CancellationToken cancellationToken)
     {
-        if (await jobSkills.GetAsync(jobId, skillId, cancellationToken) is null)
+        if (await jobSkills.GetByIdAsync(jobId, skillId, cancellationToken) is null)
             return NotFound();
         jobSkill.Job = new Job { JobId = jobId };
         jobSkill.Skill = new Skill { SkillId = skillId };
@@ -52,7 +52,7 @@ public class JobSkillsController : ControllerBase
     [HttpDelete("{skillId}")]
     public async Task<IActionResult> Remove(int jobId, int skillId, CancellationToken cancellationToken)
     {
-        if (await jobSkills.GetAsync(jobId, skillId, cancellationToken) is null)
+        if (await jobSkills.GetByIdAsync(jobId, skillId, cancellationToken) is null)
             return NotFound();
         await jobSkills.RemoveAsync(jobId, skillId, cancellationToken);
         return NoContent();

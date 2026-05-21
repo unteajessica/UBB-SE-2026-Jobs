@@ -1,0 +1,35 @@
+sequenceDiagram
+    actor CompanyUser as Company User
+    participant Browser
+    participant WebController as Web MatchesController
+    participant Proxy as MatchServiceProxy
+    participant ApiController as API MatchesController
+    participant Service as MatchService
+    participant Repository as MatchRepository
+    participant Database as SQL Server DB
+
+    CompanyUser->>Browser: Submit Accept/Reject form
+    Browser->>WebController: POST /Matches/Decision/{id}
+    WebController->>Proxy: SubmitDecisionAsync(matchId, decision, feedback)
+    Proxy->>ApiController: PATCH /api/matches/{id}/decision
+    ApiController->>Service: SubmitDecisionAsync(...)
+    Service->>Repository: GetByIdAsync(matchId)
+    Repository->>Database: SELECT match
+    Database-->>Repository: Match
+    Repository-->>Service: Match
+
+    alt Valid transition
+        Service->>Repository: UpdateAsync(status, feedback)
+        Repository->>Database: UPDATE Matches
+        Database-->>Repository: OK
+        Repository-->>Service: OK
+        Service-->>ApiController: OK
+        ApiController-->>Proxy: 204 No Content
+        Proxy-->>WebController: OK
+        WebController-->>Browser: Redirect to Details
+    else Invalid transition or missing feedback
+        Service-->>ApiController: ArgumentException / InvalidOperationException
+        ApiController-->>Proxy: 400 or 422 Problem
+        Proxy-->>WebController: HttpRequestException
+        WebController-->>Browser: Return Decision view with error
+    end

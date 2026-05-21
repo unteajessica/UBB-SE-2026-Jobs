@@ -1,0 +1,79 @@
+sequenceDiagram
+    autonumber
+    actor User as User (Web Browser)
+    participant WebCtrl as DocumentsController (Web)
+    participant DocProxy as DocumentServiceProxy (Web)
+    participant ApiDocs as DocumentsController (API)
+    participant DocSvc as DocumentService (Library)
+    participant CvSvc as CvParsingService (Library)
+    participant FileStorage as LocalFileStorageService
+    participant UserSvc as UserService (Library)
+    participant UserRepo as UserRepository
+    participant DocRepo as DocumentRepository
+    participant DB as Database
+
+    User->>WebCtrl: POST /Documents/Create (file, userId, isCv)
+    WebCtrl->>DocProxy: UploadDocumentFromStreamAsync(...)
+    DocProxy->>ApiDocs: POST /api/documents/upload (multipart)
+    ApiDocs->>DocSvc: UploadDocumentFromStreamAsync(...)
+    DocSvc->>UserSvc: GetByIdAsync(userId)
+    UserSvc->>UserRepo: GetByIdAsync(userId)
+    UserRepo->>DB: Fetch user
+    DB-->>UserRepo: User row / null
+    UserRepo-->>UserSvc: User / null
+    UserSvc-->>DocSvc: User / null
+
+    alt Missing user
+        DocSvc-->>ApiDocs: KeyNotFoundException
+        ApiDocs-->>DocProxy: 404 Not Found
+        DocProxy-->>WebCtrl: HttpRequestException
+        WebCtrl-->>User: Show selected user validation error
+    else User exists
+        alt Invalid file type
+            DocSvc-->>ApiDocs: InvalidOperationException
+            ApiDocs-->>DocProxy: 400 Bad Request
+            DocProxy-->>WebCtrl: HttpRequestException
+            WebCtrl-->>User: Show upload/parse validation error
+        else Valid file
+            alt Is CV JSON
+                DocSvc->>CvSvc: ParseCvFile(jsonContent, ".json")
+                alt Parse fails
+                    CvSvc-->>DocSvc: Exception
+                    DocSvc-->>ApiDocs: InvalidOperationException
+                    ApiDocs-->>DocProxy: 400 Bad Request
+                    DocProxy-->>WebCtrl: HttpRequestException
+                    WebCtrl-->>User: Show parse validation error
+                else Parse succeeds
+                    CvSvc-->>DocSvc: Parsed User Entity
+                    DocSvc->>UserSvc: UpdateAsync(user with parsed fields)
+                    UserSvc->>UserRepo: UpdateAsync(user)
+                    UserRepo->>DB: Save profile fields and skills
+                    DB-->>UserRepo: Save confirmed
+                    UserRepo-->>UserSvc: Update complete
+                    UserSvc-->>DocSvc: Update complete
+
+                    DocSvc->>FileStorage: SaveFileAsync(stream, originalFileName)
+                    FileStorage-->>DocSvc: Stored file path
+                    DocSvc->>DocRepo: AddAsync(document metadata)
+                    DocRepo->>DB: Save document
+                    DB-->>DocRepo: Saved document
+                    DocRepo-->>DocSvc: Document entity
+                    DocSvc-->>ApiDocs: Document entity
+                    ApiDocs-->>DocProxy: 201 Created + Document JSON
+                    DocProxy-->>WebCtrl: Document entity
+                    WebCtrl-->>User: Redirect to Index
+                end
+            else Standard document
+                DocSvc->>FileStorage: SaveFileAsync(stream, originalFileName)
+                FileStorage-->>DocSvc: Stored file path
+                DocSvc->>DocRepo: AddAsync(document metadata)
+                DocRepo->>DB: Save document
+                DB-->>DocRepo: Saved document
+                DocRepo-->>DocSvc: Document entity
+                DocSvc-->>ApiDocs: Document entity
+                ApiDocs-->>DocProxy: 201 Created + Document JSON
+                DocProxy-->>WebCtrl: Document entity
+                WebCtrl-->>User: Redirect to Index
+            end
+        end
+    end

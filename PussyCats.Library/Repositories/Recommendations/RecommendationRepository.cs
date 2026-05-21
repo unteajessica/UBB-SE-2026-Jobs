@@ -61,9 +61,44 @@ public class RecommendationRepository : IRecommendationRepository
         {
             recommendation.Timestamp = DateTime.UtcNow;
         }
+
+        ReconcileExistingNavigation(recommendation);
         databaseContext.Recommendations.Add(recommendation);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return recommendation;
+    }
+
+    // DbSet.Add cascades the Added state through navigation properties, so a Recommendation
+    // pointing at an existing User/Job/Company would make EF re-INSERT them and trip
+    // IDENTITY_INSERT. Swap detached references for the already-tracked instance when one exists;
+    // otherwise Attach as Unchanged so EF treats them as preexisting rows.
+    private void ReconcileExistingNavigation(Recommendation recommendation)
+    {
+        if (recommendation.User is { UserId: > 0 } incomingUser)
+        {
+            var tracked = databaseContext.Users.Local.FirstOrDefault(user => user.UserId == incomingUser.UserId);
+            if (tracked is not null)
+            {
+                recommendation.User = tracked;
+            }
+            else
+            {
+                databaseContext.Users.Attach(incomingUser);
+            }
+        }
+
+        if (recommendation.Job is { JobId: > 0 } incomingJob)
+        {
+            var tracked = databaseContext.Jobs.Local.FirstOrDefault(job => job.JobId == incomingJob.JobId);
+            if (tracked is not null)
+            {
+                recommendation.Job = tracked;
+            }
+            else
+            {
+                databaseContext.Jobs.Attach(incomingJob);
+            }
+        }
     }
 
     public async Task UpdateAsync(Recommendation recommendation, CancellationToken cancellationToken = default)

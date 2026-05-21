@@ -1,5 +1,7 @@
+@model PussyCats.Web.Models.DocumentFormModel
 @{
 	ViewData["Title"] = "Create Document";
+	var userOptions = ViewBag.Users as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
 }
 
 <h1>Create Document</h1>
@@ -9,21 +11,36 @@
 	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
 	<div class="mb-3">
-		<label for="documentName" class="form-label">Document Name</label>
-		<input type="text" id="documentName" name="documentName" class="form-control" required />
+		<label asp-for="UserId" class="form-label">User</label>
+		<select asp-for="UserId" asp-items="userOptions" class="form-select">
+			<option value="">-- select user --</option>
+		</select>
+		<span asp-validation-for="UserId" class="text-danger"></span>
 	</div>
 
 	<div class="mb-3">
-		<label for="file" class="form-label">File (Optional)</label>
-		<input type="file" id="file" name="file" class="form-control" />
-		<small class="form-text text-muted">Upload a document file (PDF, JPG, PNG, etc.)</small>
+		<label asp-for="DocumentName" class="form-label">Document Name</label>
+		<input asp-for="DocumentName" class="form-control" />
+		<span asp-validation-for="DocumentName" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="File" class="form-label">Document File</label>
+		<input asp-for="File" type="file" class="form-control" />
+		<span asp-validation-for="File" class="text-danger"></span>
+		<small class="form-text text-muted">For regular uploads: PDF, JPG, PNG. For CV parsing: JSON only.</small>
+	</div>
+
+	<div class="mb-3 form-check">
+		<input asp-for="IsCv" type="checkbox" class="form-check-input" />
+		<label asp-for="IsCv" class="form-check-label">Parse as CV and update user profile?</label>
+		<span asp-validation-for="IsCv" class="text-danger"></span>
 	</div>
 
 	<button type="submit" class="btn btn-primary">Create</button>
-	<a class="btn btn-secondary" asp-action="Index">Cancel</a>
+	<a class="btn btn-secondary" asp-action="Index" asp-route-userId="@Model?.UserId">Cancel</a>
 </form>
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial" />
 }
-

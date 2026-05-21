@@ -20,9 +20,9 @@ public class PersonalityTestController : Controller
     }
 
     // GET: /PersonalityTest
-    public async Task<IActionResult> Index(CancellationToken ct)
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var result = await service.GetByUserIdAsync(CurrentUserId, ct);
+        var result = await service.GetByUserIdAsync(CurrentUserId, cancellationToken);
         if (result is null)
             return RedirectToAction(nameof(Take));
 
@@ -77,7 +77,7 @@ public class PersonalityTestController : Controller
     // POST: /PersonalityTest/SaveResult
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveResult(PersonalityTestSubmitModel submitModel, JobRole selectedRole, CancellationToken ct)
+    public async Task<IActionResult> SaveResult(PersonalityTestSubmitModel submitModel, JobRole selectedRole, CancellationToken cancellationToken)
     {
         var questions = PersonalityTestService.LoadQuestions()
             .ToDictionary(question => question.SortOrder.ToString());
@@ -91,7 +91,7 @@ public class PersonalityTestController : Controller
             answers[question] = (AnswerValue)answerValue;
         }
 
-        await service.SaveResultAsync(CurrentUserId, answers, selectedRole, ct);
+        await service.SaveResultAsync(CurrentUserId, answers, selectedRole, cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }

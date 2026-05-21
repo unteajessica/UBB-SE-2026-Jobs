@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Api.Configuration;
 using PussyCats.Library.Persistence;
@@ -13,19 +12,25 @@ using PussyCats.Library.Repositories.Recommendations;
 using PussyCats.Library.Repositories.Skills;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.CvParsing;
 using PussyCats.Library.Services.FileStorage;
 using PussyCats.Library.Services.Jobs;
+using PussyCats.Library.Services.JobSkills;
 using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.PersonalityTestService;
+using PussyCats.Library.Services.RecommendationAlgorithm;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
+using PussyCats.Library.Services.UserRecommendationService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.UserSkillService;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
@@ -67,6 +72,7 @@ builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IJobSkillRepository, JobSkillRepository>();
+builder.Services.AddScoped<IJobSkillService, JobSkillService>();
 builder.Services.AddScoped<IUserSkillRepository, UserSkillRepository>();
 builder.Services.AddScoped<ISkillGroupRepository, SkillGroupRepository>();
 builder.Services.AddScoped<ISkillTestRepository, SkillTestRepository>();
@@ -77,12 +83,23 @@ builder.Services.AddScoped<IRecommendationRepository, RecommendationRepository>(
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
-builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<DocumentService>();
+builder.Services.AddScoped<IDocumentService>(provider => provider.GetRequiredService<DocumentService>());
+builder.Services.AddScoped<ILocalDocumentFileService>(provider => provider.GetRequiredService<DocumentService>());
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
-builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
+builder.Services.AddScoped<ICvParsingService, CvParsingService>();
+builder.Services.AddSingleton<ILocalFileStorageService, ApiLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IRecommendationAlgorithm, RecommendationAlgorithm>();
+builder.Services.AddScoped<IUserRecommendationService, UserRecommendationService>();
+builder.Services.AddScoped<ICooldownService>(provider =>
+    new CooldownService(
+        provider.GetRequiredService<IRecommendationRepository>(),
+        TimeSpan.FromHours(24) 
+    ));
+
 
 builder.Services.AddScoped<IUserSkillService, UserSkillService>();
 

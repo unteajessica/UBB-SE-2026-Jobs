@@ -9,7 +9,7 @@ using PussyCats.Library.Repositories.Matches;
 using PussyCats.Library.Repositories.Skills;
 using PussyCats.Tests.Fakes;
 using PussyCats.Library.Services.Jobs;
-using PussyCats_App.Services.JobSkillService;
+using PussyCats.Library.Services.JobSkills;
 using PussyCats_App.Services.SkillGapService;
 using PussyCats_App.Services.UserSkillService;
 using PussyCats_App.Services.UserStatusService;
