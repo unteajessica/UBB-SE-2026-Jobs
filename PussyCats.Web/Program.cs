@@ -18,6 +18,7 @@ using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.UserRecommendationService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.UserSkillService;
+using PussyCats.Library.Services.UserStatusService;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.ServiceProxies;
 
@@ -81,6 +82,7 @@ RegisterServiceProxy<ISkillTestService, SkillTestServiceProxy>(builder.Services,
 RegisterServiceProxy<IUserProfileService, UserProfileServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IUserRecommendationService, UserRecommendationServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IUserService, UserServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<IUserStatusService, UserStatusServiceProxy>(builder.Services, apiConfig);
 
 builder.Services.AddHttpClient<IUserSkillService, UserSkillServiceProxy>(client =>
 {
