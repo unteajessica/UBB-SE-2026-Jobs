@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.PersonalityTestService;
@@ -6,13 +7,11 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-// [Authorize]
 public class PersonalityTestController : Controller
 {
     private readonly IPersonalityTestService service;
 
-    // TODO: User.FindFirstValue(ClaimTypes.NameIdentifier)
-    private const int CurrentUserId = 1;
+    private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     public PersonalityTestController(IPersonalityTestService service)
     {
