@@ -5,7 +5,9 @@ namespace PussyCats.Library.Domain;
 public class UserSkill
 {
     //public int UserId { get; set; }
-    [JsonIgnore] public User User { get; set; } = null!;
+    //[JsonIgnore] public User User { get; set; } = null!;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public User User { get; set; } = null!;
 
     //public int SkillId { get; set; }
     public Skill Skill { get; set; } = null!;

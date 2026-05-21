@@ -21,6 +21,7 @@ public class UserSkillRepository : IUserSkillRepository
     {
         return await databaseContext.UserSkills
             .Include(skill => skill.Skill)
+            .Include(skill => skill.User)
             .FirstOrDefaultAsync(skill => skill.User.UserId == userId && skill.Skill.SkillId == skillId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -33,6 +34,7 @@ public class UserSkillRepository : IUserSkillRepository
         return await databaseContext.UserSkills
             .AsNoTracking()
             .Include(skill => skill.Skill)
+            .Include(skill => skill.User)
             .Where(skill => skill.User.UserId == userId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -51,6 +53,7 @@ public class UserSkillRepository : IUserSkillRepository
         return await databaseContext.UserSkills
             .AsNoTracking()
             .Include(skill => skill.Skill)
+            .Include(skill => skill.User)
             .Where(skill => skill.User.UserId == userId && skill.IsVerified && skill.AchievedDate != null)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -58,6 +61,11 @@ public class UserSkillRepository : IUserSkillRepository
 
     public async Task<UserSkill> AddAsync(UserSkill userSkill, CancellationToken cancellationToken = default)
     {
+        //databaseContext.UserSkills.Add(userSkill);
+        //await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        //return userSkill;
+        databaseContext.Entry(userSkill.User).State = EntityState.Unchanged;
+        databaseContext.Entry(userSkill.Skill).State = EntityState.Unchanged;
         databaseContext.UserSkills.Add(userSkill);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return userSkill;
@@ -76,30 +84,28 @@ public class UserSkillRepository : IUserSkillRepository
         }
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// Targeted column update through the change tracker — same pattern as
-    /// SkillTestRepository.UpdateScoreAsync.
-    /// </summary>
     public async Task UpdateScoreAsync(int userId, int skillId, int score, CancellationToken cancellationToken = default)
     {
-        var userSkill = await databaseContext.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
-        if (userSkill is null)
-        {
-            return;
-        }
+        var userSkill = await databaseContext.UserSkills
+            .FirstOrDefaultAsync(us => EF.Property<int>(us, "UserId") == userId
+                                    && EF.Property<int>(us, "SkillId") == skillId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (userSkill is null) return;
         userSkill.Score = score;
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(int userId, int skillId, CancellationToken cancellationToken = default)
     {
-        var userSkill = await databaseContext.UserSkills.FindAsync(new object?[] { userId, skillId }, cancellationToken).ConfigureAwait(false);
-        if (userSkill is null)
-        {
-            return;
-        }
+        var userSkill = await databaseContext.UserSkills
+            .FirstOrDefaultAsync(us => EF.Property<int>(us, "UserId") == userId
+                                    && EF.Property<int>(us, "SkillId") == skillId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (userSkill is null) return;
         databaseContext.UserSkills.Remove(userSkill);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
+
 }

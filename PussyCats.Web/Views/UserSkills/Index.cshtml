@@ -1,0 +1,45 @@
+﻿@model IEnumerable<PussyCats.Library.Domain.UserSkill>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create" asp-route-userId="@Context.Request.Query["userId"]">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Score)</th>
+            <th>@Html.DisplayNameFor(model => model.IsVerified)</th>
+            <th>Skill Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model ?? Enumerable.Empty<PussyCats.Library.Domain.UserSkill>())
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Score)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsVerified)</td>
+                <td>@item.Skill?.Name</td>
+                <td>
+                    @if (item.User is not null && item.Skill is not null)
+                    {
+                        <text>
+                            <a asp-action="Edit" asp-route-userId="@item.User.UserId" asp-route-skillId="@item.Skill.SkillId">Edit</a> |
+                            <a asp-action="Details" asp-route-userId="@item.User.UserId" asp-route-skillId="@item.Skill.SkillId">Details</a> |
+                            <a asp-action="Delete" asp-route-userId="@item.User.UserId" asp-route-skillId="@item.Skill.SkillId">Delete</a>
+                        </text>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Missing user or skill data</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

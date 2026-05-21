@@ -24,6 +24,7 @@ using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
+using PussyCats.Library.Services.UserSkillService;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -82,6 +83,8 @@ builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
 builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
+builder.Services.AddScoped<IUserSkillService, UserSkillService>();
 
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 

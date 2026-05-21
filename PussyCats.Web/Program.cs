@@ -8,6 +8,7 @@ using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
+using PussyCats.Library.Services.UserSkillService;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.ServiceProxies;
 
@@ -80,6 +81,10 @@ builder.Services.AddHttpClient<IUserProfileService, UserProfileServiceProxy>(cli
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
 
+builder.Services.AddHttpClient<IUserSkillService, UserSkillServiceProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiConfig.BaseUrl);
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
