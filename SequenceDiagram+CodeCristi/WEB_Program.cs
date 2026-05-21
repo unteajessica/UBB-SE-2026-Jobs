@@ -8,7 +8,6 @@ using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
-using PussyCats.Library.Services.UserRecommendationService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.ServiceProxies;
@@ -25,12 +24,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 
 // Add services to the container.
-// Non-nullable nav properties on domain entities (e.g. Job.Company = null!) are implicitly
-// treated as [Required] by model validation. Forms only carry IDs (Job.JobId), so the nav
-// properties never bind and ModelState would fail on every POST. Suppress the implicit rule
-// — same fix the API applied in Phase 6c (see docs/MergeStatus.md).
-builder.Services.AddControllersWithViews(options =>
-    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
     .AddJsonOptions(opt =>
         opt.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter()));
@@ -90,21 +85,6 @@ builder.Services.AddHttpClient<IUserProfileService, UserProfileServiceProxy>(cli
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
 
-builder.Services.AddHttpClient<IUserRecommendationService, UserRecommendationServiceProxy>(client =>
-{
-    client.BaseAddress = new Uri(apiConfig.BaseUrl);
-});
-
-// JobBrowser stores Undo state (LastAction / LastMatchId / LastDismissId / LastDisplayId)
-// in HttpContext.Session, so the session middleware needs to be registered + activated.
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(20);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -118,7 +98,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseSession();
 app.UseAuthorization();
 
 app.MapStaticAssets();

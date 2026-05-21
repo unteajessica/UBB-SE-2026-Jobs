@@ -1,10 +1,9 @@
 using FluentAssertions;
-using PussyCats.App.Services;
 using PussyCats.Library.Domain;
+using PussyCats.Library.Services;
+using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
-using PussyCats.Library.Services.UserProfileService;
-using PussyCats.Library.Services;
 
 namespace PussyCats.Tests.Services;
 
