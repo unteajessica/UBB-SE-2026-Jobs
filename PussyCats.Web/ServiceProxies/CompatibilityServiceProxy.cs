@@ -11,7 +11,8 @@ public class CompatibilityServiceProxy : ICompatibilityService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        Converters = { new JsonStringEnumConverter() }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     private readonly HttpClient http;
