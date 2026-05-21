@@ -1,6 +1,6 @@
 using PussyCats.Library.DTOs;
 
-namespace PussyCats_App.Services.SkillGapService;
+namespace PussyCats.Library.Services.SkillGapService;
 
 public interface ISkillGapService
 {

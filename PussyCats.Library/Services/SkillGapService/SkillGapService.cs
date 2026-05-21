@@ -3,9 +3,9 @@ using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Repositories.Matches;
 using PussyCats.Library.Services.JobSkills;
-using PussyCats_App.Services.UserSkillService;
+using PussyCats.Library.Services.UserSkillService;
 
-namespace PussyCats_App.Services.SkillGapService;
+namespace PussyCats.Library.Services.SkillGapService;
 
 public class SkillGapService : ISkillGapService
 {

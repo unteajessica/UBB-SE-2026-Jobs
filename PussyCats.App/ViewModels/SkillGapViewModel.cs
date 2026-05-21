@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.Library.DTOs;
-using PussyCats_App.Services.SkillGapService;
+using PussyCats.Library.Services.SkillGapService;
 
 namespace PussyCats.App.ViewModels;
 

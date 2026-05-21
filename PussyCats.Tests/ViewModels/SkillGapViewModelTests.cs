@@ -3,9 +3,9 @@ using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.DTOs;
+using PussyCats.Library.Services.SkillGapService;
 using PussyCats.Tests.Helpers;
 using PussyCats.Tests.Integration;
-using PussyCats_App.Services.SkillGapService;
 
 namespace PussyCats.Tests.ViewModels;
 

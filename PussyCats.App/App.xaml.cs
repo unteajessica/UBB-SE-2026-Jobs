@@ -39,7 +39,7 @@ using PussyCats.Library.Services.JobSkills;
 using PussyCats_App.Services.LocalFileStorageService;
 using PussyCats.Library.Services.Preferences;
 using PussyCats.Library.Services.RecommendationAlgorithm;
-using PussyCats_App.Services.SkillGapService;
+using PussyCats.Library.Services.SkillGapService;
 
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
@@ -146,6 +146,7 @@ public partial class App : Application
         services.AddTransient<IMatchService, MatchService>();
         services.AddTransient<IPreferenceService, PreferenceService>();
         services.AddTransient<IRecommendationAlgorithm, RecommendationAlgorithm>();
+        services.AddTransient<PussyCats.Library.Services.UserSkillService.IUserSkillService, PussyCats.Library.Services.UserSkillService.UserSkillService>();
         services.AddTransient<ISkillGapService, SkillGapService>();
        // services.AddTransient<ISkillTestService, SkillTestService>();
        // services.AddTransient<IUserProfileService, UserProfileService>();
