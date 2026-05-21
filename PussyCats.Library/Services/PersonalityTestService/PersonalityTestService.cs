@@ -175,12 +175,6 @@ public class PersonalityTestService : IPersonalityTestService
             await personalityTestRepository.UpdateAsync(newResult, cancellationToken).ConfigureAwait(false);
         }
     }
-    public Task<IReadOnlyDictionary<JobRole, double>> CalculateAsync(int userId, IReadOnlyDictionary<Question, AnswerValue> answers, CancellationToken cancellationToken = default)
-    {
-        var traits = CalculateTraitScores(answers);
-        var roles = CalculateRoleScores(traits);
-        return Task.FromResult(GetTopRoles(roles, 3));
-    }
 
     private double CalculateFrontend(IReadOnlyDictionary<TraitType, double> traitScores)
     {

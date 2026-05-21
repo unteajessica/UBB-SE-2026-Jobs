@@ -1,75 +1,97 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-//[Authorize]
+// [Authorize]
 public class PersonalityTestController : Controller
 {
     private readonly IPersonalityTestService service;
+
+    // TODO: User.FindFirstValue(ClaimTypes.NameIdentifier)
+    private const int CurrentUserId = 1;
 
     public PersonalityTestController(IPersonalityTestService service)
     {
         this.service = service;
     }
 
+    // GET: /PersonalityTest
     public async Task<IActionResult> Index(CancellationToken ct)
     {
-        //replace!!!
-        //var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var result = await service.GetByUserIdAsync(1, ct);
+        var result = await service.GetByUserIdAsync(CurrentUserId, ct);
+        if (result is null)
+            return RedirectToAction(nameof(Take));
+
         return View(result);
     }
 
+    // GET: /PersonalityTest/Take
     public IActionResult Take()
     {
         var questions = PersonalityTestService.LoadQuestions();
         return View(questions);
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Submit(Dictionary<int, int> answers, CancellationToken cancellationToken)
+    // POST: /PersonalityTest/Submit
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Submit(PersonalityTestSubmitModel submitModel)
     {
-        var questions = PersonalityTestService.LoadQuestions();
+        if (!ModelState.IsValid)
+            return RedirectToAction(nameof(Take));
 
-        var answersDict = questions
-            .Where(question => answers.ContainsKey(question.SortOrder))
-            .ToDictionary(question => question, question => (AnswerValue)answers[question.SortOrder]);
-        //replace also here userdId with auth
-        var top = await service.CalculateAsync(1, answersDict, cancellationToken);
+        var questions = PersonalityTestService.LoadQuestions()
+            .ToDictionary(question => question.SortOrder.ToString());
+
+        var answers = new Dictionary<Question, AnswerValue>();
+        foreach (var (key, answerValue) in submitModel.Answers)
+        {
+            if (!questions.TryGetValue(key, out var question))
+                continue;
+
+            answers[question] = (AnswerValue)answerValue;
+        }
+
+        var traitScores = service.CalculateTraitScores(answers);
+        var roleScores = service.CalculateRoleScores(traitScores);
+        var topRoles = service.GetTopRoles(roleScores, count: 3);
 
         var model = new SelectRoleModel
         {
-            TopRoles = top.Select(r => new RoleOption
+            Answers = submitModel.Answers,
+            TopRoles = topRoles.Select(role => new RoleOption
             {
-                Role = r.Key,
-                /*DisplayName = System.Text.RegularExpressions.Regex
-                    .Replace(r.Key.ToString(), "(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " "),*/
-                DisplayName = r.Key.ToString(),
-                Score = r.Value
+                Role = role.Key,
+                DisplayName = role.Key.ToString(),
+                Score = role.Value,
             }).ToList(),
-            Answers = answers
         };
 
         return View("SelectRole", model);
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveResult(SelectRoleModel model, CancellationToken cancellationToken)
+    // POST: /PersonalityTest/SaveResult
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveResult(PersonalityTestSubmitModel submitModel, JobRole selectedRole, CancellationToken ct)
     {
-        //replace after auth
-        var userId = 1; 
-        var questions = PersonalityTestService.LoadQuestions();
+        var questions = PersonalityTestService.LoadQuestions()
+            .ToDictionary(question => question.SortOrder.ToString());
 
-        var answersDict = questions
-            .Where(q => model.Answers.ContainsKey(q.SortOrder))
-            .ToDictionary(q => q, q => (AnswerValue)model.Answers[q.SortOrder]);
+        var answers = new Dictionary<Question, AnswerValue>();
+        foreach (var (key, answerValue) in submitModel.Answers)
+        {
+            if (!questions.TryGetValue(key, out var question))
+                continue;
 
-        await service.SaveResultAsync(userId, answersDict, model.SelectedRole, cancellationToken);
+            answers[question] = (AnswerValue)answerValue;
+        }
+
+        await service.SaveResultAsync(CurrentUserId, answers, selectedRole, ct);
 
         return RedirectToAction(nameof(Index));
     }
