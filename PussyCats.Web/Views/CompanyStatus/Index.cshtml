@@ -1,0 +1,38 @@
+@model IEnumerable<PussyCats.Library.DTOs.UserApplicationResult>
+@{
+    ViewData["Title"] = "Company Status";
+}
+
+<h1>Company Status</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Applicant</th>
+            <th>Job</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.User.Name</td>
+                <td>@item.Job.JobTitle</td>
+                <td>@item.Match.Status</td>
+                <td>@item.CompatibilityScore.ToString("0.##")</td>
+                <td class="text-nowrap">
+                    <a asp-action="Details" asp-route-id="@item.Match.MatchId">Details</a>
+                    <span>|</span>
+                    <a asp-action="Edit" asp-route-id="@item.Match.MatchId">Decide</a>
+                    <span>|</span>
+                    <a asp-action="Delete" asp-route-id="@item.Match.MatchId">Remove</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Create</a>

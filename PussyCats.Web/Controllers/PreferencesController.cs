@@ -1,14 +1,13 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.Preferences;
 using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-//[Authorize]
 public class PreferencesController : Controller
 {
-    // Swap with claims-based identity once Dev 1's auth scaffolding lands.
-    private const int CurrentUserId = 1;
+    private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     private readonly IPreferenceService preferences;
 

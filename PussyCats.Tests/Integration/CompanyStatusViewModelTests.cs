@@ -10,8 +10,8 @@ using PussyCats.Tests.Helpers;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.Users;
-using PussyCats_App.Services.CompanyStatusService;
-using PussyCats_App.Services.UserSkillService;
+using PussyCats.Library.Services.CompanyStatusService;
+using PussyCats.Library.Services.UserSkillService;
 
 namespace PussyCats.Tests.Integration;
 

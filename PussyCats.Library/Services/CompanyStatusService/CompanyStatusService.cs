@@ -4,9 +4,9 @@ using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.Users;
-using PussyCats_App.Services.UserSkillService;
+using PussyCats.Library.Services.UserSkillService;
 
-namespace PussyCats_App.Services.CompanyStatusService;
+namespace PussyCats.Library.Services.CompanyStatusService;
 
 public class CompanyStatusService : ICompanyStatusService
 {
@@ -48,7 +48,7 @@ public class CompanyStatusService : ICompanyStatusService
         {
             var user = await userService.GetByIdAsync(match.User.UserId, cancellationToken).ConfigureAwait(false);
 
-            if(user is null)
+            if (user is null)
             {
                 continue;
             }

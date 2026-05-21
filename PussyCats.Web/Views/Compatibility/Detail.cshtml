@@ -1,0 +1,58 @@
+@model PussyCats.Library.DTOs.RoleResult
+@{
+    ViewData["Title"] = $"Compatibility — {Model.JobRole}";
+}
+
+<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">&larr; Back to Overview</a>
+
+<h2 class="mb-1">@Model.JobRole</h2>
+
+<div class="mb-4">
+    @if (Model.MatchScore < 0)
+    {
+        <p class="text-muted">No skill groups defined for this role yet.</p>
+    }
+    else
+    {
+        <h4>
+            Match Score:
+            <span class="@(Model.MatchScore >= 70 ? "text-success" : Model.MatchScore >= 40 ? "text-warning" : "text-danger")">
+                @Model.MatchScore.ToString("F1")%
+            </span>
+        </h4>
+        <div class="progress mb-3" style="height: 12px; max-width: 400px;">
+            <div class="progress-bar @(Model.MatchScore >= 70 ? "bg-success" : Model.MatchScore >= 40 ? "bg-warning" : "bg-danger")"
+                 role="progressbar"
+                 style="width: @Model.MatchScore%">
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Suggestions.Any())
+{
+    <h4 class="mb-3">Suggested Skills to Improve Your Score</h4>
+    <table class="table table-bordered" style="max-width: 600px;">
+        <thead class="table-light">
+            <tr>
+                <th>Skill</th>
+                <th>Skill Group</th>
+                <th>Potential Gain</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var suggestion in Model.Suggestions)
+            {
+                <tr>
+                    <td>@suggestion.SkillName</td>
+                    <td>@suggestion.GroupName</td>
+                    <td>+@suggestion.GainScore.ToString("F1")%</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-success">Great job! No skill gaps detected for this role.</p>
+}

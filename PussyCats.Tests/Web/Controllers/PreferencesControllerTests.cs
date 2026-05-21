@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using PussyCats.Library.Domain.Enums;
@@ -17,6 +19,12 @@ public class PreferencesControllerTests
     public PreferencesControllerTests()
     {
         controller = new PreferencesController(preferences);
+        var user = new ClaimsPrincipal(new ClaimsIdentity(
+            new[] { new Claim(ClaimTypes.NameIdentifier, "1") }, "test"));
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user },
+        };
     }
 
     [Fact]

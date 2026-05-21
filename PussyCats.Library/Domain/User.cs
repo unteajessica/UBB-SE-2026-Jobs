@@ -30,6 +30,7 @@ public class User
 
     public string ProfilePicturePath { get; set; } = string.Empty;
     public string ParsedCv { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
 
     public string PreferredEmploymentType { get; set; } = string.Empty;
     public string WorkModePreference { get; set; } = string.Empty;

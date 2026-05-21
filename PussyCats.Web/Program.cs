@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using PussyCats.Library.Services.CompatibilityService;
 using PussyCats.Library.Services.CompanyService;
+using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.Jobs;
@@ -34,7 +37,10 @@ builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 // properties never bind and ModelState would fail on every POST. Suppress the implicit rule
 // — same fix the API applied in Phase 6c (see docs/MergeStatus.md).
 builder.Services.AddControllersWithViews(options =>
-    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+{
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    options.Filters.Add(new AuthorizeFilter());
+})
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter()));
@@ -59,6 +65,8 @@ builder.Services.AddSession(options =>
 });
 
 RegisterServiceProxy<ICompanyService, CompanyServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<ICompatibilityService, CompatibilityServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<ICompanyStatusService, CompanyStatusServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IDocumentService, DocumentServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IJobService, JobServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IJobSkillService, JobSkillServiceProxy>(builder.Services, apiConfig);
@@ -76,6 +84,8 @@ builder.Services.AddHttpClient<IUserSkillService, UserSkillServiceProxy>(client 
 {
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
+builder.Services.AddHttpClient<AuthServiceProxy>(client =>
+    client.BaseAddress = new Uri(apiConfig.BaseUrl));
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.SkillTests;
@@ -19,11 +20,9 @@ namespace PussyCats.Web.Controllers
         // Shows all tests for the logged-in user
         public async Task<IActionResult> Index()
         {
-            // Note: Replace with your actual logged-in user identification logic 
-            // e.g., int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int mockUserId = 1;
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var tests = await skillTestService.GetTestsForUserAsync(mockUserId);
+            var tests = await skillTestService.GetTestsForUserAsync(userId);
             return View(tests);
         }
 

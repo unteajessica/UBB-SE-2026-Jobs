@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.CompletenessService;
@@ -20,9 +21,9 @@ namespace PussyCats.Web.Controllers
         // GET: /Profile
         public async Task<IActionResult> Index()
         {
-            int mockUserId = 1; // Swap with true identity contexts later
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var user = await userProfileService.GetProfileAsync(mockUserId);
+            var user = await userProfileService.GetProfileAsync(userId);
             if (user == null) return NotFound();
 
             // Calculate support metadata exactly like your WinUI viewmodel logic
@@ -38,11 +39,11 @@ namespace PussyCats.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus()
         {
-            int mockUserId = 1;
-            var user = await userProfileService.GetProfileAsync(mockUserId);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var user = await userProfileService.GetProfileAsync(userId);
             if (user == null) return NotFound();
 
-            await userProfileService.UpdateAccountStatusAsync(mockUserId, !user.ActiveAccount);
+            await userProfileService.UpdateAccountStatusAsync(userId, !user.ActiveAccount);
             return RedirectToAction(nameof(Index));
         }
     }

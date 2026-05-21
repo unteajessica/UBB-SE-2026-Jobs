@@ -1,0 +1,51 @@
+@model PussyCats.Web.Models.MatchDecisionFormModel
+@{
+    ViewData["Title"] = "Edit Decision";
+}
+
+@using PussyCats.Library.Domain.Enums
+
+<h1>Edit Decision</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Applicant</dt>
+    <dd class="col-sm-9">@Model.ApplicantName</dd>
+
+    <dt class="col-sm-3">Job</dt>
+    <dd class="col-sm-9">@Model.JobTitle</dd>
+
+    <dt class="col-sm-3">Company</dt>
+    <dd class="col-sm-9">@Model.CompanyName</dd>
+
+    <dt class="col-sm-3">Current Status</dt>
+    <dd class="col-sm-9">@Model.CurrentStatus</dd>
+</dl>
+
+<form asp-action="Edit" asp-route-id="@Model.MatchId" method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="MatchId" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Decision" class="form-label"></label>
+        <select asp-for="Decision" class="form-select">
+            <option value="">-- select decision --</option>
+            <option value="@MatchStatus.Accepted">Accepted</option>
+            <option value="@MatchStatus.Rejected">Rejected</option>
+        </select>
+        <span asp-validation-for="Decision" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Feedback" class="form-label"></label>
+        <textarea asp-for="Feedback" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Feedback" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.MatchId">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
