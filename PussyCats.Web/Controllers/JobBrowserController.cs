@@ -131,11 +131,6 @@ namespace PussyCats.Web.Controllers
         }
 
         private int GetCurrentUserId()
-        {
-            // Helper method matching your app authentication framework infrastructure
-            //return int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            int mockUserId = 1;
-            return mockUserId;
-        }
+            => int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
     }
 }

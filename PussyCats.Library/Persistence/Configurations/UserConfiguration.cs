@@ -46,6 +46,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Motivation).HasMaxLength(MaxMotivationLength);
         builder.Property(user => user.ProfilePicturePath).HasMaxLength(MaxProfilePicturePathLength);
         builder.Property(user => user.ParsedCv).HasColumnType("nvarchar(max)");
+        builder.Property(user => user.PasswordHash).HasMaxLength(512);
         builder.Property(user => user.PreferredEmploymentType).HasMaxLength(MaxPreferredEmploymentTypeLength);
         builder.Property(user => user.WorkModePreference).HasMaxLength(MaxWorkModePreferenceLength);
         builder.Property(user => user.LocationPreference).HasMaxLength(MaxLocationPreferenceLength);

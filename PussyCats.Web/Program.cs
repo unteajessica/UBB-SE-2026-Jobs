@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.Documents;
@@ -34,7 +35,10 @@ builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 // properties never bind and ModelState would fail on every POST. Suppress the implicit rule
 // — same fix the API applied in Phase 6c (see docs/MergeStatus.md).
 builder.Services.AddControllersWithViews(options =>
-    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+{
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    options.Filters.Add(new AuthorizeFilter());
+})
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter()));
@@ -76,6 +80,8 @@ builder.Services.AddHttpClient<IUserSkillService, UserSkillServiceProxy>(client 
 {
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
+builder.Services.AddHttpClient<AuthServiceProxy>(client =>
+    client.BaseAddress = new Uri(apiConfig.BaseUrl));
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

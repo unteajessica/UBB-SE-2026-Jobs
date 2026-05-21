@@ -42,10 +42,8 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="SkillTests" asp-action="Index">Skill Tests</a>
                         </li>
-                        
-<li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="Index">Profile</a>
-
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="PersonalityTest" asp-action="Index">Personality Test</a>
@@ -54,8 +52,27 @@
                             <a class="nav-link text-dark" asp-controller="Preferences" asp-action="Index">Preferences</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="UserSkills" asp-action="Index" asp-route-userId="1">User Skills</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="UserSkills" asp-action="Index" asp-route-userId="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">User Skills</a>
                         </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item d-flex align-items-center me-2">
+                                <span class="nav-link text-dark fw-semibold">@User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

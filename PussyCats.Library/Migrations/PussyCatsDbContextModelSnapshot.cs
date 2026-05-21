@@ -1986,6 +1986,11 @@ namespace PussyCats.Library.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -2051,6 +2056,7 @@ namespace PussyCats.Library.Migrations
                             LocationPreference = "",
                             Motivation = "",
                             ParsedCv = "",
+                            PasswordHash = "",
                             Phone = "+40123456789",
                             PreferredEmploymentType = "",
                             ProfilePicturePath = "",
