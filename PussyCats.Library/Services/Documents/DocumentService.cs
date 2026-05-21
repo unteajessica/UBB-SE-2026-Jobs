@@ -98,6 +98,7 @@ public class DocumentService : IDocumentService, ILocalDocumentFileService
             }
 
             ApplyParsedCvData(user, parsedUser);
+            user.ParsedCv = jsonContent;
             await users.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
             cvStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonContent));
             streamToSave = cvStream;
@@ -226,25 +227,6 @@ public class DocumentService : IDocumentService, ILocalDocumentFileService
             target.HasDisabilities = true;
         }
 
-        if (parsed.Skills.Count > 0)
-        {
-            target.Skills = parsed.Skills;
-        }
-
-        if (parsed.WorkExperiences.Count > 0)
-        {
-            target.WorkExperiences = parsed.WorkExperiences;
-        }
-
-        if (parsed.Projects.Count > 0)
-        {
-            target.Projects = parsed.Projects;
-        }
-
-        if (parsed.ExtraCurricularActivities.Count > 0)
-        {
-            target.ExtraCurricularActivities = parsed.ExtraCurricularActivities;
-        }
     }
 
     private static void ApplyIfPresent(string value, Action<string> apply)

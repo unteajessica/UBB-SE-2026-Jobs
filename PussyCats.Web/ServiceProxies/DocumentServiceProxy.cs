@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.Documents;
@@ -8,6 +10,12 @@ namespace PussyCats.Web.ServiceProxies;
 
 public class DocumentServiceProxy : IDocumentService
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() },
+    };
+
     private readonly HttpClient http;
 
     public DocumentServiceProxy(HttpClient http)
@@ -16,7 +24,7 @@ public class DocumentServiceProxy : IDocumentService
     }
 
     public async Task<IReadOnlyList<Document>> GetAllAsync(CancellationToken cancellationToken = default)
-        => await http.GetFromJsonAsync<List<Document>>("api/documents", cancellationToken) ?? new List<Document>();
+        => await http.GetFromJsonAsync<List<Document>>("api/documents", JsonOptions, cancellationToken) ?? new List<Document>();
 
     public async Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
@@ -24,11 +32,11 @@ public class DocumentServiceProxy : IDocumentService
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             return null;
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Document>(cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<Document>(JsonOptions, cancellationToken: cancellationToken);
     }
 
     public async Task<IReadOnlyList<Document>> GetDocumentsByUserIdAsync(int userId, CancellationToken cancellationToken = default)
-        => await http.GetFromJsonAsync<List<Document>>($"api/documents?userId={userId}", cancellationToken) ?? new List<Document>();
+        => await http.GetFromJsonAsync<List<Document>>($"api/documents?userId={userId}", JsonOptions, cancellationToken) ?? new List<Document>();
 
     public async Task<Document> AddAsync(Document document, CancellationToken cancellationToken = default)
     {
@@ -40,7 +48,7 @@ public class DocumentServiceProxy : IDocumentService
         };
         var response = await http.PostAsJsonAsync("api/documents", request, cancellationToken);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<Document>(cancellationToken: cancellationToken))!;
+        return (await response.Content.ReadFromJsonAsync<Document>(JsonOptions, cancellationToken: cancellationToken))!;
     }
 
     public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
@@ -89,8 +97,13 @@ public class DocumentServiceProxy : IDocumentService
         content.Add(streamContent, "File", originalFileName);
 
         var response = await http.PostAsync("api/documents/upload", content, cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException($"API 400: {body}");
+        }
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<Document>(cancellationToken: cancellationToken))!;
+        return (await response.Content.ReadFromJsonAsync<Document>(JsonOptions, cancellationToken: cancellationToken))!;
     }
 
     public async Task<string> GetDocumentAbsolutePathAsync(int documentId, CancellationToken cancellationToken = default)
