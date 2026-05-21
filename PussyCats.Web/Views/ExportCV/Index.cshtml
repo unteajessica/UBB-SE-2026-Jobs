@@ -1,0 +1,226 @@
+@model PussyCats.Library.Domain.User
+@{
+    ViewData["Title"] = "Export CV";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.FirstName @Model.LastName — CV</title>
+    <link rel="stylesheet" href="~/cv/CVCSSTemplate.css" asp-append-version="true" />
+    <style>
+        body { margin: 0; background: #f5f5f5; }
+
+        .cv-toolbar {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #cv-content {
+            background: #fff;
+            max-width: 820px;
+            margin: 20px auto;
+            padding: 32px 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        }
+
+        @@media print {
+            .cv-toolbar { display: none !important; }
+            body { background: #fff; }
+            #cv-content {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cv-toolbar">
+        <button onclick="window.print()" class="btn-print">&#128438; Print / Save as PDF</button>
+        <a href="javascript:history.back()" class="btn-back">&larr; Back</a>
+    </div>
+
+    <div id="cv-content">
+
+        <header class="cv-header">
+            <div>
+                <h1 id="cv-name">@Model.FirstName @Model.LastName</h1>
+            </div>
+            <div class="cv-contact">
+                @if (!string.IsNullOrWhiteSpace(Model.Email))
+                {
+                    <div>@Model.Email</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                {
+                    <div>@Model.Phone</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.City) || !string.IsNullOrWhiteSpace(Model.Country))
+                {
+                    <div>@Model.City @Model.Country</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.GitHub))
+                {
+                    <div><a href="@Model.GitHub">@Model.GitHub</a></div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.LinkedIn))
+                {
+                    <div><a href="@Model.LinkedIn">@Model.LinkedIn</a></div>
+                }
+            </div>
+        </header>
+
+        <div class="cv-body">
+
+            @if (!string.IsNullOrWhiteSpace(Model.University))
+            {
+                <section class="cv-section">
+                    <h2>Education</h2>
+                    <div class="edu-entry">
+                        <div class="edu-line">
+                            <span class="edu-university">@Model.University</span>
+                            @if (!string.IsNullOrWhiteSpace(Model.Degree))
+                            {
+                                <span class="edu-degree">@Model.Degree</span>
+                            }
+                            <span class="edu-divider"></span>
+                            @if (Model.UniversityStartYear > 0)
+                            {
+                                <span class="edu-period">@Model.UniversityStartYear</span>
+                                <span> – </span>
+                            }
+                            @if (Model.ExpectedGraduationYear > 0)
+                            {
+                                <span class="edu-period">@Model.ExpectedGraduationYear</span>
+                            }
+                        </div>
+                    </div>
+                </section>
+            }
+
+            @if (Model.WorkExperiences != null && Model.WorkExperiences.Count > 0)
+            {
+                <section class="cv-section">
+                    <h2>Work Experience</h2>
+                    @foreach (var job in Model.WorkExperiences)
+                    {
+                        <div class="work-entry">
+                            <div class="work-line">
+                                <span class="work-role">@job.JobTitle</span>
+                                <span class="work-company">@job.Company</span>
+                                <span class="work-divider"></span>
+                                <span class="work-period">
+                                    @job.StartDate.ToString("yyyy-MM-dd") –
+                                    @(job.CurrentlyWorking || job.EndDate == null ? "Present" : job.EndDate.Value.ToString("yyyy-MM-dd"))
+                                </span>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(job.Description))
+                            {
+                                <p class="work-description">@job.Description</p>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+
+            @if (Model.Projects != null && Model.Projects.Count > 0)
+            {
+                <section class="cv-section">
+                    <h2>Projects</h2>
+                    @foreach (var project in Model.Projects)
+                    {
+                        <div class="project-entry-custom">
+                            <div class="project-line">
+                                <span class="project-title">@project.Name</span>
+                                @if (!string.IsNullOrWhiteSpace(project.Url))
+                                {
+                                    <span class="project-divider"></span>
+                                    <span class="project-period"><a href="@project.Url">@project.Url</a></span>
+                                }
+                            </div>
+                            @if (project.Technologies != null && project.Technologies.Count > 0)
+                            {
+                                <div class="project-tech">@string.Join(" · ", project.Technologies)</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(project.Description))
+                            {
+                                <p class="project-description">@project.Description</p>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+
+            @if (Model.ExtraCurricularActivities != null && Model.ExtraCurricularActivities.Count > 0)
+            {
+                <section class="cv-section">
+                    <h2>Extracurricular Activities</h2>
+                    @foreach (var activity in Model.ExtraCurricularActivities)
+                    {
+                        <div class="extra-entry">
+                            <div class="extra-title">@activity.ActivityName</div>
+                            @{
+                                var meta = new[] { activity.Organization, activity.Role, activity.Period }
+                                    .Where(s => !string.IsNullOrWhiteSpace(s));
+                            }
+                            @if (meta.Any())
+                            {
+                                <div class="extra-meta">@string.Join(" · ", meta)</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(activity.Description))
+                            {
+                                <div class="extra-desc">@activity.Description</div>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+
+            @if (Model.Skills != null && Model.Skills.Count > 0)
+            {
+                <section class="cv-section">
+                    <h2>Skills</h2>
+                    <div class="skill-group">
+                        <div class="skill-tags">
+                            @foreach (var skill in Model.Skills)
+                            {
+                                <span class="skill-tag">@skill.Skill?.Name</span>
+                            }
+                        </div>
+                    </div>
+                </section>
+            }
+
+        </div>
+    </div>
+
+    <style>
+        .btn-print {
+            background: #0d6efd;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-print:hover { background: #0b5ed7; }
+        .btn-back {
+            color: #555;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-back:hover { color: #000; }
+    </style>
+
+</body>
+</html>
