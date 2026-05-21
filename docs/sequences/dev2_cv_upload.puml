@@ -1,0 +1,98 @@
+@startuml dev2_cv_upload
+autonumber
+
+skinparam sequenceArrowThickness 1.5
+skinparam sequenceParticipantBackgroundColor #FAFAFA
+skinparam sequenceParticipantBorderColor #888888
+skinparam sequenceLifeLineBorderColor #AAAAAA
+skinparam sequenceBoxBorderColor #666666
+skinparam sequenceBoxBackgroundColor #F5F5F5
+skinparam noteBorderColor #999900
+skinparam noteBackgroundColor #FFFFCC
+skinparam defaultFontSize 11
+skinparam sequenceGroupHeaderFontStyle bold
+
+actor       "User\n(Web Browser)"         as User
+participant "DocumentsController\n(Web)"  as WebCtrl   #D5E8D4
+participant "DocumentServiceProxy\n(Web)" as DocProxy  #D5E8D4
+participant "DocumentsController\n(API)"  as ApiDocs   #FFE6CC
+participant "DocumentService\n(Library)"  as DocSvc    #FFF2CC
+participant "CvParsingService\n(Library)" as CvSvc     #FFF2CC
+participant "LocalFileStorage\nService"   as FileStore #F8CECC
+participant "UserService\n(Library)"      as UserSvc   #FFF2CC
+participant "UserRepository"              as UserRepo  #E1D5E7
+participant "DocumentRepository"          as DocRepo   #E1D5E7
+database    "Database"                    as DB        #DAE8FC
+
+User     -> WebCtrl  : POST /Documents/Create (file, userId, isCv)
+WebCtrl  -> DocProxy : UploadDocumentFromStreamAsync(...)
+DocProxy -> ApiDocs  : POST /api/documents/upload (multipart)
+ApiDocs  -> DocSvc   : UploadDocumentFromStreamAsync(...)
+DocSvc   -> UserSvc  : GetByIdAsync(userId)
+UserSvc  -> UserRepo : GetByIdAsync(userId)
+UserRepo -> DB       : Fetch user
+DB       --> UserRepo : User row / null
+UserRepo --> UserSvc  : User / null
+UserSvc  --> DocSvc   : User / null
+
+alt Missing user
+    DocSvc   --> ApiDocs  : KeyNotFoundException
+    ApiDocs  --> DocProxy : 404 Not Found
+    DocProxy --> WebCtrl  : HttpRequestException
+    WebCtrl  --> User     : Show selected user validation error
+
+else User exists
+    alt Invalid file type
+        DocSvc   --> ApiDocs  : InvalidOperationException
+        ApiDocs  --> DocProxy : 400 Bad Request
+        DocProxy --> WebCtrl  : HttpRequestException
+        WebCtrl  --> User     : Show upload/parse validation error
+
+    else Valid file
+        alt Is CV JSON
+            DocSvc -> CvSvc : ParseCvFile(jsonContent, ".json")
+
+            alt Parse fails
+                CvSvc    --> DocSvc   : Exception
+                DocSvc   --> ApiDocs  : InvalidOperationException
+                ApiDocs  --> DocProxy : 400 Bad Request
+                DocProxy --> WebCtrl  : HttpRequestException
+                WebCtrl  --> User     : Show parse validation error
+
+            else Parse succeeds
+                CvSvc    --> DocSvc  : Parsed User Entity
+                DocSvc   ->  UserSvc : UpdateAsync(user with parsed fields)
+                UserSvc  ->  UserRepo : UpdateAsync(user)
+                UserRepo ->  DB       : Save profile fields and skills
+                DB       --> UserRepo : Save confirmed
+                UserRepo --> UserSvc  : Update complete
+                UserSvc  --> DocSvc   : Update complete
+
+                DocSvc   ->  FileStore : SaveFileAsync(stream, originalFileName)
+                FileStore --> DocSvc   : Stored file path
+                DocSvc   ->  DocRepo   : AddAsync(document metadata)
+                DocRepo  ->  DB        : Save document
+                DB       --> DocRepo   : Saved document
+                DocRepo  --> DocSvc    : Document entity
+                DocSvc   --> ApiDocs   : Document entity
+                ApiDocs  --> DocProxy  : 201 Created + Document JSON
+                DocProxy --> WebCtrl   : Document entity
+                WebCtrl  --> User      : Redirect to Index
+            end
+
+        else Standard document
+            DocSvc   ->  FileStore : SaveFileAsync(stream, originalFileName)
+            FileStore --> DocSvc   : Stored file path
+            DocSvc   ->  DocRepo   : AddAsync(document metadata)
+            DocRepo  ->  DB        : Save document
+            DB       --> DocRepo   : Saved document
+            DocRepo  --> DocSvc    : Document entity
+            DocSvc   --> ApiDocs   : Document entity
+            ApiDocs  --> DocProxy  : 201 Created + Document JSON
+            DocProxy --> WebCtrl   : Document entity
+            WebCtrl  --> User      : Redirect to Index
+        end
+    end
+end
+
+@enduml
