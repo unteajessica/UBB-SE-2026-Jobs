@@ -6,9 +6,9 @@ using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.JobSkills;
 using PussyCats.Library.Services.RecommendationAlgorithm;
-using PussyCats_App.Services.UserSkillService;
+using PussyCats.Library.Services.UserSkillService;
 
-namespace PussyCats_App.Services.CompanyRecommendationService;
+namespace PussyCats.Library.Services.CompanyRecommendationService;
 
 public class CompanyRecommendationService : ICompanyRecommendationService
 {
@@ -38,16 +38,14 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         this.algorithm = algorithm;
     }
 
-    public async Task LoadApplicantsAsync(int companyId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<UserApplicationResult>> GetRankedApplicantsAsync(int companyId, CancellationToken cancellationToken = default)
     {
         var companyJobs = await jobService.GetByCompanyIdAsync(companyId, cancellationToken).ConfigureAwait(false);
         var companyJobIds = GetJobIds(companyJobs);
 
         if (companyJobIds.Count == 0)
         {
-            rankedApplicants = new List<UserApplicationResult>();
-            currentApplicantIndex = 0;
-            return;
+            return new List<UserApplicationResult>();
         }
 
         var allMatches = await matchService.GetAllMatchesAsync(cancellationToken).ConfigureAwait(false);
@@ -87,7 +85,26 @@ public class CompanyRecommendationService : ICompanyRecommendationService
         }
 
         results.Sort(CompareByCompatibilityScoreDescending);
-        rankedApplicants = results;
+        return results;
+    }
+
+    public async Task<UserApplicationResult?> GetApplicantByMatchIdAsync(int companyId, int matchId, CancellationToken cancellationToken = default)
+    {
+        var applicants = await GetRankedApplicantsAsync(companyId, cancellationToken).ConfigureAwait(false);
+        foreach (var applicant in applicants)
+        {
+            if (applicant.Match.MatchId == matchId)
+            {
+                return applicant;
+            }
+        }
+
+        return null;
+    }
+
+    public async Task LoadApplicantsAsync(int companyId, CancellationToken cancellationToken = default)
+    {
+        rankedApplicants = (await GetRankedApplicantsAsync(companyId, cancellationToken).ConfigureAwait(false)).ToList();
         currentApplicantIndex = 0;
     }
 

@@ -1,0 +1,87 @@
+@model CompanyRecommendationDetailsModel
+
+@{
+    ViewData["Title"] = "Applicant Recommendation";
+    var applicant = Model.Applicant;
+    var breakdown = Model.Breakdown;
+}
+
+<h1>Applicant Recommendation</h1>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <h2 class="h4">@applicant.User.Name</h2>
+        <dl class="row">
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">@applicant.User.Email</dd>
+
+            <dt class="col-sm-4">Phone</dt>
+            <dd class="col-sm-8">@applicant.User.Phone</dd>
+
+            <dt class="col-sm-4">Location</dt>
+            <dd class="col-sm-8">@applicant.User.City, @applicant.User.Country</dd>
+
+            <dt class="col-sm-4">Job</dt>
+            <dd class="col-sm-8">@applicant.Job.JobTitle</dd>
+
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8">@applicant.Match.Status</dd>
+
+            <dt class="col-sm-4">Compatibility</dt>
+            <dd class="col-sm-8">@applicant.CompatibilityScore.ToString("F1")</dd>
+        </dl>
+
+        <h2 class="h5">Skills</h2>
+        @if (!applicant.UserSkills.Any())
+        {
+            <p class="text-muted">No skills recorded.</p>
+        }
+        else
+        {
+            <ul class="list-group mb-4">
+                @foreach (var userSkill in applicant.UserSkills)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@userSkill.Skill.Name</span>
+                        <span>@userSkill.Score.ToString("F1")</span>
+                    </li>
+                }
+            </ul>
+        }
+
+        <h2 class="h5">Resume</h2>
+        <p class="text-break">@applicant.User.ParsedCv</p>
+    </div>
+
+    <div class="col-md-5">
+        <h2 class="h4">Score Breakdown</h2>
+        @if (breakdown is null)
+        {
+            <p class="text-muted">Breakdown is not available.</p>
+        }
+        else
+        {
+            <dl class="row">
+                <dt class="col-sm-7">Skills</dt>
+                <dd class="col-sm-5">@breakdown.SkillScore.ToString("F1")</dd>
+
+                <dt class="col-sm-7">Resume Keywords</dt>
+                <dd class="col-sm-5">@breakdown.KeywordScore.ToString("F1")</dd>
+
+                <dt class="col-sm-7">Preferences</dt>
+                <dd class="col-sm-5">@breakdown.PreferenceScore.ToString("F1")</dd>
+
+                <dt class="col-sm-7">Promotion</dt>
+                <dd class="col-sm-5">@breakdown.PromotionScore.ToString("F1")</dd>
+
+                <dt class="col-sm-7">Overall</dt>
+                <dd class="col-sm-5">@breakdown.OverallScore.ToString("F1")</dd>
+            </dl>
+        }
+
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary" asp-controller="Matches" asp-action="Decision" asp-route-id="@applicant.Match.MatchId">Decision</a>
+            <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+        </div>
+    </div>
+</div>

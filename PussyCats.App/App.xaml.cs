@@ -26,7 +26,7 @@ using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
-using PussyCats_App.Services.CompanyRecommendationService;
+using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats_App.Services.CompatibilityService;
 
@@ -128,6 +128,7 @@ public partial class App : Application
         RegisterServiceProxy<ISkillService, SkillServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IUserService, UserServiceProxy>(services, apiConfiguration);
 
+        services.AddTransient<PussyCats.Library.Services.UserSkillService.IUserSkillService, PussyCats.Library.Services.UserSkillService.UserSkillService>();
         services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
         services.AddTransient<ICompanyStatusService, CompanyStatusService>();
         services.AddTransient<ICompatibilityService, CompatibilityService>();
