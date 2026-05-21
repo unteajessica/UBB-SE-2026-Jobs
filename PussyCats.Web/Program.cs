@@ -23,8 +23,12 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddControllersWithViews()
+// Non-nullable nav properties on domain entities (e.g. Job.Company = null!) are implicitly
+// treated as [Required] by model validation. Forms only carry IDs (Job.JobId), so the nav
+// properties never bind and ModelState would fail on every POST. Suppress the implicit rule
+// — same fix the API applied in Phase 6c (see docs/MergeStatus.md).
+builder.Services.AddControllersWithViews(options =>
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
     .AddJsonOptions(opt =>
         opt.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter()));
@@ -71,6 +75,16 @@ builder.Services.AddHttpClient<IUserRecommendationService, UserRecommendationSer
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 });
 
+// JobBrowser stores Undo state (LastAction / LastMatchId / LastDismissId / LastDisplayId)
+// in HttpContext.Session, so the session middleware needs to be registered + activated.
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -84,6 +98,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseSession();
 app.UseAuthorization();
 
 app.MapStaticAssets();
