@@ -25,7 +25,7 @@ using PussyCats_App.Services.CompanyStatusService;
 using PussyCats_App.Services.CompatibilityService;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CooldownService;
-using PussyCats_App.Services.CvParsingService;
+using PussyCats.Library.Services.CvParsing;
 using PussyCats_App.Services.DeveloperService;
 using PussyCats_App.Services.ImageStorageService;
 using PussyCats_App.Services.JobSkillService;
@@ -126,6 +126,7 @@ public partial class App : Application
             TimeSpan.FromHours(24)));
         services.AddTransient<ICvParsingService, CvParsingService>();
         services.AddTransient<IDocumentService, DocumentService>();
+        services.AddTransient<ILocalDocumentFileService, DocumentService>();
         services.AddTransient<IImageStorageService, ImageStorageService>();
         services.AddTransient<IJobService, JobService>();
         services.AddTransient<IJobSkillService, JobSkillService>();

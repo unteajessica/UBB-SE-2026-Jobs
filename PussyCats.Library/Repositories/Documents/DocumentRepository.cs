@@ -29,6 +29,7 @@ public class DocumentRepository : IDocumentRepository
     public async Task<Document?> GetByIdAsync(int documentId, CancellationToken cancellationToken = default)
     {
         return await databaseContext.Documents
+            .Include(document => document.User)
             .FirstOrDefaultAsync(document => document.DocumentId == documentId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -60,8 +61,13 @@ public class DocumentRepository : IDocumentRepository
 
     public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
     {
-        databaseContext.Documents.Update(document);
-        await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var existing = await databaseContext.Documents.FindAsync(new object?[] { document.DocumentId }, cancellationToken).ConfigureAwait(false);
+        if (existing is not null)
+        {
+            existing.DocumentName = document.DocumentName;
+            existing.FilePath = document.FilePath;
+            await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
     }
 
     public async Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)

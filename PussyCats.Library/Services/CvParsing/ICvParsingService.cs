@@ -1,6 +1,6 @@
 using PussyCats.Library.Domain;
 
-namespace PussyCats_App.Services.CvParsingService;
+namespace PussyCats.Library.Services.CvParsing;
 
 public interface ICvParsingService
 {

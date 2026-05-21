@@ -11,11 +11,16 @@ namespace PussyCats.Api.Controllers;
 public class DocumentsController : ControllerBase
 {
     private readonly IDocumentService documents;
+    private readonly ILocalDocumentFileService documentFiles;
     private readonly IUserService users;
 
-    public DocumentsController(IDocumentService documents, IUserService users)
+    public DocumentsController(
+        IDocumentService documents,
+        ILocalDocumentFileService documentFiles,
+        IUserService users)
     {
         this.documents = documents;
+        this.documentFiles = documentFiles;
         this.users = users;
     }
 
@@ -71,12 +76,55 @@ public class DocumentsController : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("upload")]
+    public async Task<IActionResult> Upload([FromForm] DocumentUploadRequest body, CancellationToken cancellationToken)
+    {
+        if (body.File is null || body.File.Length == 0)
+        {
+            return BadRequest("Please upload a file.");
+        }
+
+        try
+        {
+            await using var stream = body.File.OpenReadStream();
+            var saved = await documents.UploadDocumentFromStreamAsync(
+                body.UserId,
+                body.DocumentName,
+                body.File.FileName,
+                body.File.ContentType,
+                stream,
+                body.IsCv,
+                cancellationToken);
+
+            return CreatedAtAction(nameof(GetById), new { id = saved.DocumentId }, saved);
+        }
+        catch (KeyNotFoundException exception)
+        {
+            return NotFound(exception.Message);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {
         if (await documents.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await documents.RemoveAsync(id, cancellationToken);
+        await documentFiles.DeleteDocumentAsync(id, cancellationToken);
         return NoContent();
+    }
+
+    public sealed class DocumentUploadRequest
+    {
+        public int UserId { get; set; }
+
+        public string DocumentName { get; set; } = string.Empty;
+
+        public bool IsCv { get; set; }
+
+        public IFormFile? File { get; set; }
     }
 }

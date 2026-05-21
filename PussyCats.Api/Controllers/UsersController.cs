@@ -108,7 +108,7 @@ public class UsersController : ControllerBase
 
     [HttpPost("{id}/cv")]
     public IActionResult ParseCv(int id) =>
-        Problem("CV parsing routes through /api/files in Phase 5.", statusCode: 501);
+        Problem("CV parsing routes through /api/documents/upload.", statusCode: 501);
 
     [HttpGet("{id}/compatibility")]
     public IActionResult GetCompatibility(int id) =>

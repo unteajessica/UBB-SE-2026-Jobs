@@ -68,6 +68,11 @@ public class UserProfileService : IUserProfileService
         }
     }
 
+    public string GenerateParsedCvText(User user)
+    {
+        return Helpers.GenerateParsedCvText(user);
+    }
+
     public async Task<int> RecalculateLevelAsync(User user, CancellationToken cancellationToken = default)
     {
         if (user is null)

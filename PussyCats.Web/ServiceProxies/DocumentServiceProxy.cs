@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.Documents;
@@ -64,6 +65,33 @@ public class DocumentServiceProxy : IDocumentService
 
     public async Task DeleteDocumentAsync(int documentId, CancellationToken cancellationToken = default)
         => throw new NotSupportedException("File deletion is not supported via the HTTP proxy.");
+
+    public async Task<Document> UploadDocumentFromStreamAsync(
+        int userId,
+        string documentName,
+        string originalFileName,
+        string contentType,
+        Stream fileStream,
+        bool isCv,
+        CancellationToken cancellationToken = default)
+    {
+        using var content = new MultipartFormDataContent();
+        content.Add(new StringContent(userId.ToString()), "UserId");
+        content.Add(new StringContent(documentName), "DocumentName");
+        content.Add(new StringContent(isCv.ToString()), "IsCv");
+
+        using var streamContent = new StreamContent(fileStream);
+        if (!string.IsNullOrWhiteSpace(contentType))
+        {
+            streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+        }
+
+        content.Add(streamContent, "File", originalFileName);
+
+        var response = await http.PostAsync("api/documents/upload", content, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<Document>(cancellationToken: cancellationToken))!;
+    }
 
     public async Task<string> GetDocumentAbsolutePathAsync(int documentId, CancellationToken cancellationToken = default)
         => throw new NotSupportedException("Path retrieval is not supported via the HTTP proxy.");

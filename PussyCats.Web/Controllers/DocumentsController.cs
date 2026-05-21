@@ -1,135 +1,169 @@
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.Users;
+using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-//[Authorize]
+[Authorize]
 public class DocumentsController : Controller
 {
-    private readonly IDocumentService service;
-    private readonly IWebHostEnvironment environment;
+    private readonly IDocumentService documents;
+    private readonly IUserService users;
 
-    public DocumentsController(IDocumentService service, IWebHostEnvironment environment)
+    public DocumentsController(IDocumentService documents, IUserService users)
     {
-        this.service = service;
-        this.environment = environment;
+        this.documents = documents;
+        this.users = users;
     }
 
-    public async Task<IActionResult> Index(CancellationToken ct)
-        => View(await service.GetAllAsync(ct));
-
-    public async Task<IActionResult> Details(int id, CancellationToken ct)
+    public async Task<IActionResult> Index(int? userId, CancellationToken cancellationToken)
     {
-        var document = await service.GetByIdAsync(id, ct);
+        var allUsers = await users.GetAllAsync(cancellationToken);
+        ViewBag.Users = allUsers.Select(user => new SelectListItem
+        {
+            Value = user.UserId.ToString(),
+            Text = $"{user.FirstName} {user.LastName} ({user.Email})",
+            Selected = user.UserId == userId
+        }).ToList();
+
+        var selectedUserId = userId ?? allUsers.FirstOrDefault()?.UserId ?? 0;
+        ViewBag.SelectedUserId = selectedUserId;
+
+        var userDocuments = selectedUserId > 0
+            ? await documents.GetDocumentsByUserIdAsync(selectedUserId, cancellationToken)
+            : new List<Document>();
+
+        return View(userDocuments);
+    }
+
+    public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
+    {
+        var document = await documents.GetByIdAsync(id, cancellationToken);
         return document is null ? NotFound() : View(document);
     }
 
-    public IActionResult Create() => View();
-
-    [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(string documentName, IFormFile? file, CancellationToken ct)
+    public async Task<IActionResult> Create(int? userId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(documentName))
-        {
-            ModelState.AddModelError(nameof(documentName), "Document name is required.");
-            return View();
-        }
-
-        string filePath = "documents/default.txt";
-
-        if (file != null && file.Length > 0)
-        {
-            try
-            {
-                filePath = await SaveFileAsync(file);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("file", $"Error uploading file: {ex.Message}");
-                return View();
-            }
-        }
-
-        var document = new Document
-        {
-            DocumentName = documentName,
-            FilePath = filePath,
-            User = new User { UserId = 0 }
-        };
-
-        await service.AddAsync(document, ct);
-        return RedirectToAction(nameof(Index));
+        await PopulateUsersDropdownAsync(cancellationToken);
+        return View(new DocumentFormModel { UserId = userId ?? 0 });
     }
 
-    public async Task<IActionResult> Edit(int id, CancellationToken ct)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(DocumentFormModel model, CancellationToken cancellationToken)
     {
-        var document = await service.GetByIdAsync(id, ct);
-        return document is null ? NotFound() : View(document);
-    }
-
-    [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, string documentName, IFormFile? file, CancellationToken ct)
-    {
-        var document = await service.GetByIdAsync(id, ct);
-        if (document is null) return NotFound();
-
-        if (id != document.DocumentId) return BadRequest();
-
-        if (string.IsNullOrWhiteSpace(documentName))
+        if (model.File is null || model.File.Length == 0)
         {
-            ModelState.AddModelError(nameof(documentName), "Document name is required.");
-            return View(document);
+            ModelState.AddModelError(nameof(model.File), "Please upload a file.");
         }
 
-        document.DocumentName = documentName;
-
-        if (file != null && file.Length > 0)
+        if (!ModelState.IsValid)
         {
-            try
-            {
-                document.FilePath = await SaveFileAsync(file);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("file", $"Error uploading file: {ex.Message}");
-                return View(document);
-            }
+            await PopulateUsersDropdownAsync(cancellationToken);
+            return View(model);
         }
 
-        await service.UpdateAsync(document, ct);
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Delete(int id, CancellationToken ct)
-    {
-        var document = await service.GetByIdAsync(id, ct);
-        return document is null ? NotFound() : View(document);
-    }
-
-    [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken ct)
-    {
-        await service.RemoveAsync(id, ct);
-        return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<string> SaveFileAsync(IFormFile file)
-    {
-        var uploadsFolder = Path.Combine(environment.WebRootPath, "uploads");
-        Directory.CreateDirectory(uploadsFolder);
-
-        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-        var fullPath = Path.Combine(uploadsFolder, fileName);
-
-        using (var stream = new FileStream(fullPath, FileMode.Create))
+        try
         {
-            await file.CopyToAsync(stream);
+            await using var fileStream = model.File!.OpenReadStream();
+            await documents.UploadDocumentFromStreamAsync(
+                model.UserId,
+                model.DocumentName,
+                model.File.FileName,
+                model.File.ContentType,
+                fileStream,
+                model.IsCv,
+                cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { userId = model.UserId });
+        }
+        catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
+        {
+            ModelState.AddModelError(nameof(model.UserId), "Selected user does not exist.");
+        }
+        catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.BadRequest)
+        {
+            ModelState.AddModelError(nameof(model.File), "The selected file could not be uploaded or parsed.");
+        }
+        catch (InvalidOperationException exception)
+        {
+            ModelState.AddModelError(nameof(model.File), exception.Message);
         }
 
-        return Path.Combine("uploads", fileName).Replace("\\", "/");
+        await PopulateUsersDropdownAsync(cancellationToken);
+        return View(model);
+    }
+
+    public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
+    {
+        var document = await documents.GetByIdAsync(id, cancellationToken);
+        if (document?.User is null)
+        {
+            return NotFound();
+        }
+
+        await PopulateUsersDropdownAsync(cancellationToken);
+        return View(new DocumentFormModel
+        {
+            DocumentId = document.DocumentId,
+            UserId = document.User.UserId,
+            DocumentName = document.DocumentName,
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, DocumentFormModel model, CancellationToken cancellationToken)
+    {
+        if (id != model.DocumentId)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await PopulateUsersDropdownAsync(cancellationToken);
+            return View(model);
+        }
+
+        var document = await documents.GetByIdAsync(id, cancellationToken);
+        if (document is null)
+        {
+            return NotFound();
+        }
+
+        document.DocumentName = model.DocumentName;
+        await documents.UpdateAsync(document, cancellationToken);
+        return RedirectToAction(nameof(Index), new { userId = model.UserId });
+    }
+
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        var document = await documents.GetByIdAsync(id, cancellationToken);
+        return document?.User is null ? NotFound() : View(document);
+    }
+
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id, int userId, CancellationToken cancellationToken)
+    {
+        await documents.RemoveAsync(id, cancellationToken);
+        return RedirectToAction(nameof(Index), new { userId });
+    }
+
+    private async Task PopulateUsersDropdownAsync(CancellationToken cancellationToken)
+    {
+        var allUsers = await users.GetAllAsync(cancellationToken);
+        ViewBag.Users = allUsers.Select(user => new SelectListItem
+        {
+            Value = user.UserId.ToString(),
+            Text = $"{user.FirstName} {user.LastName} ({user.Email})",
+        }).ToList();
     }
 }
-
-

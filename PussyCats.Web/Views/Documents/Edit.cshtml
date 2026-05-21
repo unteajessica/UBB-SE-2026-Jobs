@@ -1,36 +1,34 @@
-@model PussyCats.Library.Domain.Document
+@model PussyCats.Web.Models.DocumentFormModel
 @{
 	ViewData["Title"] = "Edit Document";
+	var userOptions = ViewBag.Users as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
 }
 
 <h1>Edit Document</h1>
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data">
+<form asp-action="Edit" asp-route-id="@Model.DocumentId" method="post">
 	@Html.AntiForgeryToken()
+	<input type="hidden" asp-for="DocumentId" />
+	<input type="hidden" asp-for="UserId" />
 	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-	<input type="hidden" name="id" value="@Model.DocumentId" />
-
 	<div class="mb-3">
-		<label for="documentName" class="form-label">Document Name</label>
-		<input type="text" id="documentName" name="documentName" value="@Model.DocumentName" class="form-control" required />
+		<label asp-for="UserId" class="form-label">User</label>
+		<select asp-for="UserId" asp-items="userOptions" class="form-select" disabled>
+		</select>
+		<small class="form-text text-muted">User cannot be changed on an existing document.</small>
 	</div>
 
 	<div class="mb-3">
-		<label for="file" class="form-label">Update File (Optional)</label>
-		<input type="file" id="file" name="file" class="form-control" />
-		<small class="form-text text-muted">Upload a new file to replace the current one</small>
-	</div>
-
-	<div class="mb-3">
-		<p><strong>Current File:</strong> <a href="/@Model.FilePath" target="_blank">@Model.FilePath</a></p>
+		<label asp-for="DocumentName" class="form-label">Document Name</label>
+		<input asp-for="DocumentName" class="form-control" />
+		<span asp-validation-for="DocumentName" class="text-danger"></span>
 	</div>
 
 	<button type="submit" class="btn btn-primary">Save</button>
-	<a class="btn btn-secondary" asp-action="Index">Cancel</a>
+	<a class="btn btn-secondary" asp-action="Index" asp-route-userId="@Model.UserId">Cancel</a>
 </form>
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial" />
 }
-

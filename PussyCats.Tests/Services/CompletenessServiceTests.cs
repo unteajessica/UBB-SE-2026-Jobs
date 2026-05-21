@@ -4,6 +4,7 @@ using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Tests.Helpers;
 
+
 namespace PussyCats.Tests.Services;
 
 public class CompletenessServiceTests

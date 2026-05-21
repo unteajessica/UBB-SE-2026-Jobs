@@ -1,4 +1,7 @@
-namespace PussyCats.App.Services;
+using System;
+using System.Collections.Generic;
+
+namespace PussyCats.Library.Services.CvParsing;
 
 public class CvData
 {
