@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using PussyCats.App.Configuration;
 using PussyCats.App.RepositoryProxies;
+using PussyCats.App.ServiceProxies;
 using PussyCats.Library.Repositories.Chats;
 using PussyCats.Library.Repositories.Companies;
 using PussyCats.Library.Repositories.Documents;
@@ -15,31 +16,31 @@ using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
 using PussyCats.Library.Services.ChatService;
 using PussyCats.Library.Services.CompanyService;
+using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.FileStorage;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Matches;
+using PussyCats.Library.Services.PersonalityTestService;
+using PussyCats.Library.Services.Skills;
+using PussyCats.Library.Services.SkillTests;
+using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
 using PussyCats_App.Services.CompanyRecommendationService;
 using PussyCats_App.Services.CompanyStatusService;
 using PussyCats_App.Services.CompatibilityService;
-using PussyCats.Library.Services.CompletenessService;
 using PussyCats_App.Services.CooldownService;
 using PussyCats_App.Services.CvParsingService;
 using PussyCats_App.Services.DeveloperService;
 using PussyCats_App.Services.ImageStorageService;
 using PussyCats_App.Services.JobSkillService;
 using PussyCats_App.Services.LocalFileStorageService;
-using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats_App.Services.PreferenceService;
 using PussyCats_App.Services.RecommendationAlgorithm;
 using PussyCats_App.Services.SkillGapService;
-using PussyCats.Library.Services.SkillTests;
-using PussyCats.Library.Services.UserProfileService;
 using PussyCats_App.Services.UserRecommendationService;
 using PussyCats_App.Services.UserSkillService;
 using PussyCats_App.Services.UserStatusService;
-using PussyCats.App.ServiceProxies;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -116,6 +117,9 @@ public partial class App : Application
 
         RegisterServiceProxy<ICompanyService,CompanyServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IPersonalityTestService, PersonalityTestServiceProxy>(services, apiConfiguration);
+        RegisterServiceProxy<ISkillTestService, SkillTestServiceProxy>(services, apiConfiguration);
+        RegisterServiceProxy<IUserProfileService, UserProfileServiceProxy>(services, apiConfiguration);
+        //RegisterServiceProxy<ISkillService, SkillServiceProxy>(services, apiConfiguration);
 
         services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
         services.AddTransient<ICompanyStatusService, CompanyStatusService>();
@@ -131,12 +135,11 @@ public partial class App : Application
         services.AddTransient<IJobSkillService, JobSkillService>();
         services.AddTransient<ILocalFileStorageService, LocalFileStorageService>();
         services.AddTransient<IMatchService, MatchService>();
-        //services.AddTransient<IPersonalityTestService, PersonalityTestService>();
         services.AddTransient<IPreferenceService, PreferenceService>();
         services.AddTransient<IRecommendationAlgorithm, RecommendationAlgorithm>();
         services.AddTransient<ISkillGapService, SkillGapService>();
-        services.AddTransient<ISkillTestService, SkillTestService>();
-        services.AddTransient<IUserProfileService, UserProfileService>();
+       // services.AddTransient<ISkillTestService, SkillTestService>();
+       // services.AddTransient<IUserProfileService, UserProfileService>();
         services.AddTransient<IUserRecommendationService, UserRecommendationService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IUserSkillService, UserSkillService>();
