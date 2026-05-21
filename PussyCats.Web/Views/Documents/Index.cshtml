@@ -1,10 +1,27 @@
 @model IEnumerable<PussyCats.Library.Domain.Document>
 @{
 	ViewData["Title"] = "Documents";
+	var userOptions = ViewBag.Users as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
 }
 
 <h1>Documents</h1>
-<p><a class="btn btn-primary" asp-action="Create">Create New</a></p>
+
+<form method="get" class="row g-3 align-items-center mb-4">
+	<div class="col-auto">
+		<label for="userId" class="col-form-label">Filter by User:</label>
+	</div>
+	<div class="col-auto">
+		<select id="userId" name="userId" class="form-select" asp-items="userOptions">
+		</select>
+	</div>
+	<div class="col-auto">
+		<button type="submit" class="btn btn-secondary">Filter</button>
+	</div>
+</form>
+
+<p>
+	<a class="btn btn-primary" asp-action="Create" asp-route-userId="@ViewBag.SelectedUserId">Create New</a>
+</p>
 
 <table class="table table-striped">
 	<thead>

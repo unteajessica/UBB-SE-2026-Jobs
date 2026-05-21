@@ -8,14 +8,14 @@ namespace PussyCats.App.ViewModels;
 
 public class UploadDocumentViewModel : DispatchableObservableObject
 {
-    private readonly IDocumentService documentService;
+    private readonly ILocalDocumentFileService documentService;
     private readonly IUserService userService;
     private readonly SessionContext session;
     private string documentName = string.Empty;
     private string selectedFilePath = string.Empty;
     private string errorMessage = string.Empty;
 
-    public UploadDocumentViewModel(IDocumentService documentService, IUserService userService, SessionContext session)
+    public UploadDocumentViewModel(ILocalDocumentFileService documentService, IUserService userService, SessionContext session)
     {
         this.documentService = documentService;
         this.userService = userService;

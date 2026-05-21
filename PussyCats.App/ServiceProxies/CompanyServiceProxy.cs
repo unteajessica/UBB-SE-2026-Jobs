@@ -17,13 +17,13 @@ public class CompanyServiceProxy : ICompanyService
 
     public async Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await http.GetFromJsonAsync<IReadOnlyList<Company>>("api/company", JsonOptions.Default, cancellationToken).ConfigureAwait(false)
+        return await http.GetFromJsonAsync<IReadOnlyList<Company>>("api/companies", JsonOptions.Default, cancellationToken).ConfigureAwait(false)
                ?? [];
     }
 
     public async Task<Company?> GetByIdAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        var response = await http.GetAsync($"api/company/{companyId}", cancellationToken).ConfigureAwait(false);
+        var response = await http.GetAsync($"api/companies/{companyId}", cancellationToken).ConfigureAwait(false);
 
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             return null;
@@ -35,7 +35,7 @@ public class CompanyServiceProxy : ICompanyService
 
     public async Task<Company> AddAsync(Company company, CancellationToken cancellationToken = default)
     {
-        var response = await http.PostAsJsonAsync("api/company", company, JsonOptions.Default, cancellationToken).ConfigureAwait(false);
+        var response = await http.PostAsJsonAsync("api/companies", company, JsonOptions.Default, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<Company>(JsonOptions.Default,cancellationToken).ConfigureAwait(false)
                ?? throw new InvalidOperationException("No company returned after creation.");
@@ -43,13 +43,13 @@ public class CompanyServiceProxy : ICompanyService
 
     public async Task UpdateAsync(Company company, CancellationToken cancellationToken = default)
     {
-        var response = await http.PutAsJsonAsync($"api/company/{company.CompanyId}", company, JsonOptions.Default,cancellationToken).ConfigureAwait(false);
+        var response = await http.PutAsJsonAsync($"api/companies/{company.CompanyId}", company, JsonOptions.Default,cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
     }
 
     public async Task RemoveAsync(int companyId, CancellationToken cancellationToken = default)
     {
-        var response = await http.DeleteAsync($"api/company/{companyId}", cancellationToken).ConfigureAwait(false);
+        var response = await http.DeleteAsync($"api/companies/{companyId}", cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
     }
 }

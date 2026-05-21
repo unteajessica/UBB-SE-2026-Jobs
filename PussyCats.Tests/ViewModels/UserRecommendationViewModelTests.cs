@@ -5,7 +5,7 @@ using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Tests.Integration;
-using PussyCats_App.Services.UserRecommendationService;
+using PussyCats.Library.Services.UserRecommendationService;
 
 namespace PussyCats.Tests.ViewModels;
 

@@ -41,16 +41,21 @@ public class DocumentRepositoryProxy : IDocumentRepository
         return await RepositoryProxyJson.ReadRequiredAsync<Document>(response, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
-    {
-        using var response = await http.PutAsJsonAsync($"api/documents/{document.DocumentId}", document, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-    }
-
     public async Task RemoveAsync(int documentId, CancellationToken cancellationToken = default)
     {
         using var response = await http.DeleteAsync($"api/documents/{documentId}", cancellationToken).ConfigureAwait(false);
         await RepositoryProxyJson.SendAndIgnoreNotFoundAsync(response).ConfigureAwait(false);
+    }
+
+    public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
+    {
+        var request = new DocumentUpdateRequest
+        {
+            DocumentName = document.DocumentName,
+            FilePath = document.FilePath,
+        };
+        using var response = await http.PutAsJsonAsync($"api/documents/{document.DocumentId}", request, RepositoryProxyJson.Options, cancellationToken).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
     }
 }
 

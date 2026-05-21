@@ -9,9 +9,9 @@ using PussyCats.Tests.Helpers;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.Users;
-using PussyCats_App.Services.CooldownService;
-using PussyCats_App.Services.RecommendationAlgorithm;
-using PussyCats_App.Services.UserRecommendationService;
+using PussyCats.Library.Services.CooldownService;
+using PussyCats.Library.Services.RecommendationAlgorithm;
+using PussyCats.Library.Services.UserRecommendationService;
 using System.Security.Cryptography;
 
 namespace PussyCats.Tests.Services;

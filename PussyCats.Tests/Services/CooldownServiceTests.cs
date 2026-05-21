@@ -1,7 +1,7 @@
 using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Fakes;
-using PussyCats_App.Services.CooldownService;
+using PussyCats.Library.Services.CooldownService;
 
 namespace PussyCats.Tests.Services;
 

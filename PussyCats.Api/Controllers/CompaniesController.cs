@@ -6,7 +6,7 @@ using PussyCats.Library.Services.CompanyService;
 namespace PussyCats.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/companies")]
 public class CompanyController : ControllerBase
 {
     private readonly ICompanyService companyService;

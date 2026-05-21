@@ -7,7 +7,7 @@ using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
 using PussyCats.Tests.Fakes;
-using PussyCats_App.Services.CvParsingService;
+using PussyCats.Library.Services.CvParsing;
 
 namespace PussyCats.Tests.Integration;
 
