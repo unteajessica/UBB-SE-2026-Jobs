@@ -115,6 +115,7 @@ public partial class App : Application
 
 
         RegisterServiceProxy<ICompanyService,CompanyServiceProxy>(services, apiConfiguration);
+        RegisterServiceProxy<IPersonalityTestService, PersonalityTestServiceProxy>(services, apiConfiguration);
 
         services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
         services.AddTransient<ICompanyStatusService, CompanyStatusService>();
@@ -130,7 +131,7 @@ public partial class App : Application
         services.AddTransient<IJobSkillService, JobSkillService>();
         services.AddTransient<ILocalFileStorageService, LocalFileStorageService>();
         services.AddTransient<IMatchService, MatchService>();
-        services.AddTransient<IPersonalityTestService, PersonalityTestService>();
+        //services.AddTransient<IPersonalityTestService, PersonalityTestService>();
         services.AddTransient<IPreferenceService, PreferenceService>();
         services.AddTransient<IRecommendationAlgorithm, RecommendationAlgorithm>();
         services.AddTransient<ISkillGapService, SkillGapService>();
