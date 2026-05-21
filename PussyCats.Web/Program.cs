@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using PussyCats.Library.Services.CompanyService;
+using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.Jobs;
@@ -59,6 +60,7 @@ builder.Services.AddSession(options =>
 });
 
 RegisterServiceProxy<ICompanyService, CompanyServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<ICompanyStatusService, CompanyStatusServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IDocumentService, DocumentServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IJobService, JobServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IJobSkillService, JobSkillServiceProxy>(builder.Services, apiConfig);

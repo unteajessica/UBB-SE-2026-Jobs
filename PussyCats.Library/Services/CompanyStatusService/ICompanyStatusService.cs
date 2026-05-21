@@ -1,6 +1,6 @@
 using PussyCats.Library.DTOs;
 
-namespace PussyCats_App.Services.CompanyStatusService;
+namespace PussyCats.Library.Services.CompanyStatusService;
 
 public interface ICompanyStatusService
 {

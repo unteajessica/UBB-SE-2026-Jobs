@@ -1,0 +1,16 @@
+@model PussyCats.Library.DTOs.UserApplicationResult
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<div class="alert alert-info">
+    Company status entries are created automatically from matches.
+</div>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-primary" disabled>Create</button>
+    <a class="btn btn-secondary" asp-action="Index">Back</a>
+</form>

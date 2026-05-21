@@ -14,6 +14,7 @@ using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CompanyService;
+using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.CvParsing;
 using PussyCats.Library.Services.FileStorage;
@@ -105,6 +106,7 @@ builder.Services.AddScoped<ICooldownService>(provider =>
 builder.Services.AddScoped<IUserSkillService, UserSkillService>();
 
 builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<ICompanyStatusService, CompanyStatusService>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 
 var app = builder.Build();
