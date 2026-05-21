@@ -52,6 +52,9 @@
                             <a class="nav-link text-dark" asp-controller="Preferences" asp-action="Index">Preferences</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Compatibility" asp-action="Index">Compatibility</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="UserSkills" asp-action="Index" asp-route-userId="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">User Skills</a>
                         </li>
                     </ul>

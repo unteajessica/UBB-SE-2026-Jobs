@@ -1,0 +1,46 @@
+@model IReadOnlyList<PussyCats.Library.DTOs.RoleResult>
+@{
+    ViewData["Title"] = "Compatibility Overview";
+}
+
+<h2 class="mb-4">Compatibility Overview</h2>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No compatibility data available. Make sure your profile and skills are set up.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var result in Model.OrderByDescending(r => r.MatchScore))
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@result.JobRole</h5>
+                        <p class="card-text">
+                            <span class="fw-semibold">Match Score:</span>
+                            @if (result.MatchScore < 0)
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                            else
+                            {
+                                <span class="@(result.MatchScore >= 70 ? "text-success" : result.MatchScore >= 40 ? "text-warning" : "text-danger")">
+                                    @result.MatchScore.ToString("F1")%
+                                </span>
+                            }
+                        </p>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar @(result.MatchScore >= 70 ? "bg-success" : result.MatchScore >= 40 ? "bg-warning" : "bg-danger")"
+                                 role="progressbar"
+                                 style="width: @(Math.Max(0, result.MatchScore))%">
+                            </div>
+                        </div>
+                        <a asp-action="Detail" asp-route-role="@result.JobRole" class="btn btn-outline-primary btn-sm">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

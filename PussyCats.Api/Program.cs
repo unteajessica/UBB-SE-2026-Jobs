@@ -12,6 +12,7 @@ using PussyCats.Library.Repositories.Recommendations;
 using PussyCats.Library.Repositories.Skills;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services.CompatibilityService;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.CompanyStatusService;
@@ -105,6 +106,7 @@ builder.Services.AddScoped<ICooldownService>(provider =>
 
 builder.Services.AddScoped<IUserSkillService, UserSkillService>();
 
+builder.Services.AddScoped<ICompatibilityService, CompatibilityService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ICompanyStatusService, CompanyStatusService>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using PussyCats.Library.Services.CompatibilityService;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.CompletenessService;
@@ -64,6 +65,7 @@ builder.Services.AddSession(options =>
 });
 
 RegisterServiceProxy<ICompanyService, CompanyServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<ICompatibilityService, CompatibilityServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICompanyStatusService, CompanyStatusServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IDocumentService, DocumentServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IJobService, JobServiceProxy>(builder.Services, apiConfig);
