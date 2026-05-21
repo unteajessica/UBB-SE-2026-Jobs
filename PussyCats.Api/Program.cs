@@ -32,6 +32,7 @@ using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.UserRecommendationService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.UserSkillService;
+using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.UserStatusService;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
@@ -109,6 +110,7 @@ builder.Services.AddScoped<IUserSkillService, UserSkillService>();
 
 builder.Services.AddScoped<ICompatibilityService, CompatibilityService>();
 builder.Services.AddScoped<IUserStatusService, UserStatusService>();
+builder.Services.AddSingleton<IDeveloperService, DeveloperService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ICompanyStatusService, CompanyStatusService>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using PussyCats.Library.Services.CompatibilityService;
+using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CompanyStatusService;
@@ -66,6 +67,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+RegisterServiceProxy<IDeveloperService, DeveloperServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICompanyService, CompanyServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICompatibilityService, CompatibilityServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICooldownService, CooldownServiceProxy>(builder.Services, apiConfig);
