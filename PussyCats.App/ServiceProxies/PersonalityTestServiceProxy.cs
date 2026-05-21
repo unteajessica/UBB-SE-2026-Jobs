@@ -5,7 +5,7 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.PersonalityTestService;
 
-namespace PussyCats.Web.ServiceProxies;
+namespace PussyCats.App.ServiceProxies;
 
 public class PersonalityTestServiceProxy : IPersonalityTestService
 {
@@ -40,7 +40,7 @@ public class PersonalityTestServiceProxy : IPersonalityTestService
 
     public IReadOnlyDictionary<TraitType, double> CalculateTraitScores(IReadOnlyDictionary<Question, AnswerValue> personalityTestAnswers)
     {
-        // Convertim Question -> QuestionText pentru a se potrivi cu DTO-ul din controller
+        
         var payload = new
         {
             Answers = personalityTestAnswers.ToDictionary(

@@ -24,7 +24,7 @@ using PussyCats_App.Services.CompanyRecommendationService;
 using PussyCats_App.Services.CompanyStatusService;
 using PussyCats_App.Services.CompatibilityService;
 using PussyCats.Library.Services.CompletenessService;
-using PussyCats_App.Services.CooldownService;
+using PussyCats.Library.Services.CooldownService;
 using PussyCats_App.Services.CvParsingService;
 using PussyCats_App.Services.DeveloperService;
 using PussyCats_App.Services.ImageStorageService;
@@ -32,11 +32,11 @@ using PussyCats_App.Services.JobSkillService;
 using PussyCats_App.Services.LocalFileStorageService;
 using PussyCats.Library.Services.PersonalityTestService;
 using PussyCats_App.Services.PreferenceService;
-using PussyCats_App.Services.RecommendationAlgorithm;
+using PussyCats.Library.Services.RecommendationAlgorithm;
 using PussyCats_App.Services.SkillGapService;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
-using PussyCats_App.Services.UserRecommendationService;
+using PussyCats.Library.Services.UserRecommendationService;
 using PussyCats_App.Services.UserSkillService;
 using PussyCats_App.Services.UserStatusService;
 using PussyCats.App.ServiceProxies;
@@ -115,6 +115,7 @@ public partial class App : Application
 
 
         RegisterServiceProxy<ICompanyService,CompanyServiceProxy>(services, apiConfiguration);
+        RegisterServiceProxy<IPersonalityTestService, PersonalityTestServiceProxy>(services, apiConfiguration);
 
         services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
         services.AddTransient<ICompanyStatusService, CompanyStatusService>();
@@ -130,7 +131,7 @@ public partial class App : Application
         services.AddTransient<IJobSkillService, JobSkillService>();
         services.AddTransient<ILocalFileStorageService, LocalFileStorageService>();
         services.AddTransient<IMatchService, MatchService>();
-        services.AddTransient<IPersonalityTestService, PersonalityTestService>();
+        //services.AddTransient<IPersonalityTestService, PersonalityTestService>();
         services.AddTransient<IPreferenceService, PreferenceService>();
         services.AddTransient<IRecommendationAlgorithm, RecommendationAlgorithm>();
         services.AddTransient<ISkillGapService, SkillGapService>();

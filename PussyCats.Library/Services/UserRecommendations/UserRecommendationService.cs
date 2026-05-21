@@ -6,10 +6,10 @@ using PussyCats.Library.Repositories.Recommendations;
 using PussyCats.Library.Repositories.Skills;
 using PussyCats.Library.Repositories.Users;
 using PussyCats.Library.Services.Matches;
-using PussyCats_App.Services.CooldownService;
-using PussyCats_App.Services.RecommendationAlgorithm;
+using PussyCats.Library.Services.CooldownService;
+using PussyCats.Library.Services.RecommendationAlgorithm;
 
-namespace PussyCats_App.Services.UserRecommendationService;
+namespace PussyCats.Library.Services.UserRecommendationService;
 
 public sealed class UserRecommendationService : IUserRecommendationService
 {
@@ -47,40 +47,43 @@ public sealed class UserRecommendationService : IUserRecommendationService
 
     public async Task<JobRecommendationResult?> GetNextCardAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken = default)
     {
-        var ranked = await BuildRankedListAsync(userId, filters, cancellationToken).ConfigureAwait(false);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("User not found.");
+
+        var ranked = await BuildRankedListAsync(user, filters, cancellationToken).ConfigureAwait(false);
         if (ranked.Count == 0)
         {
             return null;
         }
 
         var (topRankedJob, score) = ranked[0];
-        return await BuildCardWithShownRecordAsync(userId, topRankedJob, score, cancellationToken).ConfigureAwait(false);
+        return await BuildCardWithShownRecordAsync(user, topRankedJob, score, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<JobRecommendationResult?> RecalculateTopCardIgnoringCooldownAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken = default)
     {
-        var ranked = await BuildRankedListIgnoringCooldownAsync(userId, filters, cancellationToken).ConfigureAwait(false);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("User not found.");
+
+        var ranked = await BuildRankedListIgnoringCooldownAsync(user, filters, cancellationToken).ConfigureAwait(false);
         if (ranked.Count == 0)
         {
             return null;
         }
 
         var best = ranked[0];
-        return await BuildCardWithShownRecordAsync(userId, best.Job, best.Score, cancellationToken).ConfigureAwait(false);
+        return await BuildCardWithShownRecordAsync(user, best.Job, best.Score, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<List<(Job Job, double Score)>> BuildRankedListIgnoringCooldownAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken)
+    private async Task<List<(Job Job, double Score)>> BuildRankedListIgnoringCooldownAsync(User user, UserMatchmakingFilters filters, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException("User not found.");
-
         var jobs = await GetFilteredJobsAsync(filters, user, cancellationToken).ConfigureAwait(false);
-        var userSkills = await userSkillRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        var userSkills = await userSkillRepository.GetByUserIdAsync(user.UserId, cancellationToken).ConfigureAwait(false);
 
         var ranked = new List<(Job Job, double Score)>();
         foreach (var currentJob in jobs)
         {
-            if (await matchService.GetByUserIdAndJobIdAsync(userId, currentJob.JobId, cancellationToken).ConfigureAwait(false) is not null)
+            if (await matchService.GetByUserIdAndJobIdAsync(user.UserId, currentJob.JobId, cancellationToken).ConfigureAwait(false) is not null)
             {
                 continue;
             }
@@ -99,23 +102,20 @@ public sealed class UserRecommendationService : IUserRecommendationService
         return algorithm.CalculateCompatibilityScore(user, job, userSkills, jobSkills);
     }
 
-    private async Task<List<(Job Job, double Score)>> BuildRankedListAsync(int userId, UserMatchmakingFilters filters, CancellationToken cancellationToken)
+    private async Task<List<(Job Job, double Score)>> BuildRankedListAsync(User user, UserMatchmakingFilters filters, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException("User not found.");
-
         var jobs = await GetFilteredJobsAsync(filters, user, cancellationToken).ConfigureAwait(false);
-        var userSkills = await userSkillRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        var userSkills = await userSkillRepository.GetByUserIdAsync(user.UserId, cancellationToken).ConfigureAwait(false);
 
         var ranked = new List<(Job Job, double Score)>();
         foreach (var currentJob in jobs)
         {
-            if (await matchService.GetByUserIdAndJobIdAsync(userId, currentJob.JobId, cancellationToken).ConfigureAwait(false) is not null)
+            if (await matchService.GetByUserIdAndJobIdAsync(user.UserId, currentJob.JobId, cancellationToken).ConfigureAwait(false) is not null)
             {
                 continue;
             }
 
-            if (await cooldownService.IsOnCooldownAsync(userId, currentJob.JobId, DateTime.UtcNow, cancellationToken).ConfigureAwait(false))
+            if (await cooldownService.IsOnCooldownAsync(user.UserId, currentJob.JobId, DateTime.UtcNow, cancellationToken).ConfigureAwait(false))
             {
                 continue;
             }
@@ -128,11 +128,11 @@ public sealed class UserRecommendationService : IUserRecommendationService
         return ranked;
     }
 
-    private async Task<JobRecommendationResult> BuildCardWithShownRecordAsync(int userId, Job job, double score, CancellationToken cancellationToken)
+    private async Task<JobRecommendationResult> BuildCardWithShownRecordAsync(User user, Job job, double score, CancellationToken cancellationToken)
     {
         var displayRecommendation = new Recommendation
         {
-            User = new User { UserId = userId },
+            User = user,
             Job = job,
             Timestamp = DateTime.UtcNow,
         };
@@ -179,9 +179,12 @@ public sealed class UserRecommendationService : IUserRecommendationService
 
     public async Task<int> ApplyDismissAsync(int userId, JobRecommendationResult card, CancellationToken cancellationToken = default)
     {
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("User not found.");
+
         var dismissedRecommendation = new Recommendation
         {
-            User = new User { UserId = userId },
+            User = user,
             Job = card.Job,
             Timestamp = DateTime.UtcNow,
         };

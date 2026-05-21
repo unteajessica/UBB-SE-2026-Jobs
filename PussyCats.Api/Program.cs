@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PussyCats.Api.Configuration;
 using PussyCats.Library.Persistence;
@@ -13,18 +12,22 @@ using PussyCats.Library.Repositories.Recommendations;
 using PussyCats.Library.Repositories.Skills;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.FileStorage;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.PersonalityTestService;
+using PussyCats.Library.Services.RecommendationAlgorithm;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
+using PussyCats.Library.Services.UserRecommendationService;
 using PussyCats.Library.Services.Users;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
@@ -82,6 +85,14 @@ builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
 builder.Services.AddSingleton<ILocalFileStorageService, StubLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IRecommendationAlgorithm, RecommendationAlgorithm>();
+builder.Services.AddScoped<IUserRecommendationService, UserRecommendationService>();
+builder.Services.AddScoped<ICooldownService>(provider =>
+    new CooldownService(
+        provider.GetRequiredService<IRecommendationRepository>(),
+        TimeSpan.FromHours(24) 
+    ));
+
 
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 

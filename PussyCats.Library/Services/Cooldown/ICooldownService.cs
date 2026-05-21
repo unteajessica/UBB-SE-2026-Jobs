@@ -1,4 +1,4 @@
-namespace PussyCats_App.Services.CooldownService;
+namespace PussyCats.Library.Services.CooldownService;
 
 public interface ICooldownService
 {
