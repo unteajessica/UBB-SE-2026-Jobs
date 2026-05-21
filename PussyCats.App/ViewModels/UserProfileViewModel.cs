@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.CompletenessService;
-using PussyCats_App.Services.ImageStorageService;
+using PussyCats.Library.Services.ImageStorage;
 using PussyCats.Library.Services.UserProfileService;
 
 namespace PussyCats.App.ViewModels;

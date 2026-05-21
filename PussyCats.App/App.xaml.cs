@@ -34,7 +34,6 @@ using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CvParsing;
 using PussyCats_App.Services.DeveloperService;
-using PussyCats_App.Services.ImageStorageService;
 using PussyCats.Library.Services.ImageStorage;
 using PussyCats.Library.Services.JobSkills;
 using PussyCats_App.Services.LocalFileStorageService;
@@ -140,7 +139,7 @@ public partial class App : Application
         services.AddTransient<ICvParsingService, CvParsingService>();
         services.AddTransient<IDocumentService, DocumentService>();
         services.AddTransient<ILocalDocumentFileService, DocumentService>();
-        services.AddTransient<PussyCats.Library.Services.ImageStorage.IImageStorageService, ImageStorageService>();
+        services.AddTransient<IImageStorageService, PussyCats_App.Services.ImageStorageService.ImageStorageService>();
         services.AddTransient<IJobService, JobService>();
         services.AddTransient<IJobSkillService, JobSkillService>();
         services.AddTransient<ILocalFileStorageService, LocalFileStorageService>();
