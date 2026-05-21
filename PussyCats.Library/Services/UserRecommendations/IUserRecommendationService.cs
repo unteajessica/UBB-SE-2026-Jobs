@@ -1,6 +1,6 @@
 using PussyCats.Library.DTOs;
 
-namespace PussyCats_App.Services.UserRecommendationService;
+namespace PussyCats.Library.Services.UserRecommendationService;
 
 public interface IUserRecommendationService
 {

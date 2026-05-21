@@ -1,6 +1,6 @@
 using PussyCats.Library.Repositories.Recommendations;
 
-namespace PussyCats_App.Services.CooldownService;
+namespace PussyCats.Library.Services.CooldownService;
 
 public sealed class CooldownService : ICooldownService
 {

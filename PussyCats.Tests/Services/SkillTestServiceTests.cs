@@ -1,9 +1,9 @@
 using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
+using PussyCats.Library.Services.SkillTests;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
-using PussyCats_App.Services.SkillTestService;
 
 namespace PussyCats.Tests.Services;
 

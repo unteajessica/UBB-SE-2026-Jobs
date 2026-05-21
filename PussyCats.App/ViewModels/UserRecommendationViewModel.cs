@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
-using PussyCats_App.Services.UserRecommendationService;
+using PussyCats.Library.Services.UserRecommendationService;
 
 namespace PussyCats.App.ViewModels;
 

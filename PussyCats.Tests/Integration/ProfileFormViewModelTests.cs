@@ -3,11 +3,11 @@ using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
+using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
 using PussyCats.Tests.Fakes;
 using PussyCats_App.Services.CvParsingService;
-using PussyCats_App.Services.UserProfileService;
 
 namespace PussyCats.Tests.Integration;
 

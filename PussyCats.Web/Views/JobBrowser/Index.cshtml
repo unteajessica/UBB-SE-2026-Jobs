@@ -1,0 +1,219 @@
+﻿@model PussyCats.Library.DTOs.JobRecommendationResult
+
+@{
+    ViewData["Title"] = "Recommendations";
+    bool isExpanded = Context.Request.Query["expanded"] == "true";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card shadow-sm border-1">
+                <div class="card-body p-3">
+                    <h3 class="h5 fw-bold mb-3">Filters</h3>
+
+                    <form asp-controller="JobBrowser" asp-action="ApplyFilters" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-muted">Employment type</label>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="checkbox" id="empFull" name="EmploymentTypes" value="Full-time">
+                                <label class="form-check-label small" for="empFull">Full-time</label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="checkbox" id="empPart" name="EmploymentTypes" value="Part-time">
+                                <label class="form-check-label small" for="empPart">Part-time</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-muted">Experience level</label>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="checkbox" id="expEntry" name="ExperienceLevels" value="Entry">
+                                <label class="form-check-label small" for="expEntry">Entry Level</label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="checkbox" id="expSenior" name="ExperienceLevels" value="Senior">
+                                <label class="form-check-label small" for="expSenior">Senior</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-muted">Location contains</label>
+                            <input type="text" name="Location" class="form-control form-control-sm" placeholder="City or region" />
+                        </div>
+
+                        <div class="d-flex gap-2 pt-2 border-top">
+                            <button type="submit" class="btn btn-primary btn-sm px-3">Apply</button>
+                            <a asp-action="ResetFilters" class="btn btn-outline-secondary btn-sm px-3">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 col-lg-6 mx-auto">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h4 mb-0 fw-bold">Recommendations</h2>
+                    <p class="text-muted small mb-0">Review job recommendations matched to your profile.</p>
+                </div>
+                <a asp-action="Index" class="btn btn-light btn-sm border">Refresh</a>
+            </div>
+
+            @if (Model == null)
+            {
+                <div class="card shadow-sm border-0 py-5 text-center bg-light">
+                    <div class="card-body">
+                        <div class="fs-1 text-muted mb-2">
+                            <i class="bi bi-folder-x"></i>
+                        </div>
+                        <h4 class="h5 fw-bold">No matching jobs right now</h4>
+                        <p class="text-muted small">Try different filters or refresh.</p>
+                        <a asp-action="Index" class="btn btn-primary btn-sm px-4 mt-2">Refresh</a>
+                    </div>
+                </div>
+            }
+            else if (isExpanded)
+            {
+                <div class="card shadow border-1 p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <a asp-action="Index" asp-route-expanded="false" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <span class="badge bg-success fs-6 px-3 py-2">@($"{Model.CompatibilityScore:F0}% Match")</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">@Model.Company.CompanyName</h2>
+                        <h3 class="h5 text-secondary">@Model.JobTitleLine</h3>
+                        <p class="text-muted small"><i class="bi bi-geo-alt"></i> @Model.LocationEmploymentLine</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-uppercase text-muted small">Description</h6>
+                        <p class="text-dark small leading-relaxed" style="white-space: pre-line;">@Model.Job.JobDescription</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-uppercase text-muted small">Required Skills</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach (var skill in Model.AllSkillLabels)
+                            {
+                                <span class="badge bg-light text-dark border p-2 small">@skill</span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ContactLine))
+                    {
+                        <div class="mb-4 p-3 bg-light rounded border">
+                            <h6 class="fw-bold text-uppercase text-muted small mb-1">Contact</h6>
+                            <p class="mb-0 small text-dark">@Model.ContactLine</p>
+                        </div>
+                    }
+
+                    <div class="row g-2 border-top pt-3 mt-2">
+                        <div class="col-6">
+                            <form asp-action="Dismiss" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Job.JobId" value="@Model.Job.JobId" />
+                                <button type="submit" class="btn btn-danger w-100">Dismiss</button>
+                            </form>
+                        </div>
+                        <div class="col-6">
+                            <form asp-action="Like" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Job.JobId" value="@Model.Job.JobId" />
+                                <button type="submit" class="btn btn-success w-100">Like</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card shadow border-1 overflow-hidden">
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                     style="width: 48px; height: 48px; font-size: 1.1rem;">
+                                    @(string.IsNullOrWhiteSpace(Model.Company.LogoText)
+                                        ? (Model.Company.CompanyName.Length > 0 ? Model.Company.CompanyName[..1].ToUpper() : "?")
+                                        : Model.Company.LogoText)
+                                </div>
+                                <div class="ms-3">
+                                    <h4 class="h5 fw-bold mb-0">@Model.Company.CompanyName</h4>
+                                    <p class="text-muted mb-0 small">@Model.JobTitleLine</p>
+                                </div>
+                            </div>
+                            <span class="badge bg-success fs-5 px-3 py-1.5">@($"{Model.CompatibilityScore:F0}%")</span>
+                        </div>
+
+                        <hr />
+
+                        <p class="text-dark small mb-3">@Model.LocationEmploymentLine</p>
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-uppercase text-muted" style="font-size: 11px;">Top Skills</h6>
+                            <ul class="list-unstyled ps-0 mb-0 small text-secondary">
+                                @foreach (var skill in Model.TopSkillLabels ?? Enumerable.Empty<string>())
+                                {
+                                    <li><i class="bi bi-check text-success me-1"></i> @skill</li>
+                                }
+                            </ul>
+                        </div>
+
+                        <p class="text-secondary small mb-4">@Model.DescriptionExcerpt</p>
+
+                        <a asp-action="Index" asp-route-expanded="true" class="btn btn-light border w-100 py-2 mb-3 small fw-semibold">
+                            View Details
+                        </a>
+
+                        <div class="d-flex justify-content-center align-items-center gap-3 border-top pt-3">
+
+                            <form asp-action="Dismiss" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Job.JobId" value="@Model.Job.JobId" />
+                                <input type="hidden" name="DisplayRecommendationId" value="@Model.DisplayRecommendationId" />
+                                <button type="submit" class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center shadow"
+                                        style="width: 56px; height: 56px;" title="Dismiss job">
+                                    <i class="bi bi-x fs-3"></i>
+                                </button>
+                            </form>
+
+                            <form asp-action="Undo" method="post">
+                                @Html.AntiForgeryToken()
+                                @{
+                                    bool canUndoState = Context.Session.GetString("LastAction") != null;
+                                }
+                                <button type="submit" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 44px; height: 44px;" title="Undo last action" @(canUndoState ? "" : "disabled")>
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                            </form>
+
+                            <form asp-action="Like" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Job.JobId" value="@Model.Job.JobId" />
+                                <input type="hidden" name="DisplayRecommendationId" value="@Model.DisplayRecommendationId" />
+                                <button type="submit" class="btn btn-success rounded-circle d-flex align-items-center justify-content-center shadow"
+                                        style="width: 56px; height: 56px;" title="Like / apply">
+                                    <i class="bi bi-check-lg fs-3"></i>
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
