@@ -15,6 +15,7 @@ using PussyCats.Library.Repositories.Users;
 using PussyCats.Library.Services.CompatibilityService;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CompanyService;
+using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.CvParsing;
@@ -112,6 +113,7 @@ builder.Services.AddScoped<ICompatibilityService, CompatibilityService>();
 builder.Services.AddScoped<IUserStatusService, UserStatusService>();
 builder.Services.AddSingleton<IDeveloperService, DeveloperService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
 builder.Services.AddScoped<ICompanyStatusService, CompanyStatusService>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 

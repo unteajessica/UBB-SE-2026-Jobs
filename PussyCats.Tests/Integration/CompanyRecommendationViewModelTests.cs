@@ -11,7 +11,7 @@ using PussyCats.Tests.Helpers;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.Users;
-using PussyCats_App.Services.CompanyRecommendationService;
+using PussyCats.Library.Services.CompanyRecommendationService;
 
 namespace PussyCats.Tests.Integration;
 

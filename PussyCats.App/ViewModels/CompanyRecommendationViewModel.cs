@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
-using PussyCats_App.Services.CompanyRecommendationService;
+using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Library.Services.Matches;
 
 namespace PussyCats.App.ViewModels;

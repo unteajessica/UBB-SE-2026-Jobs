@@ -4,6 +4,7 @@ using PussyCats.Library.Services.CompatibilityService;
 using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.CooldownService;
+using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.Documents;
@@ -71,6 +72,7 @@ RegisterServiceProxy<IDeveloperService, DeveloperServiceProxy>(builder.Services,
 RegisterServiceProxy<ICompanyService, CompanyServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICompatibilityService, CompatibilityServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICooldownService, CooldownServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<ICompanyRecommendationService, CompanyRecommendationServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICompanyStatusService, CompanyStatusServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IDocumentService, DocumentServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IJobService, JobServiceProxy>(builder.Services, apiConfig);
