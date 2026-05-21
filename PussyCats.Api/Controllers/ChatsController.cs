@@ -90,6 +90,24 @@ public class ChatsController : ControllerBase
         }
     }
 
+    [HttpPost("{id}/attachments")]
+    public async Task<IActionResult> SendStoredAttachment(int id, [FromBody] SendStoredAttachmentRequest body, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await chat.SendStoredAttachmentAsync(id, body.StoredPath, body.OriginalFileName, body.SenderId, body.Type, cancellationToken);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: 422);
+        }
+    }
+
     [HttpPost("{id}/messages/read")]
     public async Task<IActionResult> MarkRead(int id, [FromQuery] int readerId, CancellationToken cancellationToken)
     {
@@ -153,5 +171,6 @@ public class ChatsController : ControllerBase
 
     public record FindOrCreateChatRequest(int UserId, int? SecondUserId, Company? Company, Job? Job);
     public record SendMessageRequest(int SenderId, string Content, MessageType Type);
+    public record SendStoredAttachmentRequest(int SenderId, string StoredPath, string OriginalFileName, MessageType Type);
     public record CallerRequest(int CallerId);
 }

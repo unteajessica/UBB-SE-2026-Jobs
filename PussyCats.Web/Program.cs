@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using PussyCats.Library.Services.ChatService;
 using PussyCats.Library.Services.CompatibilityService;
+using PussyCats.Library.Services.FileStorage;
 using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.ImageStorage;
 using PussyCats.Library.Services.CompanyService;
@@ -63,6 +64,7 @@ builder.Services.AddSession(options =>
 });
 
 RegisterServiceProxy<IChatService, ChatServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<ILocalFileStorageService, WebLocalFileStorageService>(builder.Services, apiConfig);
 RegisterServiceProxy<IDeveloperService, DeveloperServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IImageStorageService, ImageStorageServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ICompanyService, CompanyServiceProxy>(builder.Services, apiConfig);

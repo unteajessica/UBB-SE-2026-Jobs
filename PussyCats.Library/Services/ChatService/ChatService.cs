@@ -172,6 +172,25 @@ public class ChatService : IChatService
         }, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task SendStoredAttachmentAsync(int chatId, string storedPath, string originalFileName, int senderId, MessageType type, CancellationToken cancellationToken = default)
+    {
+        var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
+            ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
+        EnsureParticipant(chat, senderId);
+        if (chat.IsBlocked)
+            throw new InvalidOperationException("Cannot send a message in a blocked chat.");
+
+        await messageRepository.AddAsync(new Message
+        {
+            Chat = new Chat { ChatId = chatId },
+            Sender = new MessageSender { SenderId = senderId },
+            Content = storedPath,
+            Timestamp = DateTime.UtcNow,
+            Type = type,
+            OriginalFileName = originalFileName,
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<Stream> OpenMessageAttachmentAsync(string attachmentPath, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(attachmentPath))

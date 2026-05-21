@@ -84,6 +84,13 @@ public class ChatServiceProxy : IChatService
         => await http.GetFromJsonAsync<List<Company>>($"api/chats/search/companies?q={Uri.EscapeDataString(query)}", JsonOptions, cancellationToken)
            ?? new List<Company>();
 
+    public async Task SendStoredAttachmentAsync(int chatId, string storedPath, string originalFileName, int senderId, MessageType type, CancellationToken cancellationToken = default)
+    {
+        var response = await http.PostAsJsonAsync($"api/chats/{chatId}/attachments",
+            new { senderId, storedPath, originalFileName, type }, JsonOptions, cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
     public Task<Stream> OpenMessageAttachmentAsync(string attachmentPath, CancellationToken cancellationToken = default)
         => throw new NotSupportedException("File attachments are not supported in the web client.");
 }
