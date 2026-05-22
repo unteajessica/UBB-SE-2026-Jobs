@@ -1,6 +1,6 @@
 using PussyCats.Library.Services;
 
-namespace PussyCats.App.Services;
+namespace PussyCats.Library.Services;
 
 public static class UserLevelService
 {

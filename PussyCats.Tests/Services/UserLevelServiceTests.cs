@@ -1,5 +1,4 @@
 using FluentAssertions;
-using PussyCats.App.Services;
 using PussyCats.Library.Services;
 
 namespace PussyCats.Tests.Services;

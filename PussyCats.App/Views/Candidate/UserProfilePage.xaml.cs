@@ -6,7 +6,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
+using PussyCats.Library.Services;
 using PussyCats.App.ViewModels;
 using PussyCats_App.Views.Controls;
 
