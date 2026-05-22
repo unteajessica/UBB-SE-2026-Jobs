@@ -58,6 +58,9 @@
                                 <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index">Messages</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="JobBrowser" asp-action="Index">Browse Jobs</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="UserSkills" asp-action="Index" asp-route-userId="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">User Skills</a>
                             </li>
                         }
