@@ -46,7 +46,7 @@ using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.UserRecommendationService;
 
 using PussyCats.Library.Services.UserSkillService;
-using PussyCats_App.Services.UserStatusService;
+using PussyCats.Library.Services.UserStatusService;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.

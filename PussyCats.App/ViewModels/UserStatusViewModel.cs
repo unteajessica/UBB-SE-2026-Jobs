@@ -7,7 +7,7 @@ using PussyCats.App.Configuration;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.SkillGapService;
-using PussyCats_App.Services.UserStatusService;
+using PussyCats.Library.Services.UserStatusService;
 
 namespace PussyCats.App.ViewModels;
 
