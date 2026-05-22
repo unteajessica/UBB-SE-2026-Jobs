@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using PussyCats.Library.Services.ChatService;
 using PussyCats.Library.Services.CompatibilityService;
 using PussyCats.Library.Services.FileStorage;
@@ -25,6 +24,7 @@ using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.UserSkillService;
 using PussyCats.Library.Services.UserStatusService;
 using PussyCats.Web.Configuration;
+using PussyCats.Web.Infrastructure;
 using PussyCats.Web.ServiceProxies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,11 +41,13 @@ builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
 builder.Services.AddControllersWithViews(options =>
 {
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
-    options.Filters.Add(new AuthorizeFilter());
+    options.Filters.Add<ModeAuthorizeFilter>();
 })
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter()));
+
+builder.Services.AddScoped<ModeAuthorizeFilter>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
