@@ -9,7 +9,7 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-//[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 §A.3)
+[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 §A.3)
 public class RecommendationsController : Controller
 {
     private readonly IRecommendationService recommendations;

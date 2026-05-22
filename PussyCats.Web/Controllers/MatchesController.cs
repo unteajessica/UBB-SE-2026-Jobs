@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
@@ -8,7 +9,7 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-//[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 section A.3)
+[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 section A.3)
 public class MatchesController : Controller
 {
     private readonly IMatchService matches;

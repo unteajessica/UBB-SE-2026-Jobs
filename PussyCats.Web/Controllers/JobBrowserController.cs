@@ -5,7 +5,7 @@ using PussyCats.Library.Services.UserRecommendationService;
 
 namespace PussyCats.Web.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class JobBrowserController : Controller
     {
         private readonly IUserRecommendationService recommendationService;
