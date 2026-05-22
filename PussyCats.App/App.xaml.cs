@@ -28,7 +28,7 @@ using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Library.Services.CompanyStatusService;
-using PussyCats_App.Services.CompatibilityService;
+using PussyCats.Library.Services.CompatibilityService;
 
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CooldownService;
