@@ -6,7 +6,7 @@ using PussyCats.Library.Services.SkillTests;
 
 namespace PussyCats.Web.Controllers
 {
-    //[Authorize] // Guard all actions from unauthorized users per requirements
+    [Authorize] // Guard all actions from unauthorized users per requirements
     public class SkillTestsController : Controller
     {
         private readonly ISkillTestService skillTestService;

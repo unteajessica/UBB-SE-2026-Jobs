@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.CompanyStatusService;
@@ -7,7 +8,7 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-//[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 section A.3)
+[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 section A.3)
 public class CompanyStatusController : Controller
 {
     private readonly ICompanyStatusService companyStatusService;

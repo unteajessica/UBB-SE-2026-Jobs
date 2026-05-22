@@ -5,7 +5,7 @@ using PussyCats.Library.Services.Skills;
 
 namespace PussyCats.Web.Controllers;
 
-//[Authorize]
+[Authorize]
 public class SkillsController : Controller
 {
     private readonly ISkillService service;
