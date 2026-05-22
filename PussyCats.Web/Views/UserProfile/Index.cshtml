@@ -5,9 +5,7 @@
     int completeness = ViewBag.CompletenessPercentage ?? 0;
     string nextPrompt = ViewBag.NextFieldPrompt ?? "";
     int totalXp = ViewBag.TotalXp ?? 0;
-
-    // Progress calculation mirroring UserLevelService.GetLevelProgressPercent
-    int progressPercent = (totalXp % 100); // Tweak to match your math utility rules if different
+    int progressPercent = ViewBag.LevelProgressPercent ?? 0;
 }
 
 <div class="container py-4">
@@ -15,7 +13,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="fw-bold">Profile Completeness</span>
-                <span class="badge bg-purple font-monospace">@completeness%</span>
+                <span class="badge bg-secondary font-monospace">@completeness%</span>
             </div>
             <div class="progress mb-2" style="height: 10px;">
                 <div class="progress-bar bg-info" role="progressbar" style="width: @completeness%;" aria-valuenow="@completeness" aria-valuemin="0" aria-valuemax="100"></div>

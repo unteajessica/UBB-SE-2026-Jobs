@@ -170,7 +170,7 @@ public class DocumentService : IDocumentService, ILocalDocumentFileService
             throw new InvalidOperationException(DocumentNotFoundMessage);
         }
 
-        return fileStorage.GetFilePath(document.FilePath);
+        return fileStorage.GetUrl(document.FilePath);
     }
 
     private static bool ValidateFileType(string extension)

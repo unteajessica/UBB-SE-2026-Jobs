@@ -36,7 +36,9 @@ public class UserProfileController : Controller
 
         ViewBag.CompletenessPercentage = completenessService.CalculateCompleteness(user);
         ViewBag.NextFieldPrompt = completenessService.GetNextEmptyFieldPrompt(user);
-        ViewBag.TotalXp = await userProfileService.RecalculateLevelAsync(user, cancellationToken);
+        int totalXp = await userProfileService.RecalculateLevelAsync(user, cancellationToken);
+        ViewBag.TotalXp = totalXp;
+        ViewBag.LevelProgressPercent = CalculateLevelProgress(totalXp, user.CurrentLevel);
         return View(user);
     }
 
@@ -74,6 +76,15 @@ public class UserProfileController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private static int CalculateLevelProgress(int xp, int level)
+    {
+        var thresholds = new[] { 0, 100, 250, 500, 800 };
+        int start = level >= 1 && level <= thresholds.Length ? thresholds[level - 1] : 0;
+        int end = level < thresholds.Length ? thresholds[level] : thresholds[^1];
+        if (end <= start) return 100;
+        return (int)Math.Clamp((xp - start) * 100.0 / (end - start), 0, 100);
     }
 
     [HttpPost, ValidateAntiForgeryToken]

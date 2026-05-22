@@ -4,47 +4,50 @@
 	var userOptions = ViewBag.Users as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
 }
 
-<h1>Documents</h1>
+<section class="page-shell">
+    <div class="section-header">
+        <div>
+            <h1 class="section-header__title">Documents</h1>
+            <p class="section-header__subtitle">Manage uploads, update metadata, and keep everything organized.</p>
+        </div>
+        <a class="btn btn-dark" asp-action="Create" asp-route-userId="@ViewBag.SelectedUserId">New document</a>
+    </div>
 
-<form method="get" class="row g-3 align-items-center mb-4">
-	<div class="col-auto">
-		<label for="userId" class="col-form-label">Filter by User:</label>
-	</div>
-	<div class="col-auto">
-		<select id="userId" name="userId" class="form-select" asp-items="userOptions">
-		</select>
-	</div>
-	<div class="col-auto">
-		<button type="submit" class="btn btn-secondary">Filter</button>
-	</div>
-</form>
+    <form method="get" class="filter-bar mb-4">
+        <div>
+            <label for="userId" class="form-label mb-1">Filter by user</label>
+            <select id="userId" name="userId" class="form-select" asp-items="userOptions"></select>
+        </div>
+        <div class="align-self-end">
+            <button type="submit" class="btn btn-outline-dark">Apply</button>
+        </div>
+    </form>
 
-<p>
-	<a class="btn btn-primary" asp-action="Create" asp-route-userId="@ViewBag.SelectedUserId">Create New</a>
-</p>
-
-<table class="table table-striped">
-	<thead>
-		<tr>
-			<th>Name</th>
-			<th>User</th>
-			<th>Upload Date</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in Model)
-		{
-			<tr>
-				<td>@item.DocumentName</td>
-				<td>@item.User?.Name</td>
-				<td>@item.UploadDate.ToString("g")</td>
-				<td>
-					<a asp-action="Details" asp-route-id="@item.DocumentId">Details</a> |
-					<a asp-action="Edit" asp-route-id="@item.DocumentId">Edit</a> |
-					<a asp-action="Delete" asp-route-id="@item.DocumentId">Delete</a>
-				</td>
-			</tr>
-		}
-	</tbody>
-</table>
+    <div class="pc-table">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>User</th>
+                    <th>Upload Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.DocumentName</td>
+                        <td>@item.User?.Name</td>
+                        <td>@item.UploadDate.ToString("g")</td>
+                        <td class="table-actions">
+                            <a asp-action="Details" asp-route-id="@item.DocumentId">Details</a>
+                            <a asp-action="Edit" asp-route-id="@item.DocumentId">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.DocumentId">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

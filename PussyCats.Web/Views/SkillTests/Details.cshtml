@@ -4,27 +4,28 @@
     ViewData["Title"] = "Skill Test Details";
 }
 
-<div class="container mt-4">
-    <h2>Skill Test Details</h2>
-    <hr />
-    <div class="card bg-light col-md-6 shadow-sm">
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-4 fw-bold">Test Name:</dt>
-                <dd class="col-sm-8">@Model.Name</dd>
-
-                <dt class="col-sm-4 fw-bold">Current Score:</dt>
-                <dd class="col-sm-8">
-                    <span class="badge bg-success fs-6">@Model.Score</span>
-                </dd>
-
-                <dt class="col-sm-4 fw-bold">Achieved Date:</dt>
-                <dd class="col-sm-8">@Model.AchievedDate.ToString("dd.MM.yyyy")</dd>
-            </dl>
+<section class="page-shell">
+    <div class="detail-card">
+        <div class="detail-card__header">
+            <div>
+                <p class="eyebrow">Skill test</p>
+                <h2>@Model.Name</h2>
+            </div>
+            <span class="score-pill">@Model.Score%</span>
         </div>
-        <div class="card-footer d-flex gap-2">
-            <a asp-action="Edit" asp-route-id="@Model.SkillTestId" class="btn btn-warning">Edit Test</a>
-            <a asp-action="Index" class="btn btn-secondary">Back to Overview</a>
+        <div class="detail-card__body">
+            <div>
+                <span class="detail-label">Achieved</span>
+                <span class="detail-value">@Model.AchievedDate.ToString("dd.MM.yyyy")</span>
+            </div>
+            <div>
+                <span class="detail-label">Status</span>
+                <span class="detail-value">Recorded</span>
+            </div>
+        </div>
+        <div class="detail-card__actions">
+            <a asp-action="Edit" asp-route-id="@Model.SkillTestId" class="btn btn-dark">Edit test</a>
+            <a asp-action="Index" class="btn btn-outline-secondary">Back to overview</a>
         </div>
     </div>
-</div>
+</section>

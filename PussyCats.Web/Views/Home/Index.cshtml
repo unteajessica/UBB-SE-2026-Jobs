@@ -1,8 +1,49 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Choose Mode";
+    var modeError = TempData["ModeError"] as string;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="mode-hero">
+    <div class="mode-hero__inner">
+        <div class="mode-hero__badge">PussyCats Platform</div>
+        <h1 class="mode-hero__title">Choose your workspace</h1>
+        <p class="mode-hero__lead">Pick a mode to tailor the experience. User mode uses authentication, while Company and Developer routes enter directly.</p>
+
+        @if (!string.IsNullOrWhiteSpace(modeError))
+        {
+            <div class="alert alert-danger mt-3">@modeError</div>
+        }
+    </div>
+</section>
+
+<section class="mode-grid">
+    <div class="mode-grid__form">
+        <form asp-action="SelectMode" method="post" class="mode-card" data-mode="User">
+            @Html.AntiForgeryToken()
+            <div class="mode-card__header">
+                <span class="mode-card__eyebrow">User</span>
+                <h2 class="mode-card__title">Build your profile</h2>
+            </div>
+            <p class="mode-card__copy">Upload CVs, refine skills, and discover matches. Authentication required.</p>
+            <button class="btn btn-primary mode-card__cta" type="submit" name="mode" value="User">Continue as User</button>
+        </form>
+        <form asp-action="SelectMode" method="post" class="mode-card" data-mode="Company">
+            @Html.AntiForgeryToken()
+            <div class="mode-card__header">
+                <span class="mode-card__eyebrow">Company</span>
+                <h2 class="mode-card__title">Review applicants</h2>
+            </div>
+            <p class="mode-card__copy">Browse matches, rank applicants, and manage listings. Direct access.</p>
+            <button class="btn btn-outline-dark mode-card__cta" type="submit" name="mode" value="Company">Enter Company Mode</button>
+        </form>
+        <form asp-action="SelectMode" method="post" class="mode-card" data-mode="Developer">
+            @Html.AntiForgeryToken()
+            <div class="mode-card__header">
+                <span class="mode-card__eyebrow">Developer</span>
+                <h2 class="mode-card__title">Explore insights</h2>
+            </div>
+            <p class="mode-card__copy">Inspect platform metrics, diagnostics, and prototype tooling.</p>
+            <button class="btn btn-outline-dark mode-card__cta" type="submit" name="mode" value="Developer">Enter Developer Mode</button>
+        </form>
+    </div>
+</section>

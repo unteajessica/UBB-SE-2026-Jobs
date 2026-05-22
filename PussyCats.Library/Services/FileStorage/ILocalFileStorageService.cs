@@ -8,5 +8,5 @@ public interface ILocalFileStorageService
 
     Task<Stream> OpenReadAsync(string relativePath, CancellationToken cancellationToken = default);
 
-    string GetFilePath(string relativePath);
+    string GetUrl(string relativePath);
 }

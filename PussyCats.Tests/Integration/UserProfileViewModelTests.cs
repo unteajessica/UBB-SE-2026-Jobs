@@ -9,7 +9,7 @@ using PussyCats.Library.Repositories.Users;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Tests.Fakes;
-using PussyCats_App.Services.ImageStorageService;
+using PussyCats.Library.Services.ImageStorage;
 
 namespace PussyCats.Tests.Integration;
 

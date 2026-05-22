@@ -3,29 +3,38 @@
     ViewData["Title"] = "Skills";
 }
 
-<h1>Skills</h1>
-<p><a class="btn btn-primary" asp-action="Create">Create New</a></p>
+<section class="page-shell">
+    <div class="section-header">
+        <div>
+            <h1 class="section-header__title">Skills Catalog</h1>
+            <p class="section-header__subtitle">Maintain the master list of skills used across the platform.</p>
+        </div>
+        <a class="btn btn-dark" asp-action="Create">Add skill</a>
+    </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Category</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.SkillId">Details</a> |
-                    <a asp-action="Edit" asp-route-id="@item.SkillId">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@item.SkillId">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="pc-table">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Category</td>
+                        <td class="table-actions">
+                            <a asp-action="Details" asp-route-id="@item.SkillId">Details</a>
+                            <a asp-action="Edit" asp-route-id="@item.SkillId">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.SkillId">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

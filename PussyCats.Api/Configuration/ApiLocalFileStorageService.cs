@@ -39,6 +39,14 @@ public sealed class ApiLocalFileStorageService : ILocalFileStorageService
         return Task.FromResult<Stream>(File.OpenRead(fullPath));
     }
 
-    public string GetFilePath(string relativePath)
-        => Path.GetFullPath(Path.Combine(uploadsPath, Path.GetFileName(relativePath)));
+    public string GetUrl(string relativePath)
+    {
+        if (string.IsNullOrWhiteSpace(relativePath))
+        {
+            return string.Empty;
+        }
+
+        var fileName = Path.GetFileName(relativePath);
+        return $"/api/files/{Uri.EscapeDataString(fileName)}";
+    }
 }

@@ -5,48 +5,50 @@
     ViewData["Title"] = "Skill Tests";
 }
 
-<style>
-    body {
-        background-color: #1F1F1F;
-        color: #FFFFFF;
-    }
-</style>
-
-<div class="container py-4">
-    <div class="text-center mb-4">
-        <h1 class="h3 fw-medium text-white">Skill Tests</h1>
-    </div>
+<section class="page-shell skill-tests">
+    <header class="skill-tests__hero">
+        <div>
+            <p class="eyebrow">Assessment Center</p>
+            <h1 class="page-title">Skill Tests</h1>
+            <p class="page-subtitle">Track results, retake when eligible, and keep your profile sharp.</p>
+        </div>
+        <div class="skill-tests__hero-badge">
+            <span class="badge-label">Your Progress</span>
+            <span class="badge-value">@Model.Count()</span>
+            <span class="badge-caption">tests logged</span>
+        </div>
+    </header>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["SuccessMessage"]
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show bg-danger text-white border-0" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @TempData["ErrorMessage"]
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="d-flex flex-column gap-3 mx-auto" style="max-width: 650px;">
+    <div class="skill-tests__grid">
         @if (!Model.Any())
         {
-            <div class="text-center p-4 rounded text-muted" style="background-color: #3D2E4D;">
-                No skill tests recorded for your user profile.
+            <div class="empty-state">
+                <h3>No tests yet</h3>
+                <p>Once you complete a skill test it will show up here with score history and retake status.</p>
             </div>
         }
         else
         {
             foreach (var test in Model)
             {
-                // Pass each item into the separate reusable partial card template
                 await Html.RenderPartialAsync("SkillTestCard", test);
             }
         }
     </div>
-</div>
+</section>

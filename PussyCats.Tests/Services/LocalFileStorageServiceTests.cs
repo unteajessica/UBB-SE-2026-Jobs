@@ -50,17 +50,17 @@ public class LocalFileStorageServiceTests
     }
 
     [Fact]
-    public void GetFilePath_RelativePathProvided_ReturnsProxyResolvedUrl()
+    public void GetUrl_RelativePathProvided_ReturnsProxyResolvedUrl()
     {
         filesProxy.GetUrl("uploads/x.pdf").Returns("https://api/api/files/x.pdf");
 
-        service.GetFilePath("uploads/x.pdf").Should().Be("https://api/api/files/x.pdf");
+        service.GetUrl("uploads/x.pdf").Should().Be("https://api/api/files/x.pdf");
     }
 
     [Fact]
-    public void GetFilePath_PathIsNull_ThrowsArgumentNullException()
+    public void GetUrl_PathIsNull_ThrowsArgumentNullException()
     {
-        Action act = () => service.GetFilePath(null!);
+        Action act = () => service.GetUrl(null!);
 
         act.Should().Throw<ArgumentNullException>();
     }

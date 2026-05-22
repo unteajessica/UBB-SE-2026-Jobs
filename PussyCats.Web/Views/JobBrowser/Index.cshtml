@@ -121,6 +121,7 @@
                             <form asp-action="Dismiss" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="Job.JobId" value="@Model.Job.JobId" />
+                                <input type="hidden" name="DisplayRecommendationId" value="@Model.DisplayRecommendationId" />
                                 <button type="submit" class="btn btn-danger w-100">Dismiss</button>
                             </form>
                         </div>
@@ -128,6 +129,7 @@
                             <form asp-action="Like" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="Job.JobId" value="@Model.Job.JobId" />
+                                <input type="hidden" name="DisplayRecommendationId" value="@Model.DisplayRecommendationId" />
                                 <button type="submit" class="btn btn-success w-100">Like</button>
                             </form>
                         </div>

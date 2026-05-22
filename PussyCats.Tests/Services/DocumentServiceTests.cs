@@ -303,7 +303,7 @@ public class DocumentServiceTests : IDisposable
         const string absolutePath = @"C:\files\uploads\x.pdf";
 
         documentRepository.Seed(new Document { DocumentId = documentId, User = new User { UserId = userId }, FilePath = relativePath });
-        fileStorage.GetFilePath(relativePath).Returns(absolutePath);
+        fileStorage.GetUrl(relativePath).Returns(absolutePath);
 
         var path = await service.GetDocumentAbsolutePathAsync(documentId);
 

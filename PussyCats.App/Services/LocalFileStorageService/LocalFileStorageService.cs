@@ -27,7 +27,7 @@ public class LocalFileStorageService : ILocalFileStorageService
         return filesProxy.DownloadAsync(relativePath, cancellationToken);
     }
 
-    public string GetFilePath(string relativePath)
+    public string GetUrl(string relativePath)
     {
         if (relativePath == null)
         {

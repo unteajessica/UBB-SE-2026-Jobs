@@ -4,28 +4,26 @@
     ViewData["Title"] = "Delete Skill Test";
 }
 
-<div class="container mt-4">
-    <div class="alert alert-danger col-md-6" role="alert">
-        <h4 class="alert-heading">Are you sure you want to delete this?</h4>
-        <p>This action cannot be undone. It will remove this test result permanently.</p>
-    </div>
-
-    <div class="card col-md-6 shadow-sm">
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-4">Test Name:</dt>
-                <dd class="col-sm-8">@Model.Name</dd>
-
-                <dt class="col-sm-4">Score:</dt>
-                <dd class="col-sm-8">@Model.Score</dd>
-            </dl>
+<section class="page-shell">
+    <div class="danger-card">
+        <div class="danger-card__header">
+            <h2>Delete skill test</h2>
+            <p>This action cannot be undone.</p>
         </div>
-        <div class="card-footer">
-            <form asp-action="Delete">
-                <input type="hidden" asp-for="SkillTestId" />
-                <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-            </form>
+        <div class="danger-card__body">
+            <div>
+                <span class="detail-label">Test Name</span>
+                <span class="detail-value">@Model.Name</span>
+            </div>
+            <div>
+                <span class="detail-label">Score</span>
+                <span class="detail-value">@Model.Score%</span>
+            </div>
         </div>
+        <form asp-action="Delete" class="danger-card__actions">
+            <input type="hidden" asp-for="SkillTestId" />
+            <button type="submit" class="btn btn-danger">Confirm delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
     </div>
-</div>
+</section>

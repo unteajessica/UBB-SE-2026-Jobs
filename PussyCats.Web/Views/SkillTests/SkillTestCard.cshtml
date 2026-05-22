@@ -2,58 +2,36 @@
 @inject PussyCats.Library.Services.SkillTests.ISkillTestService SkillTestService
 
 @{
-    // Server-side evaluation equivalent to LoadCardAsync in WinUI
     bool isRetakeEnabled = Model.SkillTestId > 0 && await SkillTestService.CanRetakeTestAsync(Model.SkillTestId);
-
-    // Fallback tier formatting
     var badge = PussyCats.Library.Services.SimpleModelOperations.AssignTier(Model.Score);
     string dateFormatted = PussyCats.Library.Services.SkillTests.ISkillTestService.AchievedDateFormatted(Model);
+    string tierLabel = badge?.Tier.ToString() ?? string.Empty;
+    string tierColor = tierLabel switch
+    {
+        "Gold" => "#FFD700",
+        "Silver" => "#C0C0C0",
+        "Bronze" => "#CD7F32",
+        _ => "#6c757d",
+    };
 }
 
-<div class="p-3 border-0 rounded-3 shadow-sm d-flex align-items-center justify-content-between text-white"
-     style="background-color: #3D2E4D; min-height: 85px;">
-
-    <div class="d-flex align-items-center gap-3">
-        <div class="d-flex align-items-center justify-content-center bg-dark bg-opacity-20 rounded" style="width: 55px; height: 55px;">
-            @if (badge != null && !string.IsNullOrEmpty(badge.IconPath))
-            {
-                <img src="~/@badge.IconPath.Replace("ms-appx:///", "")" width="45" height="45" alt="Badge" />
-            }
-            else
-            {
-                <i class="bi bi-award-fill text-muted fs-3"></i>
-            }
-        </div>
-
-        <div class="d-flex flex-column">
-            <span class="fw-medium text-uppercase text-white" style="font-size: 14px;">
-                @(string.IsNullOrEmpty(Model.Name) ? "UNKNOWN" : Model.Name) TEST
-            </span>
-            <span style="color: #BDA4CC; font-size: 12px;">SCORE: @Model.Score%</span>
-            <span style="color: #BDA4CC; font-size: 12px;">@dateFormatted</span>
-        </div>
+<article class="skill-test-card">
+    <div class="skill-test-card__media">
+        <span class="skill-test-card__fallback fw-bold"
+              style="color: @tierColor; font-size: 1.1rem;">@tierLabel</span>
     </div>
-
-    <div>
-        <form asp-action="Retake" method="post" class="m-0">
+    <div class="skill-test-card__content">
+        <div class="skill-test-card__meta">@dateFormatted</div>
+        <h3 class="skill-test-card__title">@(string.IsNullOrEmpty(Model.Name) ? "Unknown" : Model.Name)</h3>
+        <p class="skill-test-card__score">Score: <strong>@Model.Score%</strong></p>
+    </div>
+    <div class="skill-test-card__actions">
+        <form asp-action="Retake" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" name="id" value="@Model.SkillTestId" />
-
-            @if (isRetakeEnabled)
-            {
-                <button type="submit" class="btn text-white fw-bold px-3 btn-sm"
-                        style="background-color: #9A74B3; font-size: 12px; border-radius: 6px;">
-                    RETAKE
-                </button>
-            }
-            else
-            {
-                <button type="button" class="btn text-white fw-bold px-3 btn-sm disabled"
-                        style="background-color: #9A74B3; opacity: 0.4; font-size: 12px; border-radius: 6px;"
-                        disabled>
-                    RETAKE
-                </button>
-            }
+            <button type="submit" class="btn btn-sm btn-dark" @(isRetakeEnabled ? string.Empty : "disabled")>
+                @(isRetakeEnabled ? "Retake" : "Locked")
+            </button>
         </form>
     </div>
-</div>
+</article>

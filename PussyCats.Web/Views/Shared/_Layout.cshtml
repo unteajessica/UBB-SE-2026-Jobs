@@ -1,4 +1,5 @@
 ﻿@inject PussyCats.Web.Configuration.ApiConfiguration ApiConfiguration
+@using PussyCats.Web.Infrastructure
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,12 +8,19 @@
     <title>@ViewData["Title"] - PussyCats.Web</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PussyCats.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+<body class="pc-body">
+    @{
+        var selectedMode = Context.Session.GetString(SessionKeys.Mode);
+        var isUserMode = string.Equals(selectedMode, AppModes.User, StringComparison.OrdinalIgnoreCase);
+        var isCompanyMode = string.Equals(selectedMode, AppModes.Company, StringComparison.OrdinalIgnoreCase);
+        var isDeveloperMode = string.Equals(selectedMode, AppModes.Developer, StringComparison.OrdinalIgnoreCase);
+    }
+    <header class="mb-4">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm pc-nav px-3 py-2">
             <div class="container-fluid">
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -23,54 +31,57 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Skills" asp-action="Index">Skills</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Documents" asp-action="Index">Documents</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Company" asp-action="Profile" asp-route-id="@ApiConfiguration.TemporaryCompanyId">Company</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Matches" asp-action="Index">Applicants</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="CompanyRecommendations" asp-action="Index">Ranked Applicants</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="SkillTests" asp-action="Index">Skill Tests</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="JobBrowser" asp-action="Index">Browse Jobs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="Index">Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="PersonalityTest" asp-action="Index">Personality Test</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Preferences" asp-action="Index">Preferences</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Compatibility" asp-action="Index">Compatibility</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="UserStatus" asp-action="Index">My Applications</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index">Messages</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Developer" asp-action="Index">Developer Hub</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="UserSkills" asp-action="Index" asp-route-userId="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">User Skills</a>
-                        </li>
+                        @if (isUserMode)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="Index">Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Documents" asp-action="Index">Documents</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="SkillTests" asp-action="Index">Skill Tests</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="PersonalityTest" asp-action="Index">Personality Test</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Preferences" asp-action="Index">Preferences</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Compatibility" asp-action="Index">Compatibility</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="UserStatus" asp-action="Index">My Applications</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index">Messages</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="UserSkills" asp-action="Index" asp-route-userId="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">User Skills</a>
+                            </li>
+                        }
+                        @if (isCompanyMode)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Company" asp-action="Profile" asp-route-id="@ApiConfiguration.TemporaryCompanyId">Company</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Matches" asp-action="Index">Applicants</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="CompanyRecommendations" asp-action="Index">Ranked Applicants</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index">Messages</a>
+                            </li>
+                        }
+                        @if (isDeveloperMode)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Developer" asp-action="Index">Developer Hub</a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav">
                         @if (User.Identity?.IsAuthenticated == true)
@@ -86,17 +97,23 @@
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
+                            @if (isUserMode)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                                </li>
+                            }
                         }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="SwitchMode">Switch Mode</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3 app-shell">
             @RenderBody()
         </main>
     </div>
