@@ -41,6 +41,13 @@ public class SkillServiceProxy : ISkillService
     public async Task RemoveAsync(int skillId, CancellationToken cancellationToken = default)
     {
         var response = await http.DeleteAsync($"api/skills/{skillId}", cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            var message = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            throw new InvalidOperationException(string.IsNullOrWhiteSpace(message)
+                ? "Skill cannot be deleted because it is in use."
+                : message);
+        }
         response.EnsureSuccessStatusCode();
     }
 }

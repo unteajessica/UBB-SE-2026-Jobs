@@ -55,6 +55,24 @@ public class SkillRepository : ISkillRepository
 
     public async Task RemoveAsync(int skillId, CancellationToken cancellationToken = default)
     {
+        var isReferencedByUser = await databaseContext.UserSkills
+            .AnyAsync(skill => EF.Property<int>(skill, "SkillId") == skillId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (isReferencedByUser)
+        {
+            throw new InvalidOperationException("Skill is in use by one or more users and cannot be deleted.");
+        }
+
+        var isReferencedByJob = await databaseContext.JobSkills
+            .AnyAsync(skill => EF.Property<int>(skill, "SkillId") == skillId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (isReferencedByJob)
+        {
+            throw new InvalidOperationException("Skill is required by one or more jobs and cannot be deleted.");
+        }
+
         var skill = await databaseContext.Skills.FindAsync(new object?[] { skillId }, cancellationToken).ConfigureAwait(false);
         if (skill is null)
         {

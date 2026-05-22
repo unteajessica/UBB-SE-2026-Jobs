@@ -49,7 +49,14 @@ public class SkillsController : ControllerBase
     {
         if (await skills.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
-        await skills.RemoveAsync(id, cancellationToken);
-        return NoContent();
+        try
+        {
+            await skills.RemoveAsync(id, cancellationToken);
+            return NoContent();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Conflict(exception.Message);
+        }
     }
 }
