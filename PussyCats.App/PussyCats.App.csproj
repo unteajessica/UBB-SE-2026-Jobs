@@ -24,6 +24,12 @@
     <WindowsAppSdkCompatibilityInitialize>false</WindowsAppSdkCompatibilityInitialize>
     <WindowsAppSdkAutoInitialize>false</WindowsAppSdkAutoInitialize>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Services\JobSkillService\**" />
+    <EmbeddedResource Remove="Services\JobSkillService\**" />
+    <None Remove="Services\JobSkillService\**" />
+    <Page Remove="Services\JobSkillService\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -80,10 +86,6 @@
     <ProjectReference Include="..\PussyCats.Library\PussyCats.Library.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\JobSkillService\" />
-  </ItemGroup>
-
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
     Explorer "Package and Publish" context menu entry to be enabled for this project even if
@@ -100,4 +102,7 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Services\JobSkillService\**" />
+  </ItemGroup>
 </Project>

@@ -33,7 +33,7 @@ using PussyCats.Library.Services.CompatibilityService;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CvParsing;
-using PussyCats_App.Services.DeveloperService;
+using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.ImageStorage;
 using PussyCats.Library.Services.JobSkills;
 using PussyCats.Library.Services.Preferences;
@@ -117,7 +117,7 @@ public partial class App : Application
             client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
 
         RegisterServiceProxy<IChatService, ChatServiceProxy>(services, apiConfiguration);
-        services.AddSingleton<IDeveloperService, DeveloperService>();
+        //services.AddSingleton<IDeveloperService, DeveloperService>();
 
 
         RegisterServiceProxy<ICompanyService,CompanyServiceProxy>(services, apiConfiguration);
@@ -139,11 +139,12 @@ public partial class App : Application
         RegisterServiceProxy<PussyCats.Library.Services.UserSkillService.IUserSkillService, UserSkillServiceProxy >(services, apiConfiguration);
         RegisterServiceProxy<IUserSkillService, UserSkillServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IUserStatusService, UserStatusServiceProxy>(services, apiConfiguration);
-       
+        RegisterServiceProxy<IDeveloperService, DeveloperServiceProxy>(services, apiConfiguration);
+
 
         //services.AddTransient<PussyCats.Library.Services.UserSkillService.IUserSkillService, PussyCats.Library.Services.UserSkillService.UserSkillService>();
         //services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
-       // services.AddTransient<ICompanyStatusService, CompanyStatusService>();
+        // services.AddTransient<ICompanyStatusService, CompanyStatusService>();
         //services.AddTransient<ICompatibilityService, CompatibilityService>();
         services.AddTransient<ICompletenessService, CompletenessService>();
         services.AddTransient<ICooldownService>(provider => new CooldownService(

@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
-using PussyCats_App.Services.DeveloperService;
+using PussyCats.Library.Services.Developers;
 
 namespace PussyCats.App.ViewModels;
 
@@ -15,6 +15,7 @@ public class DeveloperViewModel : DispatchableObservableObject
     private DeveloperParameterOption selectedParameter;
     private string proposedValue = string.Empty;
     private string statusMessage = string.Empty;
+    private bool isInitialized = false;
 
     public DeveloperViewModel(IDeveloperService developerService, SessionContext session)
     {
@@ -30,15 +31,26 @@ public class DeveloperViewModel : DispatchableObservableObject
             new DeveloperParameterOption(DeveloperPostParameterType.RelevantKeyword),
         ];
         selectedParameter = ParameterOptions[0];
-        AddPostCommand = new RelayCommand(AddPost);
-        RefreshCommand = new RelayCommand(RefreshPosts);
-        RefreshPosts();
+        AddPostCommand = new AsyncRelayCommand(AddPostAsync);
+        RefreshCommand = new AsyncRelayCommand(RefreshPostsAsync);
+    }
+
+    public async Task InitializeAsync()
+    {
+        if (isInitialized)
+        {
+            return;
+        }
+
+        isInitialized = true;
+
+        await RefreshPostsAsync();
     }
 
     public ObservableCollection<DeveloperFeedPostCardViewModel> Posts { get; } = new();
     public IReadOnlyList<DeveloperParameterOption> ParameterOptions { get; }
-    public ICommand AddPostCommand { get; }
-    public ICommand RefreshCommand { get; }
+    public IAsyncRelayCommand AddPostCommand { get; }
+    public IAsyncRelayCommand RefreshCommand { get; }
 
     public DeveloperParameterOption SelectedParameter
     {
@@ -58,7 +70,7 @@ public class DeveloperViewModel : DispatchableObservableObject
         private set => SetProperty(ref statusMessage, value);
     }
 
-    public void AddPost()
+    public async Task AddPostAsync()
     {
         var validation = ValidateDeveloperPostInput(SelectedParameter.Type, ProposedValue);
         if (validation is not null)
@@ -68,10 +80,10 @@ public class DeveloperViewModel : DispatchableObservableObject
         }
 
         var developerId = session.DeveloperId ?? 1;
-        developerService.AddPost(developerId, SelectedParameter.Type, ProposedValue);
+        await developerService.AddPostAsync(developerId, SelectedParameter.Type, ProposedValue);
         ProposedValue = string.Empty;
         StatusMessage = "Post published.";
-        RefreshPosts();
+        await RefreshPostsAsync();
     }
 
     public string? ValidateDeveloperPostInput(DeveloperPostParameterType parameter, string value)
@@ -103,17 +115,19 @@ public class DeveloperViewModel : DispatchableObservableObject
             : "Weight value must be a number between 0 and 100.";
     }
 
-    public void RefreshPosts()
+    public async Task RefreshPostsAsync()
     {
-        var posts = developerService.GetPosts();
-        var interactions = developerService.GetInteractions();
+        var posts = await developerService.GetPostsAsync();
+        var interactions = await developerService.GetInteractionsAsync();
         var currentDeveloperId = session.DeveloperId ?? 1;
 
         Posts.Clear();
+        /// This is dangerous because of N+1 api calls, but it's a demo app and we don't expect many posts or interactions, so it should be fine for now.
+        /// In a real app, we'd want to optimize this by including developer info in the GetPostsAsync response or caching developer info.
         foreach (var post in posts)
         {
             var postInteractions = interactions.Where(interaction => interaction.DeveloperPost.DeveloperPostId == post.DeveloperPostId).ToList();
-            var developer = developerService.GetDeveloperById(post.Developer.DeveloperId);
+            var developer = await developerService.GetDeveloperByIdAsync(post.Developer.DeveloperId);
             Posts.Add(new DeveloperFeedPostCardViewModel(
                 post,
                 postInteractions,
@@ -124,31 +138,31 @@ public class DeveloperViewModel : DispatchableObservableObject
         }
     }
 
-    private void ToggleLike(int postId)
+    private async Task ToggleLike(int postId)
     {
-        ToggleInteraction(postId, DeveloperInteractionType.Like);
+        await ToggleInteraction(postId, DeveloperInteractionType.Like);
     }
 
-    private void ToggleDislike(int postId)
+    private async Task ToggleDislike(int postId)
     {
-        ToggleInteraction(postId, DeveloperInteractionType.Dislike);
+        await ToggleInteraction(postId, DeveloperInteractionType.Dislike);
     }
 
-    private void ToggleInteraction(int postId, DeveloperInteractionType type)
+    private async Task ToggleInteraction(int postId, DeveloperInteractionType type)
     {
         var developerId = session.DeveloperId ?? 1;
-        var existing = developerService.GetInteractions()
+        var existing = (await developerService.GetInteractionsAsync())
             .FirstOrDefault(interaction => interaction.Developer.DeveloperId == developerId && interaction.DeveloperPost.DeveloperPostId == postId);
         if (existing is not null && existing.Type == type)
         {
-            developerService.RemoveInteraction(existing.DeveloperInteractionId);
+            await developerService.RemoveInteractionAsync(existing.DeveloperInteractionId);
         }
         else
         {
-            developerService.AddInteraction(developerId, postId, type);
+            await developerService.AddInteractionAsync(developerId, postId, type);
         }
 
-        RefreshPosts();
+        await RefreshPostsAsync();
     }
 }
 
@@ -164,8 +178,8 @@ public sealed class DeveloperFeedPostCardViewModel
         IReadOnlyList<DeveloperInteraction> interactions,
         string authorName,
         int currentDeveloperId,
-        Action<int> likeAction,
-        Action<int> dislikeAction)
+        Func<int, Task> likeAction,
+        Func<int, Task> dislikeAction)
     {
         PostId = post.DeveloperPostId;
         AuthorName = authorName;
