@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
@@ -7,21 +8,23 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
+// There is a bug, if you try to select Developer mode without being logged in , it will throw an exception because CurrentUserId will try to parse an empty string.
+[Authorize]
 public class DeveloperController : Controller
 {
-    private readonly IDeveloperService developer;
+    private readonly IDeveloperService developerService;
 
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    public DeveloperController(IDeveloperService developer)
+    public DeveloperController(IDeveloperService developerService)
     {
-        this.developer = developer;
+        this.developerService = developerService;
     }
 
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var posts = await developer.GetPostsAsync(cancellationToken);
-        var interactions = await developer.GetInteractionsAsync(cancellationToken);
+        var posts = await developerService.GetPostsAsync(cancellationToken);
+        var interactions = await developerService.GetInteractionsAsync(cancellationToken);
         var model = BuildFeed(posts, interactions, CurrentUserId);
         return View(model);
     }
@@ -31,21 +34,21 @@ public class DeveloperController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var posts = await developer.GetPostsAsync(cancellationToken);
-            var interactions = await developer.GetInteractionsAsync(cancellationToken);
+            var posts = await developerService.GetPostsAsync(cancellationToken);
+            var interactions = await developerService.GetInteractionsAsync(cancellationToken);
             ViewBag.CreateModel = model;
             return View("Index", BuildFeed(posts, interactions, CurrentUserId));
         }
 
         try
         {
-            await developer.AddPostAsync(CurrentUserId, model.ParameterType, model.Value, cancellationToken);
+            await developerService.AddPostAsync(CurrentUserId, model.ParameterType, model.Value, cancellationToken);
         }
         catch (ArgumentException ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
-            var posts = await developer.GetPostsAsync(cancellationToken);
-            var interactions = await developer.GetInteractionsAsync(cancellationToken);
+            var posts = await developerService.GetPostsAsync(cancellationToken);
+            var interactions = await developerService.GetInteractionsAsync(cancellationToken);
             ViewBag.CreateModel = model;
             return View("Index", BuildFeed(posts, interactions, CurrentUserId));
         }
@@ -57,15 +60,15 @@ public class DeveloperController : Controller
     public async Task<IActionResult> Interact(int postId, string action, CancellationToken cancellationToken)
     {
         var interactionType = action == "like" ? DeveloperInteractionType.Like : DeveloperInteractionType.Dislike;
-        var interactions = await developer.GetInteractionsAsync(cancellationToken);
+        var interactions = await developerService.GetInteractionsAsync(cancellationToken);
         var existing = interactions.FirstOrDefault(i =>
             i.Developer.DeveloperId == CurrentUserId &&
             i.DeveloperPost.DeveloperPostId == postId);
 
         if (existing is not null && existing.Type == interactionType)
-            await developer.RemoveInteractionAsync(existing.DeveloperInteractionId, cancellationToken);
+            await developerService.RemoveInteractionAsync(existing.DeveloperInteractionId, cancellationToken);
         else
-            await developer.AddInteractionAsync(CurrentUserId, postId, interactionType, cancellationToken);
+            await developerService.AddInteractionAsync(CurrentUserId, postId, interactionType, cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }

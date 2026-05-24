@@ -57,7 +57,11 @@ namespace PussyCats.Web.Controllers
                 return RedirectToAction("Index", "Matches");
             }
 
-            return RedirectToAction("Index", "Developer");
+            var developerLanding = Url.Action("Index", "Developer") ?? "/";
+
+            return User.Identity?.IsAuthenticated == true
+                ? Redirect(developerLanding)
+                : RedirectToAction("Login", "Account", new { returnUrl = developerLanding });
         }
 
         public IActionResult Privacy()
