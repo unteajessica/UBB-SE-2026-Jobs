@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Web.Models;
-using PussyCats.Web.ServiceProxies;
+using PussyCats.Library.ServiceProxies;
 
 namespace PussyCats.Web.Controllers;
 
