@@ -110,24 +110,50 @@
 
     <hr />
 
-    <h4>Skills</h4>
+    <label>Skills</label>
 
-    <div id="skills-container">
-        @for (int i = 0; i < Model.Skills.Count; i++)
-        {
-            <div class="mb-2">
-                <input name="Skills[@i].Skill.Name"
-                       value="@Model.Skills[i].Skill?.Name"
-                       class="form-control" />
-            </div>
-        }
-    </div>
+    <input type="text"
+           id="skill-input"
+           class="form-control"
+           list="skill-suggestions" />
+
+    <datalist id="skill-suggestions">
+        <option value="C#"/>
+        <option value=".NET"/>
+        <option value="ASP.NET Core"/>
+        <option value="React"/>
+        <option value="Angular"/>
+        <option value="Docker"/>
+        <option value="Azure"/>
+    </datalist>
 
     <button type="button"
-            class="btn btn-secondary"
+            class="btn btn-secondary mt-2"
             onclick="addSkill()">
         Add Skill
     </button>
+
+    <div id="skills-container" class="mt-3">
+
+        @for (int i = 0; i < Model.Skills.Count; i++)
+        {
+            <div class="badge bg-primary p-2 me-2 mb-2 skill-item">
+
+                @Model.Skills[i].Skill?.Name
+
+                <button type="button"
+                        class="btn-close btn-close-white ms-2"
+                        onclick="removeSkill(this)">
+                </button>
+
+                <input type="hidden"
+                       name="Skills[@i].Skill.Name"
+                       value="@Model.Skills[i].Skill?.Name" />
+
+            </div>
+        }
+
+    </div>
 
     <hr />
 
@@ -137,23 +163,76 @@
 
         @for (int i = 0; i < Model.WorkExperiences.Count; i++)
         {
-            <div class="card p-3 mb-3">
+            <div class="card p-3 mb-3 work-item">
 
-                <input name="WorkExperiences[@i].Company"
-                       value="@Model.WorkExperiences[i].Company"
-                       class="form-control mb-2"
-                       placeholder="Company" />
+                <div class="row mb-2">
 
-                <input name="WorkExperiences[@i].JobTitle"
-                       value="@Model.WorkExperiences[i].JobTitle"
-                       class="form-control mb-2"
-                       placeholder="Job Title" />
+                    <div class="col-md-5">
+                        <input name="WorkExperiences[@i].Company"
+                               value="@Model.WorkExperiences[i].Company"
+                               class="form-control"
+                               placeholder="Company" />
+                    </div>
+
+                    <div class="col-md-5">
+                        <input name="WorkExperiences[@i].JobTitle"
+                               value="@Model.WorkExperiences[i].JobTitle"
+                               class="form-control"
+                               placeholder="Job Title" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="button"
+                                class="btn btn-danger w-100"
+                                onclick="removeItem(this)">
+                            Remove
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="row mb-2">
+
+                    <div class="col-md-6">
+                        <label>Start Date</label>
+
+                        <input type="date"
+                               name="WorkExperiences[@i].StartDate"
+                               value="@Model.WorkExperiences[i].StartDate.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>End Date</label>
+
+                        <input type="date"
+                               name="WorkExperiences[@i].EndDate"
+                               value="@(Model.WorkExperiences[i].EndDate?.ToString("yyyy-MM-dd"))"
+                               class="form-control end-date" />
+                    </div>
+
+                </div>
+
+                <div class="form-check mb-2">
+
+                    <input type="checkbox"
+                           class="form-check-input current-work-checkbox"
+                    @(Model.WorkExperiences[i].CurrentlyWorking ? "checked" : "")
+                           onchange="toggleEndDate(this)" />
+
+                    <label class="form-check-label">
+                        Currently Working Here
+                    </label>
+
+                </div>
 
                 <textarea name="WorkExperiences[@i].Description"
-                          class="form-control">@Model.WorkExperiences[i].Description</textarea>
+                          class="form-control"
+                          placeholder="Description">@Model.WorkExperiences[i].Description</textarea>
 
             </div>
         }
+
     </div>
 
     <button type="button"
