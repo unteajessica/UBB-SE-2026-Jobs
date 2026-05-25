@@ -64,6 +64,14 @@ public class UserProfileService : IUserProfileService
         }
         else
         {
+            user.UserId = userId;
+            user.PasswordHash = existing.PasswordHash;
+            user.ProfilePicturePath = existing.ProfilePicturePath;
+            user.ParsedCv = existing.ParsedCv;
+            user.CurrentLevel = existing.CurrentLevel;
+            user.TotalExperiencePoints = existing.TotalExperiencePoints;
+            user.ActiveAccount = existing.ActiveAccount;
+            user.CreatedAt = existing.CreatedAt;
             await userRepository.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
         }
     }

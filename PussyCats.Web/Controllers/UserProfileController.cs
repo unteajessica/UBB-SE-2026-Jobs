@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.CompletenessService;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace PussyCats.Web.Controllers;
 
+[Authorize]
 public class UserProfileController : Controller
 {
     private readonly IUserProfileService userProfileService;

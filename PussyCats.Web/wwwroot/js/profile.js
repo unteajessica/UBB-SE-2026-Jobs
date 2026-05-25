@@ -49,6 +49,17 @@
 function removeSkill(button) {
 
     button.closest(".skill-item").remove();
+
+    const container = document.getElementById("skills-container");
+
+    Array.from(container.querySelectorAll(".skill-item")).forEach((item, index) => {
+
+        const hidden = item.querySelector("input[type='hidden']");
+
+        if (hidden) {
+            hidden.name = `Skills[${index}].Skill.Name`;
+        }
+    });
 }
 
 function addProject() {
@@ -132,6 +143,8 @@ function addWorkExperience() {
 
             <input type="checkbox"
                    class="form-check-input current-work-checkbox"
+                   name="WorkExperiences[${index}].CurrentlyWorking"
+                   value="true"
                    onchange="toggleEndDate(this)" />
 
             <label class="form-check-label">
