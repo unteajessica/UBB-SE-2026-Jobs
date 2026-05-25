@@ -1,12 +1,15 @@
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PussyCats.Library.Domain;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.ImageStorage;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
+using System.Security.Claims;
 
 namespace PussyCats.Web.Controllers;
 
+[Authorize]
 public class UserProfileController : Controller
 {
     private readonly IUserProfileService userProfileService;
@@ -96,5 +99,43 @@ public class UserProfileController : Controller
 
         await userService.SetProfilePicturePathAsync(CurrentUserId, string.Empty, cancellationToken);
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit()
+    {
+        var user = await userProfileService.GetProfileAsync(CurrentUserId, CancellationToken.None);
+
+        if (user == null)
+        {
+            user = new User();
+        }
+
+        return View(user);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(User model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        { 
+            await userProfileService.SaveAsync(CurrentUserId, model, CancellationToken.None);
+
+            TempData["Success"] = "Profile saved successfully.";
+
+            return RedirectToAction(nameof(Edit));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+
+            return View(model);
+        }
     }
 }
