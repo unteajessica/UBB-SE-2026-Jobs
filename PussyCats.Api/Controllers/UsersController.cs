@@ -5,6 +5,7 @@ using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services;
+using PussyCats.Library.Services.CvParsing;
 
 namespace PussyCats.Api.Controllers;
 
@@ -107,8 +108,39 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("{id}/cv")]
-    public IActionResult ParseCv(int id) =>
-        Problem("CV parsing routes through /api/documents/upload.", statusCode: 501);
+    public async Task<IActionResult> ParseCv(
+    int id,
+    IFormFile file,
+    [FromServices] ICvParsingService cvParsingService,
+    CancellationToken cancellationToken)
+    {
+        var user = await users.GetByIdAsync(id, cancellationToken);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("No file uploaded.");
+        }
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (extension != ".json")
+        {
+            return BadRequest("Only .json files are supported.");
+        }
+
+        using var reader = new StreamReader(file.OpenReadStream());
+
+        var content = await reader.ReadToEndAsync(cancellationToken);
+
+        var parsedUser = cvParsingService.ParseCvFile(content, extension);
+
+        return Ok(parsedUser);
+    }
 
     [HttpGet("{id}/compatibility")]
     public IActionResult GetCompatibility(int id) =>

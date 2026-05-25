@@ -51,101 +51,149 @@ function removeSkill(button) {
     button.closest(".skill-item").remove();
 }
 
-function addProject() {
+    function addProject(project = null) {
 
-    const container = document.getElementById("projects-container");
+        const container =
+    document.getElementById("projectsContainer");
 
-    const index = container.children.length;
+    const index =
+    container.querySelectorAll(".project-item").length;
 
-    container.insertAdjacentHTML(
-        "beforeend",
-        `
-        <div class="card p-3 mb-3">
+    const name =
+    project?.name ?? "";
 
-            <input name="Projects[${index}].Name"
-                   class="form-control mb-2"
-                   placeholder="Project Name" />
-
-            <textarea name="Projects[${index}].Description"
-                      class="form-control"></textarea>
-
-        </div>
-        `
-    );
-}
-
-function addWorkExperience() {
-
-    const container = document.getElementById("work-container");
-
-    const index = container.querySelectorAll(".work-item").length;
+    const description =
+    project?.description ?? "";
 
     const html = `
-    
-    <div class="card p-3 mb-3 work-item">
 
-        <div class="row mb-2">
+    <div class="card p-3 mb-3 project-item">
 
-            <div class="col-md-5">
-                <input name="WorkExperiences[${index}].Company"
-                       class="form-control"
-                       placeholder="Company" />
-            </div>
-
-            <div class="col-md-5">
-                <input name="WorkExperiences[${index}].JobTitle"
-                       class="form-control"
-                       placeholder="Job Title" />
-            </div>
-
-            <div class="col-md-2">
-                <button type="button"
-                        class="btn btn-danger w-100"
-                        onclick="removeItem(this)">
-                    Remove
-                </button>
-            </div>
-
+        <div class="d-flex justify-content-end mb-2">
+            <button type="button"
+                class="btn btn-danger"
+                onclick="removeItem(this)">
+                Remove
+            </button>
         </div>
 
-        <div class="row mb-2">
+        <input name="Projects[${index}].Name"
+            class="form-control mb-2"
+            placeholder="Project Name"
+            value="${escapeHtml(name)}" />
 
-            <div class="col-md-6">
-                <label>Start Date</label>
-
-                <input type="date"
-                       name="WorkExperiences[${index}].StartDate"
-                       class="form-control" />
-            </div>
-
-            <div class="col-md-6">
-                <label>End Date</label>
-
-                <input type="date"
-                       name="WorkExperiences[${index}].EndDate"
-                       class="form-control end-date" />
-            </div>
-
-        </div>
-
-        <div class="form-check mb-2">
-
-            <input type="checkbox"
-                   class="form-check-input current-work-checkbox"
-                   onchange="toggleEndDate(this)" />
-
-            <label class="form-check-label">
-                Currently Working Here
-            </label>
-
-        </div>
-
-        <textarea name="WorkExperiences[${index}].Description"
-                  class="form-control"
-                  placeholder="Description"></textarea>
+        <textarea name="Projects[${index}].Description"
+            class="form-control"
+            placeholder="Description">${escapeHtml(description)}</textarea>
 
     </div>
-    `;
+        `;
+
+        container.insertAdjacentHTML("beforeend", html);
+    }
+
+function addWorkExperience(experience = null) {
+
+    const container =
+        document.getElementById("workExperienceContainer");
+
+    const index =
+        container.querySelectorAll(".work-item").length;
+
+    const company =
+        experience?.company ?? "";
+
+    const jobTitle =
+        experience?.jobTitle ?? "";
+
+    const description =
+        experience?.description ?? "";
+
+    const currentlyWorking =
+        experience?.currentlyWorking ?? false;
+
+    const startDate =
+        formatDateForInput(experience?.startDate);
+
+    const endDate =
+        formatDateForInput(experience?.endDate);
+
+    const html = `
+        
+        <div class="card p-3 mb-3 work-item">
+
+            <div class="row mb-2">
+
+                <div class="col-md-5">
+                    <input name="WorkExperiences[${index}].Company"
+                           class="form-control"
+                           placeholder="Company"
+                           value="${escapeHtml(company)}" />
+                </div>
+
+                <div class="col-md-5">
+                    <input name="WorkExperiences[${index}].JobTitle"
+                           class="form-control"
+                           placeholder="Job Title"
+                           value="${escapeHtml(jobTitle)}" />
+                </div>
+
+                <div class="col-md-2">
+                    <button type="button"
+                            class="btn btn-danger w-100"
+                            onclick="removeItem(this)">
+                        Remove
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="row mb-2">
+
+                <div class="col-md-6">
+
+                    <label>Start Date</label>
+
+                    <input type="date"
+                           name="WorkExperiences[${index}].StartDate"
+                           class="form-control"
+                           value="${startDate}" />
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label>End Date</label>
+
+                    <input type="date"
+                           name="WorkExperiences[${index}].EndDate"
+                           class="form-control end-date"
+                           value="${endDate}"
+                           ${currentlyWorking ? "disabled" : ""} />
+
+                </div>
+
+            </div>
+
+            <div class="form-check mb-2">
+
+                <input type="checkbox"
+                       class="form-check-input current-work-checkbox"
+                       onchange="toggleEndDate(this)"
+                       ${currentlyWorking ? "checked" : ""} />
+
+                <label class="form-check-label">
+                    Currently Working Here
+                </label>
+
+            </div>
+
+            <textarea name="WorkExperiences[${index}].Description"
+                      class="form-control"
+                      placeholder="Description">${escapeHtml(description)}</textarea>
+
+        </div>
+        `;
 
     container.insertAdjacentHTML("beforeend", html);
 }
