@@ -8,134 +8,135 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     x:Name="PersonalityTestPageRoot">
+    <ScrollViewer VerticalScrollMode="Auto">
+        <Grid RowSpacing="10" Padding="20">
 
-    <Grid RowSpacing="10" Padding="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Personality Test"
+            <TextBlock Grid.Row="0" Text="Personality Test"
                    Style="{ThemeResource TitleTextBlockStyle}"
                    HorizontalAlignment="Center"/>
 
-        <StackPanel Grid.Row="1" Spacing="5" Margin="0,5,0,0">
-            <TextBlock Text="Discover Your Ideal IT Career Path"
+            <StackPanel Grid.Row="1" Spacing="5" Margin="0,5,0,0">
+                <TextBlock Text="Discover Your Ideal IT Career Path"
                        Style="{ThemeResource SubtitleTextBlockStyle}" TextAlignment="Center"/>
-            <TextBlock Text="Answer 24 questions to receive personalized role recommendations."
+                <TextBlock Text="Answer 24 questions to receive personalized role recommendations."
                        TextWrapping="WrapWholeWords"
                        Style="{ThemeResource CaptionTextBlockStyle}"
                        TextAlignment="Center"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        </StackPanel>
+            </StackPanel>
 
-        <TextBlock Grid.Row="2"
+            <TextBlock Grid.Row="2"
                    Text="Scale: 1=Strongly Disagree, 2=Disagree, 3=Neutral, 4=Agree, 5=Strongly Agree"
                    Style="{ThemeResource CaptionTextBlockStyle}"
                    HorizontalAlignment="Center"/>
-
-        <ScrollViewer Grid.Row="3" VerticalScrollMode="Auto" MaxHeight="350">
-            <ItemsControl ItemsSource="{Binding Questions}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid RowSpacing="10" Margin="0,0,0,12" Padding="15"
+            <ScrollViewer Grid.Row="3" VerticalScrollMode="Disabled">
+                <ItemsControl ItemsSource="{Binding Questions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid RowSpacing="10" Margin="0,0,0,12" Padding="15"
                               BorderThickness="1"
                               BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                               CornerRadius="8">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0"
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0"
                                        Text="{Binding Question.QuestionText}"
                                        TextWrapping="WrapWholeWords"
                                        Style="{ThemeResource BodyTextBlockStyle}"
                                        TextAlignment="Center" HorizontalAlignment="Center" FontSize="13"/>
-                            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12"
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12"
                                         HorizontalAlignment="Center" Margin="0,8,0,0">
-                                <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
                                              ToolTipService.ToolTip="Strongly Disagree" MinWidth="0"
                                              IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=1, Mode=TwoWay}"/>
-                                <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
                                              ToolTipService.ToolTip="Disagree" MinWidth="0"
                                              IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=2, Mode=TwoWay}"/>
-                                <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
                                              ToolTipService.ToolTip="Neutral" MinWidth="0"
                                              IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=3, Mode=TwoWay}"/>
-                                <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
                                              ToolTipService.ToolTip="Agree" MinWidth="0"
                                              IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=4, Mode=TwoWay}"/>
-                                <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
                                              ToolTipService.ToolTip="Strongly Agree" MinWidth="0"
                                              IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=5, Mode=TwoWay}"/>
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-
-        <Button Grid.Row="4" Content="Submit Test" HorizontalAlignment="Center"
-                Command="{Binding SubmitCommand}"
-                IsEnabled="{Binding IsTestSubmitted, Converter={StaticResource BoolToInvertedBoolConverter}}"
-                Padding="20,8" FontSize="14"/>
-
-        <Grid Grid.Row="5" Visibility="{Binding TopRoles, Converter={StaticResource ListToVisibilityConverter}}" Margin="0,5,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Your Top 3 Recommended Roles"
-                       Style="{ThemeResource BodyStrongTextBlockStyle}"
-                       TextAlignment="Center" Margin="0,0,0,10"/>
-            <ScrollViewer Grid.Row="1" HorizontalScrollMode="Auto" VerticalScrollMode="Disabled" MaxHeight="180">
-                <ItemsControl ItemsSource="{Binding TopRoles}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="15"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Width="160" Height="140" Padding="12"
-                                  BorderThickness="3"
-                                  BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToAccentBrushConverter}}"
-                                  CornerRadius="8"
-                                  Background="{Binding IsSelected, Converter={StaticResource BoolToHighlightBackgroundConverter}}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0"
-                                           Text="{Binding Role, Converter={StaticResource JobRoleToDisplayNameConverter}}"
-                                           TextAlignment="Center" TextWrapping="WrapWholeWords"
-                                           VerticalAlignment="Center"
-                                           Style="{ThemeResource CaptionTextBlockStyle}" FontSize="12"/>
-                                <Button Grid.Row="1" Content="Select" HorizontalAlignment="Stretch"
-                                        Padding="4,2" FontSize="12"
-                                        Command="{Binding DataContext.SelectRoleCommand, ElementName=PersonalityTestPageRoot}"
-                                        CommandParameter="{Binding}"/>
+                                </StackPanel>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-        </Grid>
 
-        <Button Grid.Row="6" Content="Save Result" HorizontalAlignment="Center"
+            <Button Grid.Row="4" Content="Submit Test" HorizontalAlignment="Center"
+                Command="{Binding SubmitCommand}"
+                IsEnabled="{Binding IsTestSubmitted, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                Padding="20,8" FontSize="14"/>
+
+            <Grid Grid.Row="5" Visibility="{Binding TopRoles, Converter={StaticResource ListToVisibilityConverter}}" Margin="0,5,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Your Top 3 Recommended Roles"
+                       Style="{ThemeResource BodyStrongTextBlockStyle}"
+                       TextAlignment="Center" Margin="0,0,0,10"/>
+                <ScrollViewer Grid.Row="1" HorizontalScrollMode="Auto" VerticalScrollMode="Disabled" MaxHeight="180">
+                    <ItemsControl ItemsSource="{Binding TopRoles}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="15"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Width="160" Height="140" Padding="12"
+                                  BorderThickness="3"
+                                  BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToAccentBrushConverter}}"
+                                  CornerRadius="8"
+                                  Background="{Binding IsSelected, Converter={StaticResource BoolToHighlightBackgroundConverter}}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0"
+                                           Text="{Binding Role, Converter={StaticResource JobRoleToDisplayNameConverter}}"
+                                           TextAlignment="Center" TextWrapping="WrapWholeWords"
+                                           VerticalAlignment="Center"
+                                           Style="{ThemeResource CaptionTextBlockStyle}" FontSize="12"/>
+                                    <Button Grid.Row="1" Content="Select" HorizontalAlignment="Stretch"
+                                        Padding="4,2" FontSize="12"
+                                        Command="{Binding DataContext.SelectRoleCommand, ElementName=PersonalityTestPageRoot}"
+                                        CommandParameter="{Binding}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+
+            <Button Grid.Row="6" Content="Save Result" HorizontalAlignment="Center"
                 Command="{Binding SaveResultCommand}"
                 Visibility="{Binding SelectedRole, Converter={StaticResource ObjectToVisibilityConverter}}"
                 Padding="20,8" FontSize="14"/>
 
-        <TextBlock Grid.Row="7" Margin="0,12,0,0" HorizontalAlignment="Center"
+            <TextBlock Grid.Row="7" Margin="0,12,0,0" HorizontalAlignment="Center"
                    Foreground="{ThemeResource SystemControlHighlightAccentBrush}"
                    Text="{Binding SaveMessage}"
                    Visibility="{Binding SaveMessage, Converter={StaticResource ObjectToVisibilityConverter}}"/>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </Page>
