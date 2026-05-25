@@ -539,55 +539,7 @@
     <script>
         document
         .getElementById("uploadCvBtn")
-        .addEventListener("click", async () => {
-
-        const input =
-        document.getElementById("cvFileInput");
-
-        if (!input.files.length) {
-        alert("Please select a file.");
-        return;
-        }
-
-        const file = input.files[0];
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const userId =
-        document.getElementById("UserId").value;
-
-        try {
-
-        const response = await fetch(
-        `/api/users/${userId}/cv`,
-        {
-        method: "POST",
-        body: formData
-        });
-
-        if (!response.ok) {
-
-        const error = await response.text();
-        alert(error);
-        return;
-        }
-
-        const user = await response.json();
-
-        populateProfileForm(user);
-
-        document.getElementById("cvUploadMessage")
-        .innerText =
-        "CV loaded successfully!";
-        }
-        catch (error) {
-
-        console.error(error);
-
-        alert("Error uploading CV.");
-        }
-        });
+        .addEventListener("click", () => uploadCv(document.getElementById("UserId").value, document.getElementById("cvFileInput").files[0]));
     </script>
     <script>
         function populateProfileForm(user) {

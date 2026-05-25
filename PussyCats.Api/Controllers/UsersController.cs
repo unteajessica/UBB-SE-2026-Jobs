@@ -17,13 +17,15 @@ public class UsersController : ControllerBase
     private readonly IMatchService matches;
     private readonly IDocumentService documents;
     private readonly IUserProfileService userProfileService;
+    private readonly ICvParsingService cvParsingService;
 
-    public UsersController(IUserService users, IMatchService matches, IDocumentService documents, IUserProfileService userProfileService)
+    public UsersController(IUserService users, IMatchService matches, IDocumentService documents, IUserProfileService userProfileService, ICvParsingService cvParsingService)
     {
         this.users = users;
         this.matches = matches;
         this.documents = documents;
         this.userProfileService = userProfileService;
+        this.cvParsingService = cvParsingService;
     }
 
     [HttpGet]
@@ -108,38 +110,35 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("{id}/cv")]
-    public async Task<IActionResult> ParseCv(
+    public async Task<IActionResult> UploadCv(
     int id,
     IFormFile file,
-    [FromServices] ICvParsingService cvParsingService,
     CancellationToken cancellationToken)
     {
         var user = await users.GetByIdAsync(id, cancellationToken);
-
         if (user is null)
-        {
             return NotFound();
-        }
 
-        if (file == null || file.Length == 0)
+        if (file is null || file.Length == 0)
+            return BadRequest(new { detail = "No file uploaded." });
+
+        try
         {
-            return BadRequest("No file uploaded.");
+            using var reader = new StreamReader(file.OpenReadStream());
+            var content = await reader.ReadToEndAsync();
+
+            var fileType = Path.GetExtension(file.FileName);
+
+            var parsedUser = cvParsingService.ParseCvFile(content, fileType);
+
+            await userProfileService.SaveAsync(id, parsedUser, cancellationToken);
+
+            return Ok(parsedUser);
         }
-
-        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-        if (extension != ".json")
+        catch (Exception ex)
         {
-            return BadRequest("Only .json files are supported.");
+            return BadRequest(new { detail = ex.Message });
         }
-
-        using var reader = new StreamReader(file.OpenReadStream());
-
-        var content = await reader.ReadToEndAsync(cancellationToken);
-
-        var parsedUser = cvParsingService.ParseCvFile(content, extension);
-
-        return Ok(parsedUser);
     }
 
     [HttpGet("{id}/compatibility")]

@@ -218,3 +218,20 @@ function removeItem(button) {
     item.remove();
 }
 
+async function uploadCv(userId, file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`/api/users/${userId}/cv`, {
+        method: "POST",
+        body: formData
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || err.title || "Upload failed");
+    }
+
+    return await res.json();
+}
+

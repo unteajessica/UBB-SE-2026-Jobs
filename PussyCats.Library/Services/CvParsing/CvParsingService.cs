@@ -57,7 +57,7 @@ public class CvParsingService : ICvParsingService
         }
         catch (Exception exception)
         {
-            throw new Exception(ParseErrorMessage + exception.Message, exception);
+            throw new InvalidOperationException($"{ParseErrorMessage}{exception.Message}", exception);
         }
     }
 
