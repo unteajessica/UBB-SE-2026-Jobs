@@ -57,24 +57,36 @@
                                        TextWrapping="WrapWholeWords"
                                        Style="{ThemeResource BodyTextBlockStyle}"
                                        TextAlignment="Center" HorizontalAlignment="Center" FontSize="13"/>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12"
-                                        HorizontalAlignment="Center" Margin="0,8,0,0">
-                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
-                                             ToolTipService.ToolTip="Strongly Disagree" MinWidth="0"
-                                             IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=1, Mode=TwoWay}"/>
-                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
-                                             ToolTipService.ToolTip="Disagree" MinWidth="0"
-                                             IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=2, Mode=TwoWay}"/>
-                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
-                                             ToolTipService.ToolTip="Neutral" MinWidth="0"
-                                             IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=3, Mode=TwoWay}"/>
-                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
-                                             ToolTipService.ToolTip="Agree" MinWidth="0"
-                                             IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=4, Mode=TwoWay}"/>
-                                    <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
-                                             ToolTipService.ToolTip="Strongly Agree" MinWidth="0"
-                                             IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=5, Mode=TwoWay}"/>
-                                </StackPanel>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center" Margin="0,8,0,0">
+
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                        <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                                                     ToolTipService.ToolTip="Strongly Disagree" MinWidth="0"
+                                                     Content="1"
+                                                     FontSize="11"
+                                                     IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=1, Mode=TwoWay}"/>
+                                        <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                 ToolTipService.ToolTip="Disagree" MinWidth="0"
+                 Content="2"
+                                                     FontSize="11"
+                 IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=2, Mode=TwoWay}"/>
+                                        <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                 ToolTipService.ToolTip="Neutral" MinWidth="0"
+                 Content="3"
+                                                     FontSize="11"
+                 IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=3, Mode=TwoWay}"/>
+                                        <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                 ToolTipService.ToolTip="Agree" MinWidth="0"
+                 Content="4"
+                                                     FontSize="11"
+                 IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=4, Mode=TwoWay}"/>
+                                        <RadioButton IsEnabled="{Binding DataContext.IsTestSubmitted, ElementName=PersonalityTestPageRoot, Converter={StaticResource BoolToInvertedBoolConverter}}"
+                 ToolTipService.ToolTip="Strongly Agree" MinWidth="0"
+                 Content="5"
+                                                     FontSize="11"
+                 IsChecked="{Binding SelectedAnswer, Converter={StaticResource ObjectToIntConverter}, ConverterParameter=5, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                    </StackPanel>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
