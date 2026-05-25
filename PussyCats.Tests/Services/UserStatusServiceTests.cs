@@ -6,7 +6,7 @@ using PussyCats.Tests.Helpers;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.JobSkills;
 using PussyCats.Library.Services.UserSkillService;
-using PussyCats_App.Services.UserStatusService;
+using PussyCats.Library.Services.UserStatusService;
 using PussyCats.Library.Services.CompanyService;
 
 namespace PussyCats.Tests.Services;

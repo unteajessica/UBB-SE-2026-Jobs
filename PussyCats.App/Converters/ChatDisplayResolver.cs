@@ -27,10 +27,11 @@ internal static class ChatDisplayResolver
             return $"User {chat.User.UserId}";
         }
 
-        if (chat.Company!=null)
+        if (chat.Company != null)
         {
-            var companyId = chat.Company.CompanyId;
-            return $"Company {companyId}";
+            return !string.IsNullOrWhiteSpace(chat.Company.CompanyName)
+                ? chat.Company.CompanyName
+                : $"Company {chat.Company.CompanyId}";
         }
 
         if (chat.SecondUser != null)

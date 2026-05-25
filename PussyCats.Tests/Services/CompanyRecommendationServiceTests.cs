@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
-using PussyCats.App.Services;
+using PussyCats.Library.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;

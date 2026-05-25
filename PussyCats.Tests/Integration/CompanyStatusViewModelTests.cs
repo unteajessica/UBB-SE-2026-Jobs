@@ -1,6 +1,5 @@
 using FluentAssertions;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;

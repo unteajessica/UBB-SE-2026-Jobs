@@ -243,6 +243,8 @@
 
                     <input type="checkbox"
                            class="form-check-input current-work-checkbox"
+                           name="WorkExperiences[@i].CurrentlyWorking"
+                           value="true"
                     @(Model.WorkExperiences[i].CurrentlyWorking ? "checked" : "")
                            onchange="toggleEndDate(this)" />
 

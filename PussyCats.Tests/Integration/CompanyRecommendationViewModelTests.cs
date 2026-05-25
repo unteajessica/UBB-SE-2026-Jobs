@@ -1,7 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
+using PussyCats.Library.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;

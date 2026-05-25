@@ -1,6 +1,5 @@
 using FluentAssertions;
 using PussyCats.App.Configuration;
-using PussyCats.App.Services;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Companies;
@@ -12,7 +11,7 @@ using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.JobSkills;
 using PussyCats.Library.Services.SkillGapService;
 using PussyCats.Library.Services.UserSkillService;
-using PussyCats_App.Services.UserStatusService;
+using PussyCats.Library.Services.UserStatusService;
 using PussyCats.Library.Services.CompanyService;
 
 namespace PussyCats.Tests.Integration;

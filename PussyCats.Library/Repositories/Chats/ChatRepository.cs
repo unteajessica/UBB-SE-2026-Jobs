@@ -89,7 +89,7 @@ public class ChatRepository : IChatRepository
     {
         databaseContext.Chats.Add(chat);
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return chat;
+        return await GetByIdAsync(chat.ChatId, cancellationToken).ConfigureAwait(false) ?? chat;
     }
 
     public async Task UpdateAsync(Chat chat, CancellationToken cancellationToken = default)
