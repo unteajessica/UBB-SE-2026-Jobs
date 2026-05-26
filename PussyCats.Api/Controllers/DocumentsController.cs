@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
@@ -6,6 +7,7 @@ using PussyCats.Library.Services.Users;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/documents")]
 public class DocumentsController : ControllerBase

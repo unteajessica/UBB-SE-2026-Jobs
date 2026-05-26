@@ -17,6 +17,16 @@ public class UserService : IUserService
         return await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await userRepository.GetByEmailAsync(email, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<bool> ExistsWithEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await userRepository.ExistsByEmailAsync(email, cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);

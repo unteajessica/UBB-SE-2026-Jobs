@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.ChatService;
@@ -8,6 +9,7 @@ using PussyCats.Web.Infrastructure;
 
 namespace PussyCats.Web.Controllers;
 
+[Authorize]
 public class ChatController : Controller
 {
     private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)

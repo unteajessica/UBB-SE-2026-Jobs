@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
@@ -5,6 +6,7 @@ using PussyCats.Library.Services.Preferences;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/preferences")]
 public class PreferencesController : ControllerBase

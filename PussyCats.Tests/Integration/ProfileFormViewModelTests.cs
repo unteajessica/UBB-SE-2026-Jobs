@@ -8,6 +8,7 @@ using PussyCats.Library.Repositories.SkillTests;
 using PussyCats.Library.Repositories.Users;
 using PussyCats.Tests.Fakes;
 using PussyCats.Library.Services.CvParsing;
+using System.Text;
 
 namespace PussyCats.Tests.Integration;
 
@@ -23,8 +24,8 @@ public class ProfileFormViewModelTests
 
     public ProfileFormViewModelTests()
     {
-        profileService = new UserProfileService(userRepository,skillTestRepository);
-        viewModel = new ProfileFormViewModel(profileService, cvParsingService, session);
+        profileService = new UserProfileService(userRepository, skillTestRepository, cvParsingService);
+        viewModel = new ProfileFormViewModel(profileService, session);
     }
 
     [Fact]
@@ -85,14 +86,15 @@ public class ProfileFormViewModelTests
     }
 
     [Fact]
-    public void ProcessCvFile_FileParsed_PopulatesFormFromParserResult()
+    public async Task ProcessCvFileAsync_FileParsed_PopulatesFormFromParserResult()
     {
         var parsedUser = ValidUser();
         parsedUser.FirstName = "Grace";
         parsedUser.Skills = [new UserSkill { Skill = new Skill { Name = "COBOL" } }];
-        cvParsingService.ParseCvFile("content", "json").Returns(parsedUser);
+        cvParsingService.ParseCvFile("content", ".json").Returns(parsedUser);
 
-        viewModel.ProcessCvFile("content", "json");
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes("content"));
+        await viewModel.ProcessCvFileAsync(stream, "cv.json");
 
         viewModel.FirstName.Should().Be("Grace");
         viewModel.Skills.Should().ContainSingle("COBOL");

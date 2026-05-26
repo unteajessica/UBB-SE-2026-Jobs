@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.SkillTests;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/skill-tests")]
 public class SkillTestsController : ControllerBase

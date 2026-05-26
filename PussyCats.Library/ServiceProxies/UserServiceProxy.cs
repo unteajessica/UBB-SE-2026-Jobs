@@ -25,6 +25,22 @@ public class UserServiceProxy : IUserService
         return await response.Content.ReadFromJsonAsync<User>(cancellationToken: cancellationToken);
     }
 
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var response = await http.GetAsync($"api/users/by-email/{Uri.EscapeDataString(email)}", cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<User>(cancellationToken: cancellationToken);
+    }
+
+    public async Task<bool> ExistsWithEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var response = await http.GetAsync($"api/users/exists-by-email/{Uri.EscapeDataString(email)}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<bool>(cancellationToken: cancellationToken);
+    }
+
     public async Task<User> AddAsync(User user, CancellationToken cancellationToken = default)
     {
         var response = await http.PostAsJsonAsync("api/users", user, cancellationToken);

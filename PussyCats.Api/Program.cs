@@ -1,4 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PussyCats.Api.Configuration;
 using PussyCats.Library.Persistence;
 using PussyCats.Library.Repositories.Chats;
@@ -17,6 +20,7 @@ using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CompanyService;
 using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Library.Services.CompanyStatusService;
+using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.CvParsing;
 using PussyCats.Library.Services.FileStorage;
@@ -67,6 +71,29 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddOpenApi();
 
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("Missing 'Jwt:Key' configuration.");
+}
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "PussyCats.Api",
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "PussyCats.Clients",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        };
+    });
+builder.Services.AddAuthorization();
+
 builder.Services.AddDbContext<PussyCatsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PussyCatsDb")));
 
@@ -96,6 +123,7 @@ builder.Services.AddScoped<ILocalDocumentFileService>(provider => provider.GetRe
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
 builder.Services.AddScoped<ICvParsingService, CvParsingService>();
+builder.Services.AddScoped<ICompletenessService, CompletenessService>();
 builder.Services.AddSingleton<ILocalFileStorageService, ApiLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
@@ -137,6 +165,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.CompanyStatusService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/company-status")]
 public class CompanyStatusController : ControllerBase

@@ -30,6 +30,22 @@ public class UserRepository : IUserRepository
             .ConfigureAwait(false);
     }
 
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await databaseContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(user => user.Email == email, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await databaseContext.Users
+            .AsNoTracking()
+            .AnyAsync(user => user.Email == email, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Read-only listing — no Includes to keep the query light. Callers that need detail load
     /// it through GetByIdAsync.

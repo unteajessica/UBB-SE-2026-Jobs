@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using PussyCats.Library.DTOs;
 using PussyCats.Tests.Helpers;
-using PussyCats.Web.ServiceProxies;
+using PussyCats.Library.ServiceProxies;
 
 namespace PussyCats.Tests.Web.ServiceProxies;
 

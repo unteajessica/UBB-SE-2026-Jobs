@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
@@ -5,6 +6,7 @@ using PussyCats.Library.Services.ChatService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/chats")]
 public class ChatsController : ControllerBase

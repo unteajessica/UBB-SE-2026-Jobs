@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.UserProfileService;
-using PussyCats.Library.Services.CvParsing;
 
 namespace PussyCats.App.ViewModels;
 
@@ -19,7 +18,6 @@ public class ProfileFormViewModel : DispatchableObservableObject
     private const int MissingGraduationYearDefaultValue = 0;
 
     private readonly IUserProfileService profileService;
-    private readonly ICvParsingService cvParsingService;
     private readonly SessionContext session;
     private User userProfile = new();
 
@@ -49,11 +47,9 @@ public class ProfileFormViewModel : DispatchableObservableObject
 
     public ProfileFormViewModel(
         IUserProfileService profileService,
-        ICvParsingService cvParsingService,
         SessionContext session)
     {
         this.profileService = profileService;
-        this.cvParsingService = cvParsingService;
         this.session = session;
 
         var currentYear = DateTime.Now.Year;
@@ -229,11 +225,15 @@ public class ProfileFormViewModel : DispatchableObservableObject
         return userProfile;
     }
 
-    public void ProcessCvFile(string content, string fileType)
+    public async Task ProcessCvFileAsync(Stream stream, string fileName, CancellationToken cancellationToken = default)
     {
         try
         {
-            var parsedUser = cvParsingService.ParseCvFile(content, fileType);
+            var parsedUser = await profileService.UploadCvAsync(
+                ViewModelSupport.ResolveUserId(session),
+                stream,
+                fileName,
+                cancellationToken);
             PopulateFromParsedProfile(parsedUser);
             CvStatusText = "CV loaded successfully!";
             ShowInfoBar("CV data has been loaded. Please review and complete any missing fields.", InfoBarSeverity.Success);

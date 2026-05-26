@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.Auth.LoginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Padding="40">
+        <StackPanel Width="360" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+            <TextBlock Text="Sign in" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center"/>
+            <TextBox Header="Email" Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <PasswordBox x:Name="PasswordBox" Header="Password" PasswordChanged="PasswordBox_PasswordChanged"/>
+            <InfoBar
+                IsOpen="True"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                Severity="Error"
+                Message="{Binding ErrorMessage}"/>
+            <Button
+                Content="Login"
+                HorizontalAlignment="Stretch"
+                Style="{StaticResource AccentButtonStyle}"
+                Command="{Binding LoginCommand}"/>
+        </StackPanel>
+    </Grid>
+</Page>

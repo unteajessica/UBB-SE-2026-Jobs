@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.CompatibilityService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/compatibility")]
 public class CompatibilityController : ControllerBase

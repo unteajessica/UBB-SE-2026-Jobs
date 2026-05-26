@@ -4,7 +4,7 @@ using System.Text.Json;
 using FluentAssertions;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
-using PussyCats.Web.ServiceProxies;
+using PussyCats.Library.ServiceProxies;
 
 namespace PussyCats.Tests.Web.ServiceProxies;
 

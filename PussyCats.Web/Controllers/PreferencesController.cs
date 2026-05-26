@@ -1,10 +1,12 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.Preferences;
 using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
+[Authorize]
 public class PreferencesController : Controller
 {
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.Documents;
@@ -5,10 +6,13 @@ using PussyCats.Library.Services.Matches;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services;
+using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CvParsing;
+using PussyCats.Library.Services.SkillGapService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/users")]
 public class UsersController : ControllerBase
@@ -18,14 +22,25 @@ public class UsersController : ControllerBase
     private readonly IDocumentService documents;
     private readonly IUserProfileService userProfileService;
     private readonly ICvParsingService cvParsingService;
+    private readonly ICompletenessService completenessService;
+    private readonly ISkillGapService skillGapService;
 
-    public UsersController(IUserService users, IMatchService matches, IDocumentService documents, IUserProfileService userProfileService, ICvParsingService cvParsingService)
+    public UsersController(
+        IUserService users,
+        IMatchService matches,
+        IDocumentService documents,
+        IUserProfileService userProfileService,
+        ICvParsingService cvParsingService,
+        ICompletenessService completenessService,
+        ISkillGapService skillGapService)
     {
         this.users = users;
         this.matches = matches;
         this.documents = documents;
         this.userProfileService = userProfileService;
         this.cvParsingService = cvParsingService;
+        this.completenessService = completenessService;
+        this.skillGapService = skillGapService;
     }
 
     [HttpGet]
@@ -37,6 +52,19 @@ public class UsersController : ControllerBase
     {
         var user = await users.GetByIdAsync(id, cancellationToken);
         return user is null ? NotFound() : Ok(user);
+    }
+
+    [HttpGet("by-email/{email}")]
+    public async Task<IActionResult> GetByEmail(string email, CancellationToken cancellationToken)
+    {
+        var user = await users.GetByEmailAsync(email, cancellationToken);
+        return user is null ? NotFound() : Ok(user);
+    }
+
+    [HttpGet("exists-by-email/{email}")]
+    public async Task<IActionResult> ExistsByEmail(string email, CancellationToken cancellationToken)
+    {
+        return Ok(await users.ExistsWithEmailAsync(email, cancellationToken));
     }
 
     [HttpPost]
@@ -145,6 +173,33 @@ public class UsersController : ControllerBase
     public IActionResult GetCompatibility(int id) =>
 
         Problem("Compatibility computation is wired in Phase 5.", statusCode: 501);
+
+    [HttpGet("{id}/completeness")]
+    public async Task<IActionResult> GetCompleteness(int id, CancellationToken cancellationToken)
+    {
+        var user = await users.GetByIdAsync(id, cancellationToken);
+        if (user is null) return NotFound();
+
+        return Ok(new
+        {
+            Percentage = completenessService.CalculateCompleteness(user),
+            NextPrompt = completenessService.GetNextEmptyFieldPrompt(user),
+        });
+    }
+
+    [HttpGet("{id}/skill-gap")]
+    public async Task<IActionResult> GetSkillGap(int id, CancellationToken cancellationToken)
+    {
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
+            return NotFound();
+
+        return Ok(new
+        {
+            Summary = await skillGapService.GetSummaryAsync(id, cancellationToken),
+            MissingSkills = await skillGapService.GetMissingSkillsAsync(id, cancellationToken),
+            UnderscoredSkills = await skillGapService.GetUnderscoredSkillsAsync(id, cancellationToken),
+        });
+    }
 
     [HttpGet("{id}/experience")]
     public async Task<IActionResult> RecalculateExperience(int id, CancellationToken cancellationToken)

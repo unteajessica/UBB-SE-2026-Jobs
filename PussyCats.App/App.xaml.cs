@@ -26,24 +26,18 @@ using PussyCats.Library.Services.Skills;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.Users;
+using PussyCats.Library.Services.Auth;
 using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.CompatibilityService;
-
-using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.CvParsing;
 using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.ImageStorage;
 using PussyCats.Library.Services.JobSkills;
 using PussyCats.Library.Services.Preferences;
-using PussyCats.Library.Services.RecommendationAlgorithm;
 using PussyCats.Library.Services.SkillGapService;
-
-using PussyCats.Library.Services.SkillTests;
-using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Library.Services.UserRecommendationService;
-
 using PussyCats.Library.Services.UserSkillService;
 using PussyCats.Library.Services.UserStatusService;
 
@@ -94,6 +88,7 @@ public partial class App : Application
         var apiConfiguration = ApiConfigurationLoader.Load();
         services.AddSingleton(apiConfiguration);
         services.AddSingleton<SessionContext>();
+        services.AddTransient<JwtForwardingHandler>();
 
 
         //todo: delete repoProxies when all services have been replaced with serviceProxies
@@ -114,8 +109,10 @@ public partial class App : Application
         RegisterRepositoryProxy<IMessageRepository, MessageRepositoryProxy>(services, apiConfiguration);
 
         services.AddHttpClient<IFilesProxy, FilesProxy>(client =>
-            client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
+            client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
 
+        RegisterServiceProxy<IAuthService, AuthServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IChatService, ChatServiceProxy>(services, apiConfiguration);
         //services.AddSingleton<IDeveloperService, DeveloperService>();
 
@@ -140,28 +137,28 @@ public partial class App : Application
         RegisterServiceProxy<IUserSkillService, UserSkillServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IUserStatusService, UserStatusServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IDeveloperService, DeveloperServiceProxy>(services, apiConfiguration);
+        RegisterServiceProxy<ICompletenessService, CompletenessServiceProxy>(services, apiConfiguration);
+        RegisterServiceProxy<ICooldownService, CooldownServiceProxy>(services, apiConfiguration);
+        RegisterServiceProxy<ISkillGapService, SkillGapServiceProxy>(services, apiConfiguration);
 
 
         //services.AddTransient<PussyCats.Library.Services.UserSkillService.IUserSkillService, PussyCats.Library.Services.UserSkillService.UserSkillService>();
         //services.AddTransient<ICompanyRecommendationService, CompanyRecommendationService>();
         // services.AddTransient<ICompanyStatusService, CompanyStatusService>();
         //services.AddTransient<ICompatibilityService, CompatibilityService>();
-        services.AddTransient<ICompletenessService, CompletenessService>();
-        services.AddTransient<ICooldownService>(provider => new CooldownService(
-            provider.GetRequiredService<IRecommendationRepository>(),
-            TimeSpan.FromHours(24)));
-        services.AddTransient<ICvParsingService, CvParsingService>();
         //services.AddTransient<IDocumentService, DocumentService>();
-        services.AddTransient<ILocalDocumentFileService, DocumentService>();
+        services.AddTransient<ILocalDocumentFileService>(provider => new DocumentService(
+            provider.GetRequiredService<IDocumentRepository>(),
+            provider.GetRequiredService<ILocalFileStorageService>(),
+            provider.GetRequiredService<IUserService>(),
+            new CvParsingService()));
        // services.AddTransient<IImageStorageService, PussyCats_App.Services.ImageStorageService.ImageStorageService>();
        // services.AddTransient<IJobService, JobService>();
        // services.AddTransient<IJobSkillService, JobSkillService>();
         RegisterServiceProxy<ILocalFileStorageService, FileStorageServiceProxy>(services, apiConfiguration);
        // services.AddTransient<IMatchService, MatchService>();
        // services.AddTransient<IPreferenceService, PreferenceService>();
-        services.AddTransient<IRecommendationAlgorithm, RecommendationAlgorithm>();
        // services.AddTransient<PussyCats.Library.Services.UserSkillService.IUserSkillService, PussyCats.Library.Services.UserSkillService.UserSkillService>();
-        services.AddTransient<ISkillGapService, SkillGapService>();
        // services.AddTransient<ISkillTestService, SkillTestService>();
        // services.AddTransient<IUserProfileService, UserProfileService>();
        // services.AddTransient<IUserRecommendationService, UserRecommendationService>();
@@ -180,7 +177,8 @@ public partial class App : Application
         where TProxy : class, TRepository
     {
         services.AddHttpClient<TRepository, TProxy>(client =>
-            client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
+            client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
     }
 
     private static void RegisterServiceProxy<TService, TProxy>(
@@ -190,7 +188,8 @@ public partial class App : Application
         where TProxy : class, TService
     {
         services.AddHttpClient<TService, TProxy>(client =>
-            client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
+            client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
     }
 
     private static void RegisterViewModels(IServiceCollection services)
