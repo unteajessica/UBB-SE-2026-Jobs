@@ -26,19 +26,18 @@ public class ChatController : Controller
         this.apiConfiguration = apiConfiguration;
     }
 
-    public async Task<IActionResult> Index(string? mode, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(string? tab, CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(mode) && AppModes.IsValid(mode))
-        {
-            HttpContext.Session.SetString(SessionKeys.Mode, mode);
-        }
-
         var callerId = GetCallerId();
         var isCompanyMode = IsCompanyMode();
         var chats = isCompanyMode
             ? await chat.GetChatsForCompanyAsync(callerId, cancellationToken)
             : await chat.GetChatsForUserAsync(callerId, cancellationToken);
-        ViewBag.CurrentMode = HttpContext.Session.GetString(SessionKeys.Mode) ?? AppModes.User;
+
+        // In User mode the chats list contains both user-to-user and user-to-company entries.
+        // Pass the active tab so the view knows which subset to show.
+        ViewBag.IsCompanyMode = isCompanyMode;
+        ViewBag.ActiveTab = (tab == "companies") ? "companies" : "users";
         return View(chats);
     }
 

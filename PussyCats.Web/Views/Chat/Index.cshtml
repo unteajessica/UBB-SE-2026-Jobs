@@ -2,41 +2,51 @@
 @using PussyCats.Web.Infrastructure
 @{
     ViewData["Title"] = "Messages";
-    var currentMode = (string)(ViewBag.CurrentMode ?? AppModes.User);
-    bool isCompanyMode = string.Equals(currentMode, AppModes.Company, StringComparison.OrdinalIgnoreCase);
+    bool isCompanyMode = (bool)(ViewBag.IsCompanyMode ?? false);
+    string activeTab = (string)(ViewBag.ActiveTab ?? "users");
 }
 
 <div class="container mt-4">
     <h2 class="mb-3">Messages</h2>
 
-    <ul class="nav nav-tabs mb-3" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link @(!isCompanyMode ? "active" : "")"
-               asp-action="Index" asp-route-mode="@AppModes.User">
-                User Chats
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link @(isCompanyMode ? "active" : "")"
-               asp-action="Index" asp-route-mode="@AppModes.Company">
-                Company Chats
-            </a>
-        </li>
-    </ul>
+    @if (!isCompanyMode)
+    {
+        <ul class="nav nav-tabs mb-3" id="chatTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(activeTab == "users" ? "active" : "")"
+                   asp-action="Index" asp-route-tab="users">
+                    User Chats
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(activeTab == "companies" ? "active" : "")"
+                   asp-action="Index" asp-route-tab="companies">
+                    Company Chats
+                </a>
+            </li>
+        </ul>
+    }
 
     <div class="mb-3">
         <input id="chatSearch" type="search" class="form-control"
                placeholder="Search conversations..." autocomplete="off" />
     </div>
 
-    @if (!Model.Any())
+    @{
+        var visible = Model.Where(c =>
+            isCompanyMode ||
+            (activeTab == "companies" ? c.Company != null : c.SecondUser != null)
+        ).ToList();
+    }
+
+    @if (!visible.Any())
     {
-        <div class="alert alert-info" id="emptyMessage">No conversations yet.</div>
+        <div class="alert alert-info">No conversations yet.</div>
     }
     else
     {
         <div class="list-group" id="chatList">
-            @foreach (var c in Model)
+            @foreach (var c in visible)
             {
                 var other = c.SecondUser is not null
                     ? $"{c.SecondUser.FirstName} {c.SecondUser.LastName}".Trim()
@@ -81,15 +91,14 @@
             input.addEventListener('input', function () {
                 var q = this.value.toLowerCase().trim();
                 var items = document.querySelectorAll('#chatList .list-group-item');
-                var visible = 0;
+                var count = 0;
                 items.forEach(function (item) {
-                    var name = item.dataset.name || '';
-                    var show = !q || name.includes(q);
+                    var show = !q || (item.dataset.name || '').includes(q);
                     item.classList.toggle('d-none', !show);
-                    if (show) visible++;
+                    if (show) count++;
                 });
                 var noResults = document.getElementById('noResults');
-                if (noResults) noResults.classList.toggle('d-none', visible > 0 || !q);
+                if (noResults) noResults.classList.toggle('d-none', count > 0 || !q);
             });
         })();
     </script>
