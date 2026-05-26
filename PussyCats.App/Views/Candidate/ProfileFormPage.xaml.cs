@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -128,8 +129,8 @@ public sealed partial class ProfileFormPage : Page
         var file = await picker.PickSingleFileAsync();
         if (file is null) return;
 
-        var content = await FileIO.ReadTextAsync(file);
-        viewModel.ProcessCvFile(content, file.FileType);
+        await using var stream = await file.OpenStreamForReadAsync();
+        await viewModel.ProcessCvFileAsync(stream, file.Name);
         LoadViewFromViewModel();
         CVStatusText.Text = viewModel.CvStatusText;
         CVUploadInformationBar.Message  = viewModel.InfoBarMessage;

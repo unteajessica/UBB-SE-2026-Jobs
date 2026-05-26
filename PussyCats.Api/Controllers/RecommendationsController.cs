@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.Recommendations;
@@ -5,6 +6,7 @@ using PussyCats.Library.Services.UserRecommendationService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/recommendations")]
 public class RecommendationsController : ControllerBase

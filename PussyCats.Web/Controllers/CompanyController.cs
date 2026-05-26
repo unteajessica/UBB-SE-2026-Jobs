@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PussyCats.Library.Services.CompanyService;
 
 namespace PussyCats.Web.Controllers;
 
+[Authorize]
 public class CompanyController : Controller
 {
     private readonly ICompanyService companyService;

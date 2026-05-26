@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Skills;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/skill-groups")]
 public class SkillGroupsController : ControllerBase

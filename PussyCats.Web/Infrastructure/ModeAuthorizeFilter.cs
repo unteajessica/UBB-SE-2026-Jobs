@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace PussyCats.Web.Infrastructure;
 
@@ -9,6 +10,13 @@ public class ModeAuthorizeFilter : IAuthorizationFilter
     {
         var endpoint = context.HttpContext.GetEndpoint();
         if (endpoint?.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() is not null)
+        {
+            return;
+        }
+
+        // Account management (login, logout, register) must not be blocked by mode checks.
+        if (context.ActionDescriptor is ControllerActionDescriptor cad
+            && cad.ControllerName == "Account")
         {
             return;
         }

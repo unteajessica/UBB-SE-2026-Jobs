@@ -23,6 +23,7 @@ using PussyCats.Library.Services.UserRecommendationService;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.UserSkillService;
 using PussyCats.Library.Services.UserStatusService;
+using PussyCats.Library.Services.Auth;
 using PussyCats.Library.ServiceProxies;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.Infrastructure;
@@ -37,11 +38,13 @@ var apiConfig = builder.Configuration
 
 builder.Services.AddSingleton(apiConfig);
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<ICompletenessService, CompletenessService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<JwtForwardingHandler>();
 
 builder.Services.AddControllersWithViews(options =>
 {
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    options.Filters.Add<JwtSessionFilter>();
     options.Filters.Add<ModeAuthorizeFilter>();
 })
     .AddJsonOptions(options =>
@@ -49,6 +52,7 @@ builder.Services.AddControllersWithViews(options =>
             new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 builder.Services.AddScoped<ModeAuthorizeFilter>();
+builder.Services.AddScoped<JwtSessionFilter>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -56,6 +60,8 @@ builder.Services
     {
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.SlidingExpiration = true;
     });
 builder.Services.AddAuthorization();
 
@@ -67,6 +73,8 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+RegisterServiceProxy<IAuthService, AuthServiceProxy>(builder.Services, apiConfig);
+RegisterServiceProxy<ICompletenessService, CompletenessServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IChatService, ChatServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<ILocalFileStorageService, FileStorageServiceProxy>(builder.Services, apiConfig);
 RegisterServiceProxy<IDeveloperService, DeveloperServiceProxy>(builder.Services, apiConfig);
@@ -93,9 +101,7 @@ RegisterServiceProxy<IUserStatusService, UserStatusServiceProxy>(builder.Service
 builder.Services.AddHttpClient<IUserSkillService, UserSkillServiceProxy>(client =>
 {
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
-});
-builder.Services.AddHttpClient<AuthServiceProxy>(client =>
-    client.BaseAddress = new Uri(apiConfig.BaseUrl));
+}).AddHttpMessageHandler<JwtForwardingHandler>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -127,5 +133,6 @@ static void RegisterServiceProxy<TService, TProxy>(
     where TProxy : class, TService
 {
     services.AddHttpClient<TService, TProxy>(client =>
-        client.BaseAddress = new Uri(apiConfiguration.BaseUrl));
+        client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
+        .AddHttpMessageHandler<JwtForwardingHandler>();
 }

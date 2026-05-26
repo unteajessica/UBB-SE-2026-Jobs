@@ -21,6 +21,19 @@ public class FakeUserRepository : IUserRepository
         return Task.FromResult(user);
     }
 
+    public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var user = usersById.Values.FirstOrDefault(existing =>
+            string.Equals(existing.Email, email, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(user);
+    }
+
+    public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(usersById.Values.Any(existing =>
+            string.Equals(existing.Email, email, StringComparison.OrdinalIgnoreCase)));
+    }
+
     public Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<User> snapshot = usersById.Values.ToList();

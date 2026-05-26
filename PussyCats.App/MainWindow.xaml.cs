@@ -6,12 +6,15 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Domain.Enums;
+using PussyCats_App.Views.Auth;
 using PussyCats_App.Views.Candidate;
 
 namespace PussyCats_App;
 
 public sealed partial class MainWindow : Window
 {
+    private bool suppressModeSelection;
+
     private static readonly HashSet<string> CandidatePages =
     [
         "UserRecommendationPage",
@@ -56,6 +59,7 @@ public sealed partial class MainWindow : Window
         ["CompanyStatusPage"]         = typeof(Views.Company.CompanyStatusPage),
         ["DeveloperPage"]             = typeof(Views.Developer.DeveloperPage),
         ["ChatPage"]                  = typeof(Views.ChatPage),
+        ["LoginPage"]                 = typeof(LoginPage),
     };
 
     public Frame NavigationFrame => contentFrame;
@@ -65,22 +69,65 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         contentFrame.Navigated += ContentFrame_Navigated;
         var session = App.Services.GetRequiredService<SessionContext>();
+        if (session.IsAuthenticated)
+        {
+            ShowAuthenticatedShell();
+        }
+        else
+        {
+            ShowLogin();
+        }
+    }
+
+    public void ShowAuthenticatedShell()
+    {
+        var session = App.Services.GetRequiredService<SessionContext>();
+        if (!session.IsAuthenticated)
+        {
+            ShowLogin();
+            return;
+        }
+
+        navView.IsPaneVisible = true;
+        navView.IsBackButtonVisible = NavigationViewBackButtonVisible.Auto;
+        modeSelector.Visibility = navView.IsPaneOpen ? Visibility.Visible : Visibility.Collapsed;
+
+        suppressModeSelection = true;
         modeSelector.SelectedIndex = session.Mode switch
         {
             AppMode.Company => 1,
             AppMode.Developer => 2,
             _ => 0,
         };
+        suppressModeSelection = false;
+
         UpdateModeVisibility();
         var defaultPage = GetDefaultPage(session.Mode);
         NavigateTo(defaultPage);
         UpdateNavSelection(defaultPage);
     }
 
+    private void ShowLogin()
+    {
+        navView.IsPaneVisible = false;
+        navView.IsBackButtonVisible = NavigationViewBackButtonVisible.Collapsed;
+        navView.SelectedItem = null;
+        modeSelector.Visibility = Visibility.Collapsed;
+        contentFrame.BackStack.Clear();
+        contentFrame.Navigate(typeof(LoginPage));
+    }
+
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs eventArguments)
     {
         if (eventArguments.SelectedItem is NavigationViewItem item && item.Tag is string tag)
         {
+            if (tag == "Logout")
+            {
+                App.Services.GetRequiredService<SessionContext>().SignOut();
+                ShowLogin();
+                return;
+            }
+
             NavigateTo(tag);
         }
     }
@@ -107,12 +154,23 @@ public sealed partial class MainWindow : Window
 
     private void ModeSelector_SelectionChanged(object sender, SelectionChangedEventArgs eventArguments)
     {
+        if (suppressModeSelection)
+        {
+            return;
+        }
+
         if (modeSelector.SelectedItem is not ComboBoxItem { Tag: string tag })
         {
             return;
         }
 
         var session = App.Services.GetRequiredService<SessionContext>();
+        if (!session.IsAuthenticated)
+        {
+            ShowLogin();
+            return;
+        }
+
         session.Mode = tag switch
         {
             "Company" => AppMode.Company,
@@ -158,6 +216,13 @@ public sealed partial class MainWindow : Window
 
     private void NavigateTo(string tag)
     {
+        var session = App.Services.GetRequiredService<SessionContext>();
+        if (!session.IsAuthenticated && tag != "LoginPage")
+        {
+            ShowLogin();
+            return;
+        }
+
         if (PageMap.TryGetValue(tag, out var pageType))
             contentFrame.Navigate(pageType);
     }

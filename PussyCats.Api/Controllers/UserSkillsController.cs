@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Repositories.Skills;
@@ -5,6 +6,7 @@ using PussyCats.Library.Services.UserSkillService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/users/{userId}/skills")]
 public class UserSkillsController : ControllerBase

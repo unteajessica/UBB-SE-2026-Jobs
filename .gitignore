@@ -7,6 +7,10 @@
 .env
 appsettings.local.json
 
+# Local planning docs
+OpenItemsPlan.md
+OpenItemsAuthReviewReport.md
+
 # User-specific files
 *.rsuser
 *.suo

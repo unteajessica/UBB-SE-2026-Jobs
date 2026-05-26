@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Helpers;
@@ -5,6 +6,7 @@ using PussyCats.Library.Services.CompanyService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/companies")]
 public class CompanyController : ControllerBase

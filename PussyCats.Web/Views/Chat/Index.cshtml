@@ -1,37 +1,75 @@
 @model IReadOnlyList<PussyCats.Library.Domain.Chat>
+@using PussyCats.Web.Infrastructure
 @{
     ViewData["Title"] = "Messages";
+    bool isCompanyMode = (bool)(ViewBag.IsCompanyMode ?? false);
+    string activeTab = (string)(ViewBag.ActiveTab ?? "users");
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">Messages</h2>
+    <h2 class="mb-3">Messages</h2>
 
-    @if (!Model.Any())
+    @if (!isCompanyMode)
+    {
+        <ul class="nav nav-tabs mb-3" id="chatTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(activeTab == "users" ? "active" : "")"
+                   asp-action="Index" asp-route-tab="users">
+                    User Chats
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(activeTab == "companies" ? "active" : "")"
+                   asp-action="Index" asp-route-tab="companies">
+                    Company Chats
+                </a>
+            </li>
+        </ul>
+    }
+
+    <div class="mb-3">
+        <input id="chatSearch" type="search" class="form-control"
+               placeholder="Search conversations..." autocomplete="off" />
+    </div>
+
+    @{
+        var visible = Model.Where(c =>
+            isCompanyMode ||
+            (activeTab == "companies" ? c.Company != null : c.SecondUser != null)
+        ).ToList();
+    }
+
+    @if (!visible.Any())
     {
         <div class="alert alert-info">No conversations yet.</div>
     }
     else
     {
-        <div class="list-group">
-            @foreach (var c in Model)
+        <div class="list-group" id="chatList">
+            @foreach (var c in visible)
             {
                 var other = c.SecondUser is not null
                     ? $"{c.SecondUser.FirstName} {c.SecondUser.LastName}".Trim()
                     : c.Company?.CompanyName ?? "Unknown";
 
                 <a asp-action="Show" asp-route-id="@c.ChatId"
-                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-start @(c.IsBlocked ? "list-group-item-warning" : "")">
-                    <div class="ms-2 me-auto">
-                        <div class="fw-semibold">
+                   class="list-group-item list-group-item-action d-flex align-items-center gap-3 @(c.IsBlocked ? "list-group-item-warning" : "")"
+                   data-name="@other.ToLowerInvariant()">
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center flex-shrink-0"
+                         style="width:42px;height:42px;font-weight:600;font-size:1rem;">
+                        @(other.Length > 0 ? other[0].ToString().ToUpperInvariant() : "?")
+                    </div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="fw-semibold text-truncate">
                             @other
                             @if (c.IsBlocked)
                             {
                                 <span class="badge bg-warning text-dark ms-1">Blocked</span>
                             }
                         </div>
-                        <small class="text-muted">@c.LastMessageSnippet</small>
+                        <small class="text-muted text-truncate d-block">@c.LastMessageSnippet</small>
                     </div>
-                    <div class="text-end">
+                    <div class="text-end flex-shrink-0">
                         <small class="text-muted d-block">@c.LastMessageTime</small>
                         @if (c.UnreadCount > 0)
                         {
@@ -41,5 +79,27 @@
                 </a>
             }
         </div>
+        <div id="noResults" class="alert alert-info d-none">No conversations match your search.</div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('chatSearch');
+            if (!input) return;
+            input.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var items = document.querySelectorAll('#chatList .list-group-item');
+                var count = 0;
+                items.forEach(function (item) {
+                    var show = !q || (item.dataset.name || '').includes(q);
+                    item.classList.toggle('d-none', !show);
+                    if (show) count++;
+                });
+                var noResults = document.getElementById('noResults');
+                if (noResults) noResults.classList.toggle('d-none', count > 0 || !q);
+            });
+        })();
+    </script>
+}

@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.CompanyRecommendationService;
 
 namespace PussyCats.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/company-recommendations")]
 public class CompanyRecommendationsController : ControllerBase

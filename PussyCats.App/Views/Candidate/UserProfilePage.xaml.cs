@@ -35,6 +35,7 @@ public sealed partial class UserProfilePage : Page
     {
         isBusy = true;
         await viewModel.LoadUserAsync();
+        await viewModel.RecalculateLevelAsync();
         BindLabels();
         isBusy = false;
     }

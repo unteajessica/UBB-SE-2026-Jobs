@@ -1,10 +1,12 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.CompatibilityService;
 
 namespace PussyCats.Web.Controllers;
 
+[Authorize]
 public class CompatibilityController : Controller
 {
     private readonly ICompatibilityService compatibility;

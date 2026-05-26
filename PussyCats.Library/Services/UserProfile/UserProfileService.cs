@@ -12,6 +12,11 @@ public class UserProfileService : IUserProfileService
     private readonly ISkillTestRepository skillTestRepository;
     private readonly ICvParsingService cvParsingService;
 
+    public UserProfileService(IUserRepository userRepository, ISkillTestRepository skillTestRepository)
+        : this(userRepository, skillTestRepository, new CvParsingService())
+    {
+    }
+
     public UserProfileService(IUserRepository userRepository, ISkillTestRepository skillTestRepository, ICvParsingService cvParsingService)
     {
         this.userRepository = userRepository;

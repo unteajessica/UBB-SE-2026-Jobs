@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.ChatService;
@@ -8,6 +9,7 @@ using PussyCats.Web.Infrastructure;
 
 namespace PussyCats.Web.Controllers;
 
+[Authorize]
 public class ChatController : Controller
 {
     private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -24,13 +26,18 @@ public class ChatController : Controller
         this.apiConfiguration = apiConfiguration;
     }
 
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(string? tab, CancellationToken cancellationToken)
     {
         var callerId = GetCallerId();
         var isCompanyMode = IsCompanyMode();
         var chats = isCompanyMode
             ? await chat.GetChatsForCompanyAsync(callerId, cancellationToken)
             : await chat.GetChatsForUserAsync(callerId, cancellationToken);
+
+        // In User mode the chats list contains both user-to-user and user-to-company entries.
+        // Pass the active tab so the view knows which subset to show.
+        ViewBag.IsCompanyMode = isCompanyMode;
+        ViewBag.ActiveTab = (tab == "companies") ? "companies" : "users";
         return View(chats);
     }
 

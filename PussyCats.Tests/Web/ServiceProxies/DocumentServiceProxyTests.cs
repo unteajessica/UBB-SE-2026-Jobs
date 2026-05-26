@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Helpers;
-using PussyCats.Web.ServiceProxies;
+using PussyCats.Library.ServiceProxies;
 using Xunit;
 
 namespace PussyCats.Tests.Web.ServiceProxies;

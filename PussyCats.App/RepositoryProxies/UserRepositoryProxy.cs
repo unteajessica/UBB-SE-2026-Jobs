@@ -18,6 +18,22 @@ public class UserRepositoryProxy : IUserRepository
         return await RepositoryProxyJson.GetOrNullAsync<User>(http, $"api/users/{userId}", cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await RepositoryProxyJson.GetOrNullAsync<User>(
+            http,
+            $"api/users/by-email/{Uri.EscapeDataString(email)}",
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await http.GetFromJsonAsync<bool>(
+            $"api/users/exists-by-email/{Uri.EscapeDataString(email)}",
+            RepositoryProxyJson.Options,
+            cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await RepositoryProxyJson.GetListAsync<User>(http, "api/users", cancellationToken).ConfigureAwait(false);
