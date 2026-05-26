@@ -112,3 +112,24 @@ Result: solution build succeeded with warnings only.
 - Existing warning categories remain: low-severity `NU1901` advisories for NuGet packages and existing nullable/unused/async warnings in tests and app/library code.
 - Production deployments must provide a real `Jwt:Key`; the committed key is development-only configuration.
 - Existing untracked `setup-db.ps1` was left untouched.
+
+## Main Branch Follow-up Pass - 2026-05-26
+
+Checked the same auth/proxy surface after switching back to `main`.
+
+Findings:
+
+- JWT setup, API controller authorization, Web controller authorization, `AuthController` service-layer usage, login/session storage, and JWT forwarding were present.
+- Found one App DI drift: `ILocalDocumentFileService` was registered to `DocumentServiceProxy`, whose local-file methods throw `NotSupportedException`.
+- Fixed App DI so `ILocalDocumentFileService` is backed by `DocumentService` again, with `DocumentRepositoryProxy`, `ILocalFileStorageService`, `IUserService`, and `CvParsingService` dependencies.
+
+Verification after the follow-up fix:
+
+```powershell
+dotnet build .\PussyCats.App\PussyCats.App.csproj -p:Platform=x64 --no-restore -v minimal
+dotnet build .\PussyCats.Tests\PussyCats.Tests.csproj -p:Platform=x64 --no-restore -v minimal
+dotnet test .\PussyCats.Tests\PussyCats.Tests.csproj -p:Platform=x64 --no-build --logger "console;verbosity=minimal"
+dotnet build "UBB-SE-2026-921-1.sln" -v:n
+```
+
+Result: all builds succeeded; tests passed with 433 passed, 1 skipped, 0 failed.

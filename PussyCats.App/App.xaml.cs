@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using PussyCats.App.Configuration;
+using PussyCats.App.RepositoryProxies;
 using PussyCats.Library.ServiceProxies;
+using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Services.Auth;
 using PussyCats.Library.Services.ChatService;
 using PussyCats.Library.Services.CompatibilityService;
@@ -12,6 +14,7 @@ using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CooldownService;
 using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.Documents;
+using PussyCats.Library.Services.CvParsing;
 using PussyCats.Library.Services.FileStorage;
 using PussyCats.Library.Services.ImageStorage;
 using PussyCats.Library.Services.Jobs;
@@ -73,7 +76,6 @@ public partial class App : Application
         RegisterServiceProxy<ICooldownService, CooldownServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IDeveloperService, DeveloperServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IDocumentService, DocumentServiceProxy>(services, apiConfiguration);
-        RegisterServiceProxy<ILocalDocumentFileService, DocumentServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IImageStorageService, ImageStorageServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IJobService, JobServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IJobSkillService, JobSkillServiceProxy>(services, apiConfiguration);
@@ -90,6 +92,15 @@ public partial class App : Application
         RegisterServiceProxy<IUserService, UserServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IUserSkillService, UserSkillServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IUserStatusService, UserStatusServiceProxy>(services, apiConfiguration);
+
+        services.AddHttpClient<IDocumentRepository, DocumentRepositoryProxy>(client =>
+            client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddTransient<ILocalDocumentFileService>(provider => new DocumentService(
+            provider.GetRequiredService<IDocumentRepository>(),
+            provider.GetRequiredService<ILocalFileStorageService>(),
+            provider.GetRequiredService<IUserService>(),
+            new CvParsingService()));
 
         services.AddHttpClient<CvExportProxy>(client =>
             client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
