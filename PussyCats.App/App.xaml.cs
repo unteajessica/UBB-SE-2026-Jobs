@@ -91,6 +91,10 @@ public partial class App : Application
         RegisterServiceProxy<IUserSkillService, UserSkillServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IUserStatusService, UserStatusServiceProxy>(services, apiConfiguration);
 
+        services.AddHttpClient<CvExportProxy>(client =>
+            client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
+
         RegisterViewModels(services);
     }
 

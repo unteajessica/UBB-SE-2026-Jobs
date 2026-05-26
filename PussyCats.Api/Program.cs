@@ -41,6 +41,8 @@ using PussyCats.Library.Services.UserSkillService;
 using PussyCats.Library.Services.ChatService;
 using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.UserStatusService;
+using PussyCats.Library.Services.PdfExport;
+using PussyCats.Api.Services.PdfExport;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
@@ -148,6 +150,14 @@ builder.Services.AddTransient<ICompanyRecommendationService, CompanyRecommendati
 builder.Services.AddScoped<ICompanyStatusService, CompanyStatusService>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 
+builder.Services.AddSingleton<IPdfExportService>(sp =>
+{
+    var env = sp.GetRequiredService<IWebHostEnvironment>();
+    var templatePath = Path.Combine(env.WebRootPath, "templates", "CVHtmlTemplate.html");
+    var templateHtml = File.ReadAllText(templatePath);
+    return new PdfExportService(templateHtml);
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -168,6 +178,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 

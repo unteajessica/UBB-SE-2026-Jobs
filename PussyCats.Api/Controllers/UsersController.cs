@@ -8,6 +8,7 @@ using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services;
 using PussyCats.Library.Services.CompletenessService;
 using PussyCats.Library.Services.CvParsing;
+using PussyCats.Library.Services.PdfExport;
 using PussyCats.Library.Services.SkillGapService;
 
 namespace PussyCats.Api.Controllers;
@@ -24,6 +25,7 @@ public class UsersController : ControllerBase
     private readonly ICvParsingService cvParsingService;
     private readonly ICompletenessService completenessService;
     private readonly ISkillGapService skillGapService;
+    private readonly IPdfExportService pdfExportService;
 
     public UsersController(
         IUserService users,
@@ -32,7 +34,8 @@ public class UsersController : ControllerBase
         IUserProfileService userProfileService,
         ICvParsingService cvParsingService,
         ICompletenessService completenessService,
-        ISkillGapService skillGapService)
+        ISkillGapService skillGapService,
+        IPdfExportService pdfExportService)
     {
         this.users = users;
         this.matches = matches;
@@ -41,6 +44,7 @@ public class UsersController : ControllerBase
         this.cvParsingService = cvParsingService;
         this.completenessService = completenessService;
         this.skillGapService = skillGapService;
+        this.pdfExportService = pdfExportService;
     }
 
     [HttpGet]
@@ -235,6 +239,28 @@ public class UsersController : ControllerBase
         if (user is null) return NotFound();
         string parsedCv = Helpers.GenerateParsedCvText(user);
         return Ok(new { ParsedCv = parsedCv });
+    }
+
+    [HttpGet("{id}/cv/html")]
+    public async Task<IActionResult> GetCvHtml(int id, CancellationToken cancellationToken)
+    {
+        var user = await userProfileService.GetProfileAsync(id, cancellationToken);
+        if (user is null)
+            return NotFound();
+
+        var html = await pdfExportService.RenderHtmlAsync(user);
+        return Content(html, "text/html");
+    }
+
+    [HttpGet("{id}/cv/pdf")]
+    public async Task<IActionResult> DownloadCvPdf(int id, CancellationToken cancellationToken)
+    {
+        var user = await userProfileService.GetProfileAsync(id, cancellationToken);
+        if (user is null)
+            return NotFound();
+
+        var pdf = await pdfExportService.GeneratePdfAsync(user);
+        return File(pdf, "application/pdf", $"{user.FirstName}_{user.LastName}_CV.pdf");
     }
 
     public record UpdateActiveRequest(bool IsActive);
