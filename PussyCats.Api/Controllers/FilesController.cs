@@ -44,6 +44,7 @@ public class FilesController : ControllerBase
         return Ok(new { path = fileName });
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public IActionResult GetFile(string id)
     {
