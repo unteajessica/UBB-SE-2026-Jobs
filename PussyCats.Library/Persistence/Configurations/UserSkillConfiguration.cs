@@ -10,9 +10,9 @@ public class UserSkillConfiguration : IEntityTypeConfiguration<UserSkill>
     {
         builder.ToTable("UserSkills");
 
-        // User side is already configured in UserConfiguration.HasMany(u => u.Skills)
+        // User side is already configured in UserConfiguration.HasMany(userWithSkills => userWithSkills.Skills)
         // Only configure the Skill side here
-        builder.HasOne(us => us.Skill)
+        builder.HasOne(userSkillToLook => userSkillToLook.Skill)
             .WithMany()
             .HasForeignKey("SkillId")
             .OnDelete(DeleteBehavior.Restrict);

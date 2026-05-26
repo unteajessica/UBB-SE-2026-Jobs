@@ -24,9 +24,9 @@ public class UserStatusController : Controller
 
         var filtered = filter switch
         {
-            "Applied"  => applications.Where(a => a.Status == MatchStatus.Applied).ToList(),
-            "Accepted" => applications.Where(a => a.Status == MatchStatus.Accepted).ToList(),
-            "Rejected" => applications.Where(a => a.Status == MatchStatus.Rejected).ToList(),
+            "Applied"  => applications.Where(applicationToCheckForStatus => applicationToCheckForStatus.Status == MatchStatus.Applied).ToList(),
+            "Accepted" => applications.Where(applicationToCheckForStatus => applicationToCheckForStatus.Status == MatchStatus.Accepted).ToList(),
+            "Rejected" => applications.Where(applicationToCheckForStatus => applicationToCheckForStatus.Status == MatchStatus.Rejected).ToList(),
             _          => applications.ToList(),
         };
 

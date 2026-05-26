@@ -12,7 +12,7 @@
 
     const existingSkills = Array.from(
         container.querySelectorAll("input[type='hidden']")
-    ).map(x => x.value.toLowerCase());
+    ).map(skill => skill.value.toLowerCase());
 
     if (existingSkills.includes(value.toLowerCase())) {
 

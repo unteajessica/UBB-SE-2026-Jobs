@@ -5,7 +5,7 @@
     var createModel = ViewBag.CreateModel as PussyCats.Web.Models.DeveloperPostCreateModel
                       ?? new PussyCats.Web.Models.DeveloperPostCreateModel();
     var parameterTypes = Enum.GetValues<DeveloperPostParameterType>()
-        .Where(p => p != DeveloperPostParameterType.Unknown);
+        .Where(parameter => parameter != DeveloperPostParameterType.Unknown);
 }
 
 <div class="container mt-4">

@@ -44,7 +44,7 @@ public sealed class DeveloperService : IDeveloperService
 
     public Task<Developer?> GetDeveloperByIdAsync(int developerId, CancellationToken cancellationToken = default)
     {
-        var developer = developers.FirstOrDefault(d => d.DeveloperId == developerId);
+        var developer = developers.FirstOrDefault(developerToCheck => developerToCheck.DeveloperId == developerId);
         Developer? result = developer is null ? null : new Developer { DeveloperId = developer.DeveloperId, Name = developer.Name };
         return Task.FromResult(result);
     }
@@ -70,8 +70,8 @@ public sealed class DeveloperService : IDeveloperService
 
     public Task AddInteractionAsync(int developerId, int postId, DeveloperInteractionType type, CancellationToken cancellationToken = default)
     {
-        var existing = interactions.FirstOrDefault(i =>
-            i.Developer.DeveloperId == developerId && i.DeveloperPost.DeveloperPostId == postId);
+        var existing = interactions.FirstOrDefault(interactionToCheckIfExists =>
+            interactionToCheckIfExists.Developer.DeveloperId == developerId && interactionToCheckIfExists.DeveloperPost.DeveloperPostId == postId);
         if (existing is not null)
         {
             existing.Type = type;
@@ -90,7 +90,7 @@ public sealed class DeveloperService : IDeveloperService
 
     public Task RemoveInteractionAsync(int interactionId, CancellationToken cancellationToken = default)
     {
-        var existing = interactions.FirstOrDefault(i => i.DeveloperInteractionId == interactionId);
+        var existing = interactions.FirstOrDefault(interactionToCheckIfExists => interactionToCheckIfExists.DeveloperInteractionId == interactionId);
         if (existing is not null)
             interactions.Remove(existing);
         return Task.CompletedTask;

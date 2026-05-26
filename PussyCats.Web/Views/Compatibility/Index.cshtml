@@ -12,7 +12,7 @@
 else
 {
     <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var result in Model.OrderByDescending(r => r.MatchScore))
+        @foreach (var result in Model.OrderByDescending(resultToOrder => resultToOrder.MatchScore))
         {
             <div class="col">
                 <div class="card h-100">

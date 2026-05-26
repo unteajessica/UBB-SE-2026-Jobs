@@ -40,8 +40,8 @@ public class UserStatusService : IUserStatusService
         var companiesById = (await companyService.GetAllAsync(cancellationToken).ConfigureAwait(false))
             .ToDictionary(company => company.CompanyId);
         var jobSkillsByJobId = (await jobSkillService.GetAllAsync(cancellationToken).ConfigureAwait(false))
-            .GroupBy(js => js.Job.JobId)
-            .ToDictionary(g => g.Key, g => (IReadOnlyList<JobSkill>)g.ToList());
+            .GroupBy(jobSkillWithId => jobSkillWithId.Job.JobId)
+            .ToDictionary(groupDictionary => groupDictionary.Key, groupDictionary => (IReadOnlyList<JobSkill>)groupDictionary.ToList());
 
         var result = new List<ApplicationCardModel>();
         foreach (var match in matches)
@@ -74,7 +74,7 @@ public class UserStatusService : IUserStatusService
         if (jobSkills.Count == 0)
             return 100;
 
-        var userSkillMap = userSkills.ToDictionary(us => us.Skill.SkillId, us => us.Score);
+        var userSkillMap = userSkills.ToDictionary(userSkillToAddToMap => userSkillToAddToMap.Skill.SkillId, userSkill => userSkill.Score);
 
         double total = 0;
         foreach (var required in jobSkills)

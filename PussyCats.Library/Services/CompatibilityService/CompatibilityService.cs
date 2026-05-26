@@ -92,8 +92,8 @@ public class CompatibilityService : ICompatibilityService
             return new List<string>();
 
         return skillsLine.Split(SkillDelimiter)
-            .Select(s => s.Trim())
-            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(skillToAdjust => skillToAdjust.Trim())
+            .Where(skillToAdjust => !string.IsNullOrWhiteSpace(skillToAdjust))
             .ToList();
     }
 
@@ -102,7 +102,7 @@ public class CompatibilityService : ICompatibilityService
         var allSkills = verifiedSkills.ToList();
         foreach (string cvSkill in cvSkills)
         {
-            bool alreadyPresent = allSkills.Any(s => string.Equals(s.Skill?.Name, cvSkill, StringComparison.OrdinalIgnoreCase));
+            bool alreadyPresent = allSkills.Any(userSkillWithPossibleSkill => string.Equals(userSkillWithPossibleSkill.Skill?.Name, cvSkill, StringComparison.OrdinalIgnoreCase));
             if (!alreadyPresent)
                 allSkills.Add(new UserSkill { Skill = new Skill { Name = cvSkill }, IsVerified = false, Score = 0 });
         }
@@ -124,9 +124,9 @@ public class CompatibilityService : ICompatibilityService
 
     private static double ComputeMatchScore(IReadOnlyList<SkillGroup> groups, List<double> groupScores)
     {
-        int totalWeight = groups.Sum(g => g.Weight);
+        int totalWeight = groups.Sum(groupWithWeight => groupWithWeight.Weight);
         if (totalWeight == 0) return InvalidScore;
-        double weighted = groups.Select((g, i) => g.Weight * groupScores[i]).Sum();
+        double weighted = groups.Select((groupWithWeight, indexOfGroup) => groupWithWeight.Weight * groupScores[indexOfGroup]).Sum();
         return weighted * ScoreNormalizationFactor / totalWeight;
     }
 
@@ -138,7 +138,7 @@ public class CompatibilityService : ICompatibilityService
             double groupScore = ComputeGroupScore(group, userSkills);
             if (groupScore > HighSkillCoverageThreshold) continue;
 
-            var skill = group.Skills.FirstOrDefault(s => !userSkills.Any(u => string.Equals(u.Skill?.Name, s.Name, StringComparison.OrdinalIgnoreCase)));
+            var skill = group.Skills.FirstOrDefault(skillToAdjust => !userSkills.Any(userSkillWithPossibleSkill => string.Equals(userSkillWithPossibleSkill.Skill?.Name, skillToAdjust.Name, StringComparison.OrdinalIgnoreCase)));
             if (skill is null) continue;
 
             suggestions.Add(new Suggestion
@@ -149,6 +149,6 @@ public class CompatibilityService : ICompatibilityService
             });
         }
 
-        return suggestions.OrderByDescending(s => s.GainScore).Take(MaxSuggestions).ToList();
+        return suggestions.OrderByDescending(suggestionsCheckScore => suggestionsCheckScore.GainScore).Take(MaxSuggestions).ToList();
     }
 }

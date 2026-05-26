@@ -15,12 +15,12 @@ public class DeveloperPostViewModel
         TypeLabel = post.ParameterType == DeveloperPostParameterType.RelevantKeyword ? "Keyword" : "Parameter";
         Value = post.Value;
         CreatedAt = post.CreatedAt.ToLocalTime().ToString("dd MMM HH:mm");
-        LikeCount = interactions.Count(i => i.Type == DeveloperInteractionType.Like);
-        DislikeCount = interactions.Count(i => i.Type == DeveloperInteractionType.Dislike);
-        IsLikedByCurrentUser = interactions.Any(i =>
-            i.Developer.DeveloperId == currentUserId && i.Type == DeveloperInteractionType.Like);
-        IsDislikedByCurrentUser = interactions.Any(i =>
-            i.Developer.DeveloperId == currentUserId && i.Type == DeveloperInteractionType.Dislike);
+        LikeCount = interactions.Count(interactionsToGetLikesFrom => interactionsToGetLikesFrom.Type == DeveloperInteractionType.Like);
+        DislikeCount = interactions.Count(interactionsToGetDislikesFrom => interactionsToGetDislikesFrom.Type == DeveloperInteractionType.Dislike);
+        IsLikedByCurrentUser = interactions.Any(interactionsToCheckIfLiked => 
+            interactionsToCheckIfLiked.Developer.DeveloperId == currentUserId && interactionsToCheckIfLiked.Type == DeveloperInteractionType.Like);
+        IsDislikedByCurrentUser = interactions.Any(interactionsToCheckIfDisliked => 
+            interactionsToCheckIfDisliked.Developer.DeveloperId == currentUserId && interactionsToCheckIfDisliked.Type == DeveloperInteractionType.Dislike);
     }
 
     public int PostId { get; }
