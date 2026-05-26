@@ -26,13 +26,19 @@ public class ChatController : Controller
         this.apiConfiguration = apiConfiguration;
     }
 
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(string? mode, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(mode) && AppModes.IsValid(mode))
+        {
+            HttpContext.Session.SetString(SessionKeys.Mode, mode);
+        }
+
         var callerId = GetCallerId();
         var isCompanyMode = IsCompanyMode();
         var chats = isCompanyMode
             ? await chat.GetChatsForCompanyAsync(callerId, cancellationToken)
             : await chat.GetChatsForUserAsync(callerId, cancellationToken);
+        ViewBag.CurrentMode = HttpContext.Session.GetString(SessionKeys.Mode) ?? AppModes.User;
         return View(chats);
     }
 
