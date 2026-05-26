@@ -107,7 +107,7 @@ public sealed partial class MainWindow : Window
         UpdateNavSelection(defaultPage);
     }
 
-    private void ShowLogin()
+    public void ShowLogin()
     {
         navView.IsPaneVisible = false;
         navView.IsBackButtonVisible = NavigationViewBackButtonVisible.Collapsed;

@@ -44,6 +44,7 @@ builder.Services.AddTransient<JwtForwardingHandler>();
 builder.Services.AddControllersWithViews(options =>
 {
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter());
     options.Filters.Add<JwtSessionFilter>();
     options.Filters.Add<ModeAuthorizeFilter>();
 })

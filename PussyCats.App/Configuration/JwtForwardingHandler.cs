@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace PussyCats.App.Configuration;
@@ -11,13 +12,25 @@ public sealed class JwtForwardingHandler : DelegatingHandler
         this.session = session;
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(session.JwtToken))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", session.JwtToken);
         }
 
-        return base.SendAsync(request, cancellationToken);
+        var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            session.SignOut();
+            await UIDispatcher.EnqueueAsync(() =>
+            {
+                if (PussyCats_App.App.MainAppWindow is PussyCats_App.MainWindow mainWindow)
+                    mainWindow.ShowLogin();
+            });
+        }
+
+        return response;
     }
 }
