@@ -1,4 +1,6 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.Users;
 
@@ -6,6 +8,12 @@ namespace PussyCats.Library.ServiceProxies;
 
 public class UserServiceProxy : IUserService
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() },
+    };
+
     private readonly HttpClient http;
 
     public UserServiceProxy(HttpClient http)
@@ -14,7 +22,7 @@ public class UserServiceProxy : IUserService
     }
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
-        => await http.GetFromJsonAsync<List<User>>("api/users", cancellationToken) ?? new List<User>();
+        => await http.GetFromJsonAsync<List<User>>("api/users", JsonOptions, cancellationToken) ?? new List<User>();
 
     public async Task<User?> GetByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
@@ -22,7 +30,7 @@ public class UserServiceProxy : IUserService
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             return null;
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<User>(cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<User>(JsonOptions, cancellationToken: cancellationToken);
     }
 
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
@@ -31,7 +39,7 @@ public class UserServiceProxy : IUserService
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             return null;
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<User>(cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<User>(JsonOptions, cancellationToken: cancellationToken);
     }
 
     public async Task<bool> ExistsWithEmailAsync(string email, CancellationToken cancellationToken = default)
@@ -45,7 +53,7 @@ public class UserServiceProxy : IUserService
     {
         var response = await http.PostAsJsonAsync("api/users", user, cancellationToken);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<User>(cancellationToken: cancellationToken))!;
+        return (await response.Content.ReadFromJsonAsync<User>(JsonOptions, cancellationToken: cancellationToken))!;
     }
 
     public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
