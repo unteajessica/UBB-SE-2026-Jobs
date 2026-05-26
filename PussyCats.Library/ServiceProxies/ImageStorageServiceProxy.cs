@@ -32,6 +32,8 @@ public class ImageStorageServiceProxy : IImageStorageService
     public async Task DeleteImageAsync(string relativePath, CancellationToken cancellationToken = default)
     {
         var response = await http.DeleteAsync($"api/files/{Uri.EscapeDataString(relativePath)}", cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            return;
         response.EnsureSuccessStatusCode();
     }
 
