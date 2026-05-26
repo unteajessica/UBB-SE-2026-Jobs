@@ -8,7 +8,7 @@ using PussyCats.Library.Services.Documents;
 
 namespace PussyCats.Library.ServiceProxies;
 
-public class DocumentServiceProxy : IDocumentService
+public class DocumentServiceProxy : IDocumentService, ILocalDocumentFileService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
