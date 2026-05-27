@@ -54,9 +54,9 @@ public class PreferencesController : Controller
                 model.Location ?? string.Empty,
                 cancellationToken);
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException exception)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            ModelState.AddModelError(string.Empty, exception.Message);
             return View(model);
         }
 

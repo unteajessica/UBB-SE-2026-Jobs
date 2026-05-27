@@ -55,7 +55,7 @@ public class RecommendationsController : Controller
             await recommendations.AddAsync(model.UserId, model.JobId, model.Timestamp, ct);
             return RedirectToAction(nameof(Index));
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (HttpRequestException exception) when (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             ModelState.AddModelError(string.Empty, "Selected user or job no longer exists.");
             await PopulateDropdownsAsync(ct);

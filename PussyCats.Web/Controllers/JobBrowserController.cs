@@ -39,9 +39,9 @@ namespace PussyCats.Web.Controllers
                 HttpContext.Session.SetInt32("LastDisplayId", card.DisplayRecommendationId ?? 0);
                 HttpContext.Session.SetString("LastAction", "Like");
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                TempData["ErrorMessage"] = ex.Message;
+                TempData["ErrorMessage"] = exception.Message;
             }
 
             return RedirectToAction(nameof(Index));

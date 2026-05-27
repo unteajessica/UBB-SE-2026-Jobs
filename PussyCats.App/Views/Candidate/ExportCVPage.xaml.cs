@@ -39,9 +39,9 @@ public sealed partial class ExportCVPage : Page
             CvWebView.NavigateToString(html);
             statusText.Text = string.Empty;
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            statusText.Text = $"Preview failed: {ex.Message}";
+            statusText.Text = $"Preview failed: {exception.Message}";
         }
         finally
         {
@@ -77,9 +77,9 @@ public sealed partial class ExportCVPage : Page
             await FileIO.WriteBytesAsync(file, pdfBytes);
             statusText.Text = "Downloaded successfully!";
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            statusText.Text = $"Export failed: {ex.Message}";
+            statusText.Text = $"Export failed: {exception.Message}";
         }
         finally
         {

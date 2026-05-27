@@ -43,9 +43,9 @@ public class DeveloperController : Controller
         {
             await developerService.AddPostAsync(CurrentUserId, model.ParameterType, model.Value, cancellationToken);
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException exception)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            ModelState.AddModelError(string.Empty, exception.Message);
             var posts = await developerService.GetPostsAsync(cancellationToken);
             var interactions = await developerService.GetInteractionsAsync(cancellationToken);
             ViewBag.CreateModel = model;

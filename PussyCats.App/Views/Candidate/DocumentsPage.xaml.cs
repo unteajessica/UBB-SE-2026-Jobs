@@ -76,9 +76,9 @@ public sealed partial class DocumentsPage : Page
             uploadViewModel.SetSelectedFilePath(string.Empty);
             LoadGrid();
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            uploadErrorLabel.Text       = ex.Message;
+            uploadErrorLabel.Text       = exception.Message;
             uploadErrorLabel.Visibility = Visibility.Visible;
         }
     }
@@ -103,9 +103,9 @@ public sealed partial class DocumentsPage : Page
             await listViewModel.DeleteDocumentAsync(document.DocumentId);
             LoadGrid();
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            statusLabel.Text       = ex.Message;
+            statusLabel.Text       = exception.Message;
             statusLabel.Visibility = Visibility.Visible;
         }
     }
@@ -140,9 +140,9 @@ public sealed partial class DocumentsPage : Page
             await listViewModel.UpdateDocumentNameAsync(document.DocumentId, newName);
             LoadGrid();
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            statusLabel.Text       = ex.Message;
+            statusLabel.Text       = exception.Message;
             statusLabel.Visibility = Visibility.Visible;
         }
     }

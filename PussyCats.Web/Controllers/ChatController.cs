@@ -75,13 +75,13 @@ public class ChatController : Controller
         {
             await using var stream = attachment.OpenReadStream();
             var path = await fileStorage.SaveFileAsync(stream, attachment.FileName, cancellationToken);
-            var ext = Path.GetExtension(attachment.FileName);
-            var type = ImageExtensions.Contains(ext) ? MessageType.Image : MessageType.File;
+            var attachementExtension = Path.GetExtension(attachment.FileName);
+            var type = ImageExtensions.Contains(attachementExtension) ? MessageType.Image : MessageType.File;
             await chat.SendStoredAttachmentAsync(id, path, attachment.FileName, callerId, type, cancellationToken);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            TempData["ChatError"] = ex.Message;
+            TempData["ChatError"] = exception.Message;
         }
 
         return RedirectToAction(nameof(Show), new { id });

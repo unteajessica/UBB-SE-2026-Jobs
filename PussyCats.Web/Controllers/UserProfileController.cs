@@ -73,9 +73,9 @@ public class UserProfileController : Controller
             var path = await imageStorage.SaveImageAsync(stream, avatar.FileName, cancellationToken);
             await userService.SetProfilePicturePathAsync(CurrentUserId, path, cancellationToken);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            TempData["Error"] = ex.Message;
+            TempData["Error"] = exception.Message;
         }
 
         return RedirectToAction(nameof(Index));
@@ -131,9 +131,9 @@ public class UserProfileController : Controller
 
             return RedirectToAction(nameof(Edit));
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            ModelState.AddModelError(string.Empty, exception.Message);
 
             return View(model);
         }
@@ -151,9 +151,9 @@ public class UserProfileController : Controller
             var user = await userProfileService.UploadCvAsync(CurrentUserId, stream, file.FileName, cancellationToken);
             return Json(user);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return BadRequest(new { detail = ex.Message });
+            return BadRequest(new { detail = exception.Message });
         }
     }
 }
