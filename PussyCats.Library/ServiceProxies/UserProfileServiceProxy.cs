@@ -77,9 +77,20 @@ namespace PussyCats.Library.ServiceProxies
             return await response.Content.ReadFromJsonAsync<User>(_jsonOptions, cancellationToken) ?? new User();
         }
 
-        // Stub out image logic for Phase 5 web dashboard (handled via browser multipart form uploads later)
-        public Task UpdateProfilePicturePathAsync(int userId, string path, CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public Task RemoveProfilePicturePathAsync(int userId, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public async Task UpdateProfilePicturePathAsync(int userId, string path, CancellationToken cancellationToken = default)
+        {
+            var response = await _http.PatchAsync(
+                $"api/users/{userId}/profile-picture",
+                JsonContent.Create(new { Path = path }, options: _jsonOptions),
+                cancellationToken);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task RemoveProfilePicturePathAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            var response = await _http.DeleteAsync($"api/users/{userId}/profile-picture", cancellationToken);
+            response.EnsureSuccessStatusCode();
+        }
 
         private record XpResponse(int TotalExperiencePoints);
     }
