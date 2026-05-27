@@ -2,7 +2,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PussyCats.Api.Configuration;
 using PussyCats.Library.Persistence;
 using PussyCats.Library.Repositories.Chats;
 using PussyCats.Library.Repositories.Companies;
@@ -125,7 +124,6 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IPersonalityTestService, PersonalityTestService>();
 builder.Services.AddScoped<ICvParsingService, CvParsingService>();
 builder.Services.AddScoped<ICompletenessService, CompletenessService>();
-builder.Services.AddSingleton<ILocalFileStorageService, ApiLocalFileStorageService>();
 builder.Services.AddScoped<ISkillTestService, SkillTestService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IRecommendationAlgorithm, RecommendationAlgorithm>();
@@ -155,6 +153,16 @@ builder.Services.AddSingleton<IPdfExportService>(sp =>
     var templatePath = Path.Combine(env.WebRootPath, "templates", "CVHtmlTemplate.html");
     var templateHtml = File.ReadAllText(templatePath);
     return new PdfExportService(templateHtml);
+});
+
+builder.Services.AddSingleton<ILocalFileStorageService>(sp =>
+{
+    var uploadsPath = Path.Combine(
+        AppContext.BaseDirectory,
+        "uploads",
+        "files");
+
+    return new LocalFileStorageService(uploadsPath);
 });
 
 var app = builder.Build();
