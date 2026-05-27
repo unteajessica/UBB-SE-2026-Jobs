@@ -75,6 +75,38 @@ public partial class PersonalityTestViewModel : DispatchableObservableObject
 
     public bool CanSubmit => Questions.All(question => question.IsAnswered);
     public bool CanSave => SelectedRole is not null;
+    private bool hasExistingResult;
+    private JobRole? existingRole;
+
+    public JobRole? ExistingRole
+    {
+        get => existingRole;
+        set => SetProperty(ref existingRole, value);
+    }
+
+    public bool HasExistingResult
+    {
+        get => hasExistingResult;
+        set => SetProperty(ref hasExistingResult, value);
+    }
+
+    public async Task LoadExistingResultAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await personalityTestService.GetByUserIdAsync(
+            ViewModelSupport.ResolveUserId(session), cancellationToken);
+
+        if (result is not null)
+        {
+            ExistingRole = result.SelectedRole;
+            HasExistingResult = true;
+        }
+    }
+
+    [RelayCommand]
+    private void TakeTest()
+    {
+        HasExistingResult = false;
+    }
 
     [RelayCommand(CanExecute = nameof(CanSubmit))]
     private void Submit()
