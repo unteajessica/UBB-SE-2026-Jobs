@@ -77,11 +77,11 @@ public class ChatServiceProxy : IChatService
     }
 
     public async Task<IReadOnlyList<User>> SearchUsersAsync(string query, CancellationToken cancellationToken = default)
-        => await http.GetFromJsonAsync<List<User>>($"api/chats/search/users?q={Uri.EscapeDataString(query)}", JsonOptions, cancellationToken)
+        => await http.GetFromJsonAsync<List<User>>($"api/chats/search/users?userQuery={Uri.EscapeDataString(query)}", JsonOptions, cancellationToken)
            ?? new List<User>();
 
     public async Task<IReadOnlyList<Company>> SearchCompaniesAsync(string query, CancellationToken cancellationToken = default)
-        => await http.GetFromJsonAsync<List<Company>>($"api/chats/search/companies?q={Uri.EscapeDataString(query)}", JsonOptions, cancellationToken)
+        => await http.GetFromJsonAsync<List<Company>>($"api/chats/search/companies?companyQuery={Uri.EscapeDataString(query)}", JsonOptions, cancellationToken)
            ?? new List<Company>();
 
     public async Task SendStoredAttachmentAsync(int chatId, string storedPath, string originalFileName, int senderId, MessageType type, CancellationToken cancellationToken = default)

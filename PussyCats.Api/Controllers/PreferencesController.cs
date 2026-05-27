@@ -40,9 +40,9 @@ public class PreferencesController : ControllerBase
     }
 
     [HttpGet("locations")]
-    public async Task<ActionResult<IReadOnlyList<string>>> SearchLocations([FromQuery] string q, CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<string>>> SearchLocations([FromQuery] string locationsQuery, CancellationToken cancellationToken)
     {
-        var matches = await preferences.SearchLocationsAsync(q ?? string.Empty, cancellationToken);
+        var matches = await preferences.SearchLocationsAsync(locationsQuery ?? string.Empty, cancellationToken);
         return Ok(matches);
     }
 

@@ -989,32 +989,35 @@ public class ChatViewModel : DispatchableObservableObject
 
     private string ResolveSenderInitials(int senderId)
     {
+        string userString = "U";
+        string companyString = "C";
+        string developerString = "D";
         if (IsCandidateMode)
         {
             if (senderId == session.UserId)
             {
-                return "U";
+                return userString;
             }
 
-            return "U";
+            return userString;
         }
 
         if (IsCompanyMode)
         {
             if (session.CompanyId is int companyId && senderId == companyId)
             {
-                return "C";
+                return companyString;
             }
 
-            return "U";
+            return userString;
         }
 
         if (session.DeveloperId is int developerId && senderId == developerId)
         {
-            return "D";
+            return developerString;
         }
 
-        return "U";
+        return userString;
     }
 
     private static List<Chat> GetChatsWithSecondUser(IEnumerable<Chat> chats)

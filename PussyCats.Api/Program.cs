@@ -149,8 +149,8 @@ builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 
 builder.Services.AddSingleton<IPdfExportService>(sp =>
 {
-    var env = sp.GetRequiredService<IWebHostEnvironment>();
-    var templatePath = Path.Combine(env.WebRootPath, "templates", "CVHtmlTemplate.html");
+    var webhostEnvironment = sp.GetRequiredService<IWebHostEnvironment>();
+    var templatePath = Path.Combine(webhostEnvironment.WebRootPath, "templates", "CVHtmlTemplate.html");
     var templateHtml = File.ReadAllText(templatePath);
     return new PdfExportService(templateHtml);
 });
@@ -169,8 +169,8 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<PussyCats.Library.Persistence.PussyCatsDbContext>();
-    db.Database.Migrate();
+    var database = scope.ServiceProvider.GetRequiredService<PussyCats.Library.Persistence.PussyCatsDbContext>();
+    database.Database.Migrate();
 }
 
 // Configure the HTTP request pipeline.

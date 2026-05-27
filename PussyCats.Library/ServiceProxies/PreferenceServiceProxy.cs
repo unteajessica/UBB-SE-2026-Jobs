@@ -54,7 +54,7 @@ public class PreferenceServiceProxy : IPreferenceService
     public async Task<IReadOnlyList<string>> SearchLocationsAsync(string locationQuery, CancellationToken cancellationToken = default)
     {
         var results = await http
-            .GetFromJsonAsync<List<string>>($"api/preferences/locations?q={Uri.EscapeDataString(locationQuery ?? string.Empty)}", JsonOptions, cancellationToken)
+            .GetFromJsonAsync<List<string>>($"api/preferences/locations?locationQuery={Uri.EscapeDataString(locationQuery ?? string.Empty)}", JsonOptions, cancellationToken)
             .ConfigureAwait(false);
         return results ?? [];
     }

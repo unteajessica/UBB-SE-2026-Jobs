@@ -8,7 +8,6 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-// There is a bug, if you try to select Developer mode without being logged in , it will throw an exception because CurrentUserId will try to parse an empty string.
 [Authorize]
 public class DeveloperController : Controller
 {

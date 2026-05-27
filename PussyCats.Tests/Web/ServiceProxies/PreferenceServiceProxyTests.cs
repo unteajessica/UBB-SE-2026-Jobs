@@ -66,7 +66,7 @@ public class PreferenceServiceProxyTests
         var result = await proxy.SearchLocationsAsync("Cluj Napoca");
 
         handler.LastRequest!.Method.Should().Be(HttpMethod.Get);
-        handler.LastRequest.RequestUri!.PathAndQuery.Should().Be("/api/preferences/locations?q=Cluj%20Napoca");
+        handler.LastRequest.RequestUri!.PathAndQuery.Should().Be("/api/preferences/locations?locationQuery=Cluj%20Napoca");
         result.Should().ContainSingle().Which.Should().Be("Cluj-Napoca, Romania");
     }
 }

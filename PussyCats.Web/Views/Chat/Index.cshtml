@@ -89,16 +89,16 @@
             var input = document.getElementById('chatSearch');
             if (!input) return;
             input.addEventListener('input', function () {
-                var q = this.value.toLowerCase().trim();
+                var query = this.value.toLowerCase().trim();
                 var items = document.querySelectorAll('#chatList .list-group-item');
                 var count = 0;
                 items.forEach(function (item) {
-                    var show = !q || (item.dataset.name || '').includes(q);
+                    var show = !query || (item.dataset.name || '').includes(query);
                     item.classList.toggle('d-none', !show);
                     if (show) count++;
                 });
                 var noResults = document.getElementById('noResults');
-                if (noResults) noResults.classList.toggle('d-none', count > 0 || !q);
+                if (noResults) noResults.classList.toggle('d-none', count > 0 || !query);
             });
         })();
     </script>
