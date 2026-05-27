@@ -77,7 +77,7 @@ public class DocumentsController : Controller
                 model.File.FileName,
                 model.File.ContentType,
                 fileStream,
-                model.IsCv,
+                false,
                 cancellationToken);
 
             return RedirectToAction(nameof(Index), new { userId = model.UserId });

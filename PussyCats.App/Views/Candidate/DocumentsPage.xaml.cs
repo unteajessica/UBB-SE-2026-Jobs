@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -112,32 +110,39 @@ public sealed partial class DocumentsPage : Page
         }
     }
 
-    private async void OnViewClick(object sender, RoutedEventArgs eventArguments)
+    private async void OnEditClick(object sender, RoutedEventArgs eventArguments)
     {
         if (sender is not Button { Tag: Document document }) return;
         statusLabel.Visibility = Visibility.Collapsed;
 
-        var fullPath = await listViewModel.GetResolvedFilePathAsync(document.DocumentId) ?? string.Empty;
-        var status   = listViewModel.GetStatusMessage();
-        if (!string.IsNullOrEmpty(status))
+        var nameInput = new TextBox
         {
-            statusLabel.Text       = status;
-            statusLabel.Visibility = Visibility.Visible;
-            return;
-        }
+            Text = document.DocumentName,
+            PlaceholderText = "Document name",
+        };
 
-        if (Uri.TryCreate(fullPath, UriKind.Absolute, out var uri) &&
-            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+        var dialog = new ContentDialog
         {
-            Process.Start(new ProcessStartInfo(fullPath) { UseShellExecute = true });
+            Title = "Edit Document",
+            Content = nameInput,
+            PrimaryButtonText = "Save",
+            CloseButtonText = "Cancel",
+            XamlRoot = XamlRoot,
+        };
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+
+        var newName = nameInput.Text?.Trim() ?? string.Empty;
+        if (string.IsNullOrEmpty(newName) || newName == document.DocumentName) return;
+
+        try
+        {
+            await listViewModel.UpdateDocumentNameAsync(document.DocumentId, newName);
+            LoadGrid();
         }
-        else if (File.Exists(fullPath))
+        catch (Exception ex)
         {
-            Process.Start(new ProcessStartInfo(fullPath) { UseShellExecute = true });
-        }
-        else
-        {
-            statusLabel.Text       = $"\"{document.DocumentName}\" could not be found on disk.";
+            statusLabel.Text       = ex.Message;
             statusLabel.Visibility = Visibility.Visible;
         }
     }

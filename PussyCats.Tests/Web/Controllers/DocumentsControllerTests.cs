@@ -101,7 +101,6 @@ public class DocumentsControllerTests
             UserId = 1,
             DocumentName = "My Certificate",
             File = file,
-            IsCv = false
         };
 
         var result = await controller.Create(model, default);
@@ -113,41 +112,6 @@ public class DocumentsControllerTests
             "application/pdf",
             Arg.Any<Stream>(),
             false,
-            Arg.Any<CancellationToken>());
-
-        result.Should().BeOfType<RedirectToActionResult>()
-            .Which.ActionName.Should().Be(nameof(DocumentsController.Index));
-    }
-
-    [Fact]
-    public async Task Create_Post_ValidModel_WithCv_CallsCvParsingAndUpdatesProfile()
-    {
-        var user = new UserBuilder().WithId(1).WithName("OldFirst", "OldLast").Build();
-        users.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(user);
-
-        var file = Substitute.For<IFormFile>();
-        file.FileName.Returns("cv.json");
-        file.Length.Returns(100);
-        file.ContentType.Returns("application/json");
-        file.OpenReadStream().Returns(new MemoryStream("{\"firstName\": \"Ada\", \"lastName\": \"Lovelace\"}"u8.ToArray()));
-
-        var model = new DocumentFormModel
-        {
-            UserId = 1,
-            DocumentName = "Ada's CV",
-            File = file,
-            IsCv = true
-        };
-
-        var result = await controller.Create(model, default);
-
-        await documents.Received(1).UploadDocumentFromStreamAsync(
-            1,
-            "Ada's CV",
-            "cv.json",
-            "application/json",
-            Arg.Any<Stream>(),
-            true,
             Arg.Any<CancellationToken>());
 
         result.Should().BeOfType<RedirectToActionResult>()

@@ -11,7 +11,6 @@ public class DocumentListViewModel : DispatchableObservableObject
     private readonly ILocalDocumentFileService localDocumentFileService;
     private readonly SessionContext session;
     private List<Document> documents = new();
-    private string statusMessage = string.Empty;
 
     public DocumentListViewModel(
         IDocumentService documentService,
@@ -29,12 +28,6 @@ public class DocumentListViewModel : DispatchableObservableObject
         private set => SetProperty(ref documents, value);
     }
 
-    public string StatusMessage
-    {
-        get => statusMessage;
-        private set => SetProperty(ref statusMessage, value);
-    }
-
     public async Task LoadDocumentsAsync(CancellationToken cancellationToken = default)
     {
         Documents = (await documentService
@@ -50,20 +43,13 @@ public class DocumentListViewModel : DispatchableObservableObject
         await LoadDocumentsAsync(cancellationToken);
     }
 
-    public async Task<string?> GetResolvedFilePathAsync(int documentId, CancellationToken cancellationToken = default)
+    public async Task UpdateDocumentNameAsync(int documentId, string newName, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var fullPath = await localDocumentFileService.GetDocumentAbsolutePathAsync(documentId, cancellationToken);
-            StatusMessage = string.Empty;
-            return fullPath;
-        }
-        catch
-        {
-            StatusMessage = "The file could not be found on disk.";
-            return null;
-        }
-    }
+        var document = await documentService.GetByIdAsync(documentId, cancellationToken);
+        if (document is null) return;
 
-    public string GetStatusMessage() => StatusMessage;
+        document.DocumentName = newName;
+        await documentService.UpdateAsync(document, cancellationToken);
+        await LoadDocumentsAsync(cancellationToken);
+    }
 }

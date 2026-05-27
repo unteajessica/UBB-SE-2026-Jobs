@@ -8,7 +8,7 @@
     <div class="form-card">
         <div class="form-card__header">
             <h2>Create document</h2>
-            <p class="lead">Upload a document and optionally parse a CV to enrich the profile.</p>
+            <p class="lead">Upload a document.</p>
         </div>
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
@@ -32,13 +32,7 @@
                 <label asp-for="File" class="form-label">Document File</label>
                 <input asp-for="File" type="file" class="form-control" />
                 <span asp-validation-for="File" class="text-danger"></span>
-                <small class="form-text text-muted">For regular uploads: PDF, JPG, PNG. For CV parsing: JSON only.</small>
-            </div>
-
-            <div class="mb-3 form-check">
-                <input asp-for="IsCv" type="checkbox" class="form-check-input" />
-                <label asp-for="IsCv" class="form-check-label">Parse as CV and update user profile?</label>
-                <span asp-validation-for="IsCv" class="text-danger"></span>
+                <small class="form-text text-muted">Accepted formats: PDF, JPG, PNG.</small>
             </div>
 
             <div class="d-flex gap-2">

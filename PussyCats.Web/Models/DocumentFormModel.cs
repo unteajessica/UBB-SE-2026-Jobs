@@ -16,9 +16,6 @@ public class DocumentFormModel
     [Display(Name = "Document Name")]
     public string DocumentName { get; set; } = string.Empty;
 
-    [Display(Name = "Document File (JSON only for CV parsing)")]
+    [Display(Name = "Document File")]
     public IFormFile? File { get; set; }
-
-    [Display(Name = "Parse as CV and update profile?")]
-    public bool IsCv { get; set; }
 }

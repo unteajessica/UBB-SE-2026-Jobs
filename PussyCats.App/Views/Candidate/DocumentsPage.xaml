@@ -53,8 +53,8 @@
                                         <TextBlock Text="{Binding DocumentName}" FontSize="15" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding UploadDate}" FontSize="12" Foreground="Gray"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="View"   Margin="0,0,10,0"
-                                            Tag="{Binding}" Click="OnViewClick"/>
+                                    <Button Grid.Column="1" Content="Edit"   Margin="0,0,10,0"
+                                            Tag="{Binding}" Click="OnEditClick"/>
                                     <Button Grid.Column="2" Content="Delete"
                                             Tag="{Binding}" Click="OnDeleteClick"/>
                                 </Grid>
