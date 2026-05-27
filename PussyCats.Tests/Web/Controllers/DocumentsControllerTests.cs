@@ -54,12 +54,12 @@ public class DocumentsControllerTests
     [Fact]
     public async Task Details_DocumentExists_ReturnsViewWithEntity()
     {
-        var doc = new Document { DocumentId = 15, DocumentName = "Certificate" };
-        documents.GetByIdAsync(15, Arg.Any<CancellationToken>()).Returns(doc);
+        var document = new Document { DocumentId = 15, DocumentName = "Certificate" };
+        documents.GetByIdAsync(15, Arg.Any<CancellationToken>()).Returns(document);
 
         var result = await controller.Details(15, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(doc);
+        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(document);
     }
 
     [Fact]
@@ -158,8 +158,8 @@ public class DocumentsControllerTests
     public async Task Edit_Get_DocumentExists_PopulatesFormModel()
     {
         var user = new UserBuilder().WithId(1).Build();
-        var doc = new Document { DocumentId = 5, DocumentName = "Resume", FilePath = "resume.pdf", User = user };
-        documents.GetByIdAsync(5, Arg.Any<CancellationToken>()).Returns(doc);
+        var document = new Document { DocumentId = 5, DocumentName = "Resume", FilePath = "resume.pdf", User = user };
+        documents.GetByIdAsync(5, Arg.Any<CancellationToken>()).Returns(document);
 
         var result = await controller.Edit(5, default);
 
@@ -173,8 +173,8 @@ public class DocumentsControllerTests
     public async Task Edit_Post_ValidModel_CallsServiceAndRedirects()
     {
         var user = new UserBuilder().WithId(1).Build();
-        var doc = new Document { DocumentId = 5, DocumentName = "Old Name", FilePath = "file.pdf", User = user };
-        documents.GetByIdAsync(5, Arg.Any<CancellationToken>()).Returns(doc);
+        var document = new Document { DocumentId = 5, DocumentName = "Old Name", FilePath = "file.pdf", User = user };
+        documents.GetByIdAsync(5, Arg.Any<CancellationToken>()).Returns(document);
 
         var model = new DocumentFormModel { DocumentId = 5, UserId = 1, DocumentName = "New Name" };
 
@@ -191,12 +191,12 @@ public class DocumentsControllerTests
     [Fact]
     public async Task Delete_Get_DocumentExists_ReturnsView()
     {
-        var doc = new Document { DocumentId = 8, DocumentName = "OldDoc", User = new UserBuilder().WithId(1).Build() };
-        documents.GetByIdAsync(8, Arg.Any<CancellationToken>()).Returns(doc);
+        var document = new Document { DocumentId = 8, DocumentName = "OldDoc", User = new UserBuilder().WithId(1).Build() };
+        documents.GetByIdAsync(8, Arg.Any<CancellationToken>()).Returns(document);
 
         var result = await controller.Delete(8, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(doc);
+        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(document);
     }
 
     [Fact]

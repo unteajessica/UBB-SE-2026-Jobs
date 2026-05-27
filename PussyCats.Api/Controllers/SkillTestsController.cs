@@ -33,9 +33,9 @@ public class SkillTestsController : ControllerBase
             return Ok(new { CanRetake = canRetake });
 
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return NotFound(new { Message = ex.Message });
+            return NotFound(new { Message = exception.Message });
         }
     }
 
@@ -47,9 +47,9 @@ public class SkillTestsController : ControllerBase
             var badge = await skillTests.SubmitRetakeAsync(id, request.Score, cancellationToken);
             return Ok(badge);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return NotFound(new { Message = ex.Message });
+            return NotFound(new { Message = exception.Message });
         }
     }
 

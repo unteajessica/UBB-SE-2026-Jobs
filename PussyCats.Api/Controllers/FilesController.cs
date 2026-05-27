@@ -28,14 +28,14 @@ public class FilesController : ControllerBase
         if (file is null || file.Length == 0)
             return BadRequest("No file provided.");
 
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (ext is not ".jpg" and not ".jpeg" and not ".png" and not ".pdf")
+        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (fileExtension is not ".jpg" and not ".jpeg" and not ".png" and not ".pdf")
             return BadRequest("Unsupported file type.");
 
         if (file.Length > MaxFileSize)
             return BadRequest($"File exceeds {MaxFileSizeInMb} MB limit.");
 
-        var fileName = $"{Guid.NewGuid()}{ext}";
+        var fileName = $"{Guid.NewGuid()}{fileExtension}";
         var fullPath = Path.Combine(uploadsPath, fileName);
 
         await using var stream = System.IO.File.Create(fullPath);
@@ -58,8 +58,8 @@ public class FilesController : ControllerBase
         if (!System.IO.File.Exists(fullPath))
             return NotFound();
 
-        var ext = Path.GetExtension(id).ToLowerInvariant();
-        var contentType = ext switch
+        var fileExtension = Path.GetExtension(id).ToLowerInvariant();
+        var contentType = fileExtension switch
         {
             ".png" => "image/png",
             ".pdf" => "application/pdf",

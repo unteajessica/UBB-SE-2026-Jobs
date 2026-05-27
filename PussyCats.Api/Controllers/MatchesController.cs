@@ -62,13 +62,13 @@ public class MatchesController : ControllerBase
             var created = await matches.GetByIdAsync(matchId, cancellationToken);
             return CreatedAtAction(nameof(GetById), new { id = matchId }, created);
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException invalidOperationException)
         {
-            return Problem(detail: ex.Message, statusCode: 409);
+            return Problem(detail: invalidOperationException.Message, statusCode: 409);
         }
-        catch (KeyNotFoundException ex)
+        catch (KeyNotFoundException exception)
         {
-            return NotFound(ex.Message);
+            return NotFound(exception.Message);
         }
     }
 
@@ -104,13 +104,13 @@ public class MatchesController : ControllerBase
         {
             return NotFound();
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException exception)
         {
-            return Problem(detail: ex.Message, statusCode: 400);
+            return Problem(detail: exception.Message, statusCode: 400);
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException exception)
         {
-            return Problem(detail: ex.Message, statusCode: 422);
+            return Problem(detail: exception.Message, statusCode: 422);
         }
     }
 
@@ -126,9 +126,9 @@ public class MatchesController : ControllerBase
         {
             return NotFound();
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException exception)
         {
-            return Problem(detail: ex.Message, statusCode: 422);
+            return Problem(detail: exception.Message, statusCode: 422);
         }
     }
 

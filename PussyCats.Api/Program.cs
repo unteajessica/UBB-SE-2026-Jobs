@@ -147,15 +147,15 @@ builder.Services.AddTransient<ICompanyRecommendationService, CompanyRecommendati
 builder.Services.AddScoped<ICompanyStatusService, CompanyStatusService>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 
-builder.Services.AddSingleton<IPdfExportService>(sp =>
+builder.Services.AddSingleton<IPdfExportService>(serviceProvider =>
 {
-    var webhostEnvironment = sp.GetRequiredService<IWebHostEnvironment>();
+    var webhostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
     var templatePath = Path.Combine(webhostEnvironment.WebRootPath, "templates", "CVHtmlTemplate.html");
     var templateHtml = File.ReadAllText(templatePath);
     return new PdfExportService(templateHtml);
 });
 
-builder.Services.AddSingleton<ILocalFileStorageService>(sp =>
+builder.Services.AddSingleton<ILocalFileStorageService>(serviceProvider =>
 {
     var uploadsPath = Path.Combine(
         AppContext.BaseDirectory,

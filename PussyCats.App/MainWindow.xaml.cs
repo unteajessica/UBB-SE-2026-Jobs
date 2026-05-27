@@ -200,7 +200,7 @@ public sealed partial class MainWindow : Window
         var session = App.Services.GetRequiredService<SessionContext>();
         foreach (var item in navView.MenuItems)
         {
-            if (item is not NavigationViewItem nvi || nvi.Tag is not string tag)
+            if (item is not NavigationViewItem navigationViewItem || navigationViewItem.Tag is not string tag)
             {
                 continue;
             }
@@ -210,7 +210,7 @@ public sealed partial class MainWindow : Window
                 || session.Mode == AppMode.Company && CompanyPages.Contains(tag)
                 || session.Mode == AppMode.Developer && DeveloperPages.Contains(tag);
 
-            nvi.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            navigationViewItem.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
@@ -231,18 +231,18 @@ public sealed partial class MainWindow : Window
     {
         foreach (var item in navView.MenuItems)
         {
-            if (item is NavigationViewItem nvi && nvi.Tag as string == tag)
+            if (item is NavigationViewItem navigationViewItem && navigationViewItem.Tag as string == tag)
             {
-                navView.SelectedItem = nvi;
+                navView.SelectedItem = navigationViewItem;
                 return;
             }
         }
 
         foreach (var item in navView.FooterMenuItems)
         {
-            if (item is NavigationViewItem nvi && nvi.Tag as string == tag)
+            if (item is NavigationViewItem navigationViewItem && navigationViewItem.Tag as string == tag)
             {
-                navView.SelectedItem = nvi;
+                navView.SelectedItem = navigationViewItem;
                 return;
             }
         }

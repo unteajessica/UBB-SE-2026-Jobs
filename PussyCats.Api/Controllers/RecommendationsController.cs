@@ -48,9 +48,9 @@ public class RecommendationsController : ControllerBase
             var saved = await recommendations.AddAsync(body.UserId, body.JobId, timestamp, cancellationToken);
             return CreatedAtAction(nameof(GetById), new { id = saved.RecommendationId }, saved);
         }
-        catch (KeyNotFoundException ex)
+        catch (KeyNotFoundException exception)
         {
-            return NotFound(ex.Message);
+            return NotFound(exception.Message);
         }
     }
 
@@ -108,9 +108,9 @@ public class RecommendationsController : ControllerBase
             int matchId = await userRecommendationService.ApplyLikeAsync(userId, card, cancellationToken);
             return Ok(matchId);
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(exception.Message);
         }
     }
 

@@ -176,9 +176,9 @@ public class UsersController : ControllerBase
 
             return Ok(parsedUser);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return BadRequest(new { detail = ex.Message });
+            return BadRequest(new { detail = exception.Message });
         }
     }
 
@@ -268,8 +268,8 @@ public class UsersController : ControllerBase
         if (user is null)
             return NotFound();
 
-        var pdf = await pdfExportService.GeneratePdfAsync(user);
-        return File(pdf, "application/pdf", $"{user.FirstName}_{user.LastName}_CV.pdf");
+        var pdfFile = await pdfExportService.GeneratePdfAsync(user);
+        return File(pdfFile, "application/pdf", $"{user.FirstName}_{user.LastName}_CV.pdf");
     }
 
     public record UpdateActiveRequest(bool IsActive);

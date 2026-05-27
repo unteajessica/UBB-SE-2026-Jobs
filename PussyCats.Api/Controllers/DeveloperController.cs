@@ -40,9 +40,9 @@ public class DeveloperController : ControllerBase
             var post = await developer.AddPostAsync(body.DeveloperId, body.ParameterType, body.Value, cancellationToken);
             return Ok(post);
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException argumentException)
         {
-            return ValidationProblem(ex.Message);
+            return ValidationProblem(argumentException.Message);
         }
     }
 

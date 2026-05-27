@@ -64,9 +64,9 @@ public class ChatsController : ControllerBase
         {
             return NotFound();
         }
-        catch (UnauthorizedAccessException ex)
+        catch (UnauthorizedAccessException unauthorizedException)
         {
-            return Problem(detail: ex.Message, statusCode: 403);
+            return Problem(detail: unauthorizedException.Message, statusCode: 403);
         }
     }
 
@@ -82,13 +82,13 @@ public class ChatsController : ControllerBase
         {
             return NotFound();
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException argumentException)
         {
-            return ValidationProblem(ex.Message);
+            return ValidationProblem(argumentException.Message);
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException invalidOperationException)
         {
-            return Problem(detail: ex.Message, statusCode: 422);
+            return Problem(detail: invalidOperationException.Message, statusCode: 422);
         }
     }
 
@@ -104,9 +104,9 @@ public class ChatsController : ControllerBase
         {
             return NotFound();
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException invalidOperationException)
         {
-            return Problem(detail: ex.Message, statusCode: 422);
+            return Problem(detail: invalidOperationException.Message, statusCode: 422);
         }
     }
 
@@ -143,9 +143,9 @@ public class ChatsController : ControllerBase
         {
             return NotFound();
         }
-        catch (UnauthorizedAccessException ex)
+        catch (UnauthorizedAccessException unauthorizedException)
         {
-            return Problem(detail: ex.Message, statusCode: 403);
+            return Problem(detail: unauthorizedException.Message, statusCode: 403);
         }
     }
 

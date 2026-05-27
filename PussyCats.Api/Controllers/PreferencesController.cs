@@ -33,9 +33,9 @@ public class PreferencesController : ControllerBase
             await preferences.SavePreferencesAsync(userId, body.Roles, body.WorkMode, body.Location, cancellationToken);
             return NoContent();
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException exception)
         {
-            return ValidationProblem(ex.Message);
+            return ValidationProblem(exception.Message);
         }
     }
 
