@@ -34,7 +34,7 @@ public class AccountController : Controller
         var result = await auth.LoginAsync(model.Email, model.Password, cancellationToken);
         if (!result.Succeeded || result.Response is null)
         {
-            ModelState.AddModelError(string.Empty, "Email sau parola incorecta.");
+            ModelState.AddModelError(string.Empty, "Invalid email or password.");
             return View(model);
         }
 
@@ -57,10 +57,10 @@ public class AccountController : Controller
         var result = await auth.RegisterAsync(model.Email, model.Password, model.FirstName, model.LastName, cancellationToken);
         if (!result.Succeeded || result.Response is null)
         {
-            var msg = result.StatusCode == System.Net.HttpStatusCode.Conflict
+            var message = result.StatusCode == System.Net.HttpStatusCode.Conflict
                 ? "Adresa de email este deja inregistrata."
                 : "Inregistrare esuata. Incearca din nou.";
-            ModelState.AddModelError(string.Empty, msg);
+            ModelState.AddModelError(string.Empty, message);
             return View(model);
         }
 

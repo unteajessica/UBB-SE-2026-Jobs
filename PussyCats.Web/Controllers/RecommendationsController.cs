@@ -94,7 +94,7 @@ public class RecommendationsController : Controller
             await recommendations.UpdateTimestampAsync(id, model.Timestamp, ct);
             return RedirectToAction(nameof(Index));
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (HttpRequestException exception) when (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             return NotFound();
         }
