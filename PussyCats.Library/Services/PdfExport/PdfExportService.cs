@@ -2,9 +2,8 @@ using System.Text;
 using System.Web;
 using Microsoft.Playwright;
 using PussyCats.Library.Domain;
-using PussyCats.Library.Services.PdfExport;
 
-namespace PussyCats.Api.Services.PdfExport;
+namespace PussyCats.Library.Services.PdfExport;
 
 public class PdfExportService : IPdfExportService
 {

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using PussyCats.App.Configuration;
-using PussyCats.App.RepositoryProxies;
+using PussyCats.App.Adapters;
 using PussyCats.Library.ServiceProxies;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Services.Auth;
@@ -93,9 +93,7 @@ public partial class App : Application
         RegisterServiceProxy<IUserSkillService, UserSkillServiceProxy>(services, apiConfiguration);
         RegisterServiceProxy<IUserStatusService, UserStatusServiceProxy>(services, apiConfiguration);
 
-        services.AddHttpClient<IDocumentRepository, DocumentRepositoryProxy>(client =>
-            client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
-            .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddTransient<IDocumentRepository, DocumentRepositoryAdapter>();
         services.AddTransient<ILocalDocumentFileService>(provider => new DocumentService(
             provider.GetRequiredService<IDocumentRepository>(),
             provider.GetRequiredService<ILocalFileStorageService>(),

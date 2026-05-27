@@ -42,7 +42,6 @@ using PussyCats.Library.Services.ChatService;
 using PussyCats.Library.Services.Developers;
 using PussyCats.Library.Services.UserStatusService;
 using PussyCats.Library.Services.PdfExport;
-using PussyCats.Api.Services.PdfExport;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
