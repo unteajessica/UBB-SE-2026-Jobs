@@ -64,7 +64,7 @@ namespace PussyCats.Library.ServiceProxies
         // This is techincally not really correct because SaveAsync should create a new user if the userId doesn't exist, but I think it should work.
         public async Task SaveAsync(int userId, User user, CancellationToken cancellationToken = default)
         {
-            var response = await _http.PutAsJsonAsync($"api/users/{userId}", user, _jsonOptions, cancellationToken);
+            var response = await _http.PutAsJsonAsync($"api/users/{userId}/profile", user, _jsonOptions, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
 

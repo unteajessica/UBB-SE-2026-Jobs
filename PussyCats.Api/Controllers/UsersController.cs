@@ -89,6 +89,15 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id}/profile")]
+    public async Task<IActionResult> SaveProfile(int id, [FromBody] User user, CancellationToken cancellationToken)
+    {
+        if (await users.GetByIdAsync(id, cancellationToken) is null)
+            return NotFound();
+        await userProfileService.SaveAsync(id, user, cancellationToken);
+        return NoContent();
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
     {

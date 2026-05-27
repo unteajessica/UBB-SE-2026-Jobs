@@ -10,6 +10,7 @@ appsettings.local.json
 # Local planning docs
 OpenItemsPlan.md
 OpenItemsAuthReviewReport.md
+HANDOFF.md
 
 # User-specific files
 *.rsuser
