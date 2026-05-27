@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using PussyCats.App.Configuration;
-using PussyCats.App.Adapters;
+using PussyCats.Library.Adapters;
 using PussyCats.Library.ServiceProxies;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Services.Auth;

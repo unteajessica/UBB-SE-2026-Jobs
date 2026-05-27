@@ -2,7 +2,7 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Services.Documents;
 
-namespace PussyCats.App.Adapters;
+namespace PussyCats.Library.Adapters;
 
 public class DocumentRepositoryAdapter : IDocumentRepository
 {
