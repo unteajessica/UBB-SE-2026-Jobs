@@ -15,9 +15,9 @@ public sealed partial class PersonalityTestPage : Page
         viewModel = App.Services.GetRequiredService<PersonalityTestViewModel>();
         DataContext = viewModel;
     }
-
-    protected override void OnNavigatedTo(NavigationEventArgs eventArguments)
+    protected override async void OnNavigatedTo(NavigationEventArgs eventArguments)
     {
         base.OnNavigatedTo(eventArguments);
+        await viewModel.LoadExistingResultAsync();
     }
 }
