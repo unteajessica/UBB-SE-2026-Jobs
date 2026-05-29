@@ -1,0 +1,34 @@
+@model PussyCats.Library.Domain.Document
+@{
+	ViewData["Title"] = "Delete Document";
+}
+
+<section class="page-shell">
+    <div class="danger-card">
+        <div class="danger-card__header">
+            <h2>Delete document</h2>
+            <p>This action cannot be undone.</p>
+        </div>
+        <div class="danger-card__body">
+            <div>
+                <span class="detail-label">Document</span>
+                <span class="detail-value">@Model.DocumentName</span>
+            </div>
+            <div>
+                <span class="detail-label">File Path</span>
+                <span class="detail-value">@Model.FilePath</span>
+            </div>
+            <div>
+                <span class="detail-label">User</span>
+                <span class="detail-value">@Model.User?.Name</span>
+            </div>
+        </div>
+        <form asp-action="Delete" method="post" class="danger-card__actions">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="DocumentId" />
+            <input type="hidden" name="userId" value="@Model.User?.UserId" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a class="btn btn-outline-secondary" asp-action="Index" asp-route-userId="@Model.User?.UserId">Cancel</a>
+        </form>
+    </div>
+</section>

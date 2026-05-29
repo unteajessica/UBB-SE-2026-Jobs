@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="PussyCats_App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PussyCats_App"
+    RequestedTheme="Light">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <converters:BoolToVisibilityConverter  x:Key="BoolToVisibilityConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolNegationConverter      x:Key="BoolNegationConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ChatNameConverter x:Key="ChatNameConverter"
+                                          xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ChatPartyNameConverter x:Key="ChatPartyNameConverter"
+                                               xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ReadReceiptConverter x:Key="ReadReceiptConverter"
+                                             xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MessageContentDisplayConverter x:Key="MessageContentDisplayConverter"
+                                                       xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MessageTextVisibilityConverter x:Key="MessageTextVisibilityConverter"
+                                                       xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MessageFileAttachmentVisibilityConverter x:Key="MessageFileAttachmentVisibilityConverter"
+                                                                 xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MessageImageVisibilityConverter x:Key="MessageImageVisibilityConverter"
+                                                        xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MessageImageSourceConverter x:Key="MessageImageSourceConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:IsOtherPartyMessageConverter x:Key="IsOtherPartyMessageConverter"
+                                                     xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:IsCurrentUserMessageConverter x:Key="IsCurrentUserMessageConverter"
+                                                      xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"
+                                                xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ChatAvatarCornerRadiusConverter x:Key="ChatAvatarCornerRadiusConverter"
+                                                        xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ChatAvatarBgConverter x:Key="ChatAvatarBgConverter"
+                                              xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ChatAvatarFgConverter x:Key="ChatAvatarFgConverter"
+                                              xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ChatInitialsConverter x:Key="ChatInitialsConverter"
+                                              xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ChatSubtitleConverter x:Key="ChatSubtitleConverter"
+                                              xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ListToVisibilityConverter  x:Key="ListToVisibilityConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:ObjectToIntConverter       x:Key="ObjectToIntConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolToInvertedBoolConverter x:Key="BoolToInvertedBoolConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolToAccentBrushConverter x:Key="BoolToAccentBrushConverter"
+                                                   xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:BoolToHighlightBackgroundConverter x:Key="BoolToHighlightBackgroundConverter"
+                                                           xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:JobRoleToDisplayNameConverter x:Key="JobRoleToDisplayNameConverter"
+                                                      xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MatchStatusToColorConverter x:Key="MatchStatusToColorConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+            <converters:MatchStatusToTextConverter  x:Key="MatchStatusToTextConverter"
+                                                    xmlns:converters="using:PussyCats_App.Converters"/>
+
+            <!-- Shell / card colour aliases (matchmaking theme) -->
+            <SolidColorBrush x:Key="ShellBackgroundBrush"    Color="{ThemeResource SystemChromeMediumLowColor}"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush"     Color="{ThemeResource CardBackgroundFillColorDefaultColor}"/>
+            <SolidColorBrush x:Key="CardBorderBrush"         Color="{ThemeResource CardStrokeColorDefaultColor}"/>
+            <SolidColorBrush x:Key="TextPrimaryBrush"        Color="{ThemeResource TextFillColorPrimaryColor}"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush"      Color="{ThemeResource TextFillColorSecondaryColor}"/>
+            <SolidColorBrush x:Key="DividerBrush"            Color="{ThemeResource DividerStrokeColorDefaultColor}"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

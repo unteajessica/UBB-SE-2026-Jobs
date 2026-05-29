@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.Company.CompanyStatusPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:PussyCats_App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:MatchStatusToColorConverter x:Key="StatusToColor"/>
+        <converters:MatchStatusToTextConverter  x:Key="StatusToText"/>
+    </Page.Resources>
+
+    <Grid>
+        <!-- Applicant list panel -->
+        <Grid x:Name="ApplicantListPanel">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="48,36,48,48" Spacing="0">
+
+                    <Grid Margin="0,0,0,28">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="6" VerticalAlignment="Bottom">
+                            <TextBlock Text="Applicant List" FontSize="28" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding PageMessage}" FontSize="13"
+                                       Foreground="#1D4ED8" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
+                            <ProgressRing IsActive="{Binding IsLoading}" Width="20" Height="20" VerticalAlignment="Center"/>
+                            <Button Content="Refresh" Command="{Binding RefreshCommand}" Padding="12,6"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <ItemsRepeater ItemsSource="{Binding Applications}">
+                        <ItemsRepeater.Layout>
+                            <UniformGridLayout MinItemWidth="300" MinColumnSpacing="16"
+                                               MinRowSpacing="16" Orientation="Horizontal"
+                                               ItemsStretch="Fill"/>
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" BorderBrush="#E5E7EB"
+                                        BorderThickness="1" CornerRadius="8" Padding="18">
+                                    <StackPanel Spacing="0">
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding User.FirstName}" FontSize="15"
+                                                           FontWeight="SemiBold" Foreground="#111827"/>
+                                                <TextBlock Text="{Binding User.LastName}" FontSize="13"
+                                                           Foreground="#6B7280"/>
+                                            </StackPanel>
+                                            <Border Grid.Column="1"
+                                                    Background="{Binding Match.Status, Converter={StaticResource StatusToColor}}"
+                                                    CornerRadius="20" Padding="9,3" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Match.Status, Converter={StaticResource StatusToText}}"
+                                                           FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                            </Border>
+                                        </Grid>
+                                        <Border Height="1" Background="#F3F4F6" Margin="0,10,0,12"/>
+                                        <Button Content="Review →"
+                                                Tag="{Binding Match.MatchId}"
+                                                Click="OnReviewApplicantClick"
+                                                HorizontalAlignment="Left" Padding="12,6"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Evaluation panel -->
+        <Grid x:Name="EvaluationPanel" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="48,36,48,56" Spacing="14" MaxWidth="720" HorizontalAlignment="Left">
+
+                    <TextBlock Text="Applicant Evaluation" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                    <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
+                            CornerRadius="8" Padding="22">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="PROFILE" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="#9CA3AF" CharacterSpacing="100"/>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{Binding SelectedApplicant.User.FirstName}"
+                                           FontSize="20" FontWeight="SemiBold" Foreground="#111827"/>
+                                <TextBlock Text="{Binding SelectedApplicant.User.LastName}"
+                                           FontSize="16" Foreground="#374151"/>
+                                <TextBlock Text="{Binding SelectedApplicant.Job.JobTitle}"
+                                           FontSize="13" Foreground="#6B7280" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Border Height="1" Background="#F3F4F6"/>
+                            <Grid ColumnSpacing="48">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="CITY" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding SelectedApplicant.User.City}" FontSize="13" Foreground="#374151"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Spacing="3">
+                                    <TextBlock Text="UNIVERSITY" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding SelectedApplicant.User.University}" FontSize="13" Foreground="#374151"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Spacing="3">
+                                    <TextBlock Text="EXPERIENCE" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock FontSize="13" Foreground="#374151">
+                                        <Run Text="{Binding SelectedApplicant.User.YearsOfExperience}"/>
+                                        <Run Text=" years"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Spacing="3">
+                                <TextBlock Text="MOTIVATION" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                <TextBlock Text="{Binding SelectedApplicant.User.Motivation}"
+                                           FontSize="13" Foreground="#374151" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
+                            CornerRadius="8" Padding="22">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="CONTACT" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="#9CA3AF" CharacterSpacing="100"/>
+                            <Grid ColumnSpacing="48">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="EMAIL" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding ContactEmailDisplay}" FontSize="13" Foreground="#065F46"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Spacing="3">
+                                    <TextBlock Text="PHONE" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding ContactPhoneDisplay}" FontSize="13" Foreground="#065F46"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Testing module mocked per §8 -->
+                    <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
+                            CornerRadius="8" Padding="22">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="TECHNICAL TEST RESULTS" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="#9CA3AF" CharacterSpacing="100"/>
+                            <TextBlock Text="Testing module integration pending — see MergePlan.md §8."
+                                       FontSize="13" Foreground="#9CA3AF" FontStyle="Italic"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
+                            CornerRadius="8" Padding="22">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="DECISION" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="#9CA3AF" CharacterSpacing="100"/>
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Status" FontSize="13" FontWeight="SemiBold" Foreground="#374151"/>
+                                <Border x:Name="DecisionFieldBorder" BorderBrush="#D1D5DB"
+                                        BorderThickness="1" CornerRadius="6" Padding="4">
+                                    <ComboBox ItemsSource="{Binding DecisionOptions}"
+                                              SelectedItem="{Binding SelectedDecision, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanEditDecision}"
+                                              HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent"/>
+                                </Border>
+                                <TextBlock Text="{Binding ValidationErrorDecision}" FontSize="12" Foreground="#B91C1C"/>
+                            </StackPanel>
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Feedback" FontSize="13" FontWeight="SemiBold" Foreground="#374151"/>
+                                <Border x:Name="FeedbackFieldBorder" BorderBrush="#D1D5DB"
+                                        BorderThickness="1" CornerRadius="6" Padding="4">
+                                    <TextBox Text="{Binding FeedbackMessage, Mode=TwoWay}"
+                                             IsEnabled="{Binding CanEditDecision}"
+                                             AcceptsReturn="True" MinHeight="100"
+                                             PlaceholderText="Write your feedback for the applicant..."
+                                             TextWrapping="Wrap" BorderThickness="0" Background="Transparent"/>
+                                </Border>
+                                <TextBlock Text="{Binding ValidationErrorFeedback}" FontSize="12" Foreground="#B91C1C"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Submit Decision" Click="OnSubmitDecisionClick"  Padding="16,8"
+                                IsEnabled="{Binding CanEditDecision}"
+                                Style="{StaticResource AccentButtonStyle}"/>
+                        <Button Content="Cancel"          Click="OnCancelEvaluationClick" Padding="16,8"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

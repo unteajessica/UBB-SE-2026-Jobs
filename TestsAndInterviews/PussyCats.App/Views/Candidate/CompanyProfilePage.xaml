@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.Candidate.CompanyProfilePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid RowDefinitions="Auto,*" Margin="32,24">
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,24">
+            <Button x:Name="BackButton" Click="BackButton_Click" Style="{StaticResource AccentButtonStyle}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon Glyph="&#xE76B;" FontSize="12" />
+                    <TextBlock Text="Back" />
+                </StackPanel>
+            </Button>
+            <TextBlock Text="Company Profile"
+                       FontSize="22"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="20" MaxWidth="700">
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="24">
+                    <StackPanel Spacing="16">
+
+                        <Border Width="64" Height="64"
+                                CornerRadius="8"
+                                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                HorizontalAlignment="Left">
+                            <TextBlock x:Name="LogoTextBlock"
+                                       FontSize="24"
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+
+                        <TextBlock x:Name="CompanyNameTextBlock"
+                                   FontSize="20"
+                                   FontWeight="SemiBold" />
+
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <FontIcon Grid.Row="0" Grid.Column="0" Glyph="&#xE715;" FontSize="14"
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                      VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       x:Name="EmailTextBlock"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       VerticalAlignment="Center" />
+
+                            <FontIcon Grid.Row="1" Grid.Column="0" Glyph="&#xE717;" FontSize="14"
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                      VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       x:Name="PhoneTextBlock"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border x:Name="JobsSection"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="24">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Open Positions"
+                                   FontSize="16"
+                                   FontWeight="SemiBold" />
+                        <ItemsControl x:Name="JobsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{ThemeResource ControlAltFillColorSecondaryBrush}"
+                                            CornerRadius="6"
+                                            Padding="14,10"
+                                            Margin="0,0,0,8">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{Binding JobTitle}"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="14" />
+                                            <TextBlock Text="{Binding Location}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       FontSize="12" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="NoJobsTextBlock"
+                                   Text="No open positions at this time."
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Visibility="Collapsed" />
+                    </StackPanel>
+                </Border>
+
+                <Border x:Name="ErrorBorder"
+                        Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                        CornerRadius="6"
+                        Padding="14,10"
+                        Visibility="Collapsed">
+                    <TextBlock x:Name="ErrorTextBlock"
+                               Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                               TextWrapping="Wrap" />
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -1,0 +1,61 @@
+@model PussyCats.Web.Models.PreferencesEditModel
+@using PussyCats.Library.Domain.Enums
+@{
+    ViewData["Title"] = "Edit Preferences";
+}
+
+<div class="container py-4">
+    <h2 class="mb-3">Edit Preferences</h2>
+
+    <form asp-action="Edit" method="post" class="card shadow-sm">
+        @Html.AntiForgeryToken()
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold" asp-for="SelectedRoles"></label>
+                <div class="form-text mb-2">Choose between 1 and 3 roles.</div>
+                <div class="row row-cols-1 row-cols-md-2 g-2">
+                    @foreach (var role in Enum.GetValues<JobRole>())
+                    {
+                        var id = $"role_{role}";
+                        var isChecked = Model.SelectedRoles.Contains(role);
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                       name="SelectedRoles" value="@role" id="@id"
+                                       @(isChecked ? "checked" : null) />
+                                <label class="form-check-label" for="@id">@role</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <span asp-validation-for="SelectedRoles" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="WorkMode" class="form-label fw-semibold"></label>
+                <select asp-for="WorkMode" asp-items="Html.GetEnumSelectList<WorkMode>()" class="form-select"></select>
+                <span asp-validation-for="WorkMode" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Location" class="form-label fw-semibold"></label>
+                <input asp-for="Location" class="form-control" list="locationOptions" placeholder="City, Country" />
+                <datalist id="locationOptions">
+                    <!-- Populated by jQuery datalist via /api/preferences/locations -->
+                </datalist>
+                <span asp-validation-for="Location" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

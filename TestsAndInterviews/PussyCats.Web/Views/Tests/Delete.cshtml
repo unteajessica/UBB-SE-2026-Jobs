@@ -1,0 +1,27 @@
+﻿@model PussyCats.Web.Dtos.TestDto
+
+@{
+    ViewData["Title"] = "Delete Test";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold text-danger mb-3">Delete Test</h2>
+
+    <div class="alert alert-warning">
+        <strong>Are you sure?</strong>
+        You are about to delete the test:
+        <br />
+        <span class="fw-bold">@Model.Title</span>
+        <br />
+        This action cannot be undone.
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <button type="submit" class="btn btn-danger">Delete</button>
+
+        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+

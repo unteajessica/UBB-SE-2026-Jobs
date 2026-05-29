@@ -1,0 +1,101 @@
+@model IReadOnlyList<PussyCats.Library.Domain.Message>
+@using PussyCats.Library.Domain.Enums
+@{
+    ViewData["Title"] = "Chat";
+    int chatId = ViewBag.ChatId;
+    int currentUserId = ViewBag.CurrentUserId;
+    string apiBase = ViewBag.ApiBase ?? string.Empty;
+}
+
+<div class="container mt-4" style="max-width: 760px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">&larr; Back</a>
+        <div class="d-flex gap-2">
+            <form asp-action="Block" asp-route-id="@chatId" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-warning btn-sm">Block</button>
+            </form>
+            <form asp-action="Delete" asp-route-id="@chatId" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Delete this conversation?')">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["ChatError"] is string error)
+    {
+        <div class="alert alert-danger alert-dismissible py-2">@error <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div id="messages" class="border rounded p-3 mb-3 bg-white" style="min-height: 400px; max-height: 500px; overflow-y: auto;">
+        @if (!Model.Any())
+        {
+            <p class="text-muted text-center mt-5">No messages yet. Say hello!</p>
+        }
+        else
+        {
+            @foreach (var msg in Model)
+            {
+                var isMine = msg.Sender.SenderId == currentUserId;
+                <div class="d-flex @(isMine ? "justify-content-end" : "justify-content-start") mb-2">
+                    <div class="px-3 py-2 rounded-3 @(isMine ? "bg-primary text-white" : "bg-light border")"
+                         style="max-width: 70%;">
+                        @if (msg.Type == MessageType.Image)
+                        {
+                            <a href="@(apiBase + "/" + msg.Content)" target="_blank">
+                                <img src="@(apiBase + "/" + msg.Content)" alt="image"
+                                     style="max-width:220px; max-height:200px; border-radius:6px; display:block;" />
+                            </a>
+                        }
+                        else if (msg.Type == MessageType.File)
+                        {
+                            <a href="@(apiBase + "/" + msg.Content)" target="_blank"
+                               class="@(isMine ? "text-white" : "text-primary")">
+                                &#128196; @(string.IsNullOrWhiteSpace(msg.OriginalFileName) ? msg.Content : msg.OriginalFileName)
+                            </a>
+                        }
+                        else
+                        {
+                            <div>@msg.Content</div>
+                        }
+                        <small class="@(isMine ? "text-white-50" : "text-muted") d-block mt-1" style="font-size:0.75rem;">
+                            @msg.Timestamp.ToLocalTime().ToString("HH:mm")
+                            @if (isMine && msg.IsRead)
+                            {
+                                <span>&#10003;&#10003;</span>
+                            }
+                        </small>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <form asp-action="Send" asp-route-id="@chatId" method="post" class="d-flex gap-2 mb-2">
+        @Html.AntiForgeryToken()
+        <input type="text" name="content" class="form-control" placeholder="Type a message…" autocomplete="off" required />
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+
+    <form asp-action="SendAttachment" asp-route-id="@chatId" method="post"
+          enctype="multipart/form-data" class="d-flex gap-2">
+        @Html.AntiForgeryToken()
+        <label class="btn btn-outline-secondary mb-0 flex-shrink-0">
+            &#128247; Image
+            <input type="file" name="attachment" accept=".jpg,.jpeg,.png" hidden
+                   onchange="this.form.submit()" />
+        </label>
+        <label class="btn btn-outline-secondary mb-0 flex-shrink-0">
+            &#128196; Document
+            <input type="file" name="attachment" accept=".pdf,.docx,.doc" hidden
+                   onchange="this.form.submit()" />
+        </label>
+        <small class="text-muted align-self-center">Max 20 MB</small>
+    </form>
+</div>
+
+<script>
+    const msgs = document.getElementById('messages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+</script>

@@ -1,0 +1,29 @@
+  {
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "age": 25,
+    "gender": "Female",
+    "email": "alice.smith@example.com",
+    "phoneNumber": "+40123456789",
+    "country": "Romania",
+    "city": "Bucharest",
+    "university": "University of Bucharest",
+    "github": "github.com/alice",
+    "linkedin": "linkedin.com/in/alice",
+    "address": "123 Main St",
+    "motivation": "Passionate about software engineering.",
+    "expectedGraduationYear": 2027,
+    "hasDisabilities": false,
+    "skills": ["C#", "Python", "SQL", "JavaScript", "Docker"],
+    "workExperiences": [
+      {
+        "company": "TechCorp",
+        "jobTitle": "Junior Developer",
+        "startDate": "2024-01-01T00:00:00+00:00",
+        "currentlyWorking": true,
+        "description": "Backend development with .NET"
+      }
+    ],
+    "projects": [],
+    "extraCurricularActivities": []
+  }

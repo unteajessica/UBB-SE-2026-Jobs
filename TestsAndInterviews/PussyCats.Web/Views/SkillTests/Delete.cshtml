@@ -1,0 +1,29 @@
+﻿@model PussyCats.Library.Domain.SkillTest
+
+@{
+    ViewData["Title"] = "Delete Skill Test";
+}
+
+<section class="page-shell">
+    <div class="danger-card">
+        <div class="danger-card__header">
+            <h2>Delete skill test</h2>
+            <p>This action cannot be undone.</p>
+        </div>
+        <div class="danger-card__body">
+            <div>
+                <span class="detail-label">Test Name</span>
+                <span class="detail-value">@Model.Name</span>
+            </div>
+            <div>
+                <span class="detail-label">Score</span>
+                <span class="detail-value">@Model.Score%</span>
+            </div>
+        </div>
+        <form asp-action="Delete" class="danger-card__actions">
+            <input type="hidden" asp-for="SkillTestId" />
+            <button type="submit" class="btn btn-danger">Confirm delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</section>

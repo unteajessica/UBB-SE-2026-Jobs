@@ -1,0 +1,33 @@
+@using Tests_and_Interviews_API.Dtos
+@model JobPostingDto
+
+@{
+    ViewData["Title"] = "Delete Job";
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">&larr; Back to Jobs</a>
+</div>
+
+<div class="card border-danger shadow-sm mt-3">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">Confirm Deletion</h4>
+    </div>
+    <div class="card-body">
+        <p class="lead">Are you sure you want to delete the following job posting? This action cannot be undone.</p>
+        <table class="table table-borderless table-sm">
+            <tr><th>Job Title</th><td>@Model.JobTitle</td></tr>
+            <tr><th>Industry</th><td>@(Model.IndustryField ?? "—")</td></tr>
+            <tr><th>Type</th><td>@(Model.JobType ?? "—")</td></tr>
+            <tr><th>Location</th><td>@(Model.JobLocation ?? "—")</td></tr>
+            <tr><th>Posted At</th><td>@(Model.PostedAt?.ToString("dd MMM yyyy") ?? "—")</td></tr>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-end gap-2">
+        <a asp-action="Details" asp-route-id="@Model.JobId" class="btn btn-outline-secondary">Cancel</a>
+        <form asp-action="Delete" asp-route-id="@Model.JobId" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+    </div>
+</div>

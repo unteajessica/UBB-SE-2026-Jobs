@@ -1,0 +1,48 @@
+@model PussyCats.Web.Models.DocumentFormModel
+@{
+	ViewData["Title"] = "Create Document";
+	var userOptions = ViewBag.Users as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
+}
+
+<section class="page-shell">
+    <div class="form-card">
+        <div class="form-card__header">
+            <h2>Create document</h2>
+            <p class="lead">Upload a document.</p>
+        </div>
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="UserId" class="form-label">User</label>
+                <select asp-for="UserId" asp-items="userOptions" class="form-select">
+                    <option value="">-- select user --</option>
+                </select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DocumentName" class="form-label">Document Name</label>
+                <input asp-for="DocumentName" class="form-control" />
+                <span asp-validation-for="DocumentName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="File" class="form-label">Document File</label>
+                <input asp-for="File" type="file" class="form-control" />
+                <span asp-validation-for="File" class="text-danger"></span>
+                <small class="form-text text-muted">Accepted formats: PDF, JPG, PNG.</small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark">Create</button>
+                <a class="btn btn-outline-secondary" asp-action="Index" asp-route-userId="@Model?.UserId">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

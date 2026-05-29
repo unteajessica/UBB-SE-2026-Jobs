@@ -1,0 +1,30 @@
+﻿@model PussyCats.Library.Domain.Skill
+@{
+    ViewData["Title"] = "Skill Details";
+}
+
+<section class="page-shell">
+    <div class="detail-card">
+        <div class="detail-card__header">
+            <div>
+                <p class="eyebrow">Skill</p>
+                <h2>@Model.Name</h2>
+            </div>
+            <span class="pc-pill">@Model.Category</span>
+        </div>
+        <div class="detail-card__body">
+            <div>
+                <span class="detail-label">Skill Id</span>
+                <span class="detail-value">@Model.SkillId</span>
+            </div>
+            <div>
+                <span class="detail-label">Category</span>
+                <span class="detail-value">@Model.Category</span>
+            </div>
+        </div>
+        <div class="detail-card__actions">
+            <a class="btn btn-dark" asp-action="Edit" asp-route-id="@Model.SkillId">Edit</a>
+            <a class="btn btn-outline-secondary" asp-action="Index">Back to list</a>
+        </div>
+    </div>
+</section>

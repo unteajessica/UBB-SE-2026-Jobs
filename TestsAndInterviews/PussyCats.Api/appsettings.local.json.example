@@ -1,0 +1,11 @@
+{
+  "ConnectionStrings": {
+    "PussyCatsDb": "Server=(localdb)\\MSSQLLocalDB; Database=ISS-921-1;Trusted_Connection=True;TrustServerCertificate=True;"
+  },
+  "Jwt": {
+    "Key": "replace-with-a-local-development-secret-at-least-32-characters",
+    "Issuer": "PussyCats.Api",
+    "Audience": "PussyCats.Clients",
+    "ExpiresMinutes": 120
+  }
+}

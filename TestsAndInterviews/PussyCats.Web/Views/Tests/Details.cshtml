@@ -1,0 +1,70 @@
+﻿@model PussyCats.Web.Dtos.TestDto
+
+@{
+    ViewData["Title"] = "Test Details";
+}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold mb-3">Test Details</h2>
+
+    <div class="card shadow-sm p-4">
+
+        <dl class="row mb-0">
+
+            <dt class="col-sm-3 fw-semibold">Title</dt>
+            <dd class="col-sm-9">@Model.Title</dd>
+
+            <dt class="col-sm-3 fw-semibold">Category</dt>
+            <dd class="col-sm-9">@Model.Category</dd>
+
+            <dt class="col-sm-3 fw-semibold">Created At</dt>
+            <dd class="col-sm-9">@Model.CreatedAt.ToString("dd-MM-yyyy HH:mm")</dd>
+
+        </dl>
+
+        <hr />
+
+        <div class="d-flex gap-2">
+
+            @if (User.IsInRole("Candidate")) {
+                <a asp-controller="Tests"
+                       asp-action="Start"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-primary">
+                    Start Test
+                </a>
+            }
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Recruiter")) {
+                <a asp-controller="Tests"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-warning">
+                    Edit
+                </a>
+
+                <a asp-controller="Tests"
+                       asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-danger">
+                    Delete
+                </a>
+                <a asp-controller="Questions"
+                       asp-action="Index"
+                       asp-route-testId="@Model.Id"
+                       class="btn btn-outline-primary">
+                    Manage Questions
+                </a>
+            }
+
+            <a asp-action="Index" class="btn btn-secondary ms-auto">
+                Back to List
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+

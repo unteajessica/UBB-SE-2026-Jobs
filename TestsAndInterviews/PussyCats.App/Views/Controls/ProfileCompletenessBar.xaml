@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PussyCats_App.Views.Controls.ProfileCompletenessBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <StackPanel Padding="20,12" Spacing="6"
+                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                BorderThickness="0,0,0,3"
+                BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="lblTitle" Grid.Column="0"
+                       Text="Profile Completeness"
+                       FontWeight="SemiBold" FontSize="14" />
+            <TextBlock x:Name="percentageLabel" Grid.Column="1"
+                       Text="0%" FontWeight="Bold" FontSize="14" />
+        </Grid>
+        <ProgressBar x:Name="barProgress"
+                     Minimum="0" Maximum="100" Value="0"
+                     Height="14" CornerRadius="7" />
+        <TextBlock x:Name="promptLabel"
+                   Text="" FontSize="12"
+                   TextWrapping="Wrap" Opacity="0.85" />
+    </StackPanel>
+</UserControl>

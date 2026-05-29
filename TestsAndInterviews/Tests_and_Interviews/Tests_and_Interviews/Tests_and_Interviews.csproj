@@ -1,0 +1,166 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>Tests_and_Interviews</RootNamespace>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<Platforms>x86;x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+		<UseWinUI>true</UseWinUI>
+		<WinUISDKReferences>false</WinUISDKReferences>
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<Nullable>enable</Nullable>
+		<EnableDefaultPageItems>false</EnableDefaultPageItems>
+		<WindowsAppSdkBootstrapInitialize>false</WindowsAppSdkBootstrapInitialize>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<CodeAnalysisRuleSet>SE.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="Assets\AvatarFemale.png" />
+		<None Remove="Assets\AvatarMale.png" />
+		<None Remove="MainWindow.xaml" />
+		<None Remove="Views\CollaboratorsPage.xaml" />
+		<None Remove="Views\CreateEventPage.xaml" />
+		<None Remove="Views\CreateJobPage.xaml" />
+		<None Remove="Views\EditEventPage.xaml" />
+		<None Remove="Views\EditProfilePage.xaml" />
+		<None Remove="Views\InterviewCandidatePage.xaml" />
+		<None Remove="Views\JobApplicantsPage.xaml" />
+		<None Remove="Views\LeaderboardPage.xaml" />
+		<None Remove="Views\MainTestPage.xaml" />
+		<None Remove="Views\OurEventsPage.xaml" />
+		<None Remove="Views\OurJobsPage.xaml" />
+		<None Remove="Views\PastEventsPage.xaml" />
+		<None Remove="Views\PaymentWindow.xaml" />
+		<None Remove="Views\RecruiterLeaderboardPage.xaml" />
+		<None Remove="Views\RecruiterTestsPage.xaml" />
+		<None Remove="Views\TestPage.xaml" />
+    <None Remove="Views\InterviewInterviewerPage.xaml" />
+    <None Remove="Views\ViewProfilePage.xaml" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Assets\SplashScreen.scale-200.png" />
+		<Content Include="Assets\LockScreenLogo.scale-200.png" />
+		<Content Include="Assets\Square150x150Logo.scale-200.png" />
+		<Content Include="Assets\Square44x44Logo.scale-200.png" />
+		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+		<Content Include="Assets\StoreLogo.png" />
+		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+	<ItemGroup>
+	   <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+	   <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
+	   <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
+	   <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.7" />
+	   <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8">
+		 <PrivateAssets>all</PrivateAssets>
+		 <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	   </PackageReference>
+	   <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.1" />
+	  <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Net.Http.Json" Version="10.0.7" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Include="MainWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\CollaboratorsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\CreateEventPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\CreateJobPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\EditEventPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\EditProfilePage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\JobApplicantsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\LeaderboardPage.xaml" />
+		<Page Include="Views\OurEventsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\OurJobsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\PastEventsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\PaymentWindow.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\RecruiterLeaderboardPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+    <Page Include="Views\InterviewInterviewerPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+		<Page Include="Views\RecruiterPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\CandidateHomePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\InterviewCandidatePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\MainTestPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\RecruiterTestsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\TestPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Views\ViewProfilePage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Folder Include="Dialogs\" />
+		<Folder Include="Controls\" />
+	</ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>SE.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+	<PropertyGroup>
+		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<CodeAnalysisRuleSet>SE.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	  <CodeAnalysisRuleSet />
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <CodeAnalysisRuleSet />
+	</PropertyGroup>
+</Project>

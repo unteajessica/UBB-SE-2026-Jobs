@@ -1,0 +1,34 @@
+﻿@model Tests_and_Interviews.Web.Dtos.TestDto
+
+@{
+    ViewData["Title"] = "Create Test";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold mb-3">Create New Test</h2>
+
+    <form asp-action="Create" method="post" class="card p-4 shadow-sm">
+
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <input asp-for="Category" class="form-control" />
+            <span asp-validation-for="Category" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-success">Create</button>
+
+            <button type="submit" name="manageQuestions" value="true" class="btn btn-outline-primary ms-2">
+                Create and Manage Questions
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,54 @@
+﻿@model IEnumerable<PussyCats.Library.Domain.SkillTest>
+@using PussyCats.Library.Services
+
+@{
+    ViewData["Title"] = "Skill Tests";
+}
+
+<section class="page-shell skill-tests">
+    <header class="skill-tests__hero">
+        <div>
+            <p class="eyebrow">Assessment Center</p>
+            <h1 class="page-title">Skill Tests</h1>
+            <p class="page-subtitle">Track results, retake when eligible, and keep your profile sharp.</p>
+        </div>
+        <div class="skill-tests__hero-badge">
+            <span class="badge-label">Your Progress</span>
+            <span class="badge-value">@Model.Count()</span>
+            <span class="badge-caption">tests logged</span>
+        </div>
+    </header>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="skill-tests__grid">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <h3>No tests yet</h3>
+                <p>Once you complete a skill test it will show up here with score history and retake status.</p>
+            </div>
+        }
+        else
+        {
+            foreach (var test in Model)
+            {
+                await Html.RenderPartialAsync("SkillTestCard", test);
+            }
+        }
+    </div>
+</section>

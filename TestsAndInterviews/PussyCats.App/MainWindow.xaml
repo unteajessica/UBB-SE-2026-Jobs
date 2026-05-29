@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="PussyCats_App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="PussyCats"
+    mc:Ignorable="d">
+
+    <NavigationView x:Name="navView"
+                    SelectionChanged="NavView_SelectionChanged"
+                    BackRequested="NavView_BackRequested"
+                    PaneOpened="NavView_PaneOpened"
+                    PaneClosed="NavView_PaneClosed"
+                    IsBackButtonVisible="Auto"
+                    PaneDisplayMode="Left"
+                    IsSettingsVisible="False">
+
+        <NavigationView.MenuItems>
+            <!-- Candidate -->
+            <NavigationViewItem Content="Browse Jobs"        Tag="UserRecommendationPage"      Icon="Find"/>
+            <NavigationViewItem Content="My Applications"    Tag="UserStatusPage"              Icon="List"/>
+            <NavigationViewItem Content="My Profile"         Tag="UserProfilePage"             Icon="Contact"/>
+            <NavigationViewItem Content="Edit Profile"       Tag="ProfileFormPage"             Icon="Edit"/>
+            <NavigationViewItem Content="Skill Tests"        Tag="TestDashboardPage"           Icon="Permissions"/>
+            <NavigationViewItem Content="Personality Test"   Tag="PersonalityTestPage"         Icon="Favorite"/>
+            <NavigationViewItem Content="Compatibility"      Tag="CompatibilityOverviewPage"   Icon="Filter"/>
+            <NavigationViewItem Content="Documents"          Tag="DocumentsPage"               Icon="Document"/>
+            <NavigationViewItem Content="Export CV"          Tag="ExportCVPage"                Icon="Download"/>
+            <!-- Company (hidden until company mode) -->
+            <NavigationViewItem x:Name="navReviewApplicants"
+                                Content="Review Applicants"  Tag="CompanyRecommendationPage"
+                                Icon="People"                Visibility="Collapsed"/>
+            <NavigationViewItem x:Name="navApplicantStatus"
+                                Content="Applicant Status"   Tag="CompanyStatusPage"
+                                Icon="Accept"                Visibility="Collapsed"/>
+            <!-- Developer -->
+            <NavigationViewItem Content="Developer Hub"       Tag="DeveloperPage"
+                                Icon="Setting"               Visibility="Collapsed"/>
+            <!-- Shared -->
+            <NavigationViewItem Content="Chat"               Tag="ChatPage"                    Icon="Message"/>
+        </NavigationView.MenuItems>
+
+        <NavigationView.FooterMenuItems>
+            <NavigationViewItem Content="Preferences" Tag="PreferencesPage" Icon="Setting"/>
+            <NavigationViewItem Content="Logout" Tag="Logout" Icon="Back"/>
+        </NavigationView.FooterMenuItems>
+
+        <NavigationView.PaneCustomContent>
+            <ComboBox x:Name="modeSelector"
+                      Header="Mode"
+                      Width="180"
+                      Margin="12,8"
+                      SelectionChanged="ModeSelector_SelectionChanged"
+                      ToolTipService.ToolTip="Switch between User, Company, and Developer mode">
+                <ComboBoxItem Content="User" Tag="Candidate"/>
+                <ComboBoxItem Content="Company" Tag="Company"/>
+                <ComboBoxItem Content="Developer" Tag="Developer"/>
+            </ComboBox>
+        </NavigationView.PaneCustomContent>
+
+        <Frame x:Name="contentFrame"/>
+    </NavigationView>
+</Window>

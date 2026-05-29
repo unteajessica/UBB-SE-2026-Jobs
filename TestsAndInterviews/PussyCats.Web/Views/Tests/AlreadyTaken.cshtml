@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Test Already Taken";
+}
+
+<div class="container mt-5 text-center">
+    <div class="alert alert-warning p-5">
+        <h2 class="fw-bold">Already Submitted</h2>
+        <p class="fs-5">You have already completed this test. Your result has been recorded.</p>
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <a asp-controller="Tests" asp-action="Index" class="btn btn-secondary">Return to Dashboard</a>
+            @if (ViewBag.AttemptId != null)
+            {
+                <a asp-controller="TestAttempts" asp-action="Details" asp-route-id="@ViewBag.AttemptId" class="btn btn-primary">View submitted answers</a>
+            }
+            else
+            {
+                <a asp-controller="Tests" asp-action="Index" class="btn btn-primary">View submitted answers</a>
+            }
+        </div>
+    </div>
+</div>

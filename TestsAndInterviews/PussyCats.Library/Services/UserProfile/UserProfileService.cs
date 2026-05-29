@@ -1,0 +1,145 @@
+using System.Text;
+using PussyCats.Library.Domain;
+using PussyCats.Library.Repositories.SkillTests;
+using PussyCats.Library.Repositories.Users;
+using PussyCats.Library.Services.CvParsing;
+
+namespace PussyCats.Library.Services.UserProfileService;
+
+public class UserProfileService : IUserProfileService
+{
+    private readonly IUserRepository userRepository;
+    private readonly ISkillTestRepository skillTestRepository;
+    private readonly ICvParsingService cvParsingService;
+
+    public UserProfileService(IUserRepository userRepository, ISkillTestRepository skillTestRepository)
+        : this(userRepository, skillTestRepository, new CvParsingService())
+    {
+    }
+
+    public UserProfileService(IUserRepository userRepository, ISkillTestRepository skillTestRepository, ICvParsingService cvParsingService)
+    {
+        this.userRepository = userRepository;
+        this.skillTestRepository = skillTestRepository;
+        this.cvParsingService = cvParsingService;
+    }
+
+    public async Task<User?> GetProfileAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<SkillTest>> GetSkillTestsForUserAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await skillTestRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<bool> IsProfileAvailableAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+
+        if (user is null)
+        {
+            throw new Exception($"No profile found for ID {userId}");
+        }
+
+        return user.ActiveAccount;
+    }
+
+    public async Task UpdateAccountStatusAsync(int userId, bool isActive, CancellationToken cancellationToken = default)
+    {
+        await userRepository.UpdateActiveAccountAsync(userId, isActive, cancellationToken).ConfigureAwait(false);
+        await userRepository.TouchLastUpdatedAsync(userId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpdateProfilePicturePathAsync(int userId, string newPath, CancellationToken cancellationToken = default)
+    {
+        await userRepository.UpdateProfilePicturePathAsync(userId, newPath ?? string.Empty, cancellationToken).ConfigureAwait(false);
+        await userRepository.TouchLastUpdatedAsync(userId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task RemoveProfilePicturePathAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        await UpdateProfilePicturePathAsync(userId, string.Empty, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task SaveAsync(int userId, User user, CancellationToken cancellationToken = default)
+    {
+        var existing = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        if (existing is null)
+        {
+            user.UserId = userId;
+            await userRepository.AddAsync(user, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            user.UserId = userId;
+
+            // Always preserve fields that the profile form must not overwrite.
+            user.PasswordHash = existing.PasswordHash;
+            user.ProfilePicturePath = existing.ProfilePicturePath;
+            user.ParsedCv = existing.ParsedCv;
+            user.CurrentLevel = existing.CurrentLevel;
+            user.TotalExperiencePoints = existing.TotalExperiencePoints;
+            user.ActiveAccount = existing.ActiveAccount;
+            user.CreatedAt = existing.CreatedAt;
+
+            // If the client omitted a field (JSON null), fall back to the existing
+            // DB value so we never write NULL into a NOT NULL string column.
+            user.FirstName = user.FirstName ?? existing.FirstName;
+            user.LastName = user.LastName ?? existing.LastName;
+            user.Gender = user.Gender ?? existing.Gender;
+            user.Email = user.Email ?? existing.Email;
+            user.Phone = user.Phone ?? existing.Phone;
+            user.Country = user.Country ?? existing.Country;
+            user.City = user.City ?? existing.City;
+            user.Address = user.Address ?? existing.Address;
+            user.University = user.University ?? existing.University;
+            user.Degree = user.Degree ?? existing.Degree;
+            user.GitHub = user.GitHub ?? existing.GitHub;
+            user.LinkedIn = user.LinkedIn ?? existing.LinkedIn;
+            user.Motivation = user.Motivation ?? existing.Motivation;
+            user.PreferredEmploymentType = user.PreferredEmploymentType ?? existing.PreferredEmploymentType;
+            user.WorkModePreference = user.WorkModePreference ?? existing.WorkModePreference;
+            user.LocationPreference = user.LocationPreference ?? existing.LocationPreference;
+
+            await userRepository.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    public async Task<User> UploadCvAsync(int userId, Stream stream, string fileName, CancellationToken cancellationToken = default)
+    {
+        using var reader = new StreamReader(stream);
+        var content = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+        var fileType = Path.GetExtension(fileName);
+        var parsedUser = cvParsingService.ParseCvFile(content, fileType);
+        await SaveAsync(userId, parsedUser, cancellationToken).ConfigureAwait(false);
+        return parsedUser;
+    }
+
+    public string GenerateParsedCvText(User user)
+    {
+        return Helpers.GenerateParsedCvText(user);
+    }
+
+    public async Task<int> RecalculateLevelAsync(User user, CancellationToken cancellationToken = default)
+    {
+        if (user is null)
+        {
+            return 0;
+        }
+
+        var skillTests = await skillTestRepository.GetByUserIdAsync(user.UserId, cancellationToken).ConfigureAwait(false);
+        int totalExperiencePoints = 0;
+
+        foreach (var skillTest in skillTests)
+        {
+            totalExperiencePoints += SimpleModelOperations.GetExperiencePoints(skillTest);
+        }
+
+        user.TotalExperiencePoints = totalExperiencePoints;
+        user.CurrentLevel = SimpleModelOperations.CalculateLevelNumber(totalExperiencePoints);
+
+        return totalExperiencePoints;
+    }
+}

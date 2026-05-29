@@ -1,0 +1,43 @@
+@model PussyCats.Web.Models.RecommendationFormModel
+@{
+    ViewData["Title"] = "Edit Recommendation";
+    var userOptions = ViewBag.Users as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
+    var jobOptions = ViewBag.Jobs as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
+}
+
+<h1>Edit Recommendation #@Model.RecommendationId</h1>
+
+<form asp-action="Edit" asp-route-id="@Model.RecommendationId" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="RecommendationId" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="UserId" class="form-label"></label>
+        <select asp-for="UserId" asp-items="userOptions" class="form-select" disabled>
+        </select>
+        <input type="hidden" asp-for="UserId" />
+        <small class="form-text text-muted">User can't be changed on an existing recommendation.</small>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="JobId" class="form-label"></label>
+        <select asp-for="JobId" asp-items="jobOptions" class="form-select" disabled>
+        </select>
+        <input type="hidden" asp-for="JobId" />
+        <small class="form-text text-muted">Job can't be changed on an existing recommendation.</small>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Timestamp" class="form-label"></label>
+        <input asp-for="Timestamp" type="datetime-local" class="form-control" />
+        <span asp-validation-for="Timestamp" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

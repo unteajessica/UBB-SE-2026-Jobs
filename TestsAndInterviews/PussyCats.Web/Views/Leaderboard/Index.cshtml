@@ -1,0 +1,88 @@
+﻿@model LeaderboardViewModel
+
+@{
+    ViewData["Title"] = "Leaderboard";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Leaderboard</h2>
+            <div class="text-muted">Test ID: @Model.TestId</div>
+        </div>
+
+        <a asp-controller="Tests"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back to Tests
+        </a>
+    </div>
+
+    @if (Model.CurrentUserEntry != null)
+    {
+        <div class="alert alert-info">
+            Your ranking: <strong>#@Model.CurrentUserEntry.RankPosition</strong>
+            with score <strong>@Model.CurrentUserEntry.NormalizedScore.ToString("0.##")</strong>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            You do not have a leaderboard entry for this test yet.
+        </div>
+    }
+
+    <div class="row mb-4">
+        @foreach (var entry in Model.TopEntries)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">#@entry.RankPosition</h5>
+                        <div class="mb-2">User ID: @entry.UserId</div>
+                        <div class="fw-bold">Score: @entry.NormalizedScore.ToString("0.##")</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.Entries.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4 class="mb-3">Full Ranking</h4>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>User ID</th>
+                            <th>Score</th>
+                            <th>Tie Break</th>
+                            <th>Last Recalculated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var entry in Model.Entries)
+                        {
+                            <tr>
+                                <td>@entry.RankPosition</td>
+                                <td>@entry.UserId</td>
+                                <td>@entry.NormalizedScore.ToString("0.##")</td>
+                                <td>@entry.TieBreakPriority</td>
+                                <td>@entry.LastRecalculationAt.ToString("g")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-secondary">
+            No leaderboard entries found for this test.
+        </div>
+    }
+</div>

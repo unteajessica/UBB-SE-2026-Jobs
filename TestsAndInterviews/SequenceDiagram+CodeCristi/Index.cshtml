@@ -1,0 +1,54 @@
+@using PussyCats.Library.Domain.Enums
+@model IEnumerable<PussyCats.Library.Domain.Match>
+@{
+    ViewData["Title"] = "Applicants";
+}
+
+@functions {
+    private static bool CanEditDecision(MatchStatus status) => status is MatchStatus.Applied or MatchStatus.Advanced;
+
+    private static string StatusBadgeClass(MatchStatus status) => status switch
+    {
+        MatchStatus.Accepted => "bg-success",
+        MatchStatus.Rejected => "bg-danger",
+        MatchStatus.Advanced => "bg-info text-dark",
+        _ => "bg-secondary",
+    };
+}
+
+<h1>Applicants</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Applicant</th>
+            <th>Job</th>
+            <th>Company</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th>Feedback</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.User?.Name</td>
+                <td>@item.Job?.JobTitle</td>
+                <td>@item.Job?.Company?.CompanyName</td>
+                <td><span class="badge @StatusBadgeClass(item.Status)">@item.Status</span></td>
+                <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(string.IsNullOrWhiteSpace(item.FeedbackMessage) ? "-" : item.FeedbackMessage)</td>
+                <td class="text-nowrap">
+                    <a asp-action="Details" asp-route-id="@item.MatchId">Details</a>
+                    @if (CanEditDecision(item.Status))
+                    {
+                        <span>|</span>
+                        <a asp-action="Decision" asp-route-id="@item.MatchId">Decide</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PussyCats.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "PussyCats.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

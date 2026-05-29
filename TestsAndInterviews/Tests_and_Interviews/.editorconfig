@@ -1,0 +1,73 @@
+# NOTE: Requires **VS2019 16.3** or later
+
+# StyleCop.Analyzers rules with default action
+# Description: StyleCop.Analyzers with default action. Rules with IsEnabledByDefault = false are disabled.
+
+# Code files
+[*.{cs,vb}]
+
+dotnet_analyzer_diagnostic.severity = none
+
+dotnet_diagnostic.SA0001.severity = warning
+
+dotnet_diagnostic.SA0002.severity = warning
+
+dotnet_diagnostic.SA1000.severity = warning
+
+dotnet_diagnostic.SA1001.severity = warning
+
+dotnet_diagnostic.SA1002.severity = warning
+
+dotnet_diagnostic.SA1003.severity = warning
+
+dotnet_diagnostic.SA1005.severity = warning
+
+dotnet_diagnostic.SA1102.severity = warning
+
+dotnet_diagnostic.SA1106.severity = warning
+
+dotnet_diagnostic.SA1107.severity = warning
+
+dotnet_diagnostic.SA1110.severity = warning
+
+dotnet_diagnostic.SA1111.severity = warning
+
+dotnet_diagnostic.SA1112.severity = warning
+
+dotnet_diagnostic.SA1113.severity = warning
+
+dotnet_diagnostic.SA1114.severity = warning
+
+dotnet_diagnostic.SA1115.severity = warning
+
+dotnet_diagnostic.SA1120.severity = warning
+
+dotnet_diagnostic.SA1121.severity = warning
+
+dotnet_diagnostic.SA1125.severity = warning
+
+dotnet_diagnostic.SA1132.severity = warning
+
+dotnet_diagnostic.SA1136.severity = warning
+
+dotnet_diagnostic.SA1300.severity = warning
+
+dotnet_diagnostic.SA1302.severity = warning
+
+dotnet_diagnostic.SA1303.severity = warning
+
+dotnet_diagnostic.SA1304.severity = warning
+
+dotnet_diagnostic.SA1306.severity = warning
+
+dotnet_diagnostic.SA1307.severity = warning
+
+dotnet_diagnostic.SA1308.severity = warning
+
+dotnet_diagnostic.SA1309.severity = warning
+
+dotnet_diagnostic.SA1311.severity = warning
+
+dotnet_diagnostic.SA1312.severity = warning
+
+dotnet_diagnostic.SA1313.severity = warning

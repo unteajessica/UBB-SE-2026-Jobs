@@ -1,0 +1,35 @@
+Naming Rules:
+1. Element should begin with upper-case letter
+2. Interface names should begin with I
+3. Const field names should begin with upper-case letter
+4. Non-private readonly fields should begin with upper-case letter
+5. Field names should begin with lower-case letter
+6. Accessible fields should begin with upper-case letter
+7. Variable names should not be prefixed
+8. Field names should not begin with underscore
+9. Static readonly fields should begin with upper-case letter
+10. Variable names should begin with lower-case letter
+11. Parameter names should begin with lower-case letter
+
+Readability Rules:
+1. Query clause should follow previous clause
+2. Code should not contain empty statements
+3. Code should not contain multiple statements on one line
+4. Opening parenthesis or bracket should be on declaration line
+5. Closing parenthesis should be on line of last parameter
+6. Closing parenthesis should be on line of opening parenthesis
+7. Comma should be on the same line as previous parameter
+8. Parameter list should follow declaration
+9. Parameter should follow comma
+10. Comments should contain text
+11. Use built-in type alias
+12. Use shorthand for nullable types
+13. Do not combine fields
+14. Enum values should be on separate lines
+
+Spacing Rules:
+1. Keywords should be spaced correctly
+2. Commas should be spaced correctly
+3. Semicolons should be spaced correctly
+4. Symbols should be spaced correctly
+5. Single line comments should begin with single space
