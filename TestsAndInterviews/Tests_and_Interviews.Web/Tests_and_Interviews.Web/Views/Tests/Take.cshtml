@@ -1,0 +1,96 @@
+﻿@model Tests_and_Interviews.Web.Models.TakeTestViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Take Test - " + Model.Title;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4">@Model.Title</h2>
+
+            <div asp-validation-summary="All" class="text-danger fw-bold mb-3"></div>
+
+            <form asp-action="Submit" method="post">
+                <input type="hidden" asp-for="TestId" />
+
+                @if (Model.Questions != null && Model.Questions.Count > 0)
+                {
+                    foreach (var question in Model.Questions)
+                    {
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">@question.QuestionText</h5>
+                            </div>
+                            <div class="card-body">
+                                @{
+                                    List<string> options = new List<string>();
+                                    if (!string.IsNullOrEmpty(question.OptionsJson))
+                                    {
+                                        try
+                                        {
+                                            options = JsonSerializer.Deserialize<List<string>>(question.OptionsJson) ?? new List<string>();
+                                        }
+                                        catch
+                                        {
+                                        }
+                                    }
+                                }
+
+                                @switch (question.QuestionType)
+                                {
+                                    case "TRUE_FALSE":
+                                        options = new List<string> { "true", "false" };
+                                        for (int i = 0; i < options.Count; i++)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="Answers[@question.Id]" value="@options[i]" id="q_@(question.Id)_@i">
+                                                <label class="form-check-label" for="q_@(question.Id)_@i">@(char.ToUpper(options[i][0]) + options[i].Substring(1))</label>
+                                            </div>
+                                        }
+                                        break;
+
+                                    case "SINGLE_CHOICE":
+                                        for (int i = 0; i < options.Count; i++)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="Answers[@question.Id]" value="@i" id="q_@(question.Id)_@i">
+                                                <label class="form-check-label" for="q_@(question.Id)_@i">@options[i]</label>
+                                            </div>
+                                        }
+                                        break;
+
+                                    case "MULTIPLE_CHOICE":
+                                        for (int i = 0; i < options.Count; i++)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="Answers[@question.Id]" value="@i" id="q_@(question.Id)_@i">
+                                                <label class="form-check-label" for="q_@(question.Id)_@i">@options[i]</label>
+                                            </div>
+                                        }
+                                        break;
+
+                                    case "TEXT":
+                                    default:
+                                        <textarea class="form-control" name="Answers[@question.Id]" rows="3"></textarea>
+                                        break;
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        This test currently has no questions assigned to it.
+                    </div>
+                }
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit Test</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

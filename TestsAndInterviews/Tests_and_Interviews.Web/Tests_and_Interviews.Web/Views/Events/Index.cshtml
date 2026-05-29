@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Events";
+    var currentEvents = ViewBag.CurrentEvents as List<Tests_and_Interviews.Web.Dtos.EventDto> ?? new List<Tests_and_Interviews.Web.Dtos.EventDto>();
+    var pastEvents = ViewBag.PastEvents as List<Tests_and_Interviews.Web.Dtos.EventDto> ?? new List<Tests_and_Interviews.Web.Dtos.EventDto>();
+}
+
+@if (User.IsInRole("Recruiter") || User.IsInRole("Admin"))
+{
+    <a asp-action="Create" class="btn btn-success mb-3">+ Create New Event</a>
+}
+
+<h2>Current Events</h2>
+
+@if (!currentEvents.Any())
+{
+    <p>No current events found.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var ev in currentEvents)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@ev.Title</h5>
+                        <p class="card-text">@ev.Location</p>
+                        <p class="card-text">@ev.StartDate.ToShortDateString() - @ev.EndDate.ToShortDateString()</p>
+                        <a asp-action="Details" asp-route-id="@ev.Id" class="btn btn-primary">View Details</a>
+                        @if (User.IsInRole("Recruiter") || User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@ev.Id" class="btn btn-warning">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@ev.Id" class="btn btn-danger">Delete</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<h2 class="mt-4">Past Events</h2>
+
+@if (!pastEvents.Any())
+{
+    <p>No past events found.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var ev in pastEvents)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@ev.Title</h5>
+                        <p class="card-text">@ev.Location</p>
+                        <p class="card-text">@ev.StartDate.ToShortDateString() - @ev.EndDate.ToShortDateString()</p>
+                        <a asp-action="Details" asp-route-id="@ev.Id" class="btn btn-primary">View Details</a>
+                        @if (User.IsInRole("Recruiter") || User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@ev.Id" class="btn btn-warning">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@ev.Id" class="btn btn-danger">Delete</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

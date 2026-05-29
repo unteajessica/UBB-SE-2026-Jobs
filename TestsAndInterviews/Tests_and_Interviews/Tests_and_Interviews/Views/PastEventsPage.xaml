@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Tests_and_Interviews.Views.PastEventsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Tests_and_Interviews.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Tests_and_Interviews.Models"
+    xmlns:converters="using:Tests_and_Interviews.Helpers"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:Base64ToImageSourceConverter x:Key="Base64ToImageSourceConverter" />
+    </Page.Resources>
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="40">
+                <Button Content="Back" Click="NavigateBack_Click"></Button>
+
+                <ListView ItemsSource="{Binding PastEventsCollection}" Margin="0, 40, 0, 0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Event">
+                            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Margin="0,0,0,10" Padding="10">
+                                <Grid ColumnDefinitions="80,*">
+                                    <Border Width="60" Height="60" CornerRadius="5">
+                                        <Image
+                                        Source="{Binding Photo, Converter={StaticResource Base64ToImageSourceConverter}}"
+                                        Width="60"
+                                        Height="60"
+                                        Stretch="UniformToFill" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="16"/>
+                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Location}" FontStyle="Italic"/>
+                                        <TextBlock Text="{Binding StartDate}" />
+                                        <TextBlock Text="{Binding EndDate}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</Page>

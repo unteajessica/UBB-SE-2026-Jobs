@@ -1,0 +1,33 @@
+﻿@model Tests_and_Interviews.Web.Dtos.EventDto
+
+@{
+    ViewData["Title"] = "Edit Event";
+}
+
+<h2>Edit Event</h2>
+
+<form method="post">
+    <input asp-for="Id" type="hidden" />
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Location</label>
+        <input asp-for="Location" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Start Date</label>
+        <input asp-for="StartDate" type="date" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">End Date</label>
+        <input asp-for="EndDate" type="date" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

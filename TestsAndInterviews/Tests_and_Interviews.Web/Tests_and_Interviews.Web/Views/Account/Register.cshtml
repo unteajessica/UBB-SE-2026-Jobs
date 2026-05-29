@@ -1,0 +1,100 @@
+@model Tests_and_Interviews.Web.ViewModels.RegisterViewModel
+@using Tests_and_Interviews.Web.Dtos;
+
+@{
+    ViewData["Title"] = "Register";
+    var companies = (List<CompanyDto>?)ViewData["Companies"] ?? new List<CompanyDto>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm mt-5">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-4">Create Account</h2>
+
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter your name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" placeholder="Enter your password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label"></label>
+                        <select asp-for="Role" class="form-select" id="roleSelect">
+                            <option value="Candidate">Candidate</option>
+                            <option value="Recruiter">Recruiter</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3" id="companyContainer" style="display: none;">
+                        <label asp-for="CompanyId" class="form-label">Company</label>
+                        <select asp-for="CompanyId" class="form-select" id="companySelect">
+                            <option value="">-- Select a company --</option>
+                            @foreach (var company in companies)
+                            {
+                                <option value="@company.CompanyId">@company.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CompanyId" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
+
+                    <div class="text-center">
+                        <span>Already have an account?</span>
+                        <a asp-action="Login">Login here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('roleSelect');
+            const companyContainer = document.getElementById('companyContainer');
+            const companySelect = document.getElementById('companySelect');
+
+            // Toggle company dropdown visibility based on role selection
+            roleSelect.addEventListener('change', function() {
+                if (this.value === 'Recruiter') {
+                    companyContainer.style.display = 'block';
+                } else {
+                    companyContainer.style.display = 'none';
+                    companySelect.value = '';
+                }
+            });
+
+            // Check initial role
+            if (roleSelect.value === 'Recruiter') {
+                companyContainer.style.display = 'block';
+            }
+        });
+    </script>
+}

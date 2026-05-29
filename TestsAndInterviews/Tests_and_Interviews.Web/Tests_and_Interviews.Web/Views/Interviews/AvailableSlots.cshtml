@@ -1,0 +1,102 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<Tests_and_Interviews.Web.Dtos.SlotDto>
+
+@{
+    ViewData["Title"] = "Available Interview Slots";
+    int recruiterId = (int)ViewBag.RecruiterId;
+    DateTime selectedDate = (DateTime)ViewBag.SelectedDate;
+}
+
+<div class="container py-4">
+
+    <div class="mb-4 pb-3 border-bottom">
+        <h2 class="fw-bold text-dark">Available Interview Slots</h2>
+        <div class="text-muted small">Browse and book an interview slot with a recruiter.</div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form method="get" asp-action="AvailableSlots" asp-controller="Interviews" class="row g-3 align-items-end mb-4">
+        <input type="hidden" name="recruiterId" value="@recruiterId" />
+        <div class="col-auto">
+            <label class="form-label fw-semibold">Date</label>
+            <input type="date"
+                   name="date"
+                   class="form-control"
+                   value="@selectedDate.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="p-4 rounded text-center" style="background:#F0EEFF;">
+            <p class="text-muted mb-0">No available slots for this date. Try a different date.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var slot in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100" style="border-radius:16px;">
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="rounded-pill px-3 py-1 text-white fw-semibold small"
+                                      style="background:#8494FF;">
+                                    @slot.InterviewType
+                                </span>
+                                <span class="ms-auto badge bg-success">@(slot.Status == 0 ? "Available" : "Occupied")</span>
+                            </div>
+
+                            <h5 class="fw-semibold mb-1">@slot.TimeRange</h5>
+                            <p class="text-muted small mb-3">
+                                @slot.StartTime.ToString("dddd, dd MMM yyyy")
+                            </p>
+
+                            <dl class="row small mb-3">
+                                <dt class="col-6 text-muted">Duration</dt>
+                                <dd class="col-6">@slot.Duration min</dd>
+                            </dl>
+
+                            <form method="post"
+                                  asp-action="BookSlot"
+                                  asp-controller="Interviews">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="slotId" value="@slot.Id" />
+                                <input type="hidden" name="recruiterId" value="@recruiterId" />
+                                <button type="submit" class="btn btn-primary w-100">
+                                    Book This Slot
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>

@@ -1,0 +1,70 @@
+@using Tests_and_Interviews_API.Dtos
+@model List<JobPostingDto>
+
+@{
+    ViewData["Title"] = "Jobs";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Job Postings</h1>
+    @if (User.IsInRole("Recruiter"))
+    {
+        <a asp-action="Create" class="btn btn-primary">+ Post a Job</a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No job postings available at the moment.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var job in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@job.JobTitle</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@job.IndustryField</h6>
+                        <p class="card-text text-truncate">@job.JobDescription</p>
+                        <ul class="list-unstyled small text-muted mb-3">
+                            <li><strong>Type:</strong> @job.JobType</li>
+                            <li><strong>Level:</strong> @job.ExperienceLevel</li>
+                            <li><strong>Location:</strong> @job.JobLocation</li>
+                            @if (job.Salary.HasValue)
+                            {
+                                <li><strong>Salary:</strong> @job.Salary.Value.ToString("N0") RON</li>
+                            }
+                            @if (job.Deadline.HasValue)
+                            {
+                                <li><strong>Deadline:</strong> @job.Deadline.Value.ToString("dd MMM yyyy")</li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a asp-action="Details" asp-route-id="@job.JobId"
+                           class="btn btn-outline-primary btn-sm">View Details</a>
+                        @if (User.IsInRole("Recruiter"))
+                        {
+                            <div class="d-flex gap-2">
+                                <a asp-action="Edit" asp-route-id="@job.JobId"
+                                   class="btn btn-outline-secondary btn-sm">Edit</a>
+
+                                <a asp-action="Delete" asp-route-id="@job.JobId"
+                                   class="btn btn-outline-danger btn-sm">Delete</a>
+
+                                <a asp-controller="Payment"
+                                   asp-action="Index"
+                                   asp-route-jobId="@job.JobId"
+                                   class="btn btn-success btn-sm">
+                                    Pay
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

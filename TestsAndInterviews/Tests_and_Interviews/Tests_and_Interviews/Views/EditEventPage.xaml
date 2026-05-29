@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Tests_and_Interviews.Views.EditEventPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Tests_and_Interviews.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="40">
+                <Button Content="Back" Click="NavigateBack_Click"></Button>
+                
+                <TextBox 
+                    x:Name="TitleBox"
+                    Header="* Enter event title:" 
+                    PlaceholderText="Title"
+                    Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=Explicit}"
+                    LostFocus="Title_LostFocus"
+                />
+                <TextBlock 
+                    Foreground="Red"
+                    FontSize="12"
+                    Text="{Binding TitleError, Mode=OneWay}"
+                />
+
+                <TextBox 
+                    x:Name="DescriptionBox"
+                    Header="Enter event description:" 
+                    PlaceholderText="Description"
+                    Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=Explicit}"
+                    LostFocus="Description_LostFocus"
+                />
+                <TextBlock 
+                    Foreground="Red"
+                    FontSize="12"
+                    Text="{Binding DescriptionError, Mode=OneWay}"
+                />
+
+                <CalendarDatePicker 
+                    x:Name="StartDatePicker"
+                    PlaceholderText="Pick a start date" 
+                    Header="Start date" 
+                    Date="{Binding StartDate, Mode=TwoWay}"
+                    DateChanged="StartDatePicker_DateChanged"
+                />
+                <TextBlock 
+                    Foreground="Red"
+                    FontSize="12"
+                    Text="{Binding StartDateError, Mode=OneWay}"
+                />
+
+                <CalendarDatePicker 
+                    x:Name="EndDatePicker"
+                    PlaceholderText="Pick a end date" 
+                    Header="End date" 
+                    Date="{Binding EndDate, Mode=TwoWay}"
+                    DateChanged="EndDatePicker_DateChanged"
+                />
+                <TextBlock 
+                    Foreground="Red"
+                    FontSize="12"
+                    Text="{Binding EndDateError, Mode=OneWay}"
+                />
+
+                <TextBox 
+                    x:Name="LocationBox"
+                    Header="Enter your location:" 
+                    PlaceholderText="Location"
+                    Text="{Binding Location, Mode=TwoWay, UpdateSourceTrigger=Explicit}"
+                    LostFocus="Location_LostFocus"
+                />
+                <TextBlock 
+                    Foreground="Red"
+                    FontSize="12"
+                    Text="{Binding LocationError, Mode=OneWay}"
+                />
+
+                <Button 
+                    Content="SAVE" Click="SaveEvent_Click"></Button>
+                <TextBlock
+                    Foreground="Red"
+                    FontSize="12"
+                    Text="{Binding AddError, Mode=OneWay}"
+                />
+
+                <Button Content="CANCEL" Click="CancelChanges_Click"></Button>
+                <Button Content="DELETE" Click="DeleteEvent_Click"></Button>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

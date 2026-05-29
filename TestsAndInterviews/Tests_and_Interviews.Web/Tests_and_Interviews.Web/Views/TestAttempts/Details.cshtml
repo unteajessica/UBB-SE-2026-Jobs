@@ -1,0 +1,48 @@
+@model Tests_and_Interviews.Web.Dtos.TestAttemptDto
+
+@{
+    ViewData["Title"] = "Test Attempt";
+}
+
+<div class="container mt-4">
+    <h2>Test Attempt #@Model.Id</h2>
+
+    <div class="mb-3">
+        <h5>Answers</h5>
+
+        <form asp-action="SaveAnswers" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="attemptId" value="@Model.Id" />
+
+            @if (Model.Answers != null && Model.Answers.Any())
+            {
+                <div class="list-group">
+                    @for (int i = 0; i < Model.Answers.Count; i++)
+                    {
+                        var a = Model.Answers[i];
+                        <div class="list-group-item">
+                            <input type="hidden" name="answers[@i].QuestionId" value="@a.QuestionId" />
+                            <input type="hidden" name="answers[@i].AttemptId" value="@a.AttemptId" />
+
+                            <div class="mb-2">
+                                <label class="form-label">Question</label>
+                                <div class="text-muted">@((a.Question != null && !string.IsNullOrEmpty(a.Question.QuestionText)) ? a.Question.QuestionText : $"Question #{a.QuestionId}")</div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label asp-for="Answers[@i].Value" class="form-label">Your answer</label>
+                                <input class="form-control" name="answers[@i].Value" value="@a.Value" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Save button removed to prevent editing submissions from this view -->
+            }
+            else
+            {
+                <div class="text-muted">No questions or answers available.</div>
+            }
+        </form>
+    </div>
+</div>

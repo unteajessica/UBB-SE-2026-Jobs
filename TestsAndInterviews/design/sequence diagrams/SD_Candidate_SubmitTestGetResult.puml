@@ -1,0 +1,67 @@
+@startuml
+skinparam maxMessageSize 150
+autonumber
+
+actor Candidate
+participant "Web MVC\n(TestsController)" as Web
+participant "Web Client\n(TestsApiClient)" as Client
+participant "Grading API\n(GradingController)" as Grading
+participant "Answers API\n(AnswersController)" as Answers
+participant "Attempts API\n(TestAttemptsController)" as Attempts
+database "SQL Database" as DB
+
+Candidate -> Web: Clicks "Submit Test" (TakeTestViewModel)
+activate Web
+
+Web -> Web: Validate no blank answers
+
+loop For each answered question
+    Web -> Client: GradeAnswerAsync(QuestionType, Payload)
+    activate Client
+    Client -> Grading: POST api/grading/{question-type}
+    activate Grading
+    Grading --> Client: Graded Answer (e.g. "CORRECT:2.0")
+    deactivate Grading
+    Client --> Web: AnswerDto
+    deactivate Client
+
+    Web -> Client: SaveAnswerAsync(AnswerDto)
+    activate Client
+    Client -> Answers: POST api/answers
+    activate Answers
+    Answers -> DB: Insert Answer row
+    Answers --> Client: 200 OK
+    deactivate Answers
+    Client --> Web: Success
+    deactivate Client
+end
+
+Web -> Client: CalculateFinalScoreAsync(Answers)
+activate Client
+Client -> Grading: POST api/grading/final-score
+activate Grading
+Grading --> Client: Raw Score (float)
+deactivate Grading
+Client --> Web: Score
+deactivate Client
+
+Web -> Web: Calculate max possible score
+
+Web -> Client: UpdateAttemptAsync(attemptId, AttemptDto)
+activate Client
+Client -> Attempts: PUT api/testattempts/{id}
+note right
+  Sets Status = "COMPLETED"
+  Sets Score = Raw Score
+end note
+activate Attempts
+Attempts -> DB: Update TestAttempt row
+Attempts --> Client: 200 OK
+deactivate Attempts
+Client --> Web: Success
+deactivate Client
+
+Web --> Candidate: Redirect to Result.cshtml (Score / Max Score)
+deactivate Web
+
+@enduml
