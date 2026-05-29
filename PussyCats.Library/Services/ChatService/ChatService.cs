@@ -114,7 +114,7 @@ public class ChatService : IChatService
 
         var companies = await companyService.GetAllAsync(cancellationToken).ConfigureAwait(false);
         return companies
-            .Where(company => company.CompanyName.Contains(companyNameSearchTerm, StringComparison.OrdinalIgnoreCase))
+            .Where(company => company.Name.Contains(companyNameSearchTerm, StringComparison.OrdinalIgnoreCase))
             .Take(MaxSearchResults)
             .ToList();
     }

@@ -1,11 +1,11 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.UserProfileService;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Candidate")]
 public class ExportCVController : Controller
 {
     private readonly IUserProfileService userProfile;

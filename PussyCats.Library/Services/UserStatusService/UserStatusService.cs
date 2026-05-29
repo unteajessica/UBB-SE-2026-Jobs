@@ -57,7 +57,7 @@ public class UserStatusService : IUserStatusService
             {
                 MatchId = match.MatchId,
                 JobId = match.Job.JobId,
-                CompanyName = company?.CompanyName ?? "Unknown Company",
+                CompanyName = company?.Name ?? "Unknown Company",
                 JobDescription = job.JobDescription,
                 AppliedDate = match.Timestamp,
                 Status = match.Status,

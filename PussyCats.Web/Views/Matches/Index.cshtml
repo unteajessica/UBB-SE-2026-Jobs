@@ -36,7 +36,7 @@
             <tr>
                 <td>@item.User?.Name</td>
                 <td>@item.Job?.JobTitle</td>
-                <td>@item.Job?.Company?.CompanyName</td>
+                <td>@item.Job?.Company?.Name</td>
                 <td><span class="badge @StatusBadgeClass(item.Status)">@item.Status</span></td>
                 <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@(string.IsNullOrWhiteSpace(item.FeedbackMessage) ? "-" : item.FeedbackMessage)</td>

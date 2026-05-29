@@ -215,7 +215,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
     {
         if (filters.EmploymentTypes.Count > 0)
         {
-            if (!filters.EmploymentTypes.Contains(job.EmploymentType))
+            if (!filters.EmploymentTypes.Contains(job.JobType))
             {
                 return false;
             }
@@ -232,7 +232,7 @@ public sealed class UserRecommendationService : IUserRecommendationService
 
         if (!string.IsNullOrWhiteSpace(filters.LocationSubstring))
         {
-            if (job.Location.IndexOf(filters.LocationSubstring.Trim(), StringComparison.OrdinalIgnoreCase) < 0)
+            if ((job.JobLocation ?? string.Empty).IndexOf(filters.LocationSubstring.Trim(), StringComparison.OrdinalIgnoreCase) < 0)
             {
                 return false;
             }

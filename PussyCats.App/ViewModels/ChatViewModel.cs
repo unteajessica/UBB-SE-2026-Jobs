@@ -1174,7 +1174,7 @@ public sealed class ContactSearchResultViewModel
 
     public static ContactSearchResultViewModel ForCompany(Company company)
     {
-        return new ContactSearchResultViewModel(ContactSearchResultKind.Company, company.CompanyId, company.CompanyName, "Company", null);
+        return new ContactSearchResultViewModel(ContactSearchResultKind.Company, company.CompanyId, company.Name, "Company", null);
     }
 
     public static ContactSearchResultViewModel ForUser(User user)
@@ -1205,7 +1205,7 @@ internal static class ChatDisplayNameResolver
 
         if (chat.Company!=null)
         {
-            return chat.Company?.CompanyName ?? $"Company {chat.Company.CompanyId}";
+            return chat.Company?.Name ?? $"Company {chat.Company.CompanyId}";
         }
 
         return chat.User.Name;

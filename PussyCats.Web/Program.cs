@@ -25,8 +25,10 @@ using PussyCats.Library.Services.UserSkillService;
 using PussyCats.Library.Services.UserStatusService;
 using PussyCats.Library.Services.Auth;
 using PussyCats.Library.ServiceProxies;
+using PussyCats.Web.Clients;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.Infrastructure;
+using PussyCats.Web.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,7 +66,15 @@ builder.Services
         options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
         options.SlidingExpiration = true;
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CandidateOnly",   p => p.RequireRole("Candidate"));
+    options.AddPolicy("RecruiterOnly",   p => p.RequireRole("Recruiter"));
+    options.AddPolicy("AdminOnly",       p => p.RequireRole("Admin"));
+    options.AddPolicy("RecruiterOrAdmin",p => p.RequireRole("Recruiter", "Admin"));
+    options.AddPolicy("CandidateOrAdmin",p => p.RequireRole("Candidate", "Admin"));
+    options.AddPolicy("AuthenticatedUser",p => p.RequireAuthenticatedUser());
+});
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -103,6 +113,23 @@ builder.Services.AddHttpClient<IUserSkillService, UserSkillServiceProxy>(client 
 {
     client.BaseAddress = new Uri(apiConfig.BaseUrl);
 }).AddHttpMessageHandler<JwtForwardingHandler>();
+
+// ── Tests & Interviews API clients ───────────────────────────────────────────
+const string tiApiUrl = "http://localhost:5179/";
+builder.Services.AddHttpClient<ITiAuthService, TiAuthService>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<TestsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<JobsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<ApplicantsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<QuestionsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<AnswersApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<SlotsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<LeaderboardApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<TestAttemptsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<EventsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<PaymentApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<InterviewSessionsApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+builder.Services.AddHttpClient<UsersApiClient>(c => c.BaseAddress = new Uri(tiApiUrl));
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

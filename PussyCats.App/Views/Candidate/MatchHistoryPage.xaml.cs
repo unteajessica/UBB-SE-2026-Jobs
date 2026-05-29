@@ -31,8 +31,8 @@ public sealed partial class MatchHistoryPage : Page
         MatchesListView.ItemsSource = viewModel.GetMatches()
             .Select(match => new
             {
-                CompanyName = match.Job?.Company?.CompanyName ?? "Unknown Company",
-                JobRole     = match.Job is not null ? ViewModelSupport.FormatJobRole(match.Job.JobRole) : string.Empty,
+                CompanyName = match.Job?.Company?.Name ?? "Unknown Company",
+                JobRole     = match.Job is not null ? ViewModelSupport.FormatJobRole(match.Job.JobRole.GetValueOrDefault()) : string.Empty,
                 MatchDate   = match.Timestamp.ToString("dd MMM yyyy"),
             }).ToList();
 

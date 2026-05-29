@@ -8,7 +8,7 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Candidate")]
 public class PersonalityTestController : Controller
 {
     private readonly IPersonalityTestService service;

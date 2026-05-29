@@ -6,6 +6,10 @@
 <h1 class="text-danger">Error.</h1>
 <h2 class="text-danger">An error occurred while processing your request.</h2>
 
+<a asp-controller="Home" asp-action="SwitchMode" class="btn btn-primary mb-3">
+    &larr; Back to Home
+</a>
+
 @if (Model.ShowRequestId)
 {
     <p>

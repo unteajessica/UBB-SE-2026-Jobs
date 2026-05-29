@@ -218,7 +218,7 @@ public sealed partial class ChatPage : Page
         var model = new ApplicationCardModel
         {
             JobId = job.JobId,
-            CompanyName = job.Company?.CompanyName ?? string.Empty,
+            CompanyName = job.Company?.Name ?? string.Empty,
             JobDescription = job.JobDescription,
             AppliedDate = DateTime.Now,
             Status = MatchStatus.Applied,

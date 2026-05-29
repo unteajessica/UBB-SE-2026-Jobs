@@ -88,7 +88,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <h2 class="h3 fw-bold mb-1">@Model.Company.CompanyName</h2>
+                        <h2 class="h3 fw-bold mb-1">@Model.Company.Name</h2>
                         <h3 class="h5 text-secondary">@Model.JobTitleLine</h3>
                         <p class="text-muted small"><i class="bi bi-geo-alt"></i> @Model.LocationEmploymentLine</p>
                     </div>
@@ -145,12 +145,10 @@
                             <div class="d-flex align-items-center">
                                 <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
                                      style="width: 48px; height: 48px; font-size: 1.1rem;">
-                                    @(string.IsNullOrWhiteSpace(Model.Company.LogoText)
-                                        ? (Model.Company.CompanyName.Length > 0 ? Model.Company.CompanyName[..1].ToUpper() : "?")
-                                        : Model.Company.LogoText)
+                                    @(Model.Company.Name.Length > 0 ? Model.Company.Name[..1].ToUpper() : "?")
                                 </div>
                                 <div class="ms-3">
-                                    <h4 class="h5 fw-bold mb-0">@Model.Company.CompanyName</h4>
+                                    <h4 class="h5 fw-bold mb-0">@Model.Company.Name</h4>
                                     <p class="text-muted mb-0 small">@Model.JobTitleLine</p>
                                 </div>
                             </div>

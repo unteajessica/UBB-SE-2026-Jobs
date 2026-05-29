@@ -156,10 +156,8 @@ public sealed partial class UserRecommendationPage : Page
         var job = viewModel.CurrentJob;
         if (job is null) return;
 
-        var name = job.Company.CompanyName;
-        CardCompanyInitial.Text   = string.IsNullOrWhiteSpace(job.Company.LogoText)
-            ? (name.Length > 0 ? name[..1].ToUpperInvariant() : "?")
-            : job.Company.LogoText;
+        var name = job.Company.Name;
+        CardCompanyInitial.Text   = name.Length > 0 ? name[..1].ToUpperInvariant() : "?";
         CardCompanyNameText.Text  = name;
         CardJobTitleText.Text     = job.JobTitleLine;
         CardMatchScoreText.Text   = $"{job.CompatibilityScore:F0}%";
@@ -175,7 +173,7 @@ public sealed partial class UserRecommendationPage : Page
         if (job is null) return;
 
         ExpandedMatchScoreText.Text  = $"{job.CompatibilityScore:F0}% Match";
-        ExpandedCompanyText.Text     = job.Company.CompanyName;
+        ExpandedCompanyText.Text     = job.Company.Name;
         ExpandedJobTitleText.Text    = job.JobTitleLine;
         ExpandedLocationText.Text    = job.LocationEmploymentLine;
         ExpandedJobDescriptionText.Text = job.Job.JobDescription;

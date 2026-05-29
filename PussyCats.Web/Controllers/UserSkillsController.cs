@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.UserSkillService;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Candidate")]
 public class UserSkillsController : Controller
 {
     private readonly IUserSkillService service;

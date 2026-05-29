@@ -1,0 +1,38 @@
+﻿@model PussyCats.Web.Dtos.QuestionDto
+
+@{
+    ViewData["Title"] = "Question Details";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold mb-3">Question Details</h2>
+
+    <div class="card p-4 shadow-sm">
+        <dl class="row">
+            <dt class="col-sm-3">Question</dt>
+            <dd class="col-sm-9">@Model.QuestionText</dd>
+
+            <dt class="col-sm-3">Type</dt>
+            <dd class="col-sm-9">@Model.QuestionType</dd>
+
+            <dt class="col-sm-3">Score</dt>
+            <dd class="col-sm-9">@Model.QuestionScore</dd>
+
+            <dt class="col-sm-3">Answer</dt>
+            <dd class="col-sm-9">@Model.QuestionAnswer</dd>
+
+            <dt class="col-sm-3">Options JSON</dt>
+            <dd class="col-sm-9"><pre>@Model.OptionsJson</pre></dd>
+        </dl>
+
+        <div class="d-flex gap-2 mt-3">
+            @if (User.IsInRole("Recruiter") || User.IsInRole("Admin")) {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+            }
+
+            <a asp-action="Index" asp-route-testId="@Model.TestId" class="btn btn-secondary ms-auto">Back to Questions</a>
+        </div>
+    </div>
+</div>
+

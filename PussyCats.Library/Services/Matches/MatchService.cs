@@ -228,7 +228,7 @@ public class MatchService : IMatchService
                 continue;
             }
 
-            string position = GetPositionKey(match.Job.JobRole);
+            string position = GetPositionKey(match.Job.JobRole.GetValueOrDefault());
 
             if (positionCounts.ContainsKey(position))
             {

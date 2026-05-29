@@ -22,7 +22,7 @@
             <tr>
                 <td>@item.User.FirstName @item.User.LastName</td>
                 <td>@item.Job.JobTitle</td>
-                <td>@item.Job.Company?.CompanyName</td>
+                <td>@item.Job.Company?.Name</td>
                 <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.RecommendationId">Details</a> |

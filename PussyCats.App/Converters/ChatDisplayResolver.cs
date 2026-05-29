@@ -29,8 +29,8 @@ internal static class ChatDisplayResolver
 
         if (chat.Company != null)
         {
-            return !string.IsNullOrWhiteSpace(chat.Company.CompanyName)
-                ? chat.Company.CompanyName
+            return !string.IsNullOrWhiteSpace(chat.Company.Name)
+                ? chat.Company.Name
                 : $"Company {chat.Company.CompanyId}";
         }
 

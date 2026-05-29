@@ -41,7 +41,7 @@ public sealed class JobRecommendationResult
     public string DescriptionExcerpt => BuildExcerpt(Job?.JobDescription ?? string.Empty, 200);
 
     [JsonIgnore]
-    public string LocationEmploymentLine => $"{Job?.Location} - {Job?.EmploymentType}";
+    public string LocationEmploymentLine => $"{Job?.JobLocation} - {Job?.JobType}";
 
     [JsonIgnore]
     public string MatchScoreDisplay => $"{CompatibilityScore:0.#}%";
@@ -50,7 +50,7 @@ public sealed class JobRecommendationResult
     public string MatchLineLabel => $"Match: {MatchScoreDisplay}";
 
     [JsonIgnore]
-    public string ContactLine => $"{Company?.Email} - {Company?.Phone}";
+    public string ContactLine => $"{Company?.Email}";
 
     public static string BuildExcerpt(string description, int maxChars)
     {

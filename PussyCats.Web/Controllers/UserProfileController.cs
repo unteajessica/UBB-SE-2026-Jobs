@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.CompletenessService;
@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Candidate")]
 public class UserProfileController : Controller
 {
     private readonly IUserProfileService userProfileService;
@@ -129,7 +129,7 @@ public class UserProfileController : Controller
 
             TempData["Success"] = "Profile saved successfully.";
 
-            return RedirectToAction(nameof(Edit));
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception exception)
         {

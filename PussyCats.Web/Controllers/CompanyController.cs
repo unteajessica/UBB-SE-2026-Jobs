@@ -4,7 +4,7 @@ using PussyCats.Library.Services.CompanyService;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Recruiter")]
 public class CompanyController : Controller
 {
     private readonly ICompanyService companyService;

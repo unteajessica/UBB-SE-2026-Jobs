@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.UserRecommendationService;
@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace PussyCats.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Candidate")]
     public class JobBrowserController : Controller
     {
         private readonly IUserRecommendationService recommendationService;

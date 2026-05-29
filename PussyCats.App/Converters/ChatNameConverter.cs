@@ -25,7 +25,7 @@ public class ChatNameConverter : IValueConverter
 
         if (value is Company company)
         {
-            return company.CompanyName;
+            return company.Name;
         }
 
         var type = value.GetType();

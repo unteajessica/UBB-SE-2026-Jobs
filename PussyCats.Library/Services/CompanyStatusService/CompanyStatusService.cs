@@ -109,8 +109,8 @@ public class CompanyStatusService : ICompanyStatusService
 
         var averageSkillScore = ComputeAverageSkillScore(userSkills);
 
-        var locationBonus = LocationsReferToSameCity(user.City, job.Location) ? LocationBonusPoints : 0;
-        var employmentTypeBonus = user.PreferredEmploymentType.Equals(job.EmploymentType, StringComparison.OrdinalIgnoreCase)
+        var locationBonus = LocationsReferToSameCity(user.City, job.JobLocation ?? string.Empty) ? LocationBonusPoints : 0;
+        var employmentTypeBonus = user.PreferredEmploymentType.Equals(job.JobType ?? string.Empty, StringComparison.OrdinalIgnoreCase)
             ? EmploymentTypeBonusPoints
             : 0;
 

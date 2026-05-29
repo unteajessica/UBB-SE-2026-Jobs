@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.CompanyRecommendationService;
 using PussyCats.Web.Configuration;
@@ -6,7 +6,7 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Recruiter")]
 public class CompanyRecommendationsController : Controller
 {
     private readonly ICompanyRecommendationService companyRecommendations;

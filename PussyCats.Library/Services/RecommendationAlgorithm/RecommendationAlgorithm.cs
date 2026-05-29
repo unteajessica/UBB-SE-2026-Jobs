@@ -283,12 +283,12 @@ public class RecommendationAlgorithm : IRecommendationAlgorithm
     {
         var matches = 0;
 
-        if (string.Equals(user.LocationPreference, job.Location, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(user.LocationPreference, job.JobLocation, StringComparison.OrdinalIgnoreCase))
         {
             matches++;
         }
 
-        if (string.Equals(user.PreferredEmploymentType, job.EmploymentType, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(user.PreferredEmploymentType, job.JobType, StringComparison.OrdinalIgnoreCase))
         {
             matches++;
         }
@@ -298,7 +298,7 @@ public class RecommendationAlgorithm : IRecommendationAlgorithm
 
     private static double CalculatePromotionScore(Job job)
     {
-        return Clamp(job.PromotionLevel, ScoreMinimum, ScoreMaximum);
+        return Clamp(job.PromotionLevel.GetValueOrDefault(), ScoreMinimum, ScoreMaximum);
     }
 
     private static double KeywordValue(

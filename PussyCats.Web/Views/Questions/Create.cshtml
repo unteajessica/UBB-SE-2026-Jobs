@@ -1,0 +1,45 @@
+﻿@model PussyCats.Web.Dtos.QuestionDto
+
+@{
+    ViewData["Title"] = "Add Question";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold mb-3">Add Question @if(Model.TestId.HasValue){<span class="text-muted">for Test #@Model.TestId</span>}</h2>
+
+    <form asp-action="Create" method="post" class="card p-4 shadow-sm">
+        <input type="hidden" asp-for="TestId" />
+
+        <div class="mb-3">
+            <label class="form-label">Question Text</label>
+            <input asp-for="QuestionText" class="form-control" />
+            <span asp-validation-for="QuestionText" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Type</label>
+            <input asp-for="QuestionType" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Score</label>
+            <input asp-for="QuestionScore" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Options JSON</label>
+            <textarea asp-for="OptionsJson" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Answer</label>
+            <input asp-for="QuestionAnswer" class="form-control" />
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-success">Add Question</button>
+            <a asp-action="Index" asp-route-testId="@Model.TestId" class="btn btn-secondary ms-2">Back to Questions</a>
+        </div>
+    </form>
+</div>
+

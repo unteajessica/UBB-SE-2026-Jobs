@@ -32,7 +32,7 @@ public class CompanyController : ControllerBase
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id, CancellationToken cancellationToken)
     {
         var company = await companyService.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
-        DebugToFile.Write("Controller",$"GetByIdAsync: Retrieved company with ID {id}: {(company != null ? company.CompanyName : "Not Found")}");
+        DebugToFile.Write("Controller",$"GetByIdAsync: Retrieved company with ID {id}: {(company != null ? company.Name : "Not Found")}");
         return company is null ? NotFound() : Ok(company);
     }
 

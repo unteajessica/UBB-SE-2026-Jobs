@@ -27,13 +27,10 @@ public class JobSkillConfiguration : IEntityTypeConfiguration<JobSkill>
 
         builder.HasIndex("SkillId");
 
-        // Three sample required-skill rows for the three seeded jobs.
         builder.HasData(
-             new { JobId = 1, SkillId = 1, RequiredLevel = 80 },
-             new { JobId = 1, SkillId = 3, RequiredLevel = 75 },
-             new { JobId = 2, SkillId = 2, RequiredLevel = 70 },
-             new { JobId = 2, SkillId = 12, RequiredLevel = 45 },
-             new { JobId = 3, SkillId = 8, RequiredLevel = 68 },
-             new { JobId = 3, SkillId = 9, RequiredLevel = 62 });
+             new { JobId = 101, SkillId = 1, RequiredLevel = 80 },
+             new { JobId = 101, SkillId = 3, RequiredLevel = 75 },
+             new { JobId = 102, SkillId = 8, RequiredLevel = 68 },
+             new { JobId = 102, SkillId = 9, RequiredLevel = 62 });
     }
 }

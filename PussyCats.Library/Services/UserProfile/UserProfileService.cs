@@ -74,6 +74,8 @@ public class UserProfileService : IUserProfileService
         else
         {
             user.UserId = userId;
+
+            // Always preserve fields that the profile form must not overwrite.
             user.PasswordHash = existing.PasswordHash;
             user.ProfilePicturePath = existing.ProfilePicturePath;
             user.ParsedCv = existing.ParsedCv;
@@ -81,6 +83,26 @@ public class UserProfileService : IUserProfileService
             user.TotalExperiencePoints = existing.TotalExperiencePoints;
             user.ActiveAccount = existing.ActiveAccount;
             user.CreatedAt = existing.CreatedAt;
+
+            // If the client omitted a field (JSON null), fall back to the existing
+            // DB value so we never write NULL into a NOT NULL string column.
+            user.FirstName = user.FirstName ?? existing.FirstName;
+            user.LastName = user.LastName ?? existing.LastName;
+            user.Gender = user.Gender ?? existing.Gender;
+            user.Email = user.Email ?? existing.Email;
+            user.Phone = user.Phone ?? existing.Phone;
+            user.Country = user.Country ?? existing.Country;
+            user.City = user.City ?? existing.City;
+            user.Address = user.Address ?? existing.Address;
+            user.University = user.University ?? existing.University;
+            user.Degree = user.Degree ?? existing.Degree;
+            user.GitHub = user.GitHub ?? existing.GitHub;
+            user.LinkedIn = user.LinkedIn ?? existing.LinkedIn;
+            user.Motivation = user.Motivation ?? existing.Motivation;
+            user.PreferredEmploymentType = user.PreferredEmploymentType ?? existing.PreferredEmploymentType;
+            user.WorkModePreference = user.WorkModePreference ?? existing.WorkModePreference;
+            user.LocationPreference = user.LocationPreference ?? existing.LocationPreference;
+
             await userRepository.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
         }
     }

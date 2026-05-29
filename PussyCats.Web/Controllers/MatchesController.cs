@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain;
@@ -9,7 +9,7 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 section A.3)
+[Authorize(Roles = "Recruiter")]
 public class MatchesController : Controller
 {
     private readonly IMatchService matches;
@@ -91,7 +91,7 @@ public class MatchesController : Controller
             Feedback = match.FeedbackMessage,
             ApplicantName = FormatUserName(match.User),
             JobTitle = match.Job?.JobTitle ?? string.Empty,
-            CompanyName = match.Job?.Company?.CompanyName ?? string.Empty,
+            CompanyName = match.Job?.Company?.Name ?? string.Empty,
             CurrentStatus = match.Status,
             Timestamp = match.Timestamp,
         };
@@ -105,7 +105,7 @@ public class MatchesController : Controller
 
         model.ApplicantName = FormatUserName(match.User);
         model.JobTitle = match.Job?.JobTitle ?? string.Empty;
-        model.CompanyName = match.Job?.Company?.CompanyName ?? string.Empty;
+        model.CompanyName = match.Job?.Company?.Name ?? string.Empty;
         model.CurrentStatus = match.Status;
         model.Timestamp = match.Timestamp;
         return true;

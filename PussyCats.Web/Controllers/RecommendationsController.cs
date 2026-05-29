@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PussyCats.Library.Domain;
@@ -9,7 +9,7 @@ using PussyCats.Web.Models;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize] // uncomment once Dev 1 lands the auth scaffolding (Assignment 5 §A.3)
+[Authorize(Roles = "Candidate")]
 public class RecommendationsController : Controller
 {
     private readonly IRecommendationService recommendations;

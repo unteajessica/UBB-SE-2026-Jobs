@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Domain.Enums;
@@ -6,7 +6,7 @@ using PussyCats.Library.Services.UserStatusService;
 
 namespace PussyCats.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Candidate")]
 public class UserStatusController : Controller
 {
     private readonly IUserStatusService userStatus;

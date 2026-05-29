@@ -1,11 +1,11 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PussyCats.Library.Services.SkillTests;
 
 namespace PussyCats.Web.Controllers
 {
-    [Authorize] // Guard all actions from unauthorized users per requirements
+    [Authorize(Roles = "Candidate")]
     public class SkillTestsController : Controller
     {
         private readonly ISkillTestService skillTestService;

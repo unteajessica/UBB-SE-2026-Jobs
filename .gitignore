@@ -6,6 +6,7 @@
 # dotenv files
 .env
 appsettings.local.json
+appsettings.Development.json
 
 # Local planning docs
 OpenItemsPlan.md

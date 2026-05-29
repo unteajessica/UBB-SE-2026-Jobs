@@ -1,0 +1,109 @@
+﻿@model TestsViewModel
+
+@{
+    ViewData["Title"] = "Available Tests";
+}
+
+<div class="container py-4">
+    <div class="mb-4 pb-3 border-bottom">
+        <h2 class="fw-bold text-dark">Computer Science Tests</h2>
+        <div class="text-muted small">
+            Build your skills across multiple programming languages
+        </div>
+    </div>
+
+    <div class="p-4 rounded mb-4" style="background:#F0EEFF;">
+        <h5 class="fw-semibold text-dark mb-2">Test Information</h5>
+        <p class="text-secondary small mb-0">
+            Each test contains 25 questions and must be completed within 30 minutes.
+            Tests can only be taken once and cannot be retaken after completion.
+        </p>
+    </div>
+
+    @if (User.IsInRole("Admin") || User.IsInRole("Recruiter"))
+    {
+        <a asp-controller="Tests"
+           asp-action="Create"
+           class="btn btn-success mb-4">
+            + Create New Test
+        </a>
+    }
+
+    <div class="row g-4">
+        @foreach (var test in Model.Tests)
+        {
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100" style="border-radius:16px;">
+                    <div class="card-body">
+
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-pill px-3 py-2 text-white fw-bold"
+                                 style="background:#8494FF;">
+                                &lt;/&gt;
+                            </div>
+                            <span class="ms-auto small fw-semibold" style="color:#8494FF;">
+                                @test.QuestionTypeLabel
+                            </span>
+                        </div>
+
+                        <h5 class="fw-semibold">@test.Title</h5>
+
+                        <div class="badge bg-light text-secondary mt-2">
+                            @test.Category
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">30 minutes</span>
+                        </div>
+
+                        <a asp-controller="Tests"
+                           asp-action="Details"
+                           asp-route-id="@test.TestId"
+                           class="btn btn-outline-secondary w-100 mb-2">
+                            View Details
+                        </a>
+
+                        <a asp-controller="Leaderboard"
+                           asp-action="Index"
+                           asp-route-testId="@test.TestId"
+                           class="btn btn-outline-primary w-100 mb-2">
+                            View Leaderboard
+                        </a>
+
+                        @if (User.IsInRole("Candidate"))
+                        {
+                            <a asp-controller="Tests"
+                               asp-action="Start"
+                               asp-route-id="@test.TestId"
+                               class="btn btn-primary w-100 mb-2">
+                                Start Test
+                            </a>
+                        }
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("Recruiter"))
+                        {
+                            <div class="d-flex gap-2">
+                                <a asp-controller="Tests"
+                                   asp-action="Edit"
+                                   asp-route-id="@test.TestId"
+                                   class="btn btn-warning btn-sm w-50">
+                                    Edit
+                                </a>
+
+                                <a asp-controller="Tests"
+                                   asp-action="Delete"
+                                   asp-route-id="@test.TestId"
+                                   class="btn btn-danger btn-sm w-50">
+                                    Delete
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

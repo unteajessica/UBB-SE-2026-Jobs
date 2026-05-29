@@ -48,12 +48,10 @@ public sealed partial class CompanyProfilePage : Page
 
         ErrorBorder.Visibility = Visibility.Collapsed;
 
-        CompanyNameTextBlock.Text = company.CompanyName;
-        LogoTextBlock.Text = string.IsNullOrWhiteSpace(company.LogoText)
-            ? GetInitials(company.CompanyName)
-            : company.LogoText;
+        CompanyNameTextBlock.Text = company.Name;
+        LogoTextBlock.Text = GetInitials(company.Name);
         EmailTextBlock.Text = string.IsNullOrWhiteSpace(company.Email) ? "—" : company.Email;
-        PhoneTextBlock.Text = string.IsNullOrWhiteSpace(company.Phone) ? "—" : company.Phone;
+        PhoneTextBlock.Text = "—";
 
         if (company.Jobs.Count == 0)
         {

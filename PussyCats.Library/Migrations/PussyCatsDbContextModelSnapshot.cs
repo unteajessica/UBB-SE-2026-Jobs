@@ -17,7 +17,7 @@ namespace PussyCats.Library.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -73,58 +73,166 @@ namespace PussyCats.Library.Migrations
                 {
                     b.Property<int>("CompanyId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("company_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CompanyId"));
 
-                    b.Property<string>("CompanyName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<string>("AboutUs")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("about_us");
+
+                    b.Property<int?>("AvatarId")
+                        .HasColumnType("int")
+                        .HasColumnName("avatar_id");
+
+                    b.Property<string>("BuddyDescription")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("buddy_description");
+
+                    b.Property<string>("BuddyName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("buddy_name");
+
+                    b.Property<int>("CollaboratorsCount")
+                        .HasColumnType("int")
+                        .HasColumnName("collaborators_count");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("email");
 
-                    b.Property<string>("LogoText")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<string>("FinalQuote")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("final_quote");
 
-                    b.Property<string>("Phone")
+                    b.Property<string>("Location")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("location");
+
+                    b.Property<string>("LogoUrl")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("logo_picture_url");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("company_name");
+
+                    b.Property<int>("PostedJobsCount")
+                        .HasColumnType("int")
+                        .HasColumnName("posted_jobs_count");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("profile_picture_url");
+
+                    b.Property<string>("Scen1Answer1")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen1_answer1");
+
+                    b.Property<string>("Scen1Answer2")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen1_answer2");
+
+                    b.Property<string>("Scen1Answer3")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen1_answer3");
+
+                    b.Property<string>("Scen1Reaction1")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen1_reaction1");
+
+                    b.Property<string>("Scen1Reaction2")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen1_reaction2");
+
+                    b.Property<string>("Scen1Reaction3")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen1_reaction3");
+
+                    b.Property<string>("Scen1Text")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen_1_text");
+
+                    b.Property<string>("Scen2Answer1")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen2_answer1");
+
+                    b.Property<string>("Scen2Answer2")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen2_answer2");
+
+                    b.Property<string>("Scen2Answer3")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen2_answer3");
+
+                    b.Property<string>("Scen2Reaction1")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen2_reaction1");
+
+                    b.Property<string>("Scen2Reaction2")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen2_reaction2");
+
+                    b.Property<string>("Scen2Reaction3")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen2_reaction3");
+
+                    b.Property<string>("Scen2Text")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("scen2_text");
 
                     b.HasKey("CompanyId");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("companies", (string)null);
 
                     b.HasData(
                         new
                         {
                             CompanyId = 1,
-                            CompanyName = "TechNova",
+                            CollaboratorsCount = 1,
                             Email = "hr@technova.com",
-                            LogoText = "TN",
-                            Phone = "0311000001"
+                            Location = "San Francisco, CA",
+                            LogoUrl = "technova_logo.png",
+                            Name = "TechNova",
+                            PostedJobsCount = 1
                         },
                         new
                         {
                             CompanyId = 2,
-                            CompanyName = "CloudWorks",
-                            Email = "jobs@cloudworks.com",
-                            LogoText = "CW",
-                            Phone = "0311000002"
+                            CollaboratorsCount = 1,
+                            Email = "careers@dataflow.com",
+                            Location = "New York, NY",
+                            LogoUrl = "dataflow_logo.png",
+                            Name = "DataFlow Inc",
+                            PostedJobsCount = 1
                         },
                         new
                         {
                             CompanyId = 3,
-                            CompanyName = "DataForge",
-                            Email = "careers@dataforge.com",
-                            LogoText = "DF",
-                            Phone = "0311000003"
+                            CollaboratorsCount = 2,
+                            Email = "hello@ecocode.com",
+                            Location = "Seattle, WA",
+                            LogoUrl = "ecocode_logo.png",
+                            Name = "EcoCode",
+                            PostedJobsCount = 0
+                        },
+                        new
+                        {
+                            CompanyId = 4,
+                            CollaboratorsCount = 1,
+                            Email = "hr@finedge.com",
+                            Location = "London, UK",
+                            LogoUrl = "finedge_logo.png",
+                            Name = "FinEdge",
+                            PostedJobsCount = 0
                         });
                 });
 
@@ -206,82 +314,131 @@ namespace PussyCats.Library.Migrations
                 {
                     b.Property<int>("JobId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("job_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("JobId"));
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                    b.Property<int?>("AmountPayed")
+                        .HasColumnType("int")
+                        .HasColumnName("amount_payed");
 
-                    b.Property<string>("EmploymentType")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                    b.Property<int>("AvailablePositions")
+                        .HasColumnType("int")
+                        .HasColumnName("available_positions");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int")
+                        .HasColumnName("company_id");
+
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("date")
+                        .HasColumnName("deadline");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("ExperienceLevel")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("experience_level");
+
+                    b.Property<string>("IndustryField")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("industry_field");
 
                     b.Property<string>("JobDescription")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("job_description");
 
-                    b.Property<int>("JobRole")
-                        .HasColumnType("int");
+                    b.Property<string>("JobLocation")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("job_location");
+
+                    b.Property<int?>("JobRole")
+                        .HasColumnType("int")
+                        .HasColumnName("job_role");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("job_title");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("JobType")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("job_type");
 
-                    b.Property<int>("PromotionLevel")
-                        .HasColumnType("int");
+                    b.Property<string>("Photo")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("photo");
+
+                    b.Property<DateTime?>("PostedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("posted_at");
+
+                    b.Property<int?>("PromotionLevel")
+                        .HasColumnType("int")
+                        .HasColumnName("promotion_level");
+
+                    b.Property<int?>("Salary")
+                        .HasColumnType("int")
+                        .HasColumnName("salary");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
 
                     b.HasKey("JobId");
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("EmploymentType");
+                    b.HasIndex("JobLocation");
 
-                    b.HasIndex("Location");
+                    b.HasIndex("JobType");
 
-                    b.ToTable("Jobs", (string)null);
+                    b.ToTable("jobs", (string)null);
 
                     b.HasData(
                         new
                         {
-                            JobId = 1,
+                            JobId = 101,
+                            AmountPayed = 0,
+                            AvailablePositions = 3,
                             CompanyId = 1,
-                            EmploymentType = "Hybrid",
-                            JobDescription = "Join our Bucharest team building enterprise APIs and integrations. Strong C# and SQL; experience with Azure or containers is a plus.",
+                            Deadline = new DateTime(2026, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ExperienceLevel = "Mid-Level",
+                            IndustryField = "IT",
+                            JobDescription = "Develop robust REST APIs using .NET Core.",
+                            JobLocation = "Remote",
                             JobRole = 1,
-                            JobTitle = "Backend .NET Developer",
-                            Location = "Bucharest",
-                            PromotionLevel = 2
+                            JobTitle = "Backend C# Developer",
+                            JobType = "Full-time",
+                            PostedAt = new DateTime(2026, 4, 15, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            PromotionLevel = 2,
+                            Salary = 95000
                         },
                         new
                         {
-                            JobId = 2,
+                            JobId = 102,
+                            AmountPayed = 0,
+                            AvailablePositions = 1,
                             CompanyId = 2,
-                            EmploymentType = "Full-time",
-                            JobDescription = "Ship UI features for our web app under mentorship. Learn React, testing, and our design system while pairing with senior engineers.",
-                            JobRole = 0,
-                            JobTitle = "Junior Frontend Developer",
-                            Location = "Cluj-Napoca",
-                            PromotionLevel = 1
-                        },
-                        new
-                        {
-                            JobId = 3,
-                            CompanyId = 3,
-                            EmploymentType = "Hybrid",
-                            JobDescription = "Turn business questions into dashboards and ad hoc analyses. SQL and visualization tools; curiosity about the domain.",
+                            Deadline = new DateTime(2026, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ExperienceLevel = "Senior",
+                            IndustryField = "Data Science",
+                            JobDescription = "Maintain cloud data pipelines and warehouses.",
+                            JobLocation = "New York, NY",
                             JobRole = 5,
-                            JobTitle = "Data Analyst",
-                            Location = "Brasov",
-                            PromotionLevel = 1
+                            JobTitle = "Data Engineer",
+                            JobType = "Contract",
+                            PostedAt = new DateTime(2026, 4, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            PromotionLevel = 1,
+                            Salary = 120000
                         });
                 });
 
@@ -305,37 +462,25 @@ namespace PussyCats.Library.Migrations
                     b.HasData(
                         new
                         {
-                            JobId = 1,
+                            JobId = 101,
                             SkillId = 1,
                             RequiredLevel = 80
                         },
                         new
                         {
-                            JobId = 1,
+                            JobId = 101,
                             SkillId = 3,
                             RequiredLevel = 75
                         },
                         new
                         {
-                            JobId = 2,
-                            SkillId = 2,
-                            RequiredLevel = 70
-                        },
-                        new
-                        {
-                            JobId = 2,
-                            SkillId = 12,
-                            RequiredLevel = 45
-                        },
-                        new
-                        {
-                            JobId = 3,
+                            JobId = 102,
                             SkillId = 8,
                             RequiredLevel = 68
                         },
                         new
                         {
-                            JobId = 3,
+                            JobId = 102,
                             SkillId = 9,
                             RequiredLevel = 62
                         });
@@ -2982,7 +3127,7 @@ namespace PussyCats.Library.Migrations
                     b.HasOne("PussyCats.Library.Domain.Company", "Company")
                         .WithMany("Jobs")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Company");

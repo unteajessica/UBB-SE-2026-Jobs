@@ -31,13 +31,11 @@ else if (Model is not null)
             <div class="d-flex align-items-center justify-content-center bg-primary rounded-2 mb-3"
                  style="width:64px; height:64px;">
                 <span class="text-white fw-bold fs-4">
-                    @(string.IsNullOrWhiteSpace(Model.LogoText)
-                        ? GetInitials(Model.CompanyName)
-                        : Model.LogoText)
+                    @GetInitials(Model.Name)
                 </span>
             </div>
 
-            <h5 class="fw-semibold">@Model.CompanyName</h5>
+            <h5 class="fw-semibold">@Model.Name</h5>
 
             <ul class="list-unstyled text-secondary mb-0 mt-2">
                 <li class="mb-1">
@@ -46,7 +44,7 @@ else if (Model is not null)
                 </li>
                 <li>
                     <span class="me-2">&#128222;</span>
-                    @(string.IsNullOrWhiteSpace(Model.Phone) ? "—" : Model.Phone)
+                    —
                 </li>
             </ul>
         </div>
@@ -66,7 +64,7 @@ else if (Model is not null)
                 {
                     <div class="bg-light rounded p-3 mb-2">
                         <div class="fw-semibold">@job.JobTitle</div>
-                        <div class="text-secondary small">@job.Location</div>
+                        <div class="text-secondary small">@job.JobLocation</div>
                     </div>
                 }
             }

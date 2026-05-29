@@ -48,11 +48,6 @@
 					    </li>
 				    }
 			    }
-			    <li class="nav-item">
-				    <a class="nav-link text-dark" asp-controller="Home" asp-action="SwitchMode">
-					    <i class="bi bi-arrow-left-right me-2"></i><span class="sidebar-label">Switch Mode</span>
-				    </a>
-			    </li>
 		    </ul>
 		    <div class="d-flex align-items-center justify-content-between mb-3">
 			    <span id="sidebar-brand" class="fw-semibold text-dark">Menu</span>
@@ -63,11 +58,11 @@
 
 		    <ul class="nav nav-pills flex-column mb-auto gap-1">
 			    <li class="nav-item">
-				    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+				    <a class="nav-link text-dark" asp-controller="Home" asp-action="SwitchMode">
 					    <i class="bi bi-house me-2"></i><span class="sidebar-label">Home</span>
 				    </a>
 			    </li>
-			    @if (isUserMode)
+			    @if (isUserMode && User.IsInRole("Candidate"))
 			    {
 				    <li class="nav-item">
 					    <a class="nav-link text-dark" asp-controller="JobBrowser" asp-action="Index">
@@ -84,12 +79,6 @@
 						    <i class="bi bi-person me-2"></i><span class="sidebar-label">My Profile</span>
 					    </a>
 				    </li>
-				    <li class="nav-item">
-					    <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="Edit">
-						    <i class="bi bi-person me-2"></i><span class="sidebar-label">Edit Profile</span>
-					    </a>
-				    </li>
-
 				    <li class="nav-item">
 					    <a class="nav-link text-dark" asp-controller="SkillTests" asp-action="Index">
 						    <i class="bi bi-clipboard-check me-2"></i><span class="sidebar-label">Skill Tests</span>
@@ -122,7 +111,7 @@
 				    </li>
 				    
 			    }
-			    @if (isCompanyMode)
+			    @if (isCompanyMode && User.IsInRole("Recruiter"))
 			    {
 				    <li class="nav-item">
 					    <a class="nav-link text-dark" asp-controller="Company" asp-action="Profile" asp-route-id="@ApiConfiguration.TemporaryCompanyId">
@@ -152,6 +141,43 @@
 						    <i class="bi bi-code-slash me-2"></i><span class="sidebar-label">Developer Hub</span>
 					    </a>
 				    </li>
+			    }
+			    @if (User.Identity?.IsAuthenticated == true)
+			    {
+				    <li class="nav-item mt-2">
+					    <small class="text-muted ps-2 sidebar-label fw-semibold">RECRUITMENT &amp; TESTS</small>
+				    </li>
+				    <li class="nav-item">
+					    <a class="nav-link text-dark" asp-controller="Jobs" asp-action="Index">
+						    <i class="bi bi-suitcase-lg me-2"></i><span class="sidebar-label">Jobs</span>
+					    </a>
+				    </li>
+				    <li class="nav-item">
+					    <a class="nav-link text-dark" asp-controller="Tests" asp-action="Index">
+						    <i class="bi bi-journal-check me-2"></i><span class="sidebar-label">Tests</span>
+					    </a>
+				    </li>
+				    <li class="nav-item">
+					    <a class="nav-link text-dark" asp-controller="Events" asp-action="Index">
+						    <i class="bi bi-calendar-event me-2"></i><span class="sidebar-label">Events</span>
+					    </a>
+				    </li>
+				    @if (User.IsInRole("Candidate"))
+				    {
+					    <li class="nav-item">
+						    <a class="nav-link text-dark" asp-controller="Interviews" asp-action="AvailableSlots">
+							    <i class="bi bi-camera-video me-2"></i><span class="sidebar-label">Interviews</span>
+						    </a>
+					    </li>
+				    }
+				    @if (User.IsInRole("Recruiter"))
+				    {
+					    <li class="nav-item">
+						    <a class="nav-link text-dark" asp-controller="Interviews" asp-action="BookedInterviews">
+							    <i class="bi bi-camera-video me-2"></i><span class="sidebar-label">My Interviews</span>
+						    </a>
+					    </li>
+				    }
 			    }
 		    </ul>
 
