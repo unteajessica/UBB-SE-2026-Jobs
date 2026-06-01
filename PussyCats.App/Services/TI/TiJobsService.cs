@@ -9,7 +9,6 @@ public interface ITiJobsService
     Task<List<TiJobPostingDto>> GetAllJobsAsync();
     Task<TiJobPostingDto?> GetByIdAsync(int jobId);
     Task<List<TiSkillDto>> GetAllSkillsAsync();
-    // Task<int> AddJobAsync(TiAddJobDto dto);
     Task<int> AddJobAsync(Job job);
     Task<bool> UpdateJobAsync(int jobId, TiJobPostingDto dto);
     Task<bool> DeleteJobAsync(int jobId);
@@ -31,7 +30,7 @@ public class TiJobsService : ITiJobsService
     public async Task<TiJobPostingDto?> GetByIdAsync(int jobId)
     {
         var all = await GetAllJobsAsync();
-        return all.Find(j => j.JobId == jobId);
+        return all.Find(job => job.JobId == jobId);
     }
 
     public async Task<List<TiSkillDto>> GetAllSkillsAsync()

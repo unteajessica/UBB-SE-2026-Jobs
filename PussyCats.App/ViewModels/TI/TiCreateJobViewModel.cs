@@ -40,8 +40,8 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
     {
         var skills = await jobsService.GetAllSkillsAsync();
         SkillRows.Clear();
-        foreach (var s in skills)
-            SkillRows.Add(new TiSkillPickItem { Skill = s });
+        foreach (var skill in skills)
+            SkillRows.Add(new TiSkillPickItem { Skill = skill });
     }
 
     [RelayCommand]
@@ -56,8 +56,8 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
         int? salary = null;
         if (!string.IsNullOrWhiteSpace(SalaryText))
         {
-            if (!int.TryParse(SalaryText, out int s) || s < 0) { ValidationError = "Salary must be a positive number."; return; }
-            salary = s;
+            if (!int.TryParse(SalaryText, out int salaryNumber) || salaryNumber < 0) { ValidationError = "Salary must be a positive number."; return; }
+            salary = salaryNumber;
         }
 
         IsSaving = true;

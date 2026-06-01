@@ -108,19 +108,19 @@ public partial class App : Application
         services.AddHttpClient<ITiApplicantService, TiApplicantService>(c => c.BaseAddress = new Uri(tiBaseUrl));
         services.AddHttpClient<ITiSlotsService, TiSlotsService>(c => c.BaseAddress = new Uri(tiBaseUrl));
         services.AddHttpClient<ITiPaymentService, TiPaymentService>(c => c.BaseAddress = new Uri(tiBaseUrl));*/
-        services.AddHttpClient<ITiTestService, TiTestService>(c => c.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiTestService, TiTestService>(client => client.BaseAddress = new Uri(tiBaseUrl))
     .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiLeaderboardService, TiLeaderboardService>(c => c.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiLeaderboardService, TiLeaderboardService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiEventsService, TiEventsService>(c => c.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiEventsService, TiEventsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiJobsService, TiJobsService>(c => c.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiJobsService, TiJobsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiApplicantService, TiApplicantService>(c => c.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiApplicantService, TiApplicantService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiSlotsService, TiSlotsService>(c => c.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiSlotsService, TiSlotsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiPaymentService, TiPaymentService>(c => c.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiPaymentService, TiPaymentService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
         RegisterViewModels(services);
     }
