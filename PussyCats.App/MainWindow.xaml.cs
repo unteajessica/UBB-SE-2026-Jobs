@@ -21,12 +21,11 @@ public sealed partial class MainWindow : Window
         "UserRecommendationPage",
         "UserStatusPage",
         "UserProfilePage",
-        "ProfileFormPage",
         "TestDashboardPage",
         "PersonalityTestPage",
         "CompatibilityOverviewPage",
         "DocumentsPage",
-        "ExportCVPage",
+        "PreferencesPage",
         "TiInterviewSlotsPage",
     ];
 
