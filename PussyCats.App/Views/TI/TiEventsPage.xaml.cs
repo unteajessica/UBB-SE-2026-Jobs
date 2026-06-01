@@ -16,8 +16,8 @@ public sealed partial class TiEventsPage : Page
 
     public TiEventsPage()
     {
-        InitializeComponent();
         ViewModel = App.Services.GetRequiredService<TiEventsViewModel>();
+        InitializeComponent();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)

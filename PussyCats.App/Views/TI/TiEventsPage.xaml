@@ -58,7 +58,7 @@
                                             </TextBlock>
                                             <TextBlock Text="{Binding Description}" FontSize="13" TextWrapping="Wrap"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" MaxLines="3"/>
-                                            <StackPanel x:Name="EventActions" Orientation="Horizontal" Spacing="8"
+                                            <StackPanel Orientation="Horizontal" Spacing="8"
                                                         Visibility="Collapsed">
                                                 <Button Content="Edit" Tag="{Binding}" Click="EditEvent_Click"
                                                         Background="Transparent" Padding="10,6"/>

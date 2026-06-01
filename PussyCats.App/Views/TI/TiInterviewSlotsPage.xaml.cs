@@ -14,8 +14,8 @@ public sealed partial class TiInterviewSlotsPage : Page
 
     public TiInterviewSlotsPage()
     {
-        InitializeComponent();
         ViewModel = App.Services.GetRequiredService<TiInterviewSlotsViewModel>();
+        InitializeComponent();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)

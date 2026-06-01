@@ -15,8 +15,8 @@ public sealed partial class TiMainTestPage : Page
 
     public TiMainTestPage()
     {
-        InitializeComponent();
         ViewModel = App.Services.GetRequiredService<TiMainTestViewModel>();
+        InitializeComponent();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)

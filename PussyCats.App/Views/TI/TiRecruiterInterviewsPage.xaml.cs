@@ -13,8 +13,8 @@ public sealed partial class TiRecruiterInterviewsPage : Page
 
     public TiRecruiterInterviewsPage()
     {
-        InitializeComponent();
         ViewModel = App.Services.GetRequiredService<TiRecruiterInterviewsViewModel>();
+        InitializeComponent();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)

@@ -16,8 +16,8 @@ public sealed partial class TiJobsPage : Page
 
     public TiJobsPage()
     {
-        InitializeComponent();
         ViewModel = App.Services.GetRequiredService<TiJobsViewModel>();
+        InitializeComponent();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
