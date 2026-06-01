@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.TI.TiCreateJobPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:PussyCats.App.ViewModels.TI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="32">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Center" Spacing="16">
+            <TextBlock Text="Post a New Job" FontSize="24" FontWeight="Bold" Margin="0,0,0,8"/>
+
+            <TextBlock Text="{x:Bind ViewModel.ValidationError, Mode=OneWay}" Foreground="Red"/>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Header="Job Title *" Text="{x:Bind ViewModel.JobTitle, Mode=TwoWay}"
+                         PlaceholderText="e.g. Software Engineer"/>
+                <ComboBox Grid.Column="1" x:Name="IndustryCombo" Header="Industry Field"
+                          HorizontalAlignment="Stretch" SelectionChanged="Combo_SelectionChanged">
+                    <ComboBoxItem Content="IT" Tag="IT"/>
+                    <ComboBoxItem Content="Business" Tag="Business"/>
+                    <ComboBoxItem Content="Healthcare" Tag="Healthcare"/>
+                    <ComboBoxItem Content="Education" Tag="Education"/>
+                    <ComboBoxItem Content="Finance" Tag="Finance"/>
+                    <ComboBoxItem Content="Other" Tag="Other"/>
+                </ComboBox>
+            </Grid>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox Grid.Column="0" x:Name="JobTypeCombo" Header="Job Type *"
+                          HorizontalAlignment="Stretch" SelectionChanged="Combo_SelectionChanged">
+                    <ComboBoxItem Content="Full-time" Tag="Full-time"/>
+                    <ComboBoxItem Content="Part-time" Tag="Part-time"/>
+                    <ComboBoxItem Content="Internship" Tag="Internship"/>
+                    <ComboBoxItem Content="Remote" Tag="Remote"/>
+                    <ComboBoxItem Content="Hybrid" Tag="Hybrid"/>
+                </ComboBox>
+                <ComboBox Grid.Column="1" x:Name="ExpLevelCombo" Header="Experience Level"
+                          HorizontalAlignment="Stretch" SelectionChanged="Combo_SelectionChanged">
+                    <ComboBoxItem Content="Internship" Tag="Internship"/>
+                    <ComboBoxItem Content="Entry Level" Tag="Entry Level"/>
+                    <ComboBoxItem Content="Mid-Senior Level" Tag="Mid-Senior Level"/>
+                    <ComboBoxItem Content="Director" Tag="Director"/>
+                    <ComboBoxItem Content="Executive" Tag="Executive"/>
+                </ComboBox>
+            </Grid>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Header="Location" Text="{x:Bind ViewModel.JobLocation, Mode=TwoWay}"
+                         PlaceholderText="e.g. Cluj-Napoca"/>
+                <NumberBox Grid.Column="1" Header="Positions *" Value="{x:Bind ViewModel.AvailablePositions, Mode=TwoWay}"
+                           Minimum="1" Width="120"/>
+                <TextBox Grid.Column="2" Header="Salary (RON)" Text="{x:Bind ViewModel.SalaryText, Mode=TwoWay}"
+                         Width="140" PlaceholderText="Optional"/>
+            </Grid>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CalendarDatePicker Grid.Column="0" Header="Start Date" Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker Grid.Column="1" Header="End Date" Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker Grid.Column="2" Header="Deadline" Date="{x:Bind ViewModel.Deadline, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+            </Grid>
+
+            <TextBox Header="Description" Text="{x:Bind ViewModel.JobDescription, Mode=TwoWay}"
+                     AcceptsReturn="True" Height="120" TextWrapping="Wrap"
+                     PlaceholderText="Describe the role, responsibilities and requirements..."/>
+
+            <!-- Required skills -->
+            <TextBlock Text="Required Skills" FontSize="16" FontWeight="SemiBold" Margin="0,8,0,0"/>
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.SkillRows, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout MinItemWidth="280" MinColumnSpacing="12" MinRowSpacing="8"/>
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TiSkillPickItem">
+                            <StackPanel Spacing="4">
+                                <CheckBox Content="{x:Bind Skill.SkillName}"
+                                          IsChecked="{x:Bind IsSelected, Mode=TwoWay}"/>
+                                <TextBox PlaceholderText="% required (1-100)"
+                                         Text="{x:Bind RequiredPercentText, Mode=TwoWay}"
+                                         IsEnabled="{x:Bind IsSelected, Mode=OneWay}"
+                                         Width="160"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,8,0,0">
+                <Button Content="Cancel" Click="Cancel_Click" Padding="16,8"/>
+                <Button Content="Post Job" Click="Save_Click"
+                        Background="#8494FF" Foreground="White" Padding="20,8" CornerRadius="8"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

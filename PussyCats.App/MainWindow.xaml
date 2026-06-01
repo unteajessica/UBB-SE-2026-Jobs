@@ -24,10 +24,12 @@
             <NavigationViewItem Content="My Profile"         Tag="UserProfilePage"             Icon="Contact"/>
             <NavigationViewItem Content="Edit Profile"       Tag="ProfileFormPage"             Icon="Edit"/>
             <NavigationViewItem Content="Skill Tests"        Tag="TestDashboardPage"           Icon="Permissions"/>
+            <NavigationViewItem Content="Tests"              Tag="TiMainTestPage"              Icon="Play"/>
             <NavigationViewItem Content="Personality Test"   Tag="PersonalityTestPage"         Icon="Favorite"/>
             <NavigationViewItem Content="Compatibility"      Tag="CompatibilityOverviewPage"   Icon="Filter"/>
             <NavigationViewItem Content="Documents"          Tag="DocumentsPage"               Icon="Document"/>
             <NavigationViewItem Content="Export CV"          Tag="ExportCVPage"                Icon="Download"/>
+            <NavigationViewItem Content="Interview Slots"    Tag="TiInterviewSlotsPage"        Icon="Clock"/>
             <!-- Company (hidden until company mode) -->
             <NavigationViewItem x:Name="navReviewApplicants"
                                 Content="Review Applicants"  Tag="CompanyRecommendationPage"
@@ -35,6 +37,15 @@
             <NavigationViewItem x:Name="navApplicantStatus"
                                 Content="Applicant Status"   Tag="CompanyStatusPage"
                                 Icon="Accept"                Visibility="Collapsed"/>
+            <NavigationViewItem x:Name="navTiJobs"
+                                Content="Job Postings"       Tag="TiJobsPage"
+                                Icon="Document"              Visibility="Collapsed"/>
+            <NavigationViewItem x:Name="navTiEvents"
+                                Content="Events"             Tag="TiEventsPage"
+                                Icon="Calendar"              Visibility="Collapsed"/>
+            <NavigationViewItem x:Name="navTiInterviews"
+                                Content="My Interviews"      Tag="TiRecruiterInterviewsPage"
+                                Icon="Video"                 Visibility="Collapsed"/>
             <!-- Developer -->
             <NavigationViewItem Content="Developer Hub"       Tag="DeveloperPage"
                                 Icon="Setting"               Visibility="Collapsed"/>
