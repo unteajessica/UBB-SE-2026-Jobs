@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.App.Dtos.TI;
 using PussyCats.App.Services.TI;
+using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels.TI;
 
@@ -61,8 +62,9 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
 
         IsSaving = true;
 
-        var posting = new TiJobPostingDto
+        var job = new Job
         {
+            CompanyId = session.CompanyId ?? 1,
             JobTitle = JobTitle.Trim(),
             IndustryField = IndustryField.Trim(),
             JobType = JobType,
@@ -76,27 +78,9 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
             Deadline = Deadline?.DateTime,
             PostedAt = DateTime.UtcNow,
             AmountPayed = 0,
-            CompanyId = session.CompanyId ?? 1,
         };
 
-        var skillLinks = SkillRows
-            .Where(r => r.IsSelected)
-            .Select(r => new TiJobSkillDto
-            {
-                SkillId = r.Skill.SkillId,
-                JobId = 0,
-                RequiredPercentage = int.TryParse(r.RequiredPercentText, out int p) ? Math.Clamp(p, 1, 100) : 50
-            })
-            .ToList();
-
-        var dto = new TiAddJobDto
-        {
-            JobPosting = posting,
-            CompanyId = session.CompanyId ?? 1,
-            SkillLinks = skillLinks,
-        };
-
-        await jobsService.AddJobAsync(dto);
+        await jobsService.AddJobAsync(job);
         IsSaving = false;
         SavedSuccessfully = true;
     }

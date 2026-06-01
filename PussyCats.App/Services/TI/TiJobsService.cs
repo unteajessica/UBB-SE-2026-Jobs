@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using PussyCats.App.Dtos.TI;
+using PussyCats.Library.Domain;
 
 namespace PussyCats.App.Services.TI;
 
@@ -8,7 +9,8 @@ public interface ITiJobsService
     Task<List<TiJobPostingDto>> GetAllJobsAsync();
     Task<TiJobPostingDto?> GetByIdAsync(int jobId);
     Task<List<TiSkillDto>> GetAllSkillsAsync();
-    Task<int> AddJobAsync(TiAddJobDto dto);
+    // Task<int> AddJobAsync(TiAddJobDto dto);
+    Task<int> AddJobAsync(Job job);
     Task<bool> UpdateJobAsync(int jobId, TiJobPostingDto dto);
     Task<bool> DeleteJobAsync(int jobId);
 }
@@ -39,11 +41,12 @@ public class TiJobsService : ITiJobsService
         return await response.Content.ReadFromJsonAsync<List<TiSkillDto>>() ?? new();
     }
 
-    public async Task<int> AddJobAsync(TiAddJobDto dto)
+    public async Task<int> AddJobAsync(Job job)
     {
-        var response = await http.PostAsJsonAsync("api/jobs", dto);
+        var response = await http.PostAsJsonAsync("api/jobs", job);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<int>();
+        var saved = await response.Content.ReadFromJsonAsync<Job>();
+        return saved!.JobId;
     }
 
     public async Task<bool> UpdateJobAsync(int jobId, TiJobPostingDto dto)
