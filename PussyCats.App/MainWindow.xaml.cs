@@ -23,12 +23,10 @@ public sealed partial class MainWindow : Window
         "UserProfilePage",
         "ProfileFormPage",
         "TestDashboardPage",
-        "TiMainTestPage",
         "PersonalityTestPage",
         "CompatibilityOverviewPage",
         "DocumentsPage",
         "ExportCVPage",
-        "ChatPage",
         "TiInterviewSlotsPage",
     ];
 
@@ -36,9 +34,6 @@ public sealed partial class MainWindow : Window
     [
         "CompanyRecommendationPage",
         "CompanyStatusPage",
-        "ChatPage",
-        "TiJobsPage",
-        "TiEventsPage",
         "TiRecruiterInterviewsPage",
     ];
 
@@ -47,7 +42,13 @@ public sealed partial class MainWindow : Window
         "DeveloperPage",
     ];
 
-    private static readonly HashSet<string> SharedPages = [];
+    private static readonly HashSet<string> SharedPages =
+    [
+        "ChatPage",
+        "TiJobsPage",
+        "TiMainTestPage",
+        "TiEventsPage",
+    ];
 
     private static readonly Dictionary<string, Type> PageMap = new()
     {
