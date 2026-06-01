@@ -8,7 +8,7 @@ using PussyCats.App.Configuration;
 using PussyCats.Library.Domain.Enums;
 using PussyCats_App.Views.Auth;
 using PussyCats_App.Views.Candidate;
-using PussyCats_App.Views.TI;
+using PussyCats_App.Views.TestsAndInterviews;
 
 namespace PussyCats_App;
 

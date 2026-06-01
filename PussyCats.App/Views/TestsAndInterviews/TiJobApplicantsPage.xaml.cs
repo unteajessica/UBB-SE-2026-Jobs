@@ -6,7 +6,7 @@ using PussyCats.App.Dtos.TI;
 using PussyCats.App.ViewModels.TI;
 using PussyCats_App;
 
-namespace PussyCats_App.Views.TI;
+namespace PussyCats_App.Views.TestsAndInterviews;
 
 public sealed partial class TiJobApplicantsPage : Page
 {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="PussyCats_App.Views.TI.TiJobsPage"
+    x:Class="PussyCats_App.Views.TestsAndInterviews.TiJobsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:dtos="using:PussyCats.App.Dtos.TI"

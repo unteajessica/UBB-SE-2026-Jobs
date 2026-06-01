@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Navigation;
 using PussyCats.App.ViewModels.TI;
 using PussyCats_App;
 
-namespace PussyCats_App.Views.TI;
+namespace PussyCats_App.Views.TestsAndInterviews;
 
 public sealed partial class TiCreateJobPage : Page
 {
