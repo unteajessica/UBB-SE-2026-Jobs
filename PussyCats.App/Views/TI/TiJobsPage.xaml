@@ -3,6 +3,7 @@
     x:Class="PussyCats_App.Views.TI.TiJobsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:dtos="using:PussyCats.App.Dtos.TI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -40,38 +41,38 @@
                         <UniformGridLayout MinItemWidth="320" MinColumnSpacing="16" MinRowSpacing="16"/>
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="dtos:TiJobPostingDto">
                             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1" CornerRadius="12" Padding="20">
                                 <StackPanel Spacing="8">
-                                    <TextBlock Text="{Binding JobTitle}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                    <TextBlock Text="{Binding IndustryField}" FontSize="13"
+                                    <TextBlock Text="{x:Bind JobTitle}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{x:Bind IndustryField}" FontSize="13"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     <StackPanel Spacing="4">
                                         <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                             <Run Text="Type: "/>
-                                            <Run Text="{Binding JobType}"/>
+                                            <Run Text="{x:Bind JobType}"/>
                                         </TextBlock>
                                         <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                             <Run Text="Level: "/>
-                                            <Run Text="{Binding ExperienceLevel}"/>
+                                            <Run Text="{x:Bind ExperienceLevel}"/>
                                         </TextBlock>
                                         <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                             <Run Text="Location: "/>
-                                            <Run Text="{Binding JobLocation}"/>
+                                            <Run Text="{x:Bind JobLocation}"/>
                                         </TextBlock>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding JobDescription}" FontSize="13" TextWrapping="Wrap"
+                                    <TextBlock Text="{x:Bind JobDescription}" FontSize="13" TextWrapping="Wrap"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                MaxLines="2" TextTrimming="CharacterEllipsis"/>
                                     <!-- Company actions (hidden by default, shown when in Company mode) -->
                                     <StackPanel Orientation="Horizontal" Spacing="8" Visibility="Collapsed">
-                                        <Button Content="Applicants" Tag="{Binding}" Click="ViewApplicants_Click"
+                                        <Button Content="Applicants" Tag="{x:Bind}" Click="ViewApplicants_Click"
                                                 Background="Transparent" Padding="10,6"/>
-                                        <Button Content="Pay" Tag="{Binding}" Click="Pay_Click"
+                                        <Button Content="Pay" Tag="{x:Bind}" Click="Pay_Click"
                                                 Background="#22c55e" Foreground="White" Padding="10,6" CornerRadius="6"/>
-                                        <Button Content="Delete" Tag="{Binding}" Click="DeleteJob_Click"
+                                        <Button Content="Delete" Tag="{x:Bind}" Click="DeleteJob_Click"
                                                 Background="#FFef4444" Foreground="White" Padding="10,6" CornerRadius="6"/>
                                     </StackPanel>
                                 </StackPanel>
