@@ -95,5 +95,99 @@ namespace PussyCats.Web.Controllers
             var sessions = await this.sessionsClient.GetScheduledAsync();
             return this.View(sessions);
         }
+
+        // ---------------------------------------------------------------
+        // Recruiter: manage interview slots
+        // ---------------------------------------------------------------
+        /// <summary>
+        /// Displaying page for managing slots and sets the list of companies for logged in recruiter.
+        /// </summary>
+        [Authorize(Roles = "Recruiter")]
+        public async Task<IActionResult> ManageSlots()
+        {
+            int recruiterId = int.Parse(
+                this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            List<CompanyDto> companies = await this.slotsClient.GetCompaniesForRecruiterAsync(recruiterId);
+            ViewData["Companies"] = companies;
+
+            return this.View();
+        }
+
+        /// <summary>
+        /// Get all slots of the logged in recruiter to display them.
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "Recruiter")]
+        public async Task<IActionResult> GetRecruiterSlots()
+        {
+            int recruiterId= int.Parse(
+                this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            List<SlotDto> slots = await this.slotsClient.GetAllByRecruiterAsync(recruiterId);
+
+            return Json(slots);
+        }
+
+        /// <summary>
+        /// Create a new slot for the logged in recruiter.
+        /// </summary>
+        /// <param name="baseSlot">base slot with date, start time and company</param>
+        /// <param name="duration">duration of slot</param>
+        [HttpPost]
+        public async Task<IActionResult> CreateRecruiterSlot(SlotDto baseSlot, int duration)
+        {
+            try {
+                int recruiterId = int.Parse(
+                    this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                baseSlot.RecruiterId = recruiterId;
+
+                await this.slotsClient.AddRecruiterSlotAsync(baseSlot, duration);
+                return Ok();
+            } catch (HttpRequestException ex) {
+                this.TempData["Error"] = "Slot not available.";
+            }
+
+            return this.RedirectToAction(nameof(this.ManageSlots));
+        }
+
+        /// <summary>
+        /// Update a slot of the logged in recruiter.
+        /// </summary>
+        /// <param name="initialSlot">initial slot to change</param>
+        /// <param name="startTime">new start time</param>
+        /// <param name="duration">new duration</param>
+        [HttpPost]
+        public async Task<IActionResult> UpdateRecruiterSlot(SlotDto initialSlot, DateTime startTime, int duration)
+        {
+            try {
+                await this.slotsClient.UpdateRecruiterSlotAsync(initialSlot, startTime, duration);
+                return Ok();
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+                this.TempData["Error"] = "Slot not found.";
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+                this.TempData["Error"] = "Could not update slot.";
+            }
+
+            return this.RedirectToAction(nameof(this.ManageSlots));
+        }
+
+        /// <summary>
+        /// Delete a recruiter slot.
+        /// </summary>
+        /// <param name="id">id of slot to delete</param>
+        [HttpPost]
+        public async Task<IActionResult> DeleteRecruiterSlot(int id)
+        {
+            try {
+                await this.slotsClient.DeleteRecruiterSlotAsync(id);
+                return Ok();
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+                this.TempData["Error"] = "Slot not found.";
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+                this.TempData["Error"] = "Could not delete slot.";
+            }
+
+            return this.RedirectToAction(nameof(this.ManageSlots));
+        }
     }
 }

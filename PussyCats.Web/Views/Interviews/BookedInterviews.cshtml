@@ -6,9 +6,14 @@
 
 <div class="container py-4">
 
-    <div class="mb-4 pb-3 border-bottom">
-        <h2 class="fw-bold text-dark">Booked Interviews</h2>
-        <div class="text-muted small">All scheduled interview sessions assigned to you.</div>
+    <div class="mb-4 pb-3 border-bottom d-flex align-items-center justify-content-between">
+        <div>
+            <h2 class="fw-bold text-dark">Booked Interviews</h2>
+            <div class="text-muted small">All scheduled interview sessions assigned to you.</div>
+        </div>
+        <a asp-action="ManageSlots" class="btn btn-sm" style="background:#F0EEFF;color:#5038C8;">
+            Manage Slots
+        </a>
     </div>
 
     @if (!Model.Any())

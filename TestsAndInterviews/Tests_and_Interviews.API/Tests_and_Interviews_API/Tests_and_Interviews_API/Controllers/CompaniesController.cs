@@ -53,6 +53,14 @@
             return Ok(company.ToDto());
         }
 
+        [HttpGet("byrecruiter/{recruiterId}")]
+        public ActionResult<List<CompanyDto>> GetByRecruiter(int recruiterId)
+        {
+            List<Company> recruiterCompanies = this._service.GetByRecruiter(recruiterId);
+
+            return Ok(recruiterCompanies.Select(c => c.ToDto()).ToList());
+        }
+
         [HttpPost]
         public ActionResult<CompanyDto> Add([FromBody] CompanyDto dto)
         {

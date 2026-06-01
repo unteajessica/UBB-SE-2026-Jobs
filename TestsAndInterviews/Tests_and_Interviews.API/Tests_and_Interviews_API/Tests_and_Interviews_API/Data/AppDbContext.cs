@@ -157,6 +157,18 @@
                 .HasForeignKey(s => s.CandidateId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<Slot>()
+                .HasOne(s => s.Recruiter)
+                .WithMany()
+                .HasForeignKey(s => s.RecruiterId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Slot>()
+                .HasOne(s => s.Recruiter)
+                .WithMany()
+                .HasForeignKey(s => new { s.RecruiterId, s.RecruiterCompanyId })
+                .HasPrincipalKey(r => new { r.CompanyId, r.UserId });
+
             modelBuilder.Entity<Recruiter>()
                 .HasKey(r => new { r.CompanyId, r.UserId });
 

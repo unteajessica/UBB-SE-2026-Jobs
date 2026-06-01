@@ -180,6 +180,8 @@
             var newSlot = new Slot
             {
                 RecruiterId = baseSlot.RecruiterId,
+                RecruiterUserId = baseSlot.RecruiterId,
+                RecruiterCompanyId = baseSlot.CompanyId,
                 StartTime = baseSlot.StartTime,
                 EndTime = baseSlot.StartTime.AddMinutes(duration),
                 Duration = duration,
@@ -202,6 +204,8 @@
             {
                 Id = initialSlot.Id,
                 RecruiterId = initialSlot.RecruiterId,
+                RecruiterUserId = initialSlot.RecruiterId,
+                RecruiterCompanyId = initialSlot.CompanyId,
                 StartTime = startTime,
                 EndTime = startTime.AddMinutes(duration),
                 Duration = duration,

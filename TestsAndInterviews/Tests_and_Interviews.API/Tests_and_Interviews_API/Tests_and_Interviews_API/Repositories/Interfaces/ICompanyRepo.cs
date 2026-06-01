@@ -7,6 +7,7 @@ namespace Tests_and_Interviews_API.Repositories.Interfaces
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
+    using Tests_and_Interviews_API.Dtos;
     using Tests_and_Interviews_API.Models;
 
     public interface ICompanyRepo
@@ -20,5 +21,7 @@ namespace Tests_and_Interviews_API.Repositories.Interfaces
         void Update(Company c);
         Game? GetGame();
         void SaveGame(Game game);
+        List<Company> GetByRecruiter(int recruiterId);
+
     }
 }
