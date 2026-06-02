@@ -1,8 +1,8 @@
-using System.Net.Http.Json;
-using PussyCats.App.Dtos.TI;
+﻿using System.Net.Http.Json;
 using PussyCats.Library.Domain;
+using PussyCats.Library.DTOs;
 
-namespace PussyCats.App.Services.TI;
+namespace PussyCats.Library.Services.TiJobs;
 
 public interface ITiJobsService
 {

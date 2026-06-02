@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
 using PussyCats.App.Dtos.TI;
 using PussyCats.App.Services.TI;
+using PussyCats.Library.Domain;
 
 namespace PussyCats.App.ViewModels.TI;
 
@@ -39,8 +40,8 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
     {
         var skills = await jobsService.GetAllSkillsAsync();
         SkillRows.Clear();
-        foreach (var s in skills)
-            SkillRows.Add(new TiSkillPickItem { Skill = s });
+        foreach (var skill in skills)
+            SkillRows.Add(new TiSkillPickItem { Skill = skill });
     }
 
     [RelayCommand]
@@ -55,14 +56,15 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
         int? salary = null;
         if (!string.IsNullOrWhiteSpace(SalaryText))
         {
-            if (!int.TryParse(SalaryText, out int s) || s < 0) { ValidationError = "Salary must be a positive number."; return; }
-            salary = s;
+            if (!int.TryParse(SalaryText, out int salaryNumber) || salaryNumber < 0) { ValidationError = "Salary must be a positive number."; return; }
+            salary = salaryNumber;
         }
 
         IsSaving = true;
 
-        var posting = new TiJobPostingDto
+        var job = new Job
         {
+            CompanyId = session.CompanyId ?? 1,
             JobTitle = JobTitle.Trim(),
             IndustryField = IndustryField.Trim(),
             JobType = JobType,
@@ -76,27 +78,9 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
             Deadline = Deadline?.DateTime,
             PostedAt = DateTime.UtcNow,
             AmountPayed = 0,
-            CompanyId = session.CompanyId ?? 1,
         };
 
-        var skillLinks = SkillRows
-            .Where(r => r.IsSelected)
-            .Select(r => new TiJobSkillDto
-            {
-                SkillId = r.Skill.SkillId,
-                JobId = 0,
-                RequiredPercentage = int.TryParse(r.RequiredPercentText, out int p) ? Math.Clamp(p, 1, 100) : 50
-            })
-            .ToList();
-
-        var dto = new TiAddJobDto
-        {
-            JobPosting = posting,
-            CompanyId = session.CompanyId ?? 1,
-            SkillLinks = skillLinks,
-        };
-
-        await jobsService.AddJobAsync(dto);
+        await jobsService.AddJobAsync(job);
         IsSaving = false;
         SavedSuccessfully = true;
     }
