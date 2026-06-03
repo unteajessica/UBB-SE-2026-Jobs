@@ -7,6 +7,7 @@ public interface ITiSlotsService
 {
     Task<List<TiSlotDto>> GetAvailableAsync(DateTime date);
     Task<List<TiSlotDto>> GetByRecruiterAsync(int recruiterId, DateTime date);
+    Task<List<TiSlotDto>> GetMyBookingsAsync(int candidateId);
     Task<bool> BookSlotAsync(int slotId, int candidateId);
     Task<List<TiInterviewSessionDto>> GetScheduledSessionsAsync();
     Task<List<TiInterviewSessionDto>> GetSessionsByStatusAsync(string status);
@@ -32,9 +33,16 @@ public class TiSlotsService : ITiSlotsService
         return await response.Content.ReadFromJsonAsync<List<TiSlotDto>>() ?? new();
     }
 
+    public async Task<List<TiSlotDto>> GetMyBookingsAsync(int candidateId)
+    {
+        var response = await http.GetAsync($"api/slots/candidate/{candidateId}");
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<TiSlotDto>>() ?? new();
+    }
+
     public async Task<bool> BookSlotAsync(int slotId, int candidateId)
     {
-        var response = await http.PostAsJsonAsync($"api/bookings/{slotId}/confirm", new { CandidateId = candidateId });
+        var response = await http.PostAsJsonAsync($"api/bookings/{slotId}/confirm", candidateId);
         return response.IsSuccessStatusCode;
     }
 

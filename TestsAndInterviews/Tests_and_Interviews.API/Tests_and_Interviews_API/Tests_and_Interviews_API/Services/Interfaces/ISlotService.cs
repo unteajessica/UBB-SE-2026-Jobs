@@ -19,6 +19,7 @@
         public Task<List<Slot>> GetSlotsAsync(int recruiterId, DateTime date);
 
         public Task<List<SlotDto>> GetAvailableSlotsForDateAsync(DateTime date);
+        public Task<List<SlotDto>> GetSlotsByCandidateAsync(int candidateId);
 
         /// <summary>
         /// Asynchronously retrieves all available slots associated with the specified recruiter.
