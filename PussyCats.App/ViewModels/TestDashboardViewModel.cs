@@ -50,7 +50,17 @@ public class TestDashboardViewModel : DispatchableObservableObject
                 // No "all attempts for a user" endpoint on the TI API — fetch the single
                 // attempt per test (≈5 tests, acceptable fan-out).
                 var attempt = await tiTestService.GetAttemptByUserAndTestAsync(userId, test.Id);
-                cards.Add(new SkillTestCardViewModel(test, attempt));
+
+                // The attempt's Score is raw earned points; the card converts it to a real
+                // percentage using the test's max possible score (sum of question scores).
+                float maxPossibleScore = 0f;
+                if (attempt is not null)
+                {
+                    var questions = await tiTestService.GetQuestionsByTestIdAsync(test.Id);
+                    maxPossibleScore = questions.Sum(question => question.QuestionScore);
+                }
+
+                cards.Add(new SkillTestCardViewModel(test, attempt, maxPossibleScore));
             }
 
             TestCards = cards;

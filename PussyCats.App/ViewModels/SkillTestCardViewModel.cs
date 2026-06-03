@@ -12,24 +12,19 @@ namespace PussyCats.App.ViewModels;
 /// </summary>
 public class SkillTestCardViewModel
 {
-    public SkillTestCardViewModel(TiTestDto test, TiTestAttemptDto? attempt)
+    public SkillTestCardViewModel(TiTestDto test, TiTestAttemptDto? attempt, float maxPossibleScore)
     {
         TestId = test.Id;
         Title = test.Title;
         Category = test.Category;
 
-        // TI status strings are inconsistent ("Completed"/"InProgress"/"Abandoned" in the
-        // seed vs "COMPLETED"/"IN_PROGRESS" from the enum), so match loosely and fall back
-        // to the timestamp/score fields.
-        bool isCompleted = attempt is not null &&
-            (Mentions(attempt.Status, "complete") || attempt.CompletedAt is not null ||
-             attempt.PercentageScore is not null);
+        bool isCompleted = ViewModelSupport.IsTiAttemptCompleted(attempt);
         bool isInProgress = !isCompleted && attempt is not null &&
             (Mentions(attempt.Status, "progress") || attempt.StartedAt is not null);
 
         if (isCompleted)
         {
-            int percentage = (int)Math.Round(attempt!.PercentageScore ?? attempt.Score ?? 0m);
+            int percentage = ViewModelSupport.TiPercentage(attempt!.Score, maxPossibleScore);
             Status = "Completed";
             ScoreText = $"SCORE: {percentage}%";
             DateText = attempt.CompletedAt is { } completed ? completed.ToString("dd.MM.yyyy") : string.Empty;

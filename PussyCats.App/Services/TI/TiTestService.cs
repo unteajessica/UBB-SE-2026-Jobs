@@ -68,76 +68,21 @@ public class TiTestService : ITiTestService
 
     public async Task<float> SubmitAttemptAsync(int userId, int testId, IEnumerable<TiAnswerDto> answers)
     {
-        var attempt = await GetAttemptByUserAndTestAsync(userId, testId);
-        if (attempt == null) return 0f;
-
-        var questions = await GetQuestionsByTestIdAsync(testId);
-        var questionMap = questions.ToDictionary(q => q.Id);
-        float maxPossibleScore = questions.Sum(q => q.QuestionScore);
-
-        var gradedAnswers = new List<TiAnswerDto>();
-
-        foreach (var answer in answers)
+        // Submit through the TI composite endpoint, which saves the answers, grades them,
+        // computes the score, marks the attempt COMPLETED (with score + completed time),
+        // persists it via a tracked entity, and recalculates the leaderboard — server-side.
+        // (Replaces a client-side reimplementation whose PUT api/testattempts/{id} silently
+        // no-opped, leaving every submitted attempt stuck IN_PROGRESS with no score.)
+        var payload = new
         {
-            if (!questionMap.TryGetValue(answer.QuestionId, out var question)) continue;
-
-            string endpoint = question.QuestionType switch
-            {
-                "SINGLE_CHOICE" => "single-choice",
-                "MULTIPLE_CHOICE" => "multiple-choice",
-                "TRUE_FALSE" => "true-false",
-                _ => "text"
-            };
-
-            var gradeRequest = new
-            {
-                Question = new
-                {
-                    Id = question.Id,
-                    QuestionText = question.QuestionText,
-                    QuestionTypeString = question.QuestionType,
-                    QuestionScore = question.QuestionScore,
-                    QuestionAnswer = question.QuestionAnswer,
-                },
-                Answer = new
-                {
-                    QuestionId = question.Id,
-                    AttemptId = attempt.Id,
-                    Value = answer.Value,
-                }
-            };
-
-            var gradeResponse = await http.PostAsJsonAsync($"api/grading/{endpoint}", gradeRequest);
-            if (!gradeResponse.IsSuccessStatusCode) continue;
-
-            var gradedAnswer = await gradeResponse.Content.ReadFromJsonAsync<TiAnswerDto>();
-            if (gradedAnswer == null) continue;
-
-            gradedAnswers.Add(gradedAnswer);
-            await http.PostAsJsonAsync("api/answers", gradedAnswer);
-        }
-
-        var scorePayload = new
-        {
-            Id = attempt.Id,
-            Answers = gradedAnswers.Select(a => new { Value = a.Value }).ToList()
+            UserId = userId,
+            TestId = testId,
+            Answers = answers.Select(a => new { a.QuestionId, a.Value }).ToList(),
         };
 
-        var scoreResponse = await http.PostAsJsonAsync("api/grading/final-score", scorePayload);
-        float rawScore = scoreResponse.IsSuccessStatusCode
-            ? await scoreResponse.Content.ReadFromJsonAsync<float>()
-            : 0f;
-
-        attempt.Status = "COMPLETED";
-        attempt.CompletedAt = DateTime.UtcNow;
-        attempt.Score = (decimal)rawScore;
-        if (maxPossibleScore > 0)
-            attempt.PercentageScore = (decimal)(rawScore / maxPossibleScore * 100f);
-
-        await http.PutAsJsonAsync($"api/testattempts/{attempt.Id}", attempt);
-        await http.PostAsync($"api/leaderboard/recalculate/{testId}", null);
-
-        return rawScore;
+        var response = await http.PostAsJsonAsync("api/tests/submit-attempt", payload);
+        if (!response.IsSuccessStatusCode) return 0f;
+        return await response.Content.ReadFromJsonAsync<float>();
     }
 
     public async Task<bool> AttemptExistsAsync(int userId, int testId)
