@@ -39,6 +39,13 @@
             return Ok(slots.Select(slot => slot.ToDto()).ToList());
         }
 
+        [HttpGet("candidate/{candidateId}")]
+        public async Task<ActionResult<List<SlotDto>>> GetByCandidate(int candidateId)
+        {
+            List<SlotDto> slots = await this._service.GetSlotsByCandidateAsync(candidateId);
+            return Ok(slots);
+        }
+
         [HttpGet("available")]
         public async Task<ActionResult<List<SlotDto>>> GetAvailableByDate([FromQuery] DateTime date)
         {

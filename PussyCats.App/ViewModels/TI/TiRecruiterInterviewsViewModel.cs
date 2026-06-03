@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PussyCats.App.Configuration;
 using PussyCats.App.Dtos.TI;
 using PussyCats.App.Services.TI;
 
@@ -38,14 +39,20 @@ public partial class TiRecruiterInterviewsViewModel : DispatchableObservableObje
     private async Task LoadSlotsAsync()
     {
         var slots = await slotsService.GetAvailableAsync(SelectedDate.DateTime);
-        Slots.Clear();
-        foreach (var s in slots) Slots.Add(s);
+        await UIDispatcher.EnqueueAsync(() =>
+        {
+            Slots.Clear();
+            foreach (var s in slots) Slots.Add(s);
+        });
     }
 
     private async Task LoadPendingReviewsAsync()
     {
         var sessions = await slotsService.GetSessionsByStatusAsync("InProgress");
-        PendingReviews.Clear();
-        foreach (var s in sessions) PendingReviews.Add(s);
+        await UIDispatcher.EnqueueAsync(() =>
+        {
+            PendingReviews.Clear();
+            foreach (var s in sessions) PendingReviews.Add(s);
+        });
     }
 }
