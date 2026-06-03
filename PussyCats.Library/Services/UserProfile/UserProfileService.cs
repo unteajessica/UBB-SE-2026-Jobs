@@ -99,9 +99,17 @@ public class UserProfileService : IUserProfileService
             user.GitHub = user.GitHub ?? existing.GitHub;
             user.LinkedIn = user.LinkedIn ?? existing.LinkedIn;
             user.Motivation = user.Motivation ?? existing.Motivation;
-            user.PreferredEmploymentType = user.PreferredEmploymentType ?? existing.PreferredEmploymentType;
-            user.WorkModePreference = user.WorkModePreference ?? existing.WorkModePreference;
-            user.LocationPreference = user.LocationPreference ?? existing.LocationPreference;
+            user.WorkModePreference = string.IsNullOrEmpty(user.WorkModePreference)
+                ? existing.WorkModePreference
+                : user.WorkModePreference;
+
+            user.PreferredEmploymentType = string.IsNullOrEmpty(user.PreferredEmploymentType)
+                ? existing.PreferredEmploymentType
+                : user.PreferredEmploymentType;
+
+            user.LocationPreference = string.IsNullOrEmpty(user.LocationPreference)
+                ? existing.LocationPreference
+                : user.LocationPreference;
 
             await userRepository.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
         }
