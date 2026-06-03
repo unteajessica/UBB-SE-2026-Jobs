@@ -1,5 +1,6 @@
 ﻿namespace Tests_and_Interviews_API.Services.Interfaces
 {
+    using Tests_and_Interviews_API.Models;
     using Tests_and_Interviews_API.Models.Core;
 
     /// <summary>
@@ -15,6 +16,15 @@
         /// cref="InterviewSession"/> objects representing the scheduled sessions. The list is empty if no sessions are
         /// scheduled.</returns>
         public Task<List<InterviewSession>> GetScheduledSessionsAsync();
+
+        /// <summary>
+        /// Asynchronously retrieves a list of scheduled interview sessions for a given candidate.
+        /// </summary>
+        /// <param name="candidateId">Candidate for which to retrieve scheduled sessions</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see
+        /// cref="InterviewSession"/> objects representing the scheduled sessions. The list is empty if no sessions are
+        /// scheduled.</returns>
+        public Task<List<InterviewSession>> GetScheduledSessionsForCandidateAsync(int candidateId);
 
         /// <summary>
         /// Asynchronously retrieves a list of interview sessions that match the specified status.

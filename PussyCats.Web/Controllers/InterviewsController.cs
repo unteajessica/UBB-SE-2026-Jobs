@@ -50,10 +50,6 @@ namespace PussyCats.Web.Controllers
         [Authorize(Roles = "Candidate")]
         public async Task<IActionResult> AvailableSlots()
         {
-            //DateTime selectedDate = date ?? DateTime.Today;
-            //var slots = await this.slotsClient.GetAvailableAsync(selectedDate);
-            //this.ViewBag.SelectedDate = selectedDate;
-            //return this.View(slots);
             int candidateId = int.Parse(this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var applications = await this.userStatusService.GetApplicationsForUserAsync(candidateId);
 
@@ -103,6 +99,32 @@ namespace PussyCats.Web.Controllers
             }
 
             return this.RedirectToAction(nameof(this.AvailableSlots));
+        }
+        // ---------------------------------------------------------------
+        // Candidate: browse your booked interview sessions
+        // ---------------------------------------------------------------
+
+        /// <summary>
+        /// Displays booked interview slots for logged in candidate.
+        /// Accessible by candidates only.
+        /// </summary>
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> CandidateBookedInterviews()
+        {
+            int candidateId = int.Parse(
+                this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var booked = await this.sessionsClient.GetBookedByCandidate(candidateId); ;
+
+            return View(booked);
+        }
+
+        /// <summary>
+        /// Starts the interview recording for a booked interview session.
+        /// </summary>
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> StartInterview(int sessionId)
+        {
+            return null;
         }
 
         // ---------------------------------------------------------------

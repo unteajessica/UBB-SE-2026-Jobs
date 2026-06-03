@@ -1,0 +1,48 @@
+﻿@model IReadOnlyList<InterviewSessionDto>
+
+@{
+    ViewData["Title"] = "My Booked Interviews";
+}
+
+<div class="container py-4">
+    <div class="mb-4 pb-3 border-bottom">
+        <h2 class="fw-bold text-dark">My Booked Interviews</h2>
+        <div class="text-muted small">Here are all your scheduled interview sessions.</div>
+    </div>
+
+    @if (!Model.Any()) {
+        <div class="p-4 rounded text-center" style="background:#F0EEFF;">
+            <p class="text-muted mb-0">You have no booked interviews yet.</p>
+        </div>
+    } else {
+        <div class="row g-4">
+            @foreach (var s in Model) {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm p-3" style="border-radius:10px;">
+                        <div class="fw-semibold mb-1">
+                            Interview for Position #@s.PositionId
+                        </div>
+
+                        <div class="text-muted small mb-2">
+                            @s.DateStart.ToString("dddd, dd MMM yyyy HH:mm")
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="badge bg-primary">@s.Status</span>
+                            @if (s.Score.HasValue) {
+                                <span class="badge bg-success ms-1">Score: @s.Score</span>
+                            }
+                        </div>
+
+                        <a asp-controller="Interviews"
+                               asp-action="StartInterview"
+                               asp-route-id="@s.Id"
+                               class="btn btn-sm btn-primary w-100">
+                            Start Interview
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
