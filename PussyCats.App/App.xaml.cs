@@ -98,8 +98,11 @@ public partial class App : Application
             client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
 
-        // TI (Tests & Interviews) API services
-        var tiBaseUrl = apiConfiguration.BaseUrl;
+        // TI (Tests & Interviews) API services — these live on a separate API
+        // (TiBaseUrl, :5179), NOT the PussyCats API. The PussyCats API has no
+        // applicants/tests/etc. controllers, so using BaseUrl here makes every
+        // TI write (e.g. submitting a job application) 404.
+        var tiBaseUrl = apiConfiguration.TiBaseUrl;
         /*
         services.AddHttpClient<ITiTestService, TiTestService>(c => c.BaseAddress = new Uri(tiBaseUrl));
         services.AddHttpClient<ITiLeaderboardService, TiLeaderboardService>(c => c.BaseAddress = new Uri(tiBaseUrl));
@@ -114,7 +117,7 @@ public partial class App : Application
             .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiEventsService, TiEventsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiJobsService, TiJobsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiJobsService, TiJobsService>(client => client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiApplicantService, TiApplicantService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();

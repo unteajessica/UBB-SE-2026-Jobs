@@ -31,6 +31,12 @@ public sealed partial class TiJobsPage : Page
     private void CreateJob_Click(object sender, RoutedEventArgs e)
         => Frame.Navigate(typeof(TiCreateJobPage));
 
+    private void ViewDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: TiJobPostingDto job })
+            Frame.Navigate(typeof(TiJobDetailsPage), job);
+    }
+
     private void ViewApplicants_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: TiJobPostingDto job })

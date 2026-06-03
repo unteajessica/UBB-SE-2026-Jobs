@@ -66,6 +66,9 @@
                                     <TextBlock Text="{x:Bind JobDescription}" FontSize="13" TextWrapping="Wrap"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                MaxLines="2" TextTrimming="CharacterEllipsis"/>
+                                    <Button Content="View Details" Tag="{x:Bind}" Click="ViewDetails_Click"
+                                            Background="#8494FF" Foreground="White" Padding="14,8" CornerRadius="8"
+                                            HorizontalAlignment="Left" Margin="0,4,0,0"/>
                                     <!-- Company actions (hidden by default, shown when in Company mode) -->
                                     <StackPanel Orientation="Horizontal" Spacing="8" Visibility="Collapsed">
                                         <Button Content="Applicants" Tag="{x:Bind}" Click="ViewApplicants_Click"

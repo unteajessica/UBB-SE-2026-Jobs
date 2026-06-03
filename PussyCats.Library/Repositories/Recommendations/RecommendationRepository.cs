@@ -69,36 +69,38 @@ public class RecommendationRepository : IRecommendationRepository
     }
 
     // DbSet.Add cascades the Added state through navigation properties, so a Recommendation
-    // pointing at an existing User/Job/Company would make EF re-INSERT them and trip
-    // IDENTITY_INSERT. Swap detached references for the already-tracked instance when one exists;
-    // otherwise Attach as Unchanged so EF treats them as preexisting rows.
+    // pointing at an existing User/Job would make EF re-INSERT them and trip IDENTITY_INSERT.
+    // The incoming User/Job often arrive detached and fully hydrated (e.g. a Job deserialized
+    // from an API request still carries Company, RequiredSkills and Matches). Attaching that
+    // whole graph crashes when any reachable entity collides with one already tracked. Since a
+    // Recommendation only needs the foreign keys, we point each navigation at the already-tracked
+    // instance when one exists, otherwise at a key-only stub tracked as Unchanged. Setting state
+    // via Entry(...).State is non-recursive, so the incoming object's navigation graph is never
+    // walked.
     private void ReconcileExistingNavigation(Recommendation recommendation)
     {
         if (recommendation.User is { UserId: > 0 } incomingUser)
         {
-            var tracked = databaseContext.Users.Local.FirstOrDefault(user => user.UserId == incomingUser.UserId);
-            if (tracked is not null)
-            {
-                recommendation.User = tracked;
-            }
-            else
-            {
-                databaseContext.Users.Attach(incomingUser);
-            }
+            recommendation.User =
+                databaseContext.Users.Local.FirstOrDefault(user => user.UserId == incomingUser.UserId)
+                ?? TrackAsUnchanged(new User { UserId = incomingUser.UserId });
         }
 
         if (recommendation.Job is { JobId: > 0 } incomingJob)
         {
-            var tracked = databaseContext.Jobs.Local.FirstOrDefault(job => job.JobId == incomingJob.JobId);
-            if (tracked is not null)
-            {
-                recommendation.Job = tracked;
-            }
-            else
-            {
-                databaseContext.Jobs.Attach(incomingJob);
-            }
+            recommendation.Job =
+                databaseContext.Jobs.Local.FirstOrDefault(job => job.JobId == incomingJob.JobId)
+                ?? TrackAsUnchanged(new Job { JobId = incomingJob.JobId });
         }
+    }
+
+    // Tracks ONLY this stub (no navigation graph) as a preexisting row, so the subsequent
+    // Recommendation insert reads its key as the foreign key without touching the real row.
+    private TEntity TrackAsUnchanged<TEntity>(TEntity stub)
+        where TEntity : class
+    {
+        databaseContext.Entry(stub).State = EntityState.Unchanged;
+        return stub;
     }
 
     public async Task UpdateAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
