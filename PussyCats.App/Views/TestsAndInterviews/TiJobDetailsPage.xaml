@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.TestsAndInterviews.TiJobDetailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:dtos="using:PussyCats.App.Dtos.TI"
+    xmlns:converters="using:PussyCats_App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <converters:ListToVisibilityConverter x:Key="ListToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="← Back" Click="Back_Click" Margin="0,0,16,0"
+                    Background="Transparent" BorderThickness="0"/>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="{x:Bind ViewModel.CurrentJob.JobTitle, Mode=OneWay}"
+                           FontSize="24" FontWeight="Bold" TextWrapping="Wrap"/>
+                <TextBlock Text="{x:Bind ViewModel.CurrentJob.IndustryField, Mode=OneWay}" FontSize="14"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="24">
+                <StackPanel Spacing="20">
+
+                    <!-- Two-column details -->
+                    <Grid ColumnSpacing="32">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="8">
+                            <TextBlock Text="Job Details" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock>
+                                <Run Text="Industry: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatText(ViewModel.CurrentJob.IndustryField), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="Type: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatText(ViewModel.CurrentJob.JobType), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="Experience Level: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatText(ViewModel.CurrentJob.ExperienceLevel), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="Location: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatText(ViewModel.CurrentJob.JobLocation), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="Available Positions: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatInt(ViewModel.CurrentJob.AvailablePositions), Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="8">
+                            <TextBlock Text="Dates &amp; Salary" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock>
+                                <Run Text="Start Date: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatDate(ViewModel.CurrentJob.StartDate), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="End Date: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatDate(ViewModel.CurrentJob.EndDate), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="Deadline: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatDate(ViewModel.CurrentJob.Deadline), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="Posted At: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatDate(ViewModel.CurrentJob.PostedAt), Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="Salary: " FontWeight="SemiBold"/>
+                                <Run Text="{x:Bind FormatSalary(ViewModel.CurrentJob.Salary), Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Description -->
+                    <StackPanel Spacing="6"
+                                Visibility="{x:Bind ViewModel.CurrentJob.JobDescription, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}">
+                        <TextBlock Text="Description" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.CurrentJob.JobDescription, Mode=OneWay}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Required skills -->
+                    <StackPanel Spacing="10"
+                                Visibility="{x:Bind ViewModel.CurrentJob.JobSkills, Converter={StaticResource ListToVisibilityConverter}, Mode=OneWay}">
+                        <TextBlock Text="Required Skills" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.CurrentJob.JobSkills, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:TiJobSkillDto">
+                                    <StackPanel Spacing="4" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding SkillDto.SkillName}"/>
+                                            <TextBlock Grid.Column="1" FontWeight="SemiBold" Foreground="#8494FF">
+                                                <Run Text="{Binding RequiredPercentage}"/><Run Text="%"/>
+                                            </TextBlock>
+                                        </Grid>
+                                        <ProgressBar Value="{Binding RequiredPercentage}" Maximum="100" Height="8"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Footer actions -->
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                        <Button x:Name="ApplyButton" Content="Apply Now" Click="Apply_Click"
+                                Background="#22c55e" Foreground="White" Padding="16,8" CornerRadius="8"/>
+                        <Button x:Name="ViewApplicantsButton" Content="View Applicants" Click="ViewApplicants_Click"
+                                Background="#8494FF" Foreground="White" Padding="16,8" CornerRadius="8"
+                                Visibility="Collapsed"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</Page>
