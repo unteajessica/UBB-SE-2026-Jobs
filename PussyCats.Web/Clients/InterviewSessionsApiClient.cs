@@ -45,7 +45,7 @@ namespace PussyCats.Web.Clients
         /// <summary>
         /// Confirms a booking for a candidate by reserving the specified slot.
         /// </summary>
-        public async Task ConfirmBookingAsync(int slotId, int candidateId)
+        public async Task ConfirmBookingAsync(int slotId, int candidateId, int jobId)
         {
             var response = await this.http.PostAsJsonAsync(
                 $"{BookingsPath}/{slotId}/confirm", candidateId);

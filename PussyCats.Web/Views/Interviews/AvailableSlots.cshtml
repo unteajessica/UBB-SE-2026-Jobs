@@ -1,20 +1,22 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IReadOnlyList<PussyCats.Library.DTOs.ApplicationCardModel>
 @{
+    ViewData["Title"] = "Book an Interview";
 }
-@model List<PussyCats.Web.Dtos.SlotDto>
 
-@{
-    ViewData["Title"] = "Available Interview Slots";
-    DateTime selectedDate = (DateTime)ViewBag.SelectedDate;
-}
+<style>
+    .job-card { cursor: pointer; border-radius: 10px; transition: border-color .15s, box-shadow .15s; border: 2px solid transparent; }
+    .job-card:hover { border-color: #C4B5FD; box-shadow: 0 2px 8px rgba(124,92,252,.1); }
+    .job-card.selected { border-color: #7C5CFC; background: #F0EEFF; }
+    .slot-card { border-radius: 10px; border: 2px solid #e9ecef; transition: border-color .15s, box-shadow .15s; }
+    .slot-card:hover { border-color: #C4B5FD; box-shadow: 0 2px 8px rgba(124,92,252,.1); }
+    .slots-panel { display: none; }
+    .slots-panel.visible { display: block; }
+</style>
 
 <div class="container py-4">
-
     <div class="mb-4 pb-3 border-bottom">
-        <h2 class="fw-bold text-dark">Available Interview Slots</h2>
-        <div class="text-muted small">Browse and book an interview slot with a recruiter.</div>
+        <h2 class="fw-bold text-dark">Book an Interview</h2>
+        <div class="text-muted small">Select a job you applied to, then pick an available slot.</div>
     </div>
 
     @if (TempData["Success"] != null)
@@ -24,7 +26,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -33,67 +34,172 @@
         </div>
     }
 
-    <form method="get" asp-action="AvailableSlots" asp-controller="Interviews" class="row g-3 align-items-end mb-4">
-        <div class="col-auto">
-            <label class="form-label fw-semibold">Date</label>
-            <input type="date"
-                   name="date"
-                   class="form-control"
-                   value="@selectedDate.ToString("yyyy-MM-dd")" />
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Filter</button>
-        </div>
-    </form>
-
     @if (!Model.Any())
     {
         <div class="p-4 rounded text-center" style="background:#F0EEFF;">
-            <p class="text-muted mb-0">No available slots for this date. Try a different date.</p>
+            <p class="text-muted mb-0">You have no active applications yet.</p>
         </div>
     }
     else
     {
         <div class="row g-4">
-            @foreach (var slot in Model)
-            {
-                <div class="col-md-4">
-                    <div class="card shadow-sm h-100" style="border-radius:16px;">
-                        <div class="card-body">
-
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="rounded-pill px-3 py-1 text-white fw-semibold small"
-                                      style="background:#8494FF;">
-                                    @slot.InterviewType
-                                </span>
-                                <span class="ms-auto badge bg-success">@(slot.Status == 0 ? "Available" : "Occupied")</span>
+            <!-- Left: job list -->
+            <div class="col-md-4">
+                <div class="fw-semibold small text-muted text-uppercase mb-2" style="letter-spacing:.05em;">Your Applications</div>
+                <div class="d-flex flex-column gap-2" id="jobList">
+                    @foreach (var app in Model)
+                    {
+                        <div class="card job-card shadow-sm p-3"
+                             @* data-company-id="@app.CompanyId" *@
+                             data-job-id="@app.JobId"
+                             data-company-name="@app.CompanyName"
+                             onclick="selectJob(this)">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="fw-semibold small">@app.CompanyName</span>
+                                @{
+                                    string badgeClass = app.Status.ToString() switch
+                                    {
+                                        "Accepted" => "bg-success",
+                                        "Rejected" => "bg-danger",
+                                        _ => "bg-primary"
+                                    };
+                                }
+                                <span class="badge @badgeClass">@app.Status</span>
                             </div>
-
-                            <h5 class="fw-semibold mb-1">@slot.TimeRange</h5>
-                            <p class="text-muted small mb-3">
-                                @slot.StartTime.ToString("dddd, dd MMM yyyy")
-                            </p>
-
-                            <dl class="row small mb-3">
-                                <dt class="col-6 text-muted">Duration</dt>
-                                <dd class="col-6">@slot.Duration min</dd>
-                            </dl>
-
-                            <form method="post"
-                                  asp-action="BookSlot"
-                                  asp-controller="Interviews">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="slotId" value="@slot.Id" />
-                                <button type="submit" class="btn btn-primary w-100">
-                                    Book This Slot
-                                </button>
-                            </form>
-
+                            <div class="text-muted small">@app.TruncatedDescription</div>
+                            <div class="text-muted" style="font-size:.72rem;margin-top:.3rem;">@app.FormattedDate &bull; @app.FormattedScore</div>
                         </div>
-                    </div>
+                    }
                 </div>
-            }
+            </div>
+
+            <!-- Right: slots -->
+            <div class="col-md-8">
+                <!-- placeholder before job selected -->
+                <div id="noSelection" class="p-4 rounded text-center" style="background:#F0EEFF;">
+                    <p class="text-muted mb-0">Select a job to see available interview slots.</p>
+                </div>
+
+                <!-- slots panel -->
+                <div class="slots-panel" id="slotsPanel">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <div>
+                            <span class="fw-semibold" id="selectedJobLabel"></span>
+                            <div class="text-muted small" id="selectedDateLabel"></div>
+                        </div>
+                        <input type="date" id="dateFilter" class="form-control form-control-sm" style="width:auto;"
+                               value="@DateTime.Today.ToString("yyyy-MM-dd")" onchange="loadSlots()" />
+                    </div>
+
+                    <div id="slotsContainer"></div>
+                </div>
+            </div>
         </div>
     }
-
 </div>
+
+<!-- Confirm booking modal -->
+<div class="modal fade" id="bookModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#F0EEFF;">
+                <h6 class="modal-title fw-bold">Confirm Booking</h6>
+                <button type="button" class="btn-close" onclick="hideModal()"></button>
+            </div>
+            <div class="modal-body small" id="bookModalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-sm btn-outline-secondary" onclick="hideModal()">Cancel</button>
+                <form method="post" asp-action="BookSlot" asp-controller="Interviews" id="bookForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="slotId" id="bookSlotId" />
+                    @* <input type="hidden" name="recruiterId" id="bookRecruiterId" /> *@
+                    <button type="submit" class="btn btn-sm text-white" style="background:#7C5CFC;">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    let selectedJobId = null;
+
+    window.selectJob = function (el) {
+        document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedJobId = el.dataset.jobId;
+        document.getElementById('selectedJobLabel').textContent = el.dataset.companyName;
+        document.getElementById('noSelection').style.display = 'none';
+        document.getElementById('slotsPanel').classList.add('visible');
+        loadSlots();
+    };
+
+    window.loadSlots = async function () {
+        if (!selectedJobId) return;
+        const date = document.getElementById('dateFilter').value;
+        document.getElementById('selectedDateLabel').textContent = formatDate(date);
+        document.getElementById('slotsContainer').innerHTML =
+            '<div class="text-muted small py-3">Loading slots...</div>';
+        try {
+            const res = await fetch(`/Interviews/GetSlotsByJob?jobId=${selectedJobId}&date=${date}`);
+            if (!res.ok) throw new Error();
+            const slots = await res.json();
+            renderSlots(slots);
+        } catch {
+            document.getElementById('slotsContainer').innerHTML =
+                '<div class="alert alert-danger small">Failed to load slots.</div>';
+        }
+    };
+
+    function renderSlots(slots) {
+        const available = slots.filter(s => s.status === 0);
+        if (!available.length) {
+            document.getElementById('slotsContainer').innerHTML =
+                `<div class="p-4 rounded text-center" style="background:#F0EEFF;">
+                    <p class="text-muted mb-0">No available slots for this date. Try a different date.</p>
+                </div>`;
+            return;
+        }
+        let html = '<div class="row g-3">';
+        for (const slot of available) {
+            html += `<div class="col-sm-6 col-lg-4">
+                <div class="card slot-card shadow-sm h-100 p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="rounded-pill px-2 py-1 text-white fw-semibold" style="font-size:.72rem;background:#8494FF;">
+                            ${slot.interviewType || 'Interview'}
+                        </span>
+                        <span class="badge bg-success" style="font-size:.7rem;">Available</span>
+                    </div>
+                    <div class="fw-semibold mb-1">${slot.timeRange}</div>
+                    <div class="text-muted small mb-3">${slot.duration} min</div>
+                    <button class="btn btn-sm text-white w-100 mt-auto" style="background:#7C5CFC;"
+                        onclick="confirmBook(${slot.id}, '${slot.timeRange}')">
+                        Book This Slot
+                    </button>
+                </div>
+            </div>`;
+        }
+        html += '</div>';
+        document.getElementById('slotsContainer').innerHTML = html;
+    }
+
+    window.confirmBook = function (slotId, timeRange) {
+        document.getElementById('bookSlotId').value    = slotId;
+        @* document.getElementById('bookRecruiterId').value = recruiterId; *@
+        document.getElementById('bookModalBody').innerHTML =
+            `<p>You are about to book the <strong>${timeRange}</strong> slot.</p><p class="mb-0 text-muted">Are you sure?</p>`;
+        document.getElementById('bookModal').classList.add('show');
+        document.getElementById('bookModal').style.display = 'block';
+    };
+
+    window.hideModal = function () {
+        document.getElementById('bookModal').classList.remove('show');
+        document.getElementById('bookModal').style.display = 'none';
+    };
+
+    function formatDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+})();
+</script>

@@ -11,6 +11,7 @@ namespace PussyCats.Web.Controllers
     using System.Threading.Tasks;
     using PussyCats.Web.Clients;
     using PussyCats.Web.Dtos;
+    using PussyCats.Library.Services.UserStatusService;
 
     /// <summary>
     /// Handles interview slot browsing and booking (candidates) and
@@ -20,16 +21,22 @@ namespace PussyCats.Web.Controllers
     {
         private readonly SlotsApiClient slotsClient;
         private readonly InterviewSessionsApiClient sessionsClient;
+        private readonly JobsApiClient jobsClient;
+        private readonly IUserStatusService userStatusService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterviewsController"/> class.
         /// </summary>
         public InterviewsController(
             SlotsApiClient slotsClient,
-            InterviewSessionsApiClient sessionsClient)
+            InterviewSessionsApiClient sessionsClient,
+            JobsApiClient jobsClient,
+            IUserStatusService userStatusService)
         {
             this.slotsClient = slotsClient;
             this.sessionsClient = sessionsClient;
+            this.jobsClient = jobsClient;
+            this.userStatusService = userStatusService;
         }
 
         // ---------------------------------------------------------------
@@ -41,12 +48,29 @@ namespace PussyCats.Web.Controllers
         /// Accessible by candidates only.
         /// </summary>
         [Authorize(Roles = "Candidate")]
-        public async Task<IActionResult> AvailableSlots(DateTime? date)
+        public async Task<IActionResult> AvailableSlots()
         {
-            DateTime selectedDate = date ?? DateTime.Today;
-            var slots = await this.slotsClient.GetAvailableAsync(selectedDate);
-            this.ViewBag.SelectedDate = selectedDate;
-            return this.View(slots);
+            //DateTime selectedDate = date ?? DateTime.Today;
+            //var slots = await this.slotsClient.GetAvailableAsync(selectedDate);
+            //this.ViewBag.SelectedDate = selectedDate;
+            //return this.View(slots);
+            int candidateId = int.Parse(this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var applications = await this.userStatusService.GetApplicationsForUserAsync(candidateId);
+
+            return this.View(applications);
+        }
+
+        /// <summary>
+        /// Retrieves all available interview slots for a chosen job.
+        /// </summary>
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> GetSlotsByJob(int jobId, DateTime? date)
+        {
+            var job = await this.jobsClient.GetJobByIdAsync(jobId);
+            if (job == null) return NotFound();
+
+            var slots = await this.slotsClient.GetAvailableSlotsForCompany(job.CompanyId, date ?? DateTime.Today);
+            return Json(slots);
         }
 
         // ---------------------------------------------------------------
@@ -59,14 +83,14 @@ namespace PussyCats.Web.Controllers
         /// </summary>
         [Authorize(Roles = "Candidate")]
         [HttpPost]
-        public async Task<IActionResult> BookSlot(int slotId, int recruiterId)
+        public async Task<IActionResult> BookSlot(int slotId, int jobId)
         {
             int candidateId = int.Parse(
                 this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             try
             {
-                await this.sessionsClient.ConfirmBookingAsync(slotId, candidateId);
+                await this.sessionsClient.ConfirmBookingAsync(slotId, candidateId, jobId);
                 this.TempData["Success"] = "Interview slot booked successfully!";
             }
             catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)

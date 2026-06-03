@@ -18,7 +18,7 @@ namespace Tests_and_Interviews.Dtos
         /// Gets or sets the unique identifier of the recruiter.
         /// </summary>
         public int RecruiterId { get; set; }
-        public int CompanyId { get;set }
+        public int CompanyId { get; set; }
 
         /// <summary>
         /// Gets or sets the unique identifier of the candidate.

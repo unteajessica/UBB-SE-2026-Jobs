@@ -8,6 +8,7 @@
     using Tests_and_Interviews_API.Repositories;
     using Tests_and_Interviews_API.Repositories.Interfaces;
     using Tests_and_Interviews_API.Services.Interfaces;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     /// <summary>
     /// Provides operations for managing slot entities, including retrieval, creation, update, and deletion of slots
@@ -212,6 +213,15 @@
             };
 
             await this._slotRepository.UpdateAsync(updatedSlot);
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<Slot>> GetAvailableSlotsByCompanyAsync(int companyId, DateTime slotDate)
+        {
+            List<Slot> availableSlots = await this._slotRepository.GetAvailableByDateAsync(slotDate);
+            return availableSlots
+                .Where(s => s.RecruiterCompanyId == companyId)
+                .ToList();
         }
     }
 }

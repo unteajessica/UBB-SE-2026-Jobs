@@ -55,6 +55,16 @@ namespace PussyCats.Web.Clients
         }
 
         /// <summary>
+        /// Retrieves all available for all recruiters of given company.
+        /// </summary>
+        public async Task<List<SlotDto>> GetAvailableSlotsForCompany(int companyId, DateTime date)
+        {
+            string formattedDate = date.ToString("yyyy-MM-dd");
+            return await this.http.GetFromJsonAsync<List<SlotDto>>(
+                $"{ApiPath}/company/{companyId}?date={formattedDate}") ?? new List<SlotDto>();
+        }
+
+        /// <summary>
         /// Adds a new recruiter slot for a specific company.
         /// </summary>
         /// <param name="baseSlot">base slot with date, start time and company</param>
