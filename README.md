@@ -24,7 +24,7 @@ The default connection strings point to `ASUS\SQLEXPRESS`. Replace that with **y
 | `PussyCats.Api/appsettings.json` | `ConnectionStrings.PussyCatsDb` |
 | `PussyCats.Api/appsettings.Development.json` | `ConnectionStrings.PussyCatsDb` |
 | `TestsAndInterviews/Tests_and_Interviews.API/.../appsettings.json` | `ConnectionStrings.Default` — also change `Initial Catalog` to `ISS_Merged` |
-| `/C:/Users/ursac/source/repos/UBB-SE-2026-Jobs/TestsAndInterviews/Tests_and_Interviews.API/Tests_and_Interviews_API/Tests_and_Interviews_API/Helpers/Env.cs` | change CONNECTION_STRING |
+| `...Tests_and_Interviews_API/Helpers/Env.cs` | change CONNECTION_STRING |
 
 Example (replace `YOUR_SERVER` with your instance, e.g. `localhost\SQLEXPRESS` or just `localhost`):
 
