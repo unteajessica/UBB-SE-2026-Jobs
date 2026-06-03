@@ -96,9 +96,19 @@ public class RecommendationRepository : IRecommendationRepository
             }
             else
             {
+                ReconcileJobCompany(incomingJob);
                 databaseContext.Jobs.Attach(incomingJob);
             }
         }
+    }
+    private void ReconcileJobCompany(Job job)
+    {
+        if (job.Company is not { CompanyId: > 0 } incomingCompany) return;
+
+        var tracked = databaseContext.Companies.Local.FirstOrDefault(c => c.CompanyId == incomingCompany.CompanyId);
+        if (tracked is not null)
+            job.Company = tracked;
+        // else: Attach(job) will carry Company along as Unchanged
     }
 
     public async Task UpdateAsync(Recommendation recommendation, CancellationToken cancellationToken = default)
