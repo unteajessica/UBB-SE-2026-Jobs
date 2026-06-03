@@ -117,7 +117,7 @@ public partial class App : Application
             .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiEventsService, TiEventsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiJobsService, TiJobsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+        services.AddHttpClient<ITiJobsService, TiJobsService>(client => client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiApplicantService, TiApplicantService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
