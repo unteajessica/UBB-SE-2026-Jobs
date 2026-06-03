@@ -45,8 +45,6 @@ Data Source=YOUR_SERVER;Initial Catalog=ISS_Merged;Integrated Security=True;Encr
 | `PussyCats.App` | Start |
 | `PussyCats.Web` | Start |
 | `Tests_and_Interviews_API` | Start |
-| `Tests_and_Interviews` | Start |
-| `Tests_and_Interviews.Web` | Start |
 
 3. Click **OK**.
 
