@@ -55,16 +55,30 @@ public class TiTestPageViewModel : INotifyPropertyChanged
 
         TestTitle = test.Title;
 
-        try
+        var existingAttempt = await testService.GetAttemptByUserAndTestAsync(userId, testId);
+
+        if (existingAttempt != null)
         {
-            await testService.StartAttemptAsync(userId, testId);
+            var savedAnswers = await testService.GetAnswersByAttemptAsync(existingAttempt.Id);
+            if (savedAnswers.Count > 0)
+            {
+                AlreadyAttempted = true;
+                return;
+            }
         }
-        catch (InvalidOperationException)
+        else
         {
-            AlreadyAttempted = true;
-            return;
+            try
+            {
+                await testService.StartAttemptAsync(userId, testId);
+            }
+            catch (InvalidOperationException)
+            {
+                AlreadyAttempted = true;
+                return;
+            }
+            catch { }
         }
-        catch { }
 
         var questions = await testService.GetQuestionsByTestIdAsync(testId);
         int index = 1;

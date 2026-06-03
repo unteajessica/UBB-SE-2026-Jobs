@@ -49,7 +49,7 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="Test Information" FontWeight="SemiBold" FontSize="15" Foreground="#1a1a2e"/>
                     <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="#555" Margin="0,3,0,0"
-                               Text="Each test contains 25 questions and must be completed within 30 minutes. Tests can only be taken once."/>
+                               Text="Each test contains a different number of questions and must be completed within 30 minutes. Tests can only be taken once."/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -69,73 +69,67 @@
                 <ItemsRepeater x:Name="TestsRepeater"
                                ItemsSource="{x:Bind ViewModel.Tests, Mode=OneWay}">
                     <ItemsRepeater.Layout>
-                        <UniformGridLayout MinItemWidth="380" MinColumnSpacing="20" MinRowSpacing="20"/>
+                        <StackLayout Spacing="16"/>
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="vm:TiTestCardViewModel">
-                            <Button Background="Transparent" BorderThickness="0" Padding="0"
-                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                                    Tag="{x:Bind TestId}"
-                                    Click="StartTest_Click"
+                            <Border Background="White" CornerRadius="16" Padding="24"
+                                    BorderThickness="{x:Bind CardBorderThickness, Mode=OneWay}"
+                                    BorderBrush="{x:Bind CardBorderBrush, Mode=OneWay}"
+                                    Tag="{x:Bind}"
                                     PointerEntered="Card_PointerEntered"
                                     PointerExited="Card_PointerExited">
-                                <Border Background="White" CornerRadius="16" Padding="24"
-                                        BorderThickness="{x:Bind CardBorderThickness, Mode=OneWay}"
-                                        BorderBrush="{x:Bind CardBorderBrush, Mode=OneWay}">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                                <StackPanel Spacing="0">
 
-                                        <Grid Grid.Row="0" Margin="0,0,0,14">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="0" Background="#8494FF" CornerRadius="20" Padding="10,5">
-                                                <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <TextBlock Text="&lt;/&gt;" Foreground="White" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{x:Bind QuestionTypeLabel}" Foreground="White" FontSize="11" FontWeight="Bold"/>
-                                                </StackPanel>
-                                            </Border>
-                                            <Ellipse Grid.Column="2" Width="10" Height="10" Fill="#22c55e" VerticalAlignment="Center"/>
-                                        </Grid>
-
-                                        <TextBlock Grid.Row="1" Text="{x:Bind Title}"
-                                                   FontSize="18" FontWeight="SemiBold" Foreground="#1a1a2e"
-                                                   TextWrapping="Wrap" Margin="0,0,0,10"/>
-
-                                        <Border Grid.Row="2" Background="#F0EEFF" CornerRadius="20" Padding="12,4"
-                                                HorizontalAlignment="Left" Margin="0,0,0,12">
-                                            <TextBlock Text="{x:Bind Category}" FontSize="12" Foreground="#555"/>
-                                        </Border>
-
-                                        <Border Grid.Row="3" Height="1" Background="#F0EEFF" Margin="0,0,0,12"/>
-                                        <Grid Grid.Row="4" MinHeight="8"/>
-
-                                        <Grid Grid.Row="5">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                                <TextBlock Text="⏱" FontSize="13" Foreground="#888" VerticalAlignment="Center"/>
-                                                <TextBlock Text="30 minutes" FontSize="13" Foreground="#888" VerticalAlignment="Center"/>
+                                    <!-- Badge row -->
+                                    <Grid Margin="0,0,0,14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Background="#8494FF" CornerRadius="20" Padding="10,5">
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <TextBlock Text="&lt;/&gt;" Foreground="White" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{x:Bind QuestionTypeLabel}" Foreground="White" FontSize="11" FontWeight="Bold"/>
                                             </StackPanel>
-                                            <TextBlock Grid.Column="2" Text="Start Test →"
-                                                       Foreground="#8494FF" FontWeight="SemiBold" FontSize="14"
-                                                       VerticalAlignment="Center"/>
-                                        </Grid>
+                                        </Border>
+                                        <Ellipse Grid.Column="2" Width="10" Height="10" Fill="#22c55e" VerticalAlignment="Center"/>
                                     </Grid>
-                                </Border>
-                            </Button>
+
+                                    <!-- Title -->
+                                    <TextBlock Text="{x:Bind Title}"
+                                               FontSize="18" FontWeight="SemiBold" Foreground="#1a1a2e"
+                                               TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                                    <!-- Category badge -->
+                                    <Border Background="#F0EEFF" CornerRadius="20" Padding="12,4"
+                                            HorizontalAlignment="Left" Margin="0,0,0,12">
+                                        <TextBlock Text="{x:Bind Category}" FontSize="12" Foreground="#555"/>
+                                    </Border>
+
+                                    <!-- Divider -->
+                                    <Border Height="1" Background="#F0EEFF" Margin="0,0,0,12"/>
+
+                                    <!-- Timer info -->
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,12">
+                                        <TextBlock Text="⏱" FontSize="13" Foreground="#888" VerticalAlignment="Center"/>
+                                        <TextBlock Text="30 minutes" FontSize="13" Foreground="#888" VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Action buttons -->
+                                    <StackPanel Spacing="8">
+                                        <Button Content="View Details" Tag="{x:Bind}" Click="ViewDetails_Click"
+                                                Background="#8494FF" Foreground="White"
+                                                HorizontalAlignment="Stretch" Padding="10,6" CornerRadius="6"/>
+                                        <Button Content="View Leaderboard" Tag="{x:Bind}" Click="ViewLeaderboard_Click"
+                                                HorizontalAlignment="Stretch" Padding="10,6" CornerRadius="6"/>
+                                        <Button Content="Start Test" Tag="{x:Bind}" Click="StartTest_Click"
+                                                Background="#22c55e" Foreground="White"
+                                                HorizontalAlignment="Stretch" Padding="10,6" CornerRadius="6"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
