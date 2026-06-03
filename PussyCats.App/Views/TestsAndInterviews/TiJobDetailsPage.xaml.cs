@@ -18,7 +18,7 @@ public sealed partial class TiJobDetailsPage : Page
         InitializeComponent();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
         if (e.Parameter is TiJobPostingDto job)
@@ -26,7 +26,19 @@ public sealed partial class TiJobDetailsPage : Page
             ViewModel.Load(job);
             ApplyButton.Visibility = ViewModel.IsCompanyMode ? Visibility.Collapsed : Visibility.Visible;
             ViewApplicantsButton.Visibility = ViewModel.IsCompanyMode ? Visibility.Visible : Visibility.Collapsed;
+
+            if (!ViewModel.IsCompanyMode)
+            {
+                await ViewModel.RefreshHasAppliedAsync();
+                UpdateApplyButton();
+            }
         }
+    }
+
+    private void UpdateApplyButton()
+    {
+        ApplyButton.Content = ViewModel.HasApplied ? "Already Applied" : "Apply Now";
+        ApplyButton.IsEnabled = !ViewModel.HasApplied;
     }
 
     private void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
@@ -71,6 +83,7 @@ public sealed partial class TiJobDetailsPage : Page
             return;
 
         var (_, message) = await ViewModel.ApplyAsync();
+        UpdateApplyButton();
 
         var resultDialog = new ContentDialog
         {

@@ -14,6 +14,7 @@ public partial class TiJobDetailsViewModel : DispatchableObservableObject
     [ObservableProperty] private TiJobPostingDto? currentJob;
     [ObservableProperty] private bool isCompanyMode;
     [ObservableProperty] private bool isBusy;
+    [ObservableProperty] private bool hasApplied;
 
     public TiJobDetailsViewModel(ITiApplicantService applicantService, SessionContext session)
     {
@@ -25,6 +26,17 @@ public partial class TiJobDetailsViewModel : DispatchableObservableObject
     {
         CurrentJob = job;
         IsCompanyMode = session.Mode == AppMode.Company;
+    }
+
+    public async Task RefreshHasAppliedAsync()
+    {
+        if (CurrentJob is null || IsCompanyMode || session.UserId <= 0)
+        {
+            HasApplied = false;
+            return;
+        }
+
+        HasApplied = await applicantService.HasUserAppliedAsync(CurrentJob.JobId, session.UserId);
     }
 
     public async Task<(bool Ok, string Message)> ApplyAsync()
@@ -39,7 +51,10 @@ public partial class TiJobDetailsViewModel : DispatchableObservableObject
         try
         {
             if (await applicantService.HasUserAppliedAsync(CurrentJob.JobId, session.UserId))
+            {
+                HasApplied = true;
                 return (false, "You have already submitted an application for this job. You cannot apply twice.");
+            }
 
             var applicant = new TiApplicantDto
             {
@@ -50,9 +65,11 @@ public partial class TiJobDetailsViewModel : DispatchableObservableObject
             };
 
             var result = await applicantService.CreateAsync(applicant);
-            return result is null
-                ? (false, "Failed to submit application. Please try again.")
-                : (true, "Application submitted successfully!");
+            if (result is null)
+                return (false, "Failed to submit application. Please try again.");
+
+            HasApplied = true;
+            return (true, "Application submitted successfully!");
         }
         finally
         {
