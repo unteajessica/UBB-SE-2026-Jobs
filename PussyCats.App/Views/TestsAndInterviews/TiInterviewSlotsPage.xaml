@@ -13,64 +13,120 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="Available Interview Slots" FontSize="24" FontWeight="Bold"/>
-            <TextBlock Text="Browse and book an interview slot with a recruiter."
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="Interview Slots" FontSize="24" FontWeight="Bold"/>
+            <TextBlock Text="Browse available slots and view your upcoming bookings."
                        FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0"/>
         </StackPanel>
 
         <!-- Status message -->
-        <TextBlock Grid.Row="1" Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+        <TextBlock Grid.Row="1"
+                   Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
                    Foreground="#22c55e" FontSize="14" Margin="0,0,0,12"
-                   Visibility="{x:Bind ViewModel.StatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                   Visibility="{x:Bind ViewModel.StatusMessage, Mode=OneWay,
+                       Converter={StaticResource StringToVisibilityConverter}}"/>
 
-        <!-- Date filter -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
-            <CalendarDatePicker Header="Date" Date="{x:Bind ViewModel.SelectedDate, Mode=TwoWay}" Width="220"/>
-            <Button Content="Filter" Click="Filter_Click" VerticalAlignment="Bottom"
-                    Background="#8494FF" Foreground="White" Padding="16,8" CornerRadius="8"/>
-        </StackPanel>
+        <!-- Main two-column layout -->
+        <Grid Grid.Row="2" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Slots grid -->
-        <Grid Grid.Row="3">
-            <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                          Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.AvailableSlots, Mode=OneWay}">
-                    <ItemsRepeater.Layout>
-                        <UniformGridLayout MinItemWidth="280" MinColumnSpacing="16" MinRowSpacing="16"/>
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="dtos:TiSlotDto">
-                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1" CornerRadius="12" Padding="20">
-                                <StackPanel Spacing="12">
-                                    <Border Background="#8494FF" CornerRadius="20" Padding="12,6" HorizontalAlignment="Left">
-                                        <TextBlock Text="{x:Bind InterviewType}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
-                                    </Border>
-                                    <TextBlock Text="{x:Bind TimeRange}" FontSize="18" FontWeight="SemiBold"/>
-                                    <StackPanel Spacing="4">
+            <!-- Left: calendar + my bookings -->
+            <StackPanel Grid.Column="0" Spacing="16">
+                <CalendarView x:Name="slotsCalendar"
+                              SelectionMode="Single"
+                              HorizontalAlignment="Stretch"
+                              SelectedDatesChanged="Calendar_SelectedDatesChanged"
+                              CalendarViewDayItemChanging="Calendar_DayItemChanging"/>
+
+                <TextBlock Text="My Upcoming Bookings" FontSize="16" FontWeight="SemiBold"/>
+
+                <TextBlock Text="No bookings yet."
+                           FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Visibility="{x:Bind ViewModel.NoBookings, Mode=OneWay,
+                               Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <ScrollViewer MaxHeight="320" VerticalScrollBarVisibility="Auto">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.MyBookings, Mode=OneWay}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:TiSlotDto">
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Background="#8494FF" CornerRadius="6"
+                                                Padding="8,6" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind DisplayDate}" Foreground="White"
+                                                       FontSize="11" FontWeight="SemiBold" TextAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind TimeRange}" FontSize="13" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{x:Bind InterviewType}"
+                                                       FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </StackPanel>
+
+            <!-- Right: available slots for selected date -->
+            <StackPanel Grid.Column="1" Spacing="12">
+                <TextBlock Text="{x:Bind ViewModel.SelectedDateLabel, Mode=OneWay}"
+                           FontSize="18" FontWeight="SemiBold"/>
+
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                              Width="36" Height="36" HorizontalAlignment="Left"/>
+
+                <TextBlock Text="No available slots for this date."
+                           FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Visibility="{x:Bind ViewModel.NoAvailableSlots, Mode=OneWay,
+                               Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.AvailableSlots, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <UniformGridLayout MinItemWidth="260" MinColumnSpacing="16" MinRowSpacing="16"/>
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:TiSlotDto">
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1" CornerRadius="12" Padding="20">
+                                    <StackPanel Spacing="12">
+                                        <Border Background="#8494FF" CornerRadius="20" Padding="12,6"
+                                                HorizontalAlignment="Left">
+                                            <TextBlock Text="{x:Bind InterviewType}" Foreground="White"
+                                                       FontSize="12" FontWeight="SemiBold"/>
+                                        </Border>
+                                        <TextBlock Text="{x:Bind TimeRange}" FontSize="18" FontWeight="SemiBold"/>
                                         <TextBlock FontSize="13">
                                             <Run Text="Duration: "/>
                                             <Run Text="{x:Bind Duration}"/>
                                             <Run Text=" min"/>
                                         </TextBlock>
+                                        <Button Content="Book This Slot" Tag="{x:Bind}" Click="BookSlot_Click"
+                                                Background="#8494FF" Foreground="White"
+                                                HorizontalAlignment="Stretch" CornerRadius="8" Padding="0,10"/>
                                     </StackPanel>
-                                    <Button Content="Book This Slot" Tag="{x:Bind}" Click="BookSlot_Click"
-                                            Background="#8494FF" Foreground="White"
-                                            HorizontalAlignment="Stretch" CornerRadius="8" Padding="0,10"/>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-            </ScrollViewer>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>

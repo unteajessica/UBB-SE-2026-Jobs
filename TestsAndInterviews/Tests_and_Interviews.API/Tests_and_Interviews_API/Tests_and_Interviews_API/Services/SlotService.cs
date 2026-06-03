@@ -48,6 +48,12 @@
             return slots.Select(s => s.ToDto()).ToList();
         }
 
+        public async Task<List<SlotDto>> GetSlotsByCandidateAsync(int candidateId)
+        {
+            List<Slot> slots = await this._slotRepository.GetByCandidateAsync(candidateId);
+            return slots.Select(s => s.ToDto()).ToList();
+        }
+
         /// <summary>
         /// Asynchronously retrieves all available slots associated with the specified recruiter.
         /// </summary>
