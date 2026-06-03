@@ -50,7 +50,6 @@
                     @foreach (var app in Model)
                     {
                         <div class="card job-card shadow-sm p-3"
-                             @* data-company-id="@app.CompanyId" *@
                              data-job-id="@app.JobId"
                              data-company-name="@app.CompanyName"
                              onclick="selectJob(this)">
@@ -75,12 +74,10 @@
 
             <!-- Right: slots -->
             <div class="col-md-8">
-                <!-- placeholder before job selected -->
                 <div id="noSelection" class="p-4 rounded text-center" style="background:#F0EEFF;">
                     <p class="text-muted mb-0">Select a job to see available interview slots.</p>
                 </div>
 
-                <!-- slots panel -->
                 <div class="slots-panel" id="slotsPanel">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                         <div>
@@ -112,7 +109,7 @@
                 <form method="post" asp-action="BookSlot" asp-controller="Interviews" id="bookForm">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="slotId" id="bookSlotId" />
-                    @* <input type="hidden" name="recruiterId" id="bookRecruiterId" /> *@
+                    <input type="hidden" name="jobId" id="bookJobId" />
                     <button type="submit" class="btn btn-sm text-white" style="background:#7C5CFC;">Confirm</button>
                 </form>
             </div>
@@ -173,7 +170,7 @@
                     <div class="fw-semibold mb-1">${slot.timeRange}</div>
                     <div class="text-muted small mb-3">${slot.duration} min</div>
                     <button class="btn btn-sm text-white w-100 mt-auto" style="background:#7C5CFC;"
-                        onclick="confirmBook(${slot.id}, '${slot.timeRange}')">
+                        onclick="confirmBook(${slot.id}, '${slot.timeRange}', ${selectedJobId})">
                         Book This Slot
                     </button>
                 </div>
@@ -183,9 +180,9 @@
         document.getElementById('slotsContainer').innerHTML = html;
     }
 
-    window.confirmBook = function (slotId, timeRange) {
+    window.confirmBook = function (slotId, timeRange, jobId) {
         document.getElementById('bookSlotId').value    = slotId;
-        @* document.getElementById('bookRecruiterId').value = recruiterId; *@
+        document.getElementById('bookJobId').value    = jobId;
         document.getElementById('bookModalBody').innerHTML =
             `<p>You are about to book the <strong>${timeRange}</strong> slot.</p><p class="mb-0 text-muted">Are you sure?</p>`;
         document.getElementById('bookModal').classList.add('show');
