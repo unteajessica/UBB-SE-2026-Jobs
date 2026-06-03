@@ -110,6 +110,7 @@
 
             existing.StartTime = slot.StartTime;
             existing.EndTime = slot.EndTime;
+            existing.Duration = slot.Duration;
             await this.appDbContext.SaveChangesAsync();
         }
 

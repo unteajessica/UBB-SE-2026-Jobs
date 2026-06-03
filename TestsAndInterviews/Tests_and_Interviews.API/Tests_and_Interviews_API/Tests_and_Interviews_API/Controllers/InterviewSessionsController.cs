@@ -25,6 +25,14 @@
             return Ok(sessions.Select(session => session.ToDto(Request)).ToList());
         }
 
+        [HttpGet("scheduled/{candidateId}")]
+        public async Task<ActionResult<InterviewSessionDto>> GetCandidateSchedules(int candidateId)
+        {
+            List<InterviewSession> sessions = await this._service.GetScheduledSessionsForCandidateAsync(candidateId);
+
+            return Ok(sessions.Select(session => session.ToDto(Request)).ToList());
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<InterviewSessionDto>> GetById(int id)
         {

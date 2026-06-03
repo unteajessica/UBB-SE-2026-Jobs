@@ -1,0 +1,253 @@
+﻿@model SlotDto
+@{
+    ViewData["Title"] = "Manage Interview Slots";
+}
+
+<style>
+    .day-cell { height: 52px; vertical-align: top; padding: 3px; cursor: default; }
+    .day-cell.empty { cursor: pointer; }
+    .day-cell.empty:hover { background: #F0EEFF; }
+    .slot-chip {
+        display: block; border-radius: 4px; padding: 2px 6px;
+        font-size: .75rem; font-weight: 600; cursor: pointer;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .slot-chip.free   { background: #F0EEFF; color: #5038C8; border: 1px solid #C4B5FD; }
+    .slot-chip.booked { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+    .slot-chip.free:hover { background: #DDD6FE; }
+</style>
+
+<div class="container py-4">
+    <div class="mb-4 pb-3 border-bottom">
+        <h2 class="fw-bold text-dark">Manage Interview Slots</h2>
+        <div class="text-muted small">Click an empty cell to add a slot. Click a slot to edit or delete it.</div>
+    </div>
+
+    <!-- Week navigation -->
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <button class="btn btn-sm" style="background:#F0EEFF;color:#5038C8;" id="prevWeek">&#8249;</button>
+        <span class="fw-semibold" id="weekLabel" style="min-width:180px;text-align:center;"></span>
+        <button class="btn btn-sm" style="background:#F0EEFF;color:#5038C8;" id="nextWeek">&#8250;</button>
+        <button class="btn btn-sm" style="background:#F0EEFF;color:#5038C8;" id="todayBtn">Today</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="d-flex gap-3 mb-3 small text-muted">
+        <span><span class="badge" style="background:#C4B5FD;">&nbsp;</span> Available</span>
+        <span><span class="badge" style="background:#A5D6A7;">&nbsp;</span> Booked</span>
+    </div>
+
+    <!-- Calendar -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0" id="calendarTable">
+                <thead style="background:#F0EEFF;" id="calendarHead"></thead>
+                <tbody id="calendarBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="slotModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#F0EEFF;">
+                <h6 class="modal-title fw-bold" id="modalTitle">Add Slot</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Date</label>
+                    <input type="date" id="slotDate" class="form-control form-control-sm" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Start Time</label>
+                    <input type="time" id="slotTime" class="form-control form-control-sm" step="1800" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Duration</label>
+                    <select id="slotDuration" class="form-select form-select-sm">
+                        <option value="60" selected>60 min</option>
+                        <option value="90">90 min</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="CompanyId" class="form-label small fw-semibold">Company</label>
+                    <select asp-for="CompanyId" class="form-select form-select-sm">
+                        <option value="">Select company</option>
+                        @if (ViewData["Companies"] is List<PussyCats.Web.Dtos.CompanyDto> companies)
+                        {
+                            foreach (var c in companies)
+                            {
+                                <option value="@c.CompanyId">@c.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-sm btn-outline-danger" id="modalDelete" style="display:none;">Delete</button>
+                <button class="btn btn-sm text-white" style="background:#7C5CFC;" id="modalSave">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    let slots = [], weekStart = getMonday(new Date()), editSlot = null;
+
+    const TIME_ROWS = [];
+    for (let h = 8; h < 18; h++) { TIME_ROWS.push({ h, m: 0 }); TIME_ROWS.push({ h, m: 30 }); }
+
+    document.getElementById('prevWeek').onclick  = () => { weekStart = addDays(weekStart, -7); render(); };
+    document.getElementById('nextWeek').onclick  = () => { weekStart = addDays(weekStart,  7); render(); };
+    document.getElementById('todayBtn').onclick  = () => { weekStart = getMonday(new Date()); render(); };
+    document.getElementById('modalSave').onclick   = saveSlot;
+    document.getElementById('modalDelete').onclick = deleteSlot;
+    document.querySelector('#slotModal .btn-close').onclick = () => {
+        document.getElementById('slotModal').classList.remove('show');
+        document.getElementById('slotModal').style.display = 'none';
+    };
+
+    render();
+
+    async function render() {
+        document.getElementById('weekLabel').textContent = fmtShort(weekStart) + ' – ' + fmtShort(addDays(weekStart, 6));
+        renderHead();
+        await loadSlots();
+        renderBody();
+    }
+
+    function renderHead() {
+        const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        let html = '<tr><th style="width:60px;"></th>';
+        for (let i = 0; i < 7; i++) {
+            const d = addDays(weekStart, i);
+            const today = sameDay(d, new Date());
+            html += `<th class="text-center small${today ? ' fw-bold' : ''}" style="${today ? 'background:#DDD6FE;' : ''}">
+                ${days[i]} ${d.getDate()}
+            </th>`;
+        }
+        html += '</tr>';
+        document.getElementById('calendarHead').innerHTML = html;
+    }
+
+    function renderBody() {
+        let html = '';
+        for (const { h, m } of TIME_ROWS) {
+            html += '<tr>';
+            html += `<td class="text-end text-muted small pe-2" style="background:#FAFAFA;white-space:nowrap;">${pad(h)}:${pad(m)}</td>`;
+            for (let i = 0; i < 7; i++) {
+                const d = addDays(weekStart, i);
+                const cell = slots.filter(s => {
+                    const sd = new Date(s.startTime);
+                    return sameDay(sd, d) && sd.getHours() === h && sd.getMinutes() === m;
+                });
+                const empty = cell.length === 0;
+                let chips = cell.map(s =>
+                    `<span class="slot-chip ${s.status ? 'booked' : 'free'}"
+                        onclick="slotClick(event,${s.id})"
+                        title="${s.status ? 'Booked' : 'Click to edit/delete'}">
+                        ${pad(h)}:${pad(m)} · ${s.duration ?? 60}m
+                    </span>`
+                ).join('');
+                html += `<td class="day-cell${empty ? ' empty' : ''}"
+                    ${empty ? `onclick="cellClick(event,'${toIso(d)}',${h},${m})"` : ''}>${chips}</td>`;
+            }
+            html += '</tr>';
+        }
+        document.getElementById('calendarBody').innerHTML = html;
+    }
+
+    async function loadSlots() {
+        try {
+            const res = await fetch('/Interviews/GetRecruiterSlots');
+            if (res.ok) slots = await res.json();
+        } catch {}
+    }
+
+    async function saveSlot() {
+        const date = document.getElementById('slotDate').value;
+        const time = document.getElementById('slotTime').value;
+        const duration = parseInt(document.getElementById('slotDuration').value);
+        const companyId = document.getElementById('CompanyId').value;
+        if (!date || !time) return;
+        const startTime = date + 'T' + time + ':00';
+        try {
+            if (editSlot) {
+                await fetch('/Interviews/UpdateRecruiterSlot', { method: 'POST', body: new URLSearchParams({
+                    'initialSlot.id': editSlot.id,
+                    'initialSlot.startTime': editSlot.startTime,
+                    'initialSlot.duration': editSlot.duration ?? 60,
+                    'initialSlot.companyId': companyId,
+                    startTime, duration
+                })});
+            } else {
+                await fetch('/Interviews/CreateRecruiterSlot', { method: 'POST', body: new URLSearchParams({
+                    'baseSlot.startTime': startTime,
+                    'baseSlot.duration': duration,
+                    'baseSlot.companyId': companyId,
+                    duration
+                })});
+            }
+
+            document.getElementById('slotModal').classList.remove('show');
+            document.getElementById('slotModal').style.display = 'none';
+            await render();
+        } catch {}
+    }
+
+    async function deleteSlot() {
+        if (!editSlot || !confirm('Delete this slot?')) return;
+        await fetch('/Interviews/DeleteRecruiterSlot', { method: 'POST', body: new URLSearchParams({ id: editSlot.id }) });
+
+        document.getElementById('slotModal').classList.remove('show');
+        document.getElementById('slotModal').style.display = 'none';
+        await render();
+    }
+
+    window.cellClick = function (e, isoDate, h, m) {
+        e.stopPropagation();
+        editSlot = null;
+        document.getElementById('modalTitle').textContent = 'Add Slot';
+        document.getElementById('slotDate').value         = isoDate;
+        document.getElementById('slotTime').value         = `${pad(h)}:${pad(m)}`;
+        document.getElementById('slotDuration').value     = '60';
+        document.getElementById('modalDelete').style.display = 'none';
+        document.getElementById('modalSave').textContent  = 'Add Slot';
+
+        document.getElementById('slotModal').classList.add('show');
+           document.getElementById('slotModal').style.display = 'block';
+    };
+
+    window.slotClick = function (e, slotId) {
+        e.stopPropagation();
+        const slot = slots.find(s => s.id === slotId);
+        if (!slot || slot.status) return;
+        editSlot = slot;
+        const sd = new Date(slot.startTime);
+        document.getElementById('modalTitle').textContent = 'Edit Slot';
+        document.getElementById('slotDate').value         = toIso(sd);
+        document.getElementById('slotTime').value         = `${pad(sd.getHours())}:${pad(sd.getMinutes())}`;
+        document.getElementById('slotDuration').value     = slot.duration ?? 60;
+        document.getElementById('modalDelete').style.display = '';
+        document.getElementById('modalSave').textContent  = 'Update';
+
+        document.getElementById('slotModal').classList.add('show');
+        document.getElementById('slotModal').style.display = 'block';
+    };
+
+    function getMonday(d) {
+        const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+    }
+    function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+    function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+    function pad(n)         { return String(n).padStart(2, '0'); }
+    function toIso(d)       { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+    function fmtShort(d)    { return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); }
+})();
+</script>

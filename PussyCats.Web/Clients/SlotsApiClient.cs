@@ -4,12 +4,13 @@
 
 namespace PussyCats.Web.Clients
 {
+    using Microsoft.AspNetCore.Mvc;
+    using PussyCats.Web.Dtos;
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-    using PussyCats.Web.Dtos;
 
     /// <summary>
     /// HTTP client for the Slots API endpoints, used by the MVC web app.
@@ -41,6 +42,61 @@ namespace PussyCats.Web.Clients
         {
             return await this.http.GetFromJsonAsync<List<SlotDto>>(
                 $"{ApiPath}/recruiter/{recruiterId}") ?? new List<SlotDto>();
+        }
+
+        /// <summary>
+        /// Retrieves all companies for a given recruiter.
+        /// </summary>
+        /// <param name="recruiterId"></param>
+        /// <returns></returns>
+        public async Task<List<CompanyDto>> GetCompaniesForRecruiterAsync(int recruiterId)
+        {
+           return await this.http.GetFromJsonAsync<List<CompanyDto>>($"api/companies/byrecruiter/{recruiterId}");
+        }
+
+        /// <summary>
+        /// Retrieves all available for all recruiters of given company.
+        /// </summary>
+        public async Task<List<SlotDto>> GetAvailableSlotsForCompany(int companyId, DateTime date)
+        {
+            string formattedDate = date.ToString("yyyy-MM-dd");
+            return await this.http.GetFromJsonAsync<List<SlotDto>>(
+                $"{ApiPath}/company/{companyId}?date={formattedDate}") ?? new List<SlotDto>();
+        }
+
+        /// <summary>
+        /// Adds a new recruiter slot for a specific company.
+        /// </summary>
+        /// <param name="baseSlot">base slot with date, start time and company</param>
+        /// <param name="duration">duration of slot</param>
+        public async Task AddRecruiterSlotAsync(SlotDto baseSlot, int duration)
+        {
+            var payload = new { BaseSlot = baseSlot, Duration = duration };
+            HttpResponseMessage response = await this.http.PostAsJsonAsync($"{ApiPath}/recruiter/create", payload);
+            response.EnsureSuccessStatusCode();
+        }
+
+        /// <summary>
+        /// Updates a new recruiter slot.
+        /// </summary>
+        /// <param name="initialSlot">the initial slot to modify</param>
+        /// <param name="startime">the new start time</param>
+        /// <param name="duration">the new duration time</param>
+        public async Task UpdateRecruiterSlotAsync(SlotDto initialSlot, DateTime startime, int duration)
+        {
+            var payload = new { InitialSlot = initialSlot, StartTime = startime, Duration = duration };
+            HttpResponseMessage response = await this.http.PutAsJsonAsync($"{ApiPath}/recruiter/update", payload);
+            response.EnsureSuccessStatusCode();
+        }
+
+        /// <summary>
+        /// Deletes a selected recruiter slot.
+        /// </summary>
+        /// <param name="slotId">id of slot to delete</param>
+        public async Task DeleteRecruiterSlotAsync(int slotId)
+        {
+            HttpResponseMessage response = await this.http.DeleteAsync($"{ApiPath}/{slotId}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

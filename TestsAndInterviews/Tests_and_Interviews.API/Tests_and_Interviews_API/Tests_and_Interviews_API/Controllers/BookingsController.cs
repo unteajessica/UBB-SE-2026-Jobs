@@ -31,11 +31,11 @@ namespace Tests_and_Interviews_API.Controllers
         /// <response code="404">The slot was not found.</response>
         /// <response code="409">The slot is no longer available.</response>
         [HttpPost("{slotId}/confirm")]
-        public async Task<ActionResult> ConfirmBooking(int slotId, [FromBody] int candidateId)
+        public async Task<ActionResult> ConfirmBooking(int slotId, [FromQuery] int jobId, [FromBody] int candidateId)
         {
             try
             {
-                await this._bookingService.ConfirmBookingAsync(slotId, candidateId);
+                await this._bookingService.ConfirmBookingAsync(slotId, candidateId, jobId);
                 return Ok();
             }
             catch (KeyNotFoundException e)

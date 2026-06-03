@@ -11,6 +11,7 @@ namespace PussyCats.Web.Controllers
     using System.Threading.Tasks;
     using PussyCats.Web.Clients;
     using PussyCats.Web.Dtos;
+    using PussyCats.Library.Services.UserStatusService;
 
     /// <summary>
     /// Handles interview slot browsing and booking (candidates) and
@@ -20,16 +21,22 @@ namespace PussyCats.Web.Controllers
     {
         private readonly SlotsApiClient slotsClient;
         private readonly InterviewSessionsApiClient sessionsClient;
+        private readonly JobsApiClient jobsClient;
+        private readonly IUserStatusService userStatusService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterviewsController"/> class.
         /// </summary>
         public InterviewsController(
             SlotsApiClient slotsClient,
-            InterviewSessionsApiClient sessionsClient)
+            InterviewSessionsApiClient sessionsClient,
+            JobsApiClient jobsClient,
+            IUserStatusService userStatusService)
         {
             this.slotsClient = slotsClient;
             this.sessionsClient = sessionsClient;
+            this.jobsClient = jobsClient;
+            this.userStatusService = userStatusService;
         }
 
         // ---------------------------------------------------------------
@@ -41,12 +48,25 @@ namespace PussyCats.Web.Controllers
         /// Accessible by candidates only.
         /// </summary>
         [Authorize(Roles = "Candidate")]
-        public async Task<IActionResult> AvailableSlots(DateTime? date)
+        public async Task<IActionResult> AvailableSlots()
         {
-            DateTime selectedDate = date ?? DateTime.Today;
-            var slots = await this.slotsClient.GetAvailableAsync(selectedDate);
-            this.ViewBag.SelectedDate = selectedDate;
-            return this.View(slots);
+            int candidateId = int.Parse(this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var applications = await this.userStatusService.GetApplicationsForUserAsync(candidateId);
+
+            return this.View(applications);
+        }
+
+        /// <summary>
+        /// Retrieves all available interview slots for a chosen job.
+        /// </summary>
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> GetSlotsByJob(int jobId, DateTime? date)
+        {
+            var job = await this.jobsClient.GetJobByIdAsync(jobId);
+            if (job == null) return NotFound();
+
+            var slots = await this.slotsClient.GetAvailableSlotsForCompany(job.CompanyId, date ?? DateTime.Today);
+            return Json(slots);
         }
 
         // ---------------------------------------------------------------
@@ -59,14 +79,14 @@ namespace PussyCats.Web.Controllers
         /// </summary>
         [Authorize(Roles = "Candidate")]
         [HttpPost]
-        public async Task<IActionResult> BookSlot(int slotId, int recruiterId)
+        public async Task<IActionResult> BookSlot(int slotId, int jobId)
         {
             int candidateId = int.Parse(
                 this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             try
             {
-                await this.sessionsClient.ConfirmBookingAsync(slotId, candidateId);
+                await this.sessionsClient.ConfirmBookingAsync(slotId, candidateId, jobId);
                 this.TempData["Success"] = "Interview slot booked successfully!";
             }
             catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
@@ -79,6 +99,32 @@ namespace PussyCats.Web.Controllers
             }
 
             return this.RedirectToAction(nameof(this.AvailableSlots));
+        }
+        // ---------------------------------------------------------------
+        // Candidate: browse your booked interview sessions
+        // ---------------------------------------------------------------
+
+        /// <summary>
+        /// Displays booked interview slots for logged in candidate.
+        /// Accessible by candidates only.
+        /// </summary>
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> CandidateBookedInterviews()
+        {
+            int candidateId = int.Parse(
+                this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var booked = await this.sessionsClient.GetBookedByCandidate(candidateId); ;
+
+            return View(booked);
+        }
+
+        /// <summary>
+        /// Starts the interview recording for a booked interview session.
+        /// </summary>
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> StartInterview(int sessionId)
+        {
+            return null;
         }
 
         // ---------------------------------------------------------------
@@ -94,6 +140,100 @@ namespace PussyCats.Web.Controllers
         {
             var sessions = await this.sessionsClient.GetScheduledAsync();
             return this.View(sessions);
+        }
+
+        // ---------------------------------------------------------------
+        // Recruiter: manage interview slots
+        // ---------------------------------------------------------------
+        /// <summary>
+        /// Displaying page for managing slots and sets the list of companies for logged in recruiter.
+        /// </summary>
+        [Authorize(Roles = "Recruiter")]
+        public async Task<IActionResult> ManageSlots()
+        {
+            int recruiterId = int.Parse(
+                this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            List<CompanyDto> companies = await this.slotsClient.GetCompaniesForRecruiterAsync(recruiterId);
+            ViewData["Companies"] = companies;
+
+            return this.View();
+        }
+
+        /// <summary>
+        /// Get all slots of the logged in recruiter to display them.
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "Recruiter")]
+        public async Task<IActionResult> GetRecruiterSlots()
+        {
+            int recruiterId= int.Parse(
+                this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            List<SlotDto> slots = await this.slotsClient.GetAllByRecruiterAsync(recruiterId);
+
+            return Json(slots);
+        }
+
+        /// <summary>
+        /// Create a new slot for the logged in recruiter.
+        /// </summary>
+        /// <param name="baseSlot">base slot with date, start time and company</param>
+        /// <param name="duration">duration of slot</param>
+        [HttpPost]
+        public async Task<IActionResult> CreateRecruiterSlot(SlotDto baseSlot, int duration)
+        {
+            try {
+                int recruiterId = int.Parse(
+                    this.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                baseSlot.RecruiterId = recruiterId;
+
+                await this.slotsClient.AddRecruiterSlotAsync(baseSlot, duration);
+                return Ok();
+            } catch (HttpRequestException ex) {
+                this.TempData["Error"] = "Slot not available.";
+            }
+
+            return this.RedirectToAction(nameof(this.ManageSlots));
+        }
+
+        /// <summary>
+        /// Update a slot of the logged in recruiter.
+        /// </summary>
+        /// <param name="initialSlot">initial slot to change</param>
+        /// <param name="startTime">new start time</param>
+        /// <param name="duration">new duration</param>
+        [HttpPost]
+        public async Task<IActionResult> UpdateRecruiterSlot(SlotDto initialSlot, DateTime startTime, int duration)
+        {
+            try {
+                await this.slotsClient.UpdateRecruiterSlotAsync(initialSlot, startTime, duration);
+                return Ok();
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+                this.TempData["Error"] = "Slot not found.";
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+                this.TempData["Error"] = "Could not update slot.";
+            }
+
+            return this.RedirectToAction(nameof(this.ManageSlots));
+        }
+
+        /// <summary>
+        /// Delete a recruiter slot.
+        /// </summary>
+        /// <param name="id">id of slot to delete</param>
+        [HttpPost]
+        public async Task<IActionResult> DeleteRecruiterSlot(int id)
+        {
+            try {
+                await this.slotsClient.DeleteRecruiterSlotAsync(id);
+                return Ok();
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+                this.TempData["Error"] = "Slot not found.";
+            } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+                this.TempData["Error"] = "Could not delete slot.";
+            }
+
+            return this.RedirectToAction(nameof(this.ManageSlots));
         }
     }
 }
