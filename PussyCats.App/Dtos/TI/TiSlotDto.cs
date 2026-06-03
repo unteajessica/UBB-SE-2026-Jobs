@@ -11,4 +11,5 @@ public class TiSlotDto
     public int Status { get; set; }
     public string InterviewType { get; set; } = string.Empty;
     public string TimeRange => $"{StartTime:HH:mm} - {EndTime:HH:mm}";
+    public string DisplayDate => StartTime.ToString("ddd, dd MMM");
 }
