@@ -1,5 +1,7 @@
 using FluentAssertions;
+using NSubstitute;
 using PussyCats.App.Configuration;
+using PussyCats.App.Services.TI;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
@@ -38,7 +40,9 @@ public class CompanyStatusViewModelTests
             jobService,
             userSkillService);
 
-        viewModel = new CompanyStatusViewModel(companyStatusService, matchService, session);
+        var tiTestService = Substitute.For<ITiTestService>();
+
+        viewModel = new CompanyStatusViewModel(companyStatusService, matchService, tiTestService, session);
     }
 
     [Fact]
