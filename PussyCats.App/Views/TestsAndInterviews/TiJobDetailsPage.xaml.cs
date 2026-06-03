@@ -23,7 +23,7 @@ public sealed partial class TiJobDetailsPage : Page
         base.OnNavigatedTo(e);
         if (e.Parameter is TiJobPostingDto job)
         {
-            ViewModel.Load(job);
+            await ViewModel.LoadAsync(job);
             ApplyButton.Visibility = ViewModel.IsCompanyMode ? Visibility.Collapsed : Visibility.Visible;
             ViewApplicantsButton.Visibility = ViewModel.IsCompanyMode ? Visibility.Visible : Visibility.Collapsed;
 
