@@ -22,10 +22,32 @@ public sealed partial class TiInterviewSlotsPage : Page
     {
         base.OnNavigatedTo(e);
         await ViewModel.LoadSlotsAsync();
+        slotsCalendar.SetDisplayDate(DateTimeOffset.Now);
     }
 
-    private async void Filter_Click(object sender, RoutedEventArgs e)
-        => await ViewModel.LoadSlotsAsync();
+    private void Calendar_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs e)
+    {
+        if (e.AddedDates.Count > 0)
+            ViewModel.SelectedDate = e.AddedDates[0];
+    }
+
+    private void Calendar_DayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
+    {
+        if (args.Phase == 0)
+        {
+            args.RegisterUpdateCallback(Calendar_DayItemChanging);
+            return;
+        }
+
+        var date = args.Item.Date.Date;
+        if (ViewModel.BookedDates.Contains(date))
+        {
+            args.Item.SetDensityColors(new[]
+            {
+                Windows.UI.Color.FromArgb(255, 132, 148, 255)
+            });
+        }
+    }
 
     private async void BookSlot_Click(object sender, RoutedEventArgs e)
     {

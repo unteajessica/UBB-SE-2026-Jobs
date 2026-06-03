@@ -44,7 +44,7 @@ namespace Tests_and_Interviews_API.Services
         /// <returns>A task that represents the asynchronous operation.</returns>
         /// <exception cref="KeyNotFoundException">Thrown when the slot is not found.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the slot is no longer available.</exception>
-        public async Task ConfirmBookingAsync(int slotId, int candidateId)
+        public async Task ConfirmBookingAsync(int slotId, int candidateId, int jobId)
         {
             Slot? slot = await this._slotRepository.GetByIdAsync(slotId);
             if (slot == null)
@@ -65,7 +65,7 @@ namespace Tests_and_Interviews_API.Services
 
             InterviewSession newInterviewSession = new InterviewSession
             {
-                PositionId = MINIMUMPOSITIONID,
+                PositionId = jobId,
                 ExternalUserId = candidateId,
                 InterviewerId = slot.RecruiterId,
                 DateStart = slot.StartTime.ToUniversalTime(),

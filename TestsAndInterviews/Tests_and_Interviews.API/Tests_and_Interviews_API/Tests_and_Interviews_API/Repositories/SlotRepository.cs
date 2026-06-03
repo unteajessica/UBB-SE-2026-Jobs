@@ -46,6 +46,15 @@
         }
 
         /// <inheritdoc />
+        public async Task<List<Slot>> GetByCandidateAsync(int candidateId)
+        {
+            return await this.appDbContext.Slots
+                .Where(s => s.CandidateId == candidateId && s.StatusValue == 1)
+                .OrderBy(s => s.StartTime)
+                .ToListAsync();
+        }
+
+        /// <inheritdoc />
         public async Task<List<Slot>> GetAllSlotsAsync(int recruiterId)
         {
             return await this.appDbContext.Slots
@@ -101,6 +110,7 @@
 
             existing.StartTime = slot.StartTime;
             existing.EndTime = slot.EndTime;
+            existing.Duration = slot.Duration;
             await this.appDbContext.SaveChangesAsync();
         }
 
