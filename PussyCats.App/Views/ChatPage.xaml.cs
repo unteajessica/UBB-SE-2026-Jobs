@@ -75,6 +75,9 @@ public sealed partial class ChatPage : Page
 
     private void SearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs eventArguments)
     {
+        var typeName = eventArguments.SelectedItem?.GetType().FullName ?? "null";
+        var display = (eventArguments.SelectedItem as ContactSearchResultViewModel)?.DisplayName ?? "NOT A CRSVM";
+        System.Diagnostics.Debug.WriteLine($"TYPE: {typeName} | NAME: {display}");
     }
 
     private async void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs eventArguments)
