@@ -38,24 +38,24 @@ public sealed partial class CompatibilityDetailPage : Page
         var suggestions = viewModel.GetSuggestions();
         if (suggestions is null || suggestions.Count == 0)
         {
-            suggestionsList.Visibility  = Visibility.Collapsed;
+            suggestionsList.Visibility = Visibility.Collapsed;
             noSuggestionsLabel.Visibility = Visibility.Visible;
             return;
         }
 
-        var items = new List<object>();
+        var items = new List<SuggestionDisplayItem>();
         foreach (var suggestion in suggestions)
         {
-            items.Add(new
+            items.Add(new SuggestionDisplayItem
             {
-                suggestion.SkillName,
-                suggestion.GroupName,
+                SkillName = suggestion.SkillName,
+                GroupName = suggestion.GroupName,
                 GainDisplay = $"Potential gain: +{Math.Round(suggestion.GainScore, 1)}%",
             });
         }
 
-        suggestionsList.ItemsSource  = items;
-        suggestionsList.Visibility   = Visibility.Visible;
+        suggestionsList.ItemsSource = items;
+        suggestionsList.Visibility = Visibility.Visible;
         noSuggestionsLabel.Visibility = Visibility.Collapsed;
     }
 
