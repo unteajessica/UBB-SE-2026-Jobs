@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -25,34 +23,39 @@ public sealed partial class TiMainTestPage : Page
         await ViewModel.LoadTestsAsync();
     }
 
+    private void ViewDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: TiTestCardViewModel card })
+        {
+            ViewModel.SelectedTest = card;
+            Frame.Navigate(typeof(TiTestDetailsPage), card);
+        }
+    }
+
+    private void ViewLeaderboard_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: TiTestCardViewModel card })
+            Frame.Navigate(typeof(TiLeaderboardPage), card.TestId);
+    }
+
     private void StartTest_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag != null)
+        if (sender is Button { Tag: TiTestCardViewModel card })
         {
-            int testId = Convert.ToInt32(button.Tag);
-            var selected = ViewModel.Tests.FirstOrDefault(t => t.TestId == testId);
-            if (selected != null) ViewModel.SelectedTest = selected;
-            Frame.Navigate(typeof(TiTestPage), testId);
+            ViewModel.SelectedTest = card;
+            Frame.Navigate(typeof(TiTestPage), card.TestId);
         }
     }
 
     private void Card_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag != null)
-        {
-            int testId = Convert.ToInt32(button.Tag);
-            var card = ViewModel.Tests.FirstOrDefault(t => t.TestId == testId);
-            if (card != null) card.IsHovered = true;
-        }
+        if (sender is FrameworkElement { Tag: TiTestCardViewModel card })
+            card.IsHovered = true;
     }
 
     private void Card_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag != null)
-        {
-            int testId = Convert.ToInt32(button.Tag);
-            var card = ViewModel.Tests.FirstOrDefault(t => t.TestId == testId);
-            if (card != null) card.IsHovered = false;
-        }
+        if (sender is FrameworkElement { Tag: TiTestCardViewModel card })
+            card.IsHovered = false;
     }
 }

@@ -53,13 +53,15 @@ public class TiMainTestViewModel : INotifyPropertyChanged
             var tests = await testService.GetByCategoryAsync(category);
             foreach (var test in tests)
             {
-                Tests.Add(new TiTestCardViewModel
+                var card = new TiTestCardViewModel
                 {
                     TestId = test.Id,
                     Title = test.Title,
                     Category = test.Category,
                     QuestionTypeLabel = test.QuestionTypeLabel,
-                });
+                    CreatedAt = test.CreatedAt,
+                };
+                Tests.Add(card);
             }
         }
 

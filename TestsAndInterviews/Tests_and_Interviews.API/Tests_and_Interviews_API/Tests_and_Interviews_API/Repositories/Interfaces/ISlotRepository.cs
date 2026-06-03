@@ -25,6 +25,7 @@ namespace Tests_and_Interviews_API.Repositories.Interfaces
         public Task<List<Slot>> GetSlotsAsync(int recruiterId, DateTime date);
 
         public Task<List<Slot>> GetAvailableByDateAsync(DateTime date);
+        public Task<List<Slot>> GetByCandidateAsync(int candidateId);
 
         /// <summary>
         /// Asynchronously retrieves all slots associated with the specified recruiter.

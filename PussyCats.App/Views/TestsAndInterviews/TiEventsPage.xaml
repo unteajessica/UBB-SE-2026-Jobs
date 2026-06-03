@@ -41,7 +41,7 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.CurrentEvents, Mode=OneWay}" Margin="0,12,0,0">
                             <ItemsRepeater.Layout>
-                                <UniformGridLayout MinItemWidth="320" MinColumnSpacing="16" MinRowSpacing="16"/>
+                                <StackLayout Spacing="12"/>
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="dtos:TiEventDto">
@@ -57,8 +57,10 @@
                                                 <Run Text=" — "/>
                                                 <Run Text="{x:Bind EndDate}"/>
                                             </TextBlock>
-                                            <TextBlock Text="{x:Bind Description}" FontSize="13" TextWrapping="Wrap"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" MaxLines="3"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Button Content="View Details" Tag="{x:Bind}" Click="ViewEventDetails_Click"
+                                                        Background="#8494FF" Foreground="White" Padding="10,6" CornerRadius="6"/>
+                                            </StackPanel>
                                             <StackPanel Orientation="Horizontal" Spacing="8"
                                                         Visibility="Collapsed">
                                                 <Button Content="Edit" Tag="{x:Bind}" Click="EditEvent_Click"
@@ -79,7 +81,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ItemsRepeater ItemsSource="{x:Bind ViewModel.PastEvents, Mode=OneWay}" Margin="0,12,0,0">
                         <ItemsRepeater.Layout>
-                            <UniformGridLayout MinItemWidth="320" MinColumnSpacing="16" MinRowSpacing="16"/>
+                            <StackLayout Spacing="12"/>
                         </ItemsRepeater.Layout>
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="dtos:TiEventDto">
@@ -95,8 +97,10 @@
                                             <Run Text=" — "/>
                                             <Run Text="{x:Bind EndDate}"/>
                                         </TextBlock>
-                                        <TextBlock Text="{x:Bind Description}" FontSize="13" TextWrapping="Wrap"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" MaxLines="3"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="View Details" Tag="{x:Bind}" Click="ViewEventDetails_Click"
+                                                    Background="#8494FF" Foreground="White" Padding="10,6" CornerRadius="6"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

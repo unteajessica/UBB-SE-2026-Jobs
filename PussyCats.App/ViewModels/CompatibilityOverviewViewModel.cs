@@ -13,6 +13,7 @@ public class CompatibilityOverviewViewModel : DispatchableObservableObject
     private List<RoleResult> roleResults = new();
     private RoleResult? selectedResult;
     private string errorMessage = string.Empty;
+    private bool isLoading;
 
     public CompatibilityOverviewViewModel(ICompatibilityService compatibilityService, SessionContext session)
     {
@@ -38,8 +39,15 @@ public class CompatibilityOverviewViewModel : DispatchableObservableObject
         private set => SetProperty(ref errorMessage, value);
     }
 
+    public bool IsLoading
+    {
+        get => isLoading;
+        private set => SetProperty(ref isLoading, value);
+    }
+
     public async Task LoadAllRolesAsync(CancellationToken cancellationToken = default)
     {
+        IsLoading = true;
         try
         {
             RoleResults = (await compatibilityService
@@ -50,6 +58,10 @@ public class CompatibilityOverviewViewModel : DispatchableObservableObject
         catch (Exception exception)
         {
             ErrorMessage = exception.Message;
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

@@ -37,8 +37,7 @@ public sealed partial class TiTestPage : Page
 
         if (ViewModel.AlreadyAttempted)
         {
-            ShowResultDialog("Already Taken", "You have already completed this test.");
-            Frame.GoBack();
+            Frame.Navigate(typeof(TiAlreadySubmittedPage), testId);
         }
     }
 

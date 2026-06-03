@@ -17,6 +17,7 @@ public class TiTestCardViewModel : INotifyPropertyChanged
     public string Title { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string QuestionTypeLabel { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
 
     public bool IsSelected
     {
