@@ -2,24 +2,22 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Moq;
+using Moq.Protected;
+using Tests_and_Interviews.Models;
+using Tests_and_Interviews.Models.Core;
+using Tests_and_Interviews.Services;
+using Xunit; // Crucial: Native xUnit assertions come from here
+
 namespace TestsAndInterviews.Tests.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Http;
-    using System.Net.Http.Json;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
-    using Moq.Protected;
-    using Tests_and_Interviews.Models;
-    using Tests_and_Interviews.Models.Core;
-    using Tests_and_Interviews.Services;
-    using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
-
-    [TestClass]
     public class ApplicantServiceAdditionalTests
     {
         private const int ValidApplicantId = 1;
@@ -29,12 +27,11 @@ namespace TestsAndInterviews.Tests.Services
         private const decimal GradePass = 8.0m;
         private const decimal GradeMediocre = 6.0m;
 
-        private Mock<HttpMessageHandler> _mockHandler = null!;
-        private HttpClient _httpClient = null!;
-        private ApplicantService _sut = null!;
+        private readonly Mock<HttpMessageHandler> _mockHandler;
+        private readonly HttpClient _httpClient;
+        private readonly ApplicantService _sut;
 
-        [TestInitialize]
-        public void Setup()
+        public ApplicantServiceAdditionalTests()
         {
             _mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Loose);
 
@@ -65,7 +62,7 @@ namespace TestsAndInterviews.Tests.Services
             };
         }
 
-        [TestMethod]
+        [Fact]
         public async Task UpdateCompanyTestGrade_ExistingApplicant_CallsRepositoryUpdate()
         {
             var applicant = MakeApplicant(ValidApplicantId);
@@ -101,7 +98,7 @@ namespace TestsAndInterviews.Tests.Services
                 ItExpr.IsAny<CancellationToken>());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task UpdateInterviewGrade_ExistingApplicant_CallsRepositoryUpdate()
         {
             var applicant = MakeApplicant(ValidApplicantId);
@@ -137,7 +134,7 @@ namespace TestsAndInterviews.Tests.Services
                 ItExpr.IsAny<CancellationToken>());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task UpdateAppTestGrade_ExistingApplicant_CallsRepositoryUpdate()
         {
             var applicant = MakeApplicant(ValidApplicantId);
@@ -173,7 +170,7 @@ namespace TestsAndInterviews.Tests.Services
                 ItExpr.IsAny<CancellationToken>());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetApplicantsByCompany_WithValidResponse_ReturnsApplicants()
         {
             var applicants = new List<Applicant>
@@ -196,10 +193,11 @@ namespace TestsAndInterviews.Tests.Services
 
             var result = await _sut.GetApplicantsByCompany(1);
 
-            Assert.IsNotNull(result);
+            // Native xUnit non-null assertion
+            Assert.NotNull(result);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetApplicantsForJob_WithValidResponse_ReturnsApplicants()
         {
             var applicants = new List<Applicant>
@@ -224,11 +222,11 @@ namespace TestsAndInterviews.Tests.Services
 
             var result = await _sut.GetApplicantsForJob(job);
 
-            Assert.IsNotNull(result);
+            // Native xUnit non-null assertion
+            Assert.NotNull(result);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(HttpRequestException))]
+        [Fact]
         public async Task GetApplicant_ServerError_ThrowsException()
         {
             _mockHandler.Protected()
@@ -240,7 +238,8 @@ namespace TestsAndInterviews.Tests.Services
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
 
-            await _sut.GetApplicant(ValidApplicantId);
+            // Native xUnit asynchronous exception assertion
+            await Assert.ThrowsAsync<HttpRequestException>(() => _sut.GetApplicant(ValidApplicantId));
         }
     }
 }
