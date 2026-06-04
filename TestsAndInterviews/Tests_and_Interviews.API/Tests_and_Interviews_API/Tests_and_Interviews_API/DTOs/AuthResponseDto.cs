@@ -24,5 +24,10 @@
         /// Gets or sets the user's id.
         /// </summary>
         public int UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user's company id (if they are a recruiter).
+        /// </summary>
+        public int? CompanyId { get; set; }
     }
 }

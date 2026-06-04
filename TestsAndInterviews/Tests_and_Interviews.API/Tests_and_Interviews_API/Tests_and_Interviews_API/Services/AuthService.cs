@@ -42,12 +42,15 @@ namespace Tests_and_Interviews_API.Services
             var role = await this.ResolveRoleAsync(user.Id);
             user.Role = role;
 
+            var companyId = await this.GetCompanyIdForUserAsync(user.Id);
+
             return new AuthResponseDto
             {
                 Token = this.GenerateJwt(user),
                 Role = role,
                 Name = user.Name,
                 UserId = user.Id,
+                CompanyId = companyId,
             };
         }
 
@@ -60,6 +63,7 @@ namespace Tests_and_Interviews_API.Services
 
             if (user == null) return null;
 
+            int? companyId = null;
             if (dto.Role == "Recruiter")
             {
                 if (!dto.CompanyId.HasValue) return null;
@@ -80,6 +84,7 @@ namespace Tests_and_Interviews_API.Services
                     });
                     await this.dbContext.SaveChangesAsync();
                 }
+                companyId = company.CompanyId;
             }
 
             user.Role = dto.Role;
@@ -89,6 +94,7 @@ namespace Tests_and_Interviews_API.Services
                 Role = dto.Role,
                 Name = user.Name,
                 UserId = user.Id,
+                CompanyId = companyId,
             };
         }
 
@@ -97,6 +103,13 @@ namespace Tests_and_Interviews_API.Services
             bool isRecruiter = await this.dbContext.Recruiters
                 .AnyAsync(r => r.UserId == userId);
             return isRecruiter ? "Recruiter" : "Candidate";
+        }
+
+        private async Task<int?> GetCompanyIdForUserAsync(int userId)
+        {
+            var recruiter = await this.dbContext.Recruiters
+                .FirstOrDefaultAsync(r => r.UserId == userId);
+            return recruiter?.CompanyId;
         }
 
         private string GenerateJwt(User user)

@@ -153,6 +153,12 @@ public class AccountController : Controller
         {
             claims.Add(new Claim(ClaimTypes.Role, tiInfo.Role));
             claims.Add(new Claim("jwt", tiInfo.Token));
+
+            // Add CompanyId claim if the user is a recruiter with an associated company
+            if (tiInfo.CompanyId.HasValue)
+            {
+                claims.Add(new Claim("CompanyId", tiInfo.CompanyId.Value.ToString()));
+            }
         }
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

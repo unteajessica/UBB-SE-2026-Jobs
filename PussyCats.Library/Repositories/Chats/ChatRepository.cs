@@ -80,7 +80,7 @@ public class ChatRepository : IChatRepository
                         && chat.Company != null 
                         && chat.Company.CompanyId == company.CompanyId
                         && chat.Job!=null && chat.Job.JobId == jobId
-                        && chat.SecondUser.UserId == null,
+                        && chat.SecondUser == null,
                 cancellationToken)
             .ConfigureAwait(false);
     }
