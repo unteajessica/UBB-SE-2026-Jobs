@@ -1,11 +1,12 @@
 namespace Tests_and_Interviews_API.Repositories
 {
+    using Microsoft.EntityFrameworkCore;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Microsoft.EntityFrameworkCore;
     using Tests_and_Interviews_API.Data;
+    using Tests_and_Interviews_API.Dtos;
     using Tests_and_Interviews_API.Models;
     using Tests_and_Interviews_API.Repositories.Interfaces;
 
@@ -219,6 +220,19 @@ namespace Tests_and_Interviews_API.Repositories
             }
 
             return company;
+        }
+
+        public List<Company> GetByRecruiter(int recruiterId)
+        {
+            List<Company> companies = this.appDbContext.Recruiters
+                .Where(c => c.UserId == recruiterId)
+                .Join(this.appDbContext.Companies,
+                    r => r.CompanyId,
+                    c => c.CompanyId,
+                    (r, c) => c)
+                .ToList();
+
+            return companies;
         }
     }
 }

@@ -43,12 +43,21 @@ namespace PussyCats.Web.Clients
         }
 
         /// <summary>
+        /// Retrieves all sessions booked by a candidate.
+        /// </summary>
+        public async Task<List<InterviewSessionDto>> GetBookedByCandidate(int candidateId)
+        {
+            return await this.http.GetFromJsonAsync<List<InterviewSessionDto>>(
+                $"{SessionsPath}/scheduled/{candidateId}") ?? new List<InterviewSessionDto>();
+        }
+
+        /// <summary>
         /// Confirms a booking for a candidate by reserving the specified slot.
         /// </summary>
-        public async Task ConfirmBookingAsync(int slotId, int candidateId)
+        public async Task ConfirmBookingAsync(int slotId, int candidateId, int jobId)
         {
             var response = await this.http.PostAsJsonAsync(
-                $"{BookingsPath}/{slotId}/confirm", candidateId);
+                $"{BookingsPath}/{slotId}/confirm?jobId={jobId}", candidateId);
             response.EnsureSuccessStatusCode();
         }
     }

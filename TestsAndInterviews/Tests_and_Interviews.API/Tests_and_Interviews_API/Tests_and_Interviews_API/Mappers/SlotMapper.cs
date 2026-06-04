@@ -19,6 +19,8 @@
 			{
 				Id = dto.Id,
 				RecruiterId = dto.RecruiterId,
+				RecruiterCompanyId = dto.CompanyId,
+				RecruiterUserId = dto.RecruiterId,
 				CandidateId = dto.CandidateId,
 				StartTime = dto.StartTime,
 				EndTime = dto.EndTime,
@@ -39,7 +41,8 @@
 			{
 				Id = entity.Id,
 				RecruiterId = entity.RecruiterId,
-				CandidateId = entity.CandidateId,
+                CompanyId = entity.RecruiterCompanyId,
+                CandidateId = entity.CandidateId,
 				StartTime = entity.StartTime,
 				EndTime = entity.EndTime,
 				Duration = entity.Duration,

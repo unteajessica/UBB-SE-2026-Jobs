@@ -1,5 +1,6 @@
 ﻿namespace Tests_and_Interviews_API.Services.Interfaces
 {
+    using System.ComponentModel.Design;
     using Tests_and_Interviews_API.Dtos;
     using Tests_and_Interviews_API.Models;
 
@@ -19,6 +20,7 @@
         public Task<List<Slot>> GetSlotsAsync(int recruiterId, DateTime date);
 
         public Task<List<SlotDto>> GetAvailableSlotsForDateAsync(DateTime date);
+        public Task<List<SlotDto>> GetSlotsByCandidateAsync(int candidateId);
 
         /// <summary>
         /// Asynchronously retrieves all available slots associated with the specified recruiter.
@@ -67,5 +69,6 @@
         Task<List<SlotDto>> LoadRecruiterVisibleSlotsAsync(int recruiterId, DateTime date);
         Task CreateRecruiterSlotAsync(SlotDto baseSlot, int duration);
         Task UpdateRecruiterSlotAsync(SlotDto initialSlot, DateTime startTime, int duration);
+        Task<List<Slot>> GetAvailableSlotsByCompanyAsync(int companyId, DateTime slotDate);
     }
 }

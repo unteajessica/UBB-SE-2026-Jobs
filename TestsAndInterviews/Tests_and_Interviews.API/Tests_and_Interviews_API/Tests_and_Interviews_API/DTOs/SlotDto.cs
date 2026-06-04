@@ -19,6 +19,7 @@ namespace Tests_and_Interviews_API.Dtos
         /// </summary>
         public int RecruiterId { get; set; }
 
+        public int CompanyId { get; set; }
         /// <summary>
         /// Gets or sets the unique identifier of the candidate.
         /// </summary>

@@ -53,6 +53,16 @@ namespace Tests_and_Interviews_API.Services
         }
 
         /// <summary>
+        /// Retrieves all the companies the recruiter is associated with.
+        /// </summary>
+        /// <param name="recruiterId">Id of recruiter to search companies.</param>
+        /// <returns><List of the companies/returns>
+        public List<Company> GetByRecruiter(int recruiterId)
+        {
+            return this._repository.GetByRecruiter(recruiterId);
+        }
+
+        /// <summary>
         /// Adds a new company to the data store.
         /// </summary>
         /// <param name="company">The company to add. Cannot be null.</param>

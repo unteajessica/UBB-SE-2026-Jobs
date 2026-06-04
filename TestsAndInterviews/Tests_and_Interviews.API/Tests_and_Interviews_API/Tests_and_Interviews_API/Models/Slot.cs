@@ -50,6 +50,9 @@ namespace Tests_and_Interviews_API.Models
         /// </summary>
         public Recruiter Recruiter { get; set; } = null!;
 
+        public int RecruiterUserId { get; set; }
+        public int RecruiterCompanyId { get; set; }
+
         /// <summary>
         /// Gets or sets the unique identifier of the candidate.
         /// </summary>

@@ -28,6 +28,13 @@ namespace Tests_and_Interviews_API.Services.Interfaces
         /// <param name="companyName">The name of the company.</param>
         /// <returns>The company corresponding to the specified name, or null if not found.</returns>
         Company? GetCompanyByName(string companyName);
+        
+        /// <summary>
+        /// Retrieves all the companies the recruiter is associated with.
+        /// </summary>
+        /// <param name="recruiterId">Id of recruiter to search companies.</param>
+        /// <returns><List of the companies/returns>
+        List<Company> GetByRecruiter(int recruiterId);
 
         /// <summary>
         /// Adds a new company to the data store.
