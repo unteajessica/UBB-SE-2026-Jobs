@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
@@ -51,9 +50,9 @@ public class UserStatusViewModelTests
 
         await viewModel.LoadMatchesAsync();
 
-        viewModel.AppliedJobs.Should().NotBeEmpty();
-        viewModel.ShowCards.Should().BeTrue();
-        viewModel.IsLoading.Should().BeFalse();
+        Assert.NotEmpty(viewModel.AppliedJobs);
+        Assert.True(viewModel.ShowCards);
+        Assert.False(viewModel.IsLoading);
     }
 
     [Fact]
@@ -66,8 +65,8 @@ public class UserStatusViewModelTests
 
         viewModel.ApplyFilter("Accepted");
 
-        viewModel.FilteredJobs.Should().BeEmpty();
-        viewModel.IsEmpty.Should().BeTrue();
-        viewModel.EmptyMessage.Should().Be("No applications match this filter.");
+        Assert.Empty(viewModel.FilteredJobs);
+        Assert.True(viewModel.IsEmpty);
+        Assert.Equal("No applications match this filter.", viewModel.EmptyMessage);
     }
 }

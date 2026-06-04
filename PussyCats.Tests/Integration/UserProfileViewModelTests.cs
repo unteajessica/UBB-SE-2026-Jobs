@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -41,11 +40,11 @@ public class UserProfileViewModelTests
 
         await viewModel.LoadUserAsync();
 
-        viewModel.UserProfile.Should().NotBeNull();
-        viewModel.UserProfile!.UserId.Should().Be(6);
-        viewModel.CompletenessPercentage.Should().Be(80);
-        viewModel.NextEmptyFieldPrompt.Should().Be("Add a phone number.");
-        viewModel.IsLoading.Should().BeFalse();
+        Assert.NotNull(viewModel.UserProfile);
+        Assert.Equal(6, viewModel.UserProfile!.UserId);
+        Assert.Equal(80, viewModel.CompletenessPercentage);
+        Assert.Equal("Add a phone number.", viewModel.NextEmptyFieldPrompt);
+        Assert.False(viewModel.IsLoading);
     }
 
     [Fact]
@@ -58,8 +57,8 @@ public class UserProfileViewModelTests
         await viewModel.ToggleAccountStatusAsync();
 
         var persistedUser = await userRepository.GetByIdAsync(6);
-        persistedUser!.ActiveAccount.Should().BeFalse();
-        viewModel.UserProfile!.ActiveAccount.Should().BeFalse();
+        Assert.False(persistedUser!.ActiveAccount);
+        Assert.False(viewModel.UserProfile!.ActiveAccount);
     }
 
     [Fact]
@@ -77,8 +76,8 @@ public class UserProfileViewModelTests
         await viewModel.UploadAvatarAsync(stream, "avatar.png");
 
         var persistedUser = await userRepository.GetByIdAsync(6);
-        persistedUser!.ProfilePicturePath.Should().Be("stored.png");
-        viewModel.UserProfile!.ProfilePicturePath.Should().Be("stored.png");
+        Assert.Equal("stored.png", persistedUser!.ProfilePicturePath);
+        Assert.Equal("stored.png", viewModel.UserProfile!.ProfilePicturePath);
         await imageStorageService.Received(1).SaveImageAsync(stream, "avatar.png", Arg.Any<CancellationToken>());
     }
 
@@ -93,8 +92,8 @@ public class UserProfileViewModelTests
         await viewModel.RemoveAvatarAsync();
 
         var persisted = await userRepository.GetByIdAsync(6);
-        persisted!.ProfilePicturePath.Should().BeEmpty();
-        viewModel.UserProfile!.ProfilePicturePath.Should().BeEmpty();
+        Assert.Empty(persisted!.ProfilePicturePath);
+        Assert.Empty(viewModel.UserProfile!.ProfilePicturePath);
         await imageStorageService.Received(1).DeleteImageAsync("stored.png", Arg.Any<CancellationToken>());
     }
 
@@ -112,8 +111,8 @@ public class UserProfileViewModelTests
         await viewModel.RecalculateLevelAsync();
 
         var persisted = await userRepository.GetByIdAsync(6);
-        persisted.Should().NotBeNull();
-        eventRaised.Should().BeTrue();
+        Assert.NotNull(persisted);
+        Assert.True(eventRaised);
     }
 
     [Theory]
@@ -133,7 +132,7 @@ public class UserProfileViewModelTests
         await userRepository.AddAsync(user);
         await viewModel.LoadUserAsync();
 
-        viewModel.GetPersonalityButtonText().Should().Be(expected);
+        Assert.Equal(expected, viewModel.GetPersonalityButtonText());
     }
 
     private static User BuildUser(bool activeAccount = true)

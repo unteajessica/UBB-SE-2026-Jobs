@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Helpers;
 using PussyCats.Library.ServiceProxies;
@@ -27,9 +26,9 @@ public class DocumentServiceProxyTests
 
         var result = await proxy.GetByIdAsync(5);
 
-        result!.DocumentId.Should().Be(5);
-        result.DocumentName.Should().Be("Resume");
-        handler.LastRequest!.RequestUri!.AbsolutePath.Should().Be("/api/documents/5");
+        Assert.Equal(5, result!.DocumentId);
+        Assert.Equal("Resume", result.DocumentName);
+        Assert.Equal("/api/documents/5", handler.LastRequest!.RequestUri!.AbsolutePath);
     }
 
     [Fact]
@@ -40,7 +39,7 @@ public class DocumentServiceProxyTests
 
         var result = await proxy.GetByIdAsync(404);
 
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 
     [Fact]
@@ -55,9 +54,9 @@ public class DocumentServiceProxyTests
 
         var result = await proxy.GetDocumentsByUserIdAsync(1);
 
-        result.Should().HaveCount(1);
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Get);
-        handler.LastRequest.RequestUri!.PathAndQuery.Should().Be("/api/documents?userId=1");
+        Assert.Equal(1, result.Count());
+        Assert.Equal(HttpMethod.Get, handler.LastRequest!.Method);
+        Assert.Equal("/api/documents?userId=1", handler.LastRequest.RequestUri!.PathAndQuery);
     }
 
     [Fact]
@@ -72,13 +71,13 @@ public class DocumentServiceProxyTests
 
         var result = await proxy.AddAsync(document);
 
-        result.DocumentId.Should().Be(99);
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Post);
+        Assert.Equal(99, result.DocumentId);
+        Assert.Equal(HttpMethod.Post, handler.LastRequest!.Method);
         var bodyJson = await handler.LastRequest.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(bodyJson);
-        bodyDoc.RootElement.GetProperty("userId").GetInt32().Should().Be(10);
-        bodyDoc.RootElement.GetProperty("documentName").GetString().Should().Be("New Doc");
-        bodyDoc.RootElement.GetProperty("filePath").GetString().Should().Be("new.pdf");
+        Assert.Equal(10, bodyDoc.RootElement.GetProperty("userId").GetInt32());
+        Assert.Equal("New Doc", bodyDoc.RootElement.GetProperty("documentName").GetString());
+        Assert.Equal("new.pdf", bodyDoc.RootElement.GetProperty("filePath").GetString());
     }
 
     [Fact]
@@ -89,8 +88,8 @@ public class DocumentServiceProxyTests
 
         await proxy.RemoveAsync(5);
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Delete);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/documents/5");
+        Assert.Equal(HttpMethod.Delete, handler.LastRequest!.Method);
+        Assert.Equal("/api/documents/5", handler.LastRequest.RequestUri!.AbsolutePath);
     }
 
     [Fact]
@@ -103,12 +102,12 @@ public class DocumentServiceProxyTests
 
         await proxy.UpdateAsync(document);
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Put);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/documents/5");
+        Assert.Equal(HttpMethod.Put, handler.LastRequest!.Method);
+        Assert.Equal("/api/documents/5", handler.LastRequest.RequestUri!.AbsolutePath);
         var bodyJson = await handler.LastRequest.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(bodyJson);
-        bodyDoc.RootElement.GetProperty("documentName").GetString().Should().Be("Updated Name");
-        bodyDoc.RootElement.GetProperty("filePath").GetString().Should().Be("resume.pdf");
+        Assert.Equal("Updated Name", bodyDoc.RootElement.GetProperty("documentName").GetString());
+        Assert.Equal("resume.pdf", bodyDoc.RootElement.GetProperty("filePath").GetString());
     }
 
     [Fact]
@@ -128,10 +127,10 @@ public class DocumentServiceProxyTests
             stream,
             isCv: true);
 
-        result.DocumentId.Should().Be(99);
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Post);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/documents/upload");
-        handler.LastRequest.Content.Should().BeOfType<MultipartFormDataContent>();
+        Assert.Equal(99, result.DocumentId);
+        Assert.Equal(HttpMethod.Post, handler.LastRequest!.Method);
+        Assert.Equal("/api/documents/upload", handler.LastRequest.RequestUri!.AbsolutePath);
+        Assert.IsType<MultipartFormDataContent>(handler.LastRequest.Content);
     }
 
 }

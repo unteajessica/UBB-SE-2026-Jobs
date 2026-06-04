@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -26,9 +25,9 @@ public class PreferencesViewModelTests
 
         await viewModel.LoadPreferencesAsync();
 
-        viewModel.GetSelectedJobRoles().Should().ContainSingle().Which.Should().Be(JobRole.BackendDeveloper);
-        viewModel.GetSelectedWorkMode().Should().Be(WorkMode.Remote);
-        viewModel.GetPreferredLocation().Should().Be("Cluj-Napoca");
+        Assert.Equal(JobRole.BackendDeveloper, Assert.Single(viewModel.GetSelectedJobRoles()));
+        Assert.Equal(WorkMode.Remote, viewModel.GetSelectedWorkMode());
+        Assert.Equal("Cluj-Napoca", viewModel.GetPreferredLocation());
     }
 
     [Fact]
@@ -41,8 +40,8 @@ public class PreferencesViewModelTests
         viewModel.ToggleJobRole(JobRole.DevOpsEngineer);
         viewModel.ToggleJobRole(JobRole.DataAnalyst);
 
-        viewModel.GetSelectedJobRoles().Should().HaveCount(3);
-        viewModel.GetErrorMessage().Should().Contain("maximum of 3");
+        Assert.Equal(3, viewModel.GetSelectedJobRoles().Count());
+        Assert.Contains("maximum of 3", viewModel.GetErrorMessage());
     }
 
     [Fact]
@@ -54,7 +53,7 @@ public class PreferencesViewModelTests
 
         await viewModel.SearchLocationAsync("cl");
 
-        viewModel.GetLocationSuggestions().Should().ContainSingle("Cluj-Napoca");
+        Assert.Single(viewModel.GetLocationSuggestions());
     }
 
     [Fact]

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.Library.Services;
 using PussyCats.Library.Domain;
@@ -94,8 +93,8 @@ public class UserRecommendationServiceTests
 
         Func<Task> act = () => service.GetNextCardAsync(nonExistentUserId, UserMatchmakingFilters.Empty());
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("User not found.");
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(act);
+        Assert.Equal("User not found.", ex.Message);
     }
 
     [Fact]
@@ -107,7 +106,7 @@ public class UserRecommendationServiceTests
         var service = BuildService();
         var card = await service.GetNextCardAsync(ExistingUserId, UserMatchmakingFilters.Empty());
 
-        card.Should().BeNull();
+        Assert.Null(card);
     }
 
     [Fact]
@@ -131,7 +130,7 @@ public class UserRecommendationServiceTests
         var service = BuildService();
         var card = await service.GetNextCardAsync(userId, UserMatchmakingFilters.Empty());
 
-        card!.Job.JobId.Should().Be(topJobId);
+        Assert.Equal(topJobId, card!.Job.JobId);
     }
 
     [Fact]
@@ -155,7 +154,7 @@ public class UserRecommendationServiceTests
 
         var card = await BuildService().GetNextCardAsync(userId, UserMatchmakingFilters.Empty());
 
-        card!.Job.JobId.Should().Be(availableJobId);
+        Assert.Equal(availableJobId, card!.Job.JobId);
     }
 
     
@@ -184,7 +183,7 @@ public class UserRecommendationServiceTests
         UserRecommendationService service = BuildService();
         JobRecommendationResult? card = await service.RecalculateTopCardIgnoringCooldownAsync(userId, filters);
 
-        card!.Job.JobId.Should().Be(jobId);
+        Assert.Equal(jobId, card!.Job.JobId);
     }
 
     [Fact]
@@ -206,8 +205,8 @@ public class UserRecommendationServiceTests
         int matchId = await service.ApplyLikeAsync(userId, card!);
 
         Match? match = await matchRepository.GetByIdAsync(matchId);
-        match.Should().NotBeNull();
-        match!.Status.Should().Be(MatchStatus.Applied);
+        Assert.NotNull(match);
+        Assert.Equal(MatchStatus.Applied, match!.Status);
     }
 
     [Fact]
@@ -232,8 +231,8 @@ public class UserRecommendationServiceTests
 
         Func<Task> act = () => service.ApplyLikeAsync(userId, card);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Already applied*");
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(act);
+        Assert.Contains("Already applied", ex.Message);
     }
 
     [Fact]
@@ -256,7 +255,7 @@ public class UserRecommendationServiceTests
 
         var dismissId = await service.ApplyDismissAsync(ExistingUserId, card);
 
-        (await recommendationRepository.GetByIdAsync(dismissId)).Should().NotBeNull();
+        Assert.NotNull(await recommendationRepository.GetByIdAsync(dismissId));
     }
 
     [Fact]
@@ -273,8 +272,8 @@ public class UserRecommendationServiceTests
         UserRecommendationService service = BuildService();
         await service.UndoLikeAsync(matchId, recommendationId);
 
-        (await matchRepository.GetByIdAsync(matchId)).Should().BeNull();
-        (await recommendationRepository.GetByIdAsync(recommendationId)).Should().BeNull();
+        Assert.Null(await matchRepository.GetByIdAsync(matchId));
+        Assert.Null(await recommendationRepository.GetByIdAsync(recommendationId));
     }
     
 
@@ -287,7 +286,7 @@ public class UserRecommendationServiceTests
         var service = BuildService();
         await service.UndoLikeAsync(AlternateMatchId, null);
 
-        (await recommendationRepository.GetByIdAsync(UndoRecommendationId)).Should().NotBeNull();
+        Assert.NotNull(await recommendationRepository.GetByIdAsync(UndoRecommendationId));
     }
 
     [Fact]
@@ -305,8 +304,8 @@ public class UserRecommendationServiceTests
         UserRecommendationService service = BuildService();
         await service.UndoDismissAsync(dismissId, displayId);
 
-        (await recommendationRepository.GetByIdAsync(dismissId)).Should().BeNull();
-        (await recommendationRepository.GetByIdAsync(displayId)).Should().BeNull();
+        Assert.Null(await recommendationRepository.GetByIdAsync(dismissId));
+        Assert.Null(await recommendationRepository.GetByIdAsync(displayId));
     }
 
     [Fact]
@@ -321,13 +320,13 @@ public class UserRecommendationServiceTests
         UserRecommendationService service = BuildService();
         await service.UndoDismissAsync(recommendationId, recommendationId);
 
-        (await recommendationRepository.GetByIdAsync(recommendationId)).Should().BeNull();
+        Assert.Null(await recommendationRepository.GetByIdAsync(recommendationId));
     }
 
     [Theory]
     [MemberData(nameof(ExperienceBucketCases))]
     public void MapUserYearsToExperienceBucket_YearsProvided_ClassifiesYearCountIntoCorrectBucket(int years, string expected)
     {
-        UserRecommendationService.MapUserYearsToExperienceBucket(years).Should().Be(expected);
+        Assert.Equal(expected, UserRecommendationService.MapUserYearsToExperienceBucket(years));
     }
 }

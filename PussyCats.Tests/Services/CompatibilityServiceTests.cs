@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
@@ -27,8 +26,8 @@ public class CompatibilityServiceTests
 
         var expectedRoleResult = await service.CalculateForRoleAsync(userId, JobRole.BackendDeveloper);
 
-        expectedRoleResult.MatchScore.Should().Be(invalidScore);
-        expectedRoleResult.Suggestions.Should().BeEmpty();
+        Assert.Equal(invalidScore, expectedRoleResult.MatchScore);
+        Assert.Empty(expectedRoleResult.Suggestions);
     }
 
     [Fact]
@@ -56,7 +55,7 @@ public class CompatibilityServiceTests
 
         var expectedRoleResult = await service.CalculateForRoleAsync(1, JobRole.BackendDeveloper);
 
-        expectedRoleResult.MatchScore.Should().Be(score);
+        Assert.Equal(score, expectedRoleResult.MatchScore);
     }
 
     [Fact]
@@ -79,7 +78,7 @@ public class CompatibilityServiceTests
 
         // unverified skill scores at 0.5 becomes 50 after normalization
         const int expectedScore = 50;
-        expectedRoleResult.MatchScore.Should().Be(expectedScore);
+        Assert.Equal(expectedScore, expectedRoleResult.MatchScore);
     }
 
     [Fact]
@@ -104,7 +103,7 @@ public class CompatibilityServiceTests
         var result = await service.CalculateForRoleAsync(userId, JobRole.BackendDeveloper);
         const int cappedAmountOfSuggestions = 3;
 
-        result.Suggestions.Count.Should().BeLessOrEqualTo(cappedAmountOfSuggestions);
+        Assert.True(result.Suggestions.Count <= cappedAmountOfSuggestions);
     }
 
     [Fact]
@@ -122,7 +121,7 @@ public class CompatibilityServiceTests
         });
         var expectedRoleResult = await service.CalculateForRoleAsync(userId, JobRole.BackendDeveloper);
         const int expectedScore = 0;
-        expectedRoleResult.MatchScore.Should().Be(expectedScore);
+        Assert.Equal(expectedScore, expectedRoleResult.MatchScore);
     }
 
     [Fact]
@@ -175,7 +174,7 @@ public class CompatibilityServiceTests
         var expectedRoleResult = await service.CalculateForRoleAsync(userId, JobRole.BackendDeveloper);
         const int expectedScore = 70; // average of 80 and 60
 
-        expectedRoleResult.MatchScore.Should().Be(expectedScore);
+        Assert.Equal(expectedScore, expectedRoleResult.MatchScore);
     }
 
     [Fact]
@@ -185,7 +184,7 @@ public class CompatibilityServiceTests
 
         var results = await service.CalculateAllAsync(1);
 
-        results.Should().HaveCount(Enum.GetValues<JobRole>().Length);
+        Assert.Equal(Enum.GetValues<JobRole>().Length, results.Count());
     }
 
     [Fact]
@@ -201,6 +200,6 @@ public class CompatibilityServiceTests
         };
 
         int expectedNumberOfSuggestions = 1;
-        service.GetSuggestions(roleResult).Should().HaveCount(expectedNumberOfSuggestions);
+        Assert.Equal(expectedNumberOfSuggestions, service.GetSuggestions(roleResult).Count());
     }
 }

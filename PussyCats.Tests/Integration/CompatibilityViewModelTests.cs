@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -41,9 +40,9 @@ public class CompatibilityViewModelTests
         await viewModel.LoadAllRolesAsync();
         viewModel.OnRoleSelected(JobRole.BackendDeveloper);
 
-        viewModel.GetRoleResults().Should().ContainSingle().Which.Should().BeSameAs(result);
-        viewModel.GetSelectedResult().Should().BeSameAs(result);
-        viewModel.GetErrorMessage().Should().BeEmpty();
+        Assert.Same(result, Assert.Single(viewModel.GetRoleResults()));
+        Assert.Same(result, viewModel.GetSelectedResult());
+        Assert.Empty(viewModel.GetErrorMessage());
     }
 
     [Fact]
@@ -58,8 +57,8 @@ public class CompatibilityViewModelTests
 
         await viewModel.LoadAllRolesAsync();
 
-        viewModel.GetRoleResults().Should().BeEmpty();
-        viewModel.GetErrorMessage().Should().Be("no profile");
+        Assert.Empty(viewModel.GetRoleResults());
+        Assert.Equal("no profile", viewModel.GetErrorMessage());
     }
 
     [Fact]
@@ -75,8 +74,8 @@ public class CompatibilityViewModelTests
 
         viewModel.LoadResult(result);
 
-        viewModel.GetMatchScore().Should().Be(72);
-        viewModel.GetRoleName().Should().Be("UI/UX Designer");
-        viewModel.GetSuggestions().Should().ContainSingle();
+        Assert.Equal(72, viewModel.GetMatchScore());
+        Assert.Equal("UI/UX Designer", viewModel.GetRoleName());
+        Assert.Single(viewModel.GetSuggestions());
     }
 }

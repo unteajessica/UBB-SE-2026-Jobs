@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Services;
 
 namespace PussyCats.Tests.Services;
@@ -59,81 +58,81 @@ public class UserLevelServiceTests
     [MemberData(nameof(ExperienceThresholdCases))]
     public void GetExperiencePointsRequiredForLevel_LevelProvided_MapsToThreshold(int level, int expectedXp)
     {
-        UserLevelService.GetExperiencePointsRequiredForLevel(level).Should().Be(expectedXp);
+        Assert.Equal(expectedXp, UserLevelService.GetExperiencePointsRequiredForLevel(level));
     }
 
     [Theory]
     [MemberData(nameof(MaxLevelCases))]
     public void GetNextLevelExperiencePoints_AtMaxLevel_ReturnsZero(int level)
     {
-        UserLevelService.GetNextLevelExperiencePoints(level).Should().Be(SimpleModelOperations.Level1ExperiencePoints);
+        Assert.Equal(SimpleModelOperations.Level1ExperiencePoints, UserLevelService.GetNextLevelExperiencePoints(level));
     }
 
     [Theory]
     [MemberData(nameof(NextLevelThresholdCases))]
     public void GetNextLevelExperiencePoints_BelowMaxLevel_ReturnsNextThreshold(int level, int expectedXp)
     {
-        UserLevelService.GetNextLevelExperiencePoints(level).Should().Be(expectedXp);
+        Assert.Equal(expectedXp, UserLevelService.GetNextLevelExperiencePoints(level));
     }
 
     [Theory]
     [MemberData(nameof(LevelFloorCases))]
     public void GetLevelProgressPercent_AtLevelFloor_ReturnsZero(int xp, int level)
     {
-        UserLevelService.GetLevelProgressPercent(xp, level).Should().Be(ZeroProgressPercent);
+        Assert.Equal(ZeroProgressPercent, UserLevelService.GetLevelProgressPercent(xp, level));
     }
 
     [Fact]
     public void GetLevelProgressPercent_AtMaxLevel_ReturnsOneHundred()
     {
-        UserLevelService.GetLevelProgressPercent(MaxLevelSampleXp, LevelFive).Should().Be(FullProgressPercent);
+        Assert.Equal(FullProgressPercent, UserLevelService.GetLevelProgressPercent(MaxLevelSampleXp, LevelFive));
     }
 
     [Fact]
     public void GetLevelProgressPercent_HalfwayThroughLevel_ReturnsProportionalProgress()
     {
         var halfwayInLevel1 = SimpleModelOperations.Level2ExperiencePoints / 2;
-        UserLevelService.GetLevelProgressPercent(halfwayInLevel1, LevelOne).Should().Be(HalfwayProgressPercent);
+        Assert.Equal(HalfwayProgressPercent, UserLevelService.GetLevelProgressPercent(halfwayInLevel1, LevelOne));
     }
 
     [Fact]
     public void GetLevelProgressPercent_NegativeXpProvided_ThrowsArgumentException()
     {
         Action act = () => UserLevelService.GetLevelProgressPercent(NegativeXp, LevelOne);
-        act.Should().Throw<ArgumentException>();
+        Assert.Throws<ArgumentException>(act);
     }
 
     [Fact]
     public void GetExperiencePointsToNextLevel_AtMaxLevel_ReturnsZero()
     {
-        UserLevelService.GetExperiencePointsToNextLevel(MaxLevelSampleXp, LevelFive).Should().Be(ZeroProgressPercent);
+        Assert.Equal(ZeroProgressPercent, UserLevelService.GetExperiencePointsToNextLevel(MaxLevelSampleXp, LevelFive));
     }
 
     [Fact]
     public void GetExperiencePointsToNextLevel_BelowMaxLevel_ReturnsRemainingXp()
     {
         var remaining = UserLevelService.GetExperiencePointsToNextLevel(SampleXp, LevelOne);
-        remaining.Should().Be(SimpleModelOperations.Level2ExperiencePoints - SampleXp);
+        Assert.Equal(SimpleModelOperations.Level2ExperiencePoints - SampleXp, remaining);
     }
 
     [Fact]
     public void GetExperiencePointsToNextLevel_NegativeXpProvided_ThrowsArgumentException()
     {
         Action act = () => UserLevelService.GetExperiencePointsToNextLevel(NegativeXp, LevelOne);
-        act.Should().Throw<ArgumentException>();
+        Assert.Throws<ArgumentException>(act);
     }
 
     [Fact]
     public void CalculateLevelNumber_NegativeXpProvided_ThrowsArgumentException()
     {
         Action act = () => UserLevelService.CalculateLevelNumber(NegativeXp);
-        act.Should().Throw<ArgumentException>();
+        Assert.Throws<ArgumentException>(act);
     }
 
     [Theory]
     [MemberData(nameof(LevelMappingCases))]
     public void CalculateLevelNumber_ValidXpProvided_MapsXpToLevel(int xp, int expectedLevel)
     {
-        UserLevelService.CalculateLevelNumber(xp).Should().Be(expectedLevel);
+        Assert.Equal(expectedLevel, UserLevelService.CalculateLevelNumber(xp));
     }
 }

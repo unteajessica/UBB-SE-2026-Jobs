@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -24,9 +23,9 @@ public class UserRecommendationViewModelTests
 
         await viewModel.LoadRecommendationsAsync();
 
-        viewModel.CurrentJob.Should().BeSameAs(card);
-        viewModel.HasCard.Should().BeTrue();
-        viewModel.ShowEmptyDeck.Should().BeFalse();
+        Assert.Same(card, viewModel.CurrentJob);
+        Assert.True(viewModel.HasCard);
+        Assert.False(viewModel.ShowEmptyDeck);
     }
 
     [Fact]
@@ -39,9 +38,9 @@ public class UserRecommendationViewModelTests
 
         await viewModel.LoadRecommendationsAsync();
 
-        viewModel.CurrentJob.Should().BeNull();
-        viewModel.ErrorMessage.Should().Contain("Candidate session");
-        errors.Should().ContainSingle().Which.Should().Contain("Candidate session");
+        Assert.Null(viewModel.CurrentJob);
+        Assert.Contains("Candidate session", viewModel.ErrorMessage);
+        Assert.Contains("Candidate session", Assert.Single(errors));
     }
 
     [Fact]
@@ -60,8 +59,8 @@ public class UserRecommendationViewModelTests
         await viewModel.LikeAsync();
 
         await service.Received(1).ApplyLikeAsync(5, first, Arg.Any<CancellationToken>());
-        viewModel.CurrentJob.Should().BeSameAs(second);
-        viewModel.CanUndo.Should().BeTrue();
+        Assert.Same(second, viewModel.CurrentJob);
+        Assert.True(viewModel.CanUndo);
     }
 
     [Fact]
@@ -81,8 +80,8 @@ public class UserRecommendationViewModelTests
         await viewModel.UndoAsync();
 
         await service.Received(1).UndoLikeAsync(44, first.DisplayRecommendationId, Arg.Any<CancellationToken>());
-        viewModel.CurrentJob.Should().BeSameAs(first);
-        viewModel.CanUndo.Should().BeFalse();
+        Assert.Same(first, viewModel.CurrentJob);
+        Assert.False(viewModel.CanUndo);
     }
 
     [Fact]
@@ -104,11 +103,11 @@ public class UserRecommendationViewModelTests
 
         await viewModel.ApplyFiltersAsync();
 
-        capturedFilters.Should().NotBeNull();
-        capturedFilters!.EmploymentTypes.Should().Contain("Full-time");
-        capturedFilters.ExperienceLevels.Should().Contain("Entry");
-        capturedFilters.SkillIds.Should().Contain(3);
-        capturedFilters.LocationSubstring.Should().Be("Cluj");
-        viewModel.IsFilterOpen.Should().BeFalse();
+        Assert.NotNull(capturedFilters);
+        Assert.Contains("Full-time", capturedFilters!.EmploymentTypes);
+        Assert.Contains("Entry", capturedFilters.ExperienceLevels);
+        Assert.Contains(3, capturedFilters.SkillIds);
+        Assert.Equal("Cluj", capturedFilters.LocationSubstring);
+        Assert.False(viewModel.IsFilterOpen);
     }
 }

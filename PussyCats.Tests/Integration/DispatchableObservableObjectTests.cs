@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 
@@ -16,7 +15,7 @@ public class DispatchableObservableObjectTests
 
         viewModel.Name = "Ada";
 
-        changedProperties.Should().ContainSingle(nameof(TestDispatchableViewModel.Name));
+        Assert.Single(changedProperties);
     }
 
     private sealed class TestDispatchableViewModel : DispatchableObservableObject

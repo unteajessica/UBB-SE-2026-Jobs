@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.Library.Services;
@@ -50,8 +49,8 @@ public class CompanyRecommendationViewModelTests
         await viewModel.AdvanceApplicantAsync();
 
         var persistedMatch = await matchRepository.GetByIdAsync(matchId);
-        persistedMatch!.Status.Should().Be(MatchStatus.Advanced);
-        viewModel.CanUndo.Should().BeTrue();
+        Assert.Equal(MatchStatus.Advanced, persistedMatch!.Status);
+        Assert.True(viewModel.CanUndo);
     }
 
     [Fact]
@@ -72,8 +71,8 @@ public class CompanyRecommendationViewModelTests
         await viewModel.UndoLastActionAsync();
 
         var persistedMatch = await matchRepository.GetByIdAsync(matchId);
-        persistedMatch!.Status.Should().Be(MatchStatus.Applied);
-        viewModel.CurrentApplicant.Should().BeSameAs(applicantResult);
+        Assert.Equal(MatchStatus.Applied, persistedMatch!.Status);
+        Assert.Same(applicantResult, viewModel.CurrentApplicant);
     }
 
     [Fact]
@@ -90,8 +89,8 @@ public class CompanyRecommendationViewModelTests
 
         await viewModel.LoadApplicantsAsync();
 
-        viewModel.CurrentApplicant.Should().BeSameAs(applicantResult);
-        viewModel.HasApplicant.Should().BeTrue();
+        Assert.Same(applicantResult, viewModel.CurrentApplicant);
+        Assert.True(viewModel.HasApplicant);
     }
 
     [Fact]
@@ -112,7 +111,7 @@ public class CompanyRecommendationViewModelTests
         await viewModel.LoadApplicantsAsync();
         await viewModel.ExpandCardAsync();
 
-        viewModel.ScoreBreakdown.Should().BeSameAs(breakdown);
-        viewModel.IsExpanded.Should().BeTrue();
+        Assert.Same(breakdown, viewModel.ScoreBreakdown);
+        Assert.True(viewModel.IsExpanded);
     }
 }

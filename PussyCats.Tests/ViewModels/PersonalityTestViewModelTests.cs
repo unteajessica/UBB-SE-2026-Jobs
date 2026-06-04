@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -19,14 +18,14 @@ public class PersonalityTestViewModelTests
     {
         var viewModel = new PersonalityTestViewModel(session, service);
 
-        viewModel.CanSubmit.Should().BeFalse();
+        Assert.False(viewModel.CanSubmit);
 
         foreach (var question in viewModel.Questions)
         {
             question.SelectedAnswer = (int)AnswerValue.Agree;
         }
 
-        viewModel.CanSubmit.Should().BeTrue();
+        Assert.True(viewModel.CanSubmit);
     }
 
     [Fact]
@@ -47,9 +46,9 @@ public class PersonalityTestViewModelTests
 
         viewModel.SubmitCommand.Execute(null);
 
-        viewModel.IsTestSubmitted.Should().BeTrue();
-        viewModel.TopRoles.Should().HaveCount(2);
-        viewModel.TopRoles[0].Role.Should().Be(JobRole.BackendDeveloper);
+        Assert.True(viewModel.IsTestSubmitted);
+        Assert.Equal(2, viewModel.TopRoles.Count());
+        Assert.Equal(JobRole.BackendDeveloper, viewModel.TopRoles[0].Role);
     }
 
     [Fact]
@@ -78,8 +77,8 @@ public class PersonalityTestViewModelTests
             JobRole.BackendDeveloper,
             Arg.Any<CancellationToken>());
 
-        viewModel.SaveMessage.Should().Contain("Backend Developer");
-        viewModel.SelectedRole.Should().Be(viewModel.TopRoles[0]);
-        viewModel.TopRoles[0].IsSelected.Should().BeTrue();
+        Assert.Contains("Backend Developer", viewModel.SaveMessage);
+        Assert.Equal(viewModel.TopRoles[0], viewModel.SelectedRole);
+        Assert.True(viewModel.TopRoles[0].IsSelected);
     }
 }

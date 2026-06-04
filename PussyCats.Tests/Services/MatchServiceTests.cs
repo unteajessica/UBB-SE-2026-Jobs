@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Services;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
@@ -40,7 +39,7 @@ public class MatchServiceTests
     {
         var match = new MatchBuilder().WithStatus(from).Build();
 
-        service.IsDecisionTransitionAllowed(match, to).Should().Be(allowed);
+        Assert.Equal(allowed, service.IsDecisionTransitionAllowed(match, to));
     }
 
     [Fact]
@@ -51,12 +50,12 @@ public class MatchServiceTests
         jobRepository.Seed(new JobBuilder().WithId(jobId).Build());
         var matchId = await service.CreatePendingApplicationAsync(userId, jobId);
 
-        matchId.Should().BeGreaterThan(0);
+        Assert.True(matchId > 0);
         var match = await service.GetByIdAsync(matchId);
 
-        match!.Status.Should().Be(MatchStatus.Applied);
-        match.User.UserId.Should().Be(userId);
-        match.Job.JobId.Should().Be(jobId);
+        Assert.Equal(MatchStatus.Applied, match!.Status);
+        Assert.Equal(userId, match.User.UserId);
+        Assert.Equal(jobId, match.Job.JobId);
     }
 
     [Fact]
@@ -67,8 +66,8 @@ public class MatchServiceTests
 
         Func<Task> act = () => service.CreatePendingApplicationAsync(userId, jobId);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*already exists*");
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(act);
+        Assert.Contains("already exists", ex.Message);
     }
 
     [Fact]
@@ -81,8 +80,8 @@ public class MatchServiceTests
         await service.SubmitDecisionAsync(matchId, MatchStatus.Accepted, feedback);
 
         var match = await service.GetByIdAsync(matchId);
-        match!.Status.Should().Be(MatchStatus.Accepted);
-        match.FeedbackMessage.Should().Be(feedback);
+        Assert.Equal(MatchStatus.Accepted, match!.Status);
+        Assert.Equal(feedback, match.FeedbackMessage);
     }
 
     [Fact]
@@ -93,7 +92,7 @@ public class MatchServiceTests
 
         await service.SubmitDecisionAsync(matchId, MatchStatus.Rejected, "Lacking experience");
 
-        (await service.GetByIdAsync(matchId))!.Status.Should().Be(MatchStatus.Rejected);
+        Assert.Equal(MatchStatus.Rejected, (await service.GetByIdAsync(matchId))!.Status);
     }
 
     [Fact]
@@ -103,8 +102,8 @@ public class MatchServiceTests
 
         Func<Task> act = () => service.SubmitDecisionAsync(1, MatchStatus.Rejected, string.Empty);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*Feedback is required*");
+        var ex = await Assert.ThrowsAsync<ArgumentException>(act);
+        Assert.Contains("Feedback is required", ex.Message);
     }
 
     [Fact]
@@ -115,7 +114,7 @@ public class MatchServiceTests
 
         Func<Task> act = () => service.SubmitDecisionAsync(matchId, MatchStatus.Applied, "x");
 
-        await act.Should().ThrowAsync<ArgumentException>();
+        await Assert.ThrowsAsync<ArgumentException>(act);
     }
 
     [Fact]
@@ -125,7 +124,7 @@ public class MatchServiceTests
 
         Func<Task> act = () => service.SubmitDecisionAsync(1, MatchStatus.Rejected, "x");
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await Assert.ThrowsAsync<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -133,7 +132,7 @@ public class MatchServiceTests
     {
         Func<Task> act = () => service.SubmitDecisionAsync(404, MatchStatus.Accepted, "x");
 
-        await act.Should().ThrowAsync<KeyNotFoundException>();
+        await Assert.ThrowsAsync<KeyNotFoundException>(act);
     }
 
     [Fact]
@@ -143,7 +142,7 @@ public class MatchServiceTests
 
         await service.AdvanceAsync(1);
 
-        (await service.GetByIdAsync(1))!.Status.Should().Be(MatchStatus.Advanced);
+        Assert.Equal(MatchStatus.Advanced, (await service.GetByIdAsync(1))!.Status);
     }
 
     [Fact]
@@ -153,7 +152,7 @@ public class MatchServiceTests
 
         Func<Task> act = () => service.AdvanceAsync(1);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await Assert.ThrowsAsync<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -168,8 +167,8 @@ public class MatchServiceTests
         await service.RevertToAppliedAsync(1);
 
         var match = await service.GetByIdAsync(1);
-        match!.Status.Should().Be(MatchStatus.Applied);
-        match.FeedbackMessage.Should().BeEmpty();
+        Assert.Equal(MatchStatus.Applied, match!.Status);
+        Assert.Empty(match.FeedbackMessage);
     }
 
     [Fact]
@@ -190,7 +189,7 @@ public class MatchServiceTests
 
         var matches = await service.GetByCompanyIdAsync(firstCompanyId);
 
-        matches.Should().HaveCount(expectedNumberOfMatches);
+        Assert.Equal(expectedNumberOfMatches, matches.Count());
     }
 
     [Fact]
@@ -211,8 +210,8 @@ public class MatchServiceTests
 
         var matches = await service.GetByCompanyIdAsync(firstCompanyId);
 
-        matches[0].MatchId.Should().Be(expectedFirstMatchId);
-        matches[1].MatchId.Should().Be(expectedSecondMatchId);
+        Assert.Equal(expectedFirstMatchId, matches[0].MatchId);
+        Assert.Equal(expectedSecondMatchId, matches[1].MatchId);
     }
 
     [Fact]
@@ -221,9 +220,9 @@ public class MatchServiceTests
         int jobId = 10, companyId = 5;
         jobRepository.Seed(new JobBuilder().WithId(jobId).WithCompanyId(companyId).Build());
         var matches = await service.GetByCompanyIdAsync(companyId);
-        matches.Should().BeEmpty();
+        Assert.Empty(matches);
     }
-        
+
     [Fact]
     public async Task GetByCompanyIdAsync_CompanyHasBothJobsAndMatchesButNotMatching_ReturnsEmpty()
     {
@@ -234,7 +233,7 @@ public class MatchServiceTests
             new JobBuilder().WithId(secondJobId).WithCompanyId(secondCompanyId).Build());
         matchRepository.Seed(new MatchBuilder().WithId(1).AppliedFor(1, secondJobId).Build());
         var matches = await service.GetByCompanyIdAsync(firstCompanyId);
-        matches.Should().BeEmpty();
+        Assert.Empty(matches);
     }
 
     [Fact]
@@ -243,7 +242,7 @@ public class MatchServiceTests
         int companyId = 99;
         var matches = await service.GetByCompanyIdAsync(companyId);
 
-        matches.Should().BeEmpty();
+        Assert.Empty(matches);
     }
 
     [Fact]
@@ -263,10 +262,10 @@ public class MatchServiceTests
 
         const int expectedTotalMatches = 4;
         const int expectedMatchesLastMonth = 1, expectedMatchesLastSixMonths = 2, expectedMatchesLastYear = 3;
-        stats.TotalMatches.Should().Be(expectedTotalMatches);
-        stats.MatchesLastMonth.Should().Be(expectedMatchesLastMonth);
-        stats.MatchesLastSixMonths.Should().Be(expectedMatchesLastSixMonths);
-        stats.MatchesLastYear.Should().Be(expectedMatchesLastYear);
+        Assert.Equal(expectedTotalMatches, stats.TotalMatches);
+        Assert.Equal(expectedMatchesLastMonth, stats.MatchesLastMonth);
+        Assert.Equal(expectedMatchesLastSixMonths, stats.MatchesLastSixMonths);
+        Assert.Equal(expectedMatchesLastYear, stats.MatchesLastYear);
     }
 
     [Fact]
@@ -281,8 +280,8 @@ public class MatchServiceTests
 
         var stats = await service.GetMatchStatisticsAsync(userId);
 
-        stats.MatchesPerPosition.Should().ContainKey("Backend");
-        stats.MatchesPerPosition.Should().ContainKey("Frontend");
+        Assert.Contains("Backend", stats.MatchesPerPosition.Keys);
+        Assert.Contains("Frontend", stats.MatchesPerPosition.Keys);
     }
 
     [Fact]
@@ -297,7 +296,7 @@ public class MatchServiceTests
         var result = await service.GetMatchesForUserAsync(firstUserId);
 
         const int expectedNumberOfMatches = 1;
-        result.Should().HaveCount(expectedNumberOfMatches);
-        result[0].User.UserId.Should().Be(firstUserId);
+        Assert.Equal(expectedNumberOfMatches, result.Count());
+        Assert.Equal(firstUserId, result[0].User.UserId);
     }
 }

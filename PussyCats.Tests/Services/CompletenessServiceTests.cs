@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.CompletenessService;
@@ -17,7 +16,7 @@ public class CompletenessServiceTests
         User user = null;
         int expectedCompleteness = 0;
 
-        service.CalculateCompleteness(user).Should().Be(expectedCompleteness);
+        Assert.Equal(expectedCompleteness, service.CalculateCompleteness(user));
     }
 
     [Fact]
@@ -26,7 +25,7 @@ public class CompletenessServiceTests
         var user = new User();
         int expectedCompleteness = 0;
 
-        service.CalculateCompleteness(user).Should().Be(expectedCompleteness);
+        Assert.Equal(expectedCompleteness, service.CalculateCompleteness(user));
     }
 
     [Fact]
@@ -35,7 +34,7 @@ public class CompletenessServiceTests
         var completedUser = BuildFullyFilledUser();
         int expectedCompletenessScore = 100;
 
-        service.CalculateCompleteness(completedUser).Should().Be(expectedCompletenessScore);
+        Assert.Equal(expectedCompletenessScore, service.CalculateCompleteness(completedUser));
     }
 
     [Fact]
@@ -46,7 +45,7 @@ public class CompletenessServiceTests
 
         var user = new User { FirstName = firstName };
 
-        service.CalculateCompleteness(user).Should().Be(expectedPercentage);
+        Assert.Equal(expectedPercentage, service.CalculateCompleteness(user));
     }
 
     [Fact]
@@ -54,7 +53,7 @@ public class CompletenessServiceTests
     {
         User user = null;
 
-        service.GetNextEmptyFieldPrompt(user).Should().BeEmpty();
+        Assert.Empty(service.GetNextEmptyFieldPrompt(user));
     }
 
     [Fact]
@@ -63,7 +62,7 @@ public class CompletenessServiceTests
         User user = new User();
         const string expectedPrompt = "First Name";
 
-        service.GetNextEmptyFieldPrompt(user).Should().Contain(expectedPrompt);
+        Assert.Contains(expectedPrompt, service.GetNextEmptyFieldPrompt(user));
     }
 
     [Fact]
@@ -72,7 +71,7 @@ public class CompletenessServiceTests
         var fullyFilledUser = BuildFullyFilledUser();
         const string expectedMessage = "Your profile is 100% complete!";
 
-        service.GetNextEmptyFieldPrompt(fullyFilledUser).Should().Be(expectedMessage);
+        Assert.Equal(expectedMessage, service.GetNextEmptyFieldPrompt(fullyFilledUser));
     }
 
     [Fact]
@@ -85,7 +84,7 @@ public class CompletenessServiceTests
         };
         const string nextFieldExpected = "Age";
 
-        service.GetNextEmptyFieldPrompt(user).Should().Contain(nextFieldExpected);
+        Assert.Contains(nextFieldExpected, service.GetNextEmptyFieldPrompt(user));
     }
 
     [Fact]
@@ -95,7 +94,7 @@ public class CompletenessServiceTests
         user.PersonalityResult!.SelectedRole = null;
         const int maximumCompletenessScore = 100;
 
-        service.CalculateCompleteness(user).Should().BeLessThan(maximumCompletenessScore);
+        Assert.True(service.CalculateCompleteness(user) < maximumCompletenessScore);
 
     }
 
@@ -104,7 +103,7 @@ public class CompletenessServiceTests
     {
         var user = new User { Age = 0 };
 
-        service.CalculateCompleteness(user).Should().Be(0);
+        Assert.Equal(0, service.CalculateCompleteness(user));
     }
 
     [Fact]
@@ -115,7 +114,7 @@ public class CompletenessServiceTests
         const int expectedNextPercentage = 14; // this would bring filled count to 3 out of 21 => 14%
         User user = new User { FirstName = "Ada", LastName = "Lovelance" };
 
-        service.GetNextEmptyFieldPrompt(user).Should().Contain($"{ expectedNextPercentage}%");
+        Assert.Contains($"{ expectedNextPercentage}%", service.GetNextEmptyFieldPrompt(user));
 
     }
 

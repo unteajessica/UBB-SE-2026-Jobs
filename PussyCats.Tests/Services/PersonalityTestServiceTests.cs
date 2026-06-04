@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
@@ -22,7 +21,8 @@ public class PersonalityTestServiceTests
 
         var questions = PersonalityTestService.LoadQuestions();
 
-        questions.Select(question => question.SortOrder).Should().BeInAscendingOrder();
+        var sortOrders = questions.Select(question => question.SortOrder).ToList();
+        Assert.Equal(sortOrders.OrderBy(x => x).ToList(), sortOrders);
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class PersonalityTestServiceTests
         var questions = PersonalityTestService.LoadQuestions();
         var perTrait = questions.GroupBy(question => question.Trait).ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
 
-        perTrait.Should().HaveCount(expectedTraitCount);
+        Assert.Equal(expectedTraitCount, perTrait.Count());
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class PersonalityTestServiceTests
 
         var scores = service.CalculateTraitScores(answers);
 
-        scores[TraitType.Visibility].Should().Be(expectedVisibilityAverage);
+        Assert.Equal(expectedVisibilityAverage, scores[TraitType.Visibility]);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class PersonalityTestServiceTests
 
         var roleScores = service.CalculateRoleScores(traitScores);
 
-        roleScores.Should().HaveCount(expectedRoleCount);
+        Assert.Equal(expectedRoleCount, roleScores.Count());
     }
 
     [Fact]
@@ -95,7 +95,7 @@ public class PersonalityTestServiceTests
 
         var roleScores = service.CalculateRoleScores(traitScores);
 
-        roleScores.Keys.Should().BeEquivalentTo(Enum.GetValues<JobRole>());
+        Assert.Equal(Enum.GetValues<JobRole>().OrderBy(role => role).ToList(), roleScores.Keys.OrderBy(role => role).ToList());
     }
 
     [Fact]
@@ -112,7 +112,7 @@ public class PersonalityTestServiceTests
 
         var topRoles = service.GetTopRoles(scores, requestedTopCount);
 
-        topRoles.Should().HaveCount(requestedTopCount);
+        Assert.Equal(requestedTopCount, topRoles.Count());
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class PersonalityTestServiceTests
 
         var topRoles = service.GetTopRoles(scores, requestedTopCount);
 
-        topRoles.Keys.First().Should().Be(JobRole.FrontendDeveloper);
+        Assert.Equal(JobRole.FrontendDeveloper, topRoles.Keys.First());
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class PersonalityTestServiceTests
         await service.SaveResultAsync(userId, answers, selectedRole);
 
         var saved = await personalityTestRepository.GetByUserIdAsync(userId);
-        saved!.SelectedRole.Should().Be(selectedRole);
+        Assert.Equal(selectedRole, saved!.SelectedRole);
     }
 
     [Fact]
@@ -169,7 +169,7 @@ public class PersonalityTestServiceTests
         await service.SaveResultAsync(1, answers, JobRole.BackendDeveloper);
 
         var saved = await personalityTestRepository.GetByUserIdAsync(1);
-        saved!.PersonalityTestResultId.Should().Be(7);
-        saved.SelectedRole.Should().Be(JobRole.BackendDeveloper);
+        Assert.Equal(7, saved!.PersonalityTestResultId);
+        Assert.Equal(JobRole.BackendDeveloper, saved.SelectedRole);
     }
 }

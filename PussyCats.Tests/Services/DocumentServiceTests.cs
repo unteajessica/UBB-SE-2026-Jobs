@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using PussyCats.Library.Domain;
@@ -46,7 +45,7 @@ public class DocumentServiceTests : IDisposable
 
         var documents = await service.GetDocumentsByUserIdAsync(nonExistentUserId);
 
-        documents.Should().BeEmpty();
+        Assert.Empty(documents);
     }
 
     [Fact]
@@ -61,7 +60,8 @@ public class DocumentServiceTests : IDisposable
         {
             Func<Task> act = () => service.UploadDocumentAsync(
                 new Document { User = new User { UserId = userId }, DocumentName = documentName }, badPath);
-            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Invalid file type*");
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(act);
+            Assert.Contains("Invalid file type", ex.Message);
         }
         finally
         {
@@ -81,7 +81,7 @@ public class DocumentServiceTests : IDisposable
 
         var saved = await service.UploadDocumentAsync(document, temporaryPdfPath);
 
-        saved.FilePath.Should().Be(expectedStoragePath);
+        Assert.Equal(expectedStoragePath, saved.FilePath);
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public class DocumentServiceTests : IDisposable
                 new Document { User = new User { UserId = userId }, DocumentName = documentName },
                 temporaryPngPath);
 
-            saved.FilePath.Should().Be(expectedStoragePath);
+            Assert.Equal(expectedStoragePath, saved.FilePath);
         }
         finally
         {
@@ -122,7 +122,7 @@ public class DocumentServiceTests : IDisposable
             new Document { User = new User { UserId = userId }, DocumentName = documentName },
             temporaryPdfPath);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await Assert.ThrowsAsync<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -145,9 +145,9 @@ public class DocumentServiceTests : IDisposable
             stream,
             isCv: false);
 
-        saved.DocumentName.Should().Be(documentName);
-        saved.FilePath.Should().Be(expectedStoragePath);
-        saved.User.UserId.Should().Be(userId);
+        Assert.Equal(documentName, saved.DocumentName);
+        Assert.Equal(expectedStoragePath, saved.FilePath);
+        Assert.Equal(userId, saved.User.UserId);
     }
 
     [Fact]
@@ -180,9 +180,9 @@ public class DocumentServiceTests : IDisposable
             stream,
             isCv: true);
 
-        existingUser.FirstName.Should().Be("Ada");
-        existingUser.LastName.Should().Be("Lovelace");
-        saved.FilePath.Should().Be(expectedStoragePath);
+        Assert.Equal("Ada", existingUser.FirstName);
+        Assert.Equal("Lovelace", existingUser.LastName);
+        Assert.Equal(expectedStoragePath, saved.FilePath);
         await users.Received(1).UpdateAsync(existingUser, Arg.Any<CancellationToken>());
     }
 
@@ -225,10 +225,10 @@ public class DocumentServiceTests : IDisposable
             stream,
             isCv: true);
 
-        existingUser.FirstName.Should().Be("Ada");
-        existingUser.LastName.Should().Be("User");
-        existingUser.Email.Should().Be("existing@example.com");
-        existingUser.Skills.Should().BeSameAs(existingSkills);
+        Assert.Equal("Ada", existingUser.FirstName);
+        Assert.Equal("User", existingUser.LastName);
+        Assert.Equal("existing@example.com", existingUser.Email);
+        Assert.Same(existingSkills, existingUser.Skills);
     }
 
     [Fact]
@@ -245,7 +245,7 @@ public class DocumentServiceTests : IDisposable
             stream,
             isCv: false);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>();
+        await Assert.ThrowsAsync<KeyNotFoundException>(act);
     }
 
     [Fact]
@@ -264,8 +264,8 @@ public class DocumentServiceTests : IDisposable
             stream,
             isCv: true);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Only JSON*");
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(act);
+        Assert.Contains("Only JSON", ex.Message);
     }
 
     [Fact]
@@ -280,7 +280,7 @@ public class DocumentServiceTests : IDisposable
         await service.DeleteDocumentAsync(documentId);
 
         await fileStorage.Received(1).DeleteFileAsync(filePath, Arg.Any<CancellationToken>());
-        (await documentRepository.GetByIdAsync(documentId)).Should().BeNull();
+        Assert.Null(await documentRepository.GetByIdAsync(documentId));
     }
 
 
@@ -290,8 +290,8 @@ public class DocumentServiceTests : IDisposable
         const int nonExistentDocumentId = 9999;
         Func<Task> act = () => service.DeleteDocumentAsync(nonExistentDocumentId);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("Document not found.");
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(act);
+        Assert.Equal("Document not found.", ex.Message);
     }
 
     [Fact]
@@ -307,7 +307,7 @@ public class DocumentServiceTests : IDisposable
 
         var path = await service.GetDocumentUrlAsync(documentId);
 
-        path.Should().Be(absolutePath);
+        Assert.Equal(absolutePath, path);
     }
 
     [Fact]
@@ -316,7 +316,7 @@ public class DocumentServiceTests : IDisposable
         const int nonExistentDocumentId = 9999;
         Func<Task> act = () => service.GetDocumentUrlAsync(nonExistentDocumentId);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("Document not found.");
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(act);
+        Assert.Equal("Document not found.", ex.Message);
     }
 }

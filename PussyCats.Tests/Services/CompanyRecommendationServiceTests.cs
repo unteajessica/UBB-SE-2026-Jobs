@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.Library.Services;
 using PussyCats.Library.Domain;
@@ -45,7 +44,7 @@ public class CompanyRecommendationServiceTests
 
         await service.LoadApplicantsAsync(nonExistentCompanyId);
 
-        service.HasMore.Should().BeFalse();
+        Assert.False(service.HasMore);
     }
 
     [Fact]
@@ -79,7 +78,7 @@ public class CompanyRecommendationServiceTests
         var service = BuildService();
         await service.LoadApplicantsAsync(targetCompanyId);
 
-        service.GetNextApplicant()!.Match.MatchId.Should().Be(appliedMatchId);
+        Assert.Equal(appliedMatchId, service.GetNextApplicant()!.Match.MatchId);
     }
 
     [Fact]
@@ -116,7 +115,7 @@ public class CompanyRecommendationServiceTests
 
         var firstApplicant = service.GetNextApplicant();
 
-        firstApplicant!.User.UserId.Should().Be(higherScoringUserId);
+        Assert.Equal(higherScoringUserId, firstApplicant!.User.UserId);
     }
 
     [Fact]
@@ -139,7 +138,7 @@ public class CompanyRecommendationServiceTests
 
         service.MoveToNext();
 
-        service.HasMore.Should().BeFalse();
+        Assert.False(service.HasMore);
     }
 
     [Fact]
@@ -162,7 +161,7 @@ public class CompanyRecommendationServiceTests
         service.MoveToPrevious();
         service.MoveToPrevious();
 
-        service.GetNextApplicant().Should().NotBeNull();
+        Assert.NotNull(service.GetNextApplicant());
     }
 
     [Fact]
@@ -185,7 +184,7 @@ public class CompanyRecommendationServiceTests
         var service = BuildService();
         var result = await service.GetBreakdownAsync(applicant);
 
-        result!.OverallScore.Should().Be(overallScore);
+        Assert.Equal(overallScore, result!.OverallScore);
     }
 
     [Fact]
@@ -224,7 +223,7 @@ public class CompanyRecommendationServiceTests
         service.MoveToNext();
         service.MoveToPrevious();
 
-        service.GetNextApplicant()!.User.UserId.Should().Be(firstApplicant!.User.UserId);
+        Assert.Equal(firstApplicant!.User.UserId, service.GetNextApplicant()!.User.UserId);
     }
 
     [Fact]
@@ -240,8 +239,8 @@ public class CompanyRecommendationServiceTests
         var serviceA = BuildService();
         var serviceB = BuildService();
         await serviceA.LoadApplicantsAsync(companyId);
-        serviceA.HasMore.Should().Be(true);
-        serviceB.HasMore.Should().Be(false);
+        Assert.True(serviceA.HasMore);
+        Assert.False(serviceB.HasMore);
     }
 
     [Fact]
@@ -249,7 +248,7 @@ public class CompanyRecommendationServiceTests
     {
         var service = BuildService();
 
-        service.HasMore.Should().BeFalse();
+        Assert.False(service.HasMore);
     }
 
     [Fact]
@@ -268,7 +267,7 @@ public class CompanyRecommendationServiceTests
         var service = BuildService();
         await service.LoadApplicantsAsync(companyId);
 
-        service.HasMore.Should().BeFalse();
-        service.GetNextApplicant().Should().BeNull();
+        Assert.False(service.HasMore);
+        Assert.Null(service.GetNextApplicant());
     }
 }

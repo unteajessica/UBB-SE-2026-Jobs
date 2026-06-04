@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using PussyCats.Library.Domain;
@@ -36,7 +35,8 @@ public class CompanyStatusControllerTests
 
         var result = await controller.Index(default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().BeEquivalentTo(applicants);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(applicants, view.Model);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class CompanyStatusControllerTests
 
         var result = await controller.Details(404, default);
 
-        result.Should().BeOfType<NotFoundResult>();
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -59,11 +59,11 @@ public class CompanyStatusControllerTests
 
         var result = await controller.Edit(9, default);
 
-        var model = result.Should().BeOfType<ViewResult>().Subject.Model.Should().BeOfType<MatchDecisionFormModel>().Subject;
-        model.MatchId.Should().Be(9);
-        model.ApplicantName.Should().Be("Ada Lovelace");
-        model.JobTitle.Should().Be("Backend Engineer");
-        model.CompanyName.Should().Be("PussyCats");
+        var model = Assert.IsType<MatchDecisionFormModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal(9, model.MatchId);
+        Assert.Equal("Ada Lovelace", model.ApplicantName);
+        Assert.Equal("Backend Engineer", model.JobTitle);
+        Assert.Equal("PussyCats", model.CompanyName);
     }
 
     [Fact]
@@ -79,7 +79,8 @@ public class CompanyStatusControllerTests
         var result = await controller.Edit(5, model, default);
 
         await matchService.DidNotReceiveWithAnyArgs().SubmitDecisionAsync(default, default, default!, default);
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(model);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, view.Model);
     }
 
     [Fact]
@@ -99,9 +100,9 @@ public class CompanyStatusControllerTests
             MatchStatus.Accepted,
             "Welcome aboard",
             Arg.Any<CancellationToken>());
-        var redirect = result.Should().BeOfType<RedirectToActionResult>().Subject;
-        redirect.ActionName.Should().Be(nameof(CompanyStatusController.Details));
-        redirect.RouteValues!["id"].Should().Be(5);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(CompanyStatusController.Details), redirect.ActionName);
+        Assert.Equal(5, redirect.RouteValues!["id"]);
     }
 
     private static UserApplicationResult BuildApplicant(int matchId, MatchStatus status = MatchStatus.Applied)

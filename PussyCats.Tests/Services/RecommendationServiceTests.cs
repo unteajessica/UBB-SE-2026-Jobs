@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Tests.Fakes;
@@ -28,10 +27,10 @@ public class RecommendationServiceTests
 
         var saved = await service.AddAsync(user.UserId, job.JobId, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
 
-        saved.User.UserId.Should().Be(user.UserId);
-        saved.Job.JobId.Should().Be(job.JobId);
-        saved.Timestamp.Should().Be(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
-        (await recommendationRepository.GetAllAsync()).Should().HaveCount(1);
+        Assert.Equal(user.UserId, saved.User.UserId);
+        Assert.Equal(job.JobId, saved.Job.JobId);
+        Assert.Equal(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), saved.Timestamp);
+        Assert.Equal(1, (await recommendationRepository.GetAllAsync()).Count());
     }
 
     [Fact]
@@ -46,7 +45,8 @@ public class RecommendationServiceTests
         var saved = await service.AddAsync(user.UserId, job.JobId, null);
         var after = DateTime.UtcNow;
 
-        saved.Timestamp.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
+        Assert.True(saved.Timestamp >= before);
+        Assert.True(saved.Timestamp <= after);
     }
 
     [Fact]
@@ -56,7 +56,8 @@ public class RecommendationServiceTests
 
         Func<Task> act = () => service.AddAsync(999, 2, DateTime.UtcNow);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>().WithMessage("*999*");
+        var ex = await Assert.ThrowsAsync<KeyNotFoundException>(act);
+        Assert.Contains("999", ex.Message);
     }
 
     [Fact]
@@ -66,7 +67,8 @@ public class RecommendationServiceTests
 
         Func<Task> act = () => service.AddAsync(1, 999, DateTime.UtcNow);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>().WithMessage("*999*");
+        var ex = await Assert.ThrowsAsync<KeyNotFoundException>(act);
+        Assert.Contains("999", ex.Message);
     }
 
     [Fact]
@@ -86,7 +88,7 @@ public class RecommendationServiceTests
         await service.UpdateTimestampAsync(7, new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc));
 
         var refreshed = await recommendationRepository.GetByIdAsync(7);
-        refreshed!.Timestamp.Should().Be(new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.Equal(new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc), refreshed!.Timestamp);
     }
 
     [Fact]
@@ -94,7 +96,8 @@ public class RecommendationServiceTests
     {
         Func<Task> act = () => service.UpdateTimestampAsync(404, DateTime.UtcNow);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>().WithMessage("*404*");
+        var ex = await Assert.ThrowsAsync<KeyNotFoundException>(act);
+        Assert.Contains("404", ex.Message);
     }
 
     [Fact]
@@ -106,7 +109,7 @@ public class RecommendationServiceTests
 
         await service.RemoveAsync(5);
 
-        (await recommendationRepository.GetByIdAsync(5)).Should().BeNull();
+        Assert.Null(await recommendationRepository.GetByIdAsync(5));
     }
 
     [Fact]
@@ -120,6 +123,6 @@ public class RecommendationServiceTests
 
         var latest = await service.GetLatestForUserAndJobAsync(user.UserId, job.JobId);
 
-        latest!.RecommendationId.Should().Be(2);
+        Assert.Equal(2, latest!.RecommendationId);
     }
 }

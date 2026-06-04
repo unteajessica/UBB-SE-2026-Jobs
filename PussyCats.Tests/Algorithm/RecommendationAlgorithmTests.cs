@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.RecommendationAlgorithm;
 
@@ -27,7 +26,7 @@ public class RecommendationAlgorithmTests
         var score = algorithm.CalculateCompatibilityScore(user, job, userSkills, jobSkills);
         double expectedResult = 100;
 
-        score.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, score);
     }
 
     [Fact]
@@ -54,7 +53,7 @@ public class RecommendationAlgorithmTests
 
         double expectedOverallScore = (expectedSkillScore + expectedKeywordScore + expectedPreferenceScore + expectedPromotionScore) / 4;
 
-        score.Should().Be(expectedOverallScore);
+        Assert.Equal(expectedOverallScore, score);
     }
 
     [Fact]
@@ -88,7 +87,7 @@ public class RecommendationAlgorithmTests
         double expectedPromotionScore = 40; 
         double expectedOverallScore = (expectedSkillScore + expectedKeywordScore + expectedPreferenceScore + expectedPromotionScore) / 4;
 
-        breakdown.SkillScore.Should().Be(expectedSkillScore);
+        Assert.Equal(expectedSkillScore, breakdown.SkillScore);
     }
 
     [Fact]
@@ -120,7 +119,7 @@ public class RecommendationAlgorithmTests
 
         double averagePenalty = (firstSkillDifference + secondSkillDifference) / 2;
         double expectedResult = maximumScore - averagePenalty;
-        breakdown.SkillScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.SkillScore);
     }
 
     [Fact]
@@ -147,7 +146,7 @@ public class RecommendationAlgorithmTests
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, userSkills, jobSkills);
 
         double expectedResult = 0; // default minimum score
-        breakdown.SkillScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.SkillScore);
     }
 
     [Fact]
@@ -166,7 +165,7 @@ public class RecommendationAlgorithmTests
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, userSkills, jobSkills);
 
         double expectedResult = 0;
-        breakdown.SkillScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.SkillScore);
     }
 
     [Fact]
@@ -176,7 +175,7 @@ public class RecommendationAlgorithmTests
         var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: string.Empty, promotionLevel: 40);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
         double expectedResult = 0;
-        breakdown.KeywordScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.KeywordScore);
     }
 
     [Fact]
@@ -187,7 +186,7 @@ public class RecommendationAlgorithmTests
         var job = BuildJob(location: "Cluj-Napoca", employmentType: "Full-time", description: "csharp docker", promotionLevel: 40);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
         double expectedResult = 25; // 1 out of 4 keywords match
-        breakdown.KeywordScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.KeywordScore);
     }
 
     [Fact]
@@ -200,7 +199,7 @@ public class RecommendationAlgorithmTests
         var job = BuildJob(location: location, employmentType: jobEmploymentType, description: jobDescription, promotionLevel: promotionLevel);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
         double expectedResult = 0;
-        breakdown.KeywordScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.KeywordScore);
     }
 
     [Fact]
@@ -212,7 +211,7 @@ public class RecommendationAlgorithmTests
         var job = BuildJob(location: jobLocationPreference, employmentType: jobEmploymentType, description: string.Empty, promotionLevel: 40);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
         double expectedResult = 0;
-        breakdown.PreferenceScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.PreferenceScore);
     }
 
     [Fact]
@@ -223,8 +222,8 @@ public class RecommendationAlgorithmTests
         var user = BuildUser(locationPreference: location, employmentType: employmentType, parsedCv: string.Empty);
         var job = BuildJob(location: location, employmentType: employmentType, description: string.Empty, promotionLevel: promotionLevel);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
-        double expectedResult = 100; 
-        breakdown.PromotionScore.Should().Be(expectedResult);
+        double expectedResult = 100;
+        Assert.Equal(expectedResult, breakdown.PromotionScore);
     }
 
     [Fact]
@@ -236,7 +235,7 @@ public class RecommendationAlgorithmTests
         var job = BuildJob(location: location, employmentType: jobEmploymentType, description: string.Empty, promotionLevel: 40);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
         double expectedResult = 50;
-        breakdown.PreferenceScore.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, breakdown.PreferenceScore);
     }
 
     [Fact]
@@ -247,8 +246,8 @@ public class RecommendationAlgorithmTests
         var user = BuildUser(locationPreference: userLocationPreference, employmentType: employmentType, parsedCv: string.Empty);
         var job = BuildJob(location: jobLocationPreference, employmentType: employmentType, description: string.Empty, promotionLevel: 40);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
-        double expectedResult = 50; 
-        breakdown.PreferenceScore.Should().Be(expectedResult);
+        double expectedResult = 50;
+        Assert.Equal(expectedResult, breakdown.PreferenceScore);
     }
 
     [Fact]
@@ -259,8 +258,8 @@ public class RecommendationAlgorithmTests
         var user = BuildUser(locationPreference: location, employmentType: employmentType, parsedCv: string.Empty);
         var job = BuildJob(location: location, employmentType: employmentType, description: string.Empty, promotionLevel: 40);
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
-        double expectedResult = 100; 
-        breakdown.PreferenceScore.Should().Be(expectedResult);
+        double expectedResult = 100;
+        Assert.Equal(expectedResult, breakdown.PreferenceScore);
     }
 
 
@@ -288,7 +287,7 @@ public class RecommendationAlgorithmTests
         var score = algorithm.CalculateCompatibilityScore(user, job, userSkills, jobSkills);
 
         double expectedResult = 100;
-        score.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, score);
     }
 
     [Fact]
@@ -315,7 +314,7 @@ public class RecommendationAlgorithmTests
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, userSkills, jobSkills);
 
         
-        breakdown.OverallScore.Should().Be(maximumScore);
+        Assert.Equal(maximumScore, breakdown.OverallScore);
     }
 
     [Fact]
@@ -327,7 +326,7 @@ public class RecommendationAlgorithmTests
         var breakdown = algorithm.CalculateScoreBreakdown(user, job, [], []);
 
         const int expectedSkillScore = 0;
-        breakdown.SkillScore.Should().Be(expectedSkillScore);
+        Assert.Equal(expectedSkillScore, breakdown.SkillScore);
     }
 
     [Fact(Skip = "Dynamic weights deferred per MergePlan section 8.")]

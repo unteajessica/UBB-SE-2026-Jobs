@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Services.CvParsing;
 
 namespace PussyCats.Tests.Services;
@@ -54,7 +53,8 @@ public class CvParsingServiceTests
     {
         Action unsupportedFileType = () => service.ParseCvFile("ignored", ".txt");
 
-        unsupportedFileType.Should().Throw<Exception>().WithMessage("*Unsupported file type*");
+        var ex = Assert.Throws<Exception>(unsupportedFileType);
+        Assert.Contains("Unsupported file type", ex.Message);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class CvParsingServiceTests
     {
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.FirstName.Should().Be(FirstName);
+        Assert.Equal(FirstName, user.FirstName);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class CvParsingServiceTests
     {
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.LastName.Should().Be(LastName);
+        Assert.Equal(LastName, user.LastName);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class CvParsingServiceTests
     {
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.Age.Should().Be(Age);
+        Assert.Equal(Age, user.Age);
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class CvParsingServiceTests
     {
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.Email.Should().Be(NormalizedEmail);
+        Assert.Equal(NormalizedEmail, user.Email);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class CvParsingServiceTests
     {
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.Phone.Should().StartWith(PhonePrefix);
+        Assert.StartsWith(PhonePrefix, user.Phone);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class CvParsingServiceTests
         var skillsExpectedCount = 2;
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.Skills.Should().HaveCount(skillsExpectedCount);
+        Assert.Equal(skillsExpectedCount, user.Skills.Count());
     }
 
     [Theory]
@@ -120,7 +120,7 @@ public class CvParsingServiceTests
     """;
         var user = service.ParseCvFile(cvDataJson, ".json");
 
-        user.Gender.Should().Be(expectedGender);
+        Assert.Equal(expectedGender, user.Gender);
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class CvParsingServiceTests
 
         var user = service.ParseCvFile(cvDataInvalidAge, ".json");
 
-        user.Age.Should().Be(0);
+        Assert.Equal(0, user.Age);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class CvParsingServiceTests
 
         var user = service.ParseCvFile(CvDataJson, ".json");
 
-        user.ExpectedGraduationYear.Should().Be(0);
+        Assert.Equal(0, user.ExpectedGraduationYear);
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class CvParsingServiceTests
 
         var user = service.ParseCvFile(cvData, ".json");
 
-        user.Skills.Should().HaveCount(MaxSkills);
+        Assert.Equal(MaxSkills, user.Skills.Count());
     }
 
     [Fact]
@@ -164,7 +164,7 @@ public class CvParsingServiceTests
 
         var user = service.ParseCvFile(cvData, ".json");
 
-        user.Motivation.Length.Should().Be(maxMotivationLength);
+        Assert.Equal(maxMotivationLength, user.Motivation.Length);
     }
 
     [Fact]
@@ -174,7 +174,7 @@ public class CvParsingServiceTests
 
         var user = service.ParseCvFile(cvDataInvalidEmail, ".json");
 
-        user.Email.Should().BeEmpty();
+        Assert.Empty(user.Email);
     }
 
     [Fact]
@@ -182,7 +182,8 @@ public class CvParsingServiceTests
     {
         Action formatNotJsonFailedToParseCv = () => service.ParseCvFile("{ not json", ".json");
 
-        formatNotJsonFailedToParseCv.Should().Throw<Exception>().WithMessage("*Failed to parse CV file*");
+        var ex = Assert.Throws<Exception>(formatNotJsonFailedToParseCv);
+        Assert.Contains("Failed to parse CV file", ex.Message);
     }
 
 

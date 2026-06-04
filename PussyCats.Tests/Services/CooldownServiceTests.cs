@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Fakes;
 using PussyCats.Library.Services.CooldownService;
@@ -20,7 +19,7 @@ public class CooldownServiceTests
     public async Task IsOnCooldownAsync_NoRecommendationExists_ReturnsFalse()
     {
         const int userId = 1, jobId = 10;
-        (await service.IsOnCooldownAsync(userId, jobId, DateTime.UtcNow)).Should().BeFalse();
+        Assert.False(await service.IsOnCooldownAsync(userId, jobId, DateTime.UtcNow));
     }
 
     [Fact]
@@ -37,7 +36,7 @@ public class CooldownServiceTests
             Timestamp = currentDate.AddMinutes(-minutesAgo),
         });
 
-        (await service.IsOnCooldownAsync(userId, jobId, currentDate)).Should().BeTrue();
+        Assert.True(await service.IsOnCooldownAsync(userId, jobId, currentDate));
     }
 
     [Fact]
@@ -54,7 +53,7 @@ public class CooldownServiceTests
             Timestamp = currentDate.AddDays(-daysAgo),
         });
 
-        (await service.IsOnCooldownAsync(userId, jobId, currentDate)).Should().BeFalse();
+        Assert.False(await service.IsOnCooldownAsync(userId, jobId, currentDate));
     }
 
     [Fact]
@@ -67,7 +66,7 @@ public class CooldownServiceTests
             new Recommendation { RecommendationId = 1, User = new User { UserId = userId }, Job = new Job { JobId = jobId }, Timestamp = currentDate.AddDays(-daysAgo) },
             new Recommendation { RecommendationId = 2, User = new User { UserId = userId }, Job = new Job { JobId = jobId }, Timestamp = currentDate.AddMinutes(-minutesAgo) });
 
-        (await service.IsOnCooldownAsync(userId, jobId, currentDate)).Should().BeTrue();
+        Assert.True(await service.IsOnCooldownAsync(userId, jobId, currentDate));
     }
 
     [Fact]
@@ -80,7 +79,7 @@ public class CooldownServiceTests
         var now = DateTime.UtcNow;
         recommendationRepository.Seed(new Recommendation { RecommendationId = 1, User = new User { UserId = userId }, Job = new Job { JobId = jobId }, Timestamp = now.AddHours(-hoursAgo) });
 
-        (await negativeService.IsOnCooldownAsync(userId, jobId, now)).Should().BeTrue();
-        (await zeroService.IsOnCooldownAsync(userId, jobId, now)).Should().BeTrue();
+        Assert.True(await negativeService.IsOnCooldownAsync(userId, jobId, now));
+        Assert.True(await zeroService.IsOnCooldownAsync(userId, jobId, now));
     }
 }

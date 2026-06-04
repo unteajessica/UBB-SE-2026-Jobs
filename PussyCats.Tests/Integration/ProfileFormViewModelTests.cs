@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -36,11 +35,11 @@ public class ProfileFormViewModelTests
 
         viewModel.LoadProfile(user);
 
-        viewModel.FirstName.Should().Be("Ada");
-        viewModel.LastName.Should().Be("Lovelace");
-        viewModel.PhonePrefix.Should().Be("+40");
-        viewModel.PhoneNumber.Should().Be("123456789");
-        viewModel.ExpectedGraduationYear.Should().Be(2027);
+        Assert.Equal("Ada", viewModel.FirstName);
+        Assert.Equal("Lovelace", viewModel.LastName);
+        Assert.Equal("+40", viewModel.PhonePrefix);
+        Assert.Equal("123456789", viewModel.PhoneNumber);
+        Assert.Equal(2027, viewModel.ExpectedGraduationYear);
     }
 
     [Fact]
@@ -48,12 +47,12 @@ public class ProfileFormViewModelTests
     {
         var saved = await viewModel.SaveProfileAsync();
 
-        saved.Should().BeFalse();
-        viewModel.IsInfoBarOpen.Should().BeTrue();
-        viewModel.InfoBarMessage.Should().Contain("Please fill in required fields");
+        Assert.False(saved);
+        Assert.True(viewModel.IsInfoBarOpen);
+        Assert.Contains("Please fill in required fields", viewModel.InfoBarMessage);
 
         var persisted = await userRepository.GetByIdAsync(15);
-        persisted.Should().BeNull();
+        Assert.Null(persisted);
     }
 
     [Fact]
@@ -66,13 +65,13 @@ public class ProfileFormViewModelTests
 
         var saved = await viewModel.SaveProfileAsync();
 
-        saved.Should().BeTrue();
+        Assert.True(saved);
         var persisted = await userRepository.GetByIdAsync(15);
-        persisted.Should().NotBeNull();
-        persisted!.FirstName.Should().Be("Ada");
-        persisted.Email.Should().Be("ada@example.com");
-        persisted.Skills.Should().HaveCount(1);
-        viewModel.InfoBarMessage.Should().Be("Profile saved successfully!");
+        Assert.NotNull(persisted);
+        Assert.Equal("Ada", persisted!.FirstName);
+        Assert.Equal("ada@example.com", persisted.Email);
+        Assert.Equal(1, persisted.Skills.Count());
+        Assert.Equal("Profile saved successfully!", viewModel.InfoBarMessage);
     }
 
     [Fact]
@@ -81,8 +80,8 @@ public class ProfileFormViewModelTests
         viewModel.AddSkill("C#");
         viewModel.AddSkill("c#");
 
-        viewModel.Skills.Should().ContainSingle("C#");
-        viewModel.InfoBarMessage.Should().Contain("already been added");
+        Assert.Single(viewModel.Skills);
+        Assert.Contains("already been added", viewModel.InfoBarMessage);
     }
 
     [Fact]
@@ -96,9 +95,9 @@ public class ProfileFormViewModelTests
         await using var stream = new MemoryStream(Encoding.UTF8.GetBytes("content"));
         await viewModel.ProcessCvFileAsync(stream, "cv.json");
 
-        viewModel.FirstName.Should().Be("Grace");
-        viewModel.Skills.Should().ContainSingle("COBOL");
-        viewModel.CvStatusText.Should().Be("CV loaded successfully!");
+        Assert.Equal("Grace", viewModel.FirstName);
+        Assert.Single(viewModel.Skills);
+        Assert.Equal("CV loaded successfully!", viewModel.CvStatusText);
     }
 
     private static User ValidUser()

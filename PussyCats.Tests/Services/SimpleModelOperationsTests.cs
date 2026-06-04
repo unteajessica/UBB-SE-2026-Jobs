@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
@@ -21,7 +20,7 @@ public class SimpleModelOperationsTests
     {
         var skillTest = new SkillTest { Score = score };
 
-        SimpleModelOperations.GetExperiencePoints(skillTest).Should().Be(expectedXp);
+        Assert.Equal(expectedXp, SimpleModelOperations.GetExperiencePoints(skillTest));
     }
 
     [Theory]
@@ -37,7 +36,7 @@ public class SimpleModelOperationsTests
     [InlineData(10_000, 5)]
     public void CalculateLevelNumber_ExperiencePointsProvided_MapsXpToLevel(int xp, int expectedLevel)
     {
-        SimpleModelOperations.CalculateLevelNumber(xp).Should().Be(expectedLevel);
+        Assert.Equal(expectedLevel, SimpleModelOperations.CalculateLevelNumber(xp));
     }
 
     [Theory]
@@ -53,26 +52,26 @@ public class SimpleModelOperationsTests
     {
         var badge = SimpleModelOperations.AssignTier(score);
 
-        badge.Tier.Should().Be(expectedTier);
-        badge.ExperiencePointsValue.Should().Be(expectedXp);
-        badge.IconPath.Should().NotBeEmpty();
+        Assert.Equal(expectedTier, badge.Tier);
+        Assert.Equal(expectedXp, badge.ExperiencePointsValue);
+        Assert.NotEmpty(badge.IconPath);
     }
 
     [Fact]
     public void TierThresholds_ConstantsDefined_AreStrictlyOrdered()
     {
-        SimpleModelOperations.GoldScoreThreshold.Should().BeGreaterThan(SimpleModelOperations.SilverScoreThreshold);
-        SimpleModelOperations.SilverScoreThreshold.Should().BeGreaterThan(SimpleModelOperations.BronzeScoreThreshold);
-        SimpleModelOperations.BronzeScoreThreshold.Should().BeGreaterThan(0);
+        Assert.True(SimpleModelOperations.GoldScoreThreshold > SimpleModelOperations.SilverScoreThreshold);
+        Assert.True(SimpleModelOperations.SilverScoreThreshold > SimpleModelOperations.BronzeScoreThreshold);
+        Assert.True(SimpleModelOperations.BronzeScoreThreshold > 0);
     }
 
     [Fact]
     public void LevelThresholds_ConstantsDefined_AreStrictlyOrdered()
     {
-        SimpleModelOperations.Level1ExperiencePoints.Should().Be(0);
-        SimpleModelOperations.Level2ExperiencePoints.Should().BeGreaterThan(SimpleModelOperations.Level1ExperiencePoints);
-        SimpleModelOperations.Level3ExperiencePoints.Should().BeGreaterThan(SimpleModelOperations.Level2ExperiencePoints);
-        SimpleModelOperations.Level4ExperiencePoints.Should().BeGreaterThan(SimpleModelOperations.Level3ExperiencePoints);
-        SimpleModelOperations.Level5ExperiencePoints.Should().BeGreaterThan(SimpleModelOperations.Level4ExperiencePoints);
+        Assert.Equal(0, SimpleModelOperations.Level1ExperiencePoints);
+        Assert.True(SimpleModelOperations.Level2ExperiencePoints > SimpleModelOperations.Level1ExperiencePoints);
+        Assert.True(SimpleModelOperations.Level3ExperiencePoints > SimpleModelOperations.Level2ExperiencePoints);
+        Assert.True(SimpleModelOperations.Level4ExperiencePoints > SimpleModelOperations.Level3ExperiencePoints);
+        Assert.True(SimpleModelOperations.Level5ExperiencePoints > SimpleModelOperations.Level4ExperiencePoints);
     }
 }

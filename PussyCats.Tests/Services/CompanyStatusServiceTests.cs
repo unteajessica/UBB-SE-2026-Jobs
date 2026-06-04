@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
@@ -44,8 +43,8 @@ public class CompanyStatusServiceTests
 
         const int expectedNumberOfApplicants = 1, expectedApplicantId = 2;
 
-        result.Should().HaveCount(expectedNumberOfApplicants);
-        result[0].Match.MatchId.Should().Be(expectedApplicantId);
+        Assert.Equal(expectedNumberOfApplicants, result.Count());
+        Assert.Equal(expectedApplicantId, result[0].Match.MatchId);
     }
 
     [Fact]
@@ -62,7 +61,7 @@ public class CompanyStatusServiceTests
         var result = await service.GetApplicantsForCompanyAsync(companyId);
 
         int expectedNumberOfApplicants = 2;
-        result.Should().HaveCount(expectedNumberOfApplicants);
+        Assert.Equal(expectedNumberOfApplicants, result.Count());
     }
 
     [Fact]
@@ -78,7 +77,7 @@ public class CompanyStatusServiceTests
             .Build());
 
         var result = await service.GetApplicantsForCompanyAsync(companyId);
-        result.Should().BeEmpty();
+        Assert.Empty(result);
     }
 
     [Fact]
@@ -103,8 +102,8 @@ public class CompanyStatusServiceTests
         var result = await service.GetApplicantsForCompanyAsync(companyId);
 
         const int expectedNumberOfApplicants = 2;
-        result.Should().HaveCount(expectedNumberOfApplicants);
-        result[0].CompatibilityScore.Should().BeGreaterThan(result[1].CompatibilityScore);
+        Assert.Equal(expectedNumberOfApplicants, result.Count());
+        Assert.True(result[0].CompatibilityScore > result[1].CompatibilityScore);
     }
 
     [Fact]
@@ -123,7 +122,7 @@ public class CompanyStatusServiceTests
 
         const int expectedCompatibilityScore = 60; // 50 base score + 10 location bonus
 
-        result[0].CompatibilityScore.Should().Be(expectedCompatibilityScore);
+        Assert.Equal(expectedCompatibilityScore, result[0].CompatibilityScore);
     }
 
     [Fact]
@@ -137,8 +136,8 @@ public class CompanyStatusServiceTests
 
         var result = await service.GetApplicantByMatchIdAsync(companyId, matchId);
 
-        result.Should().NotBeNull();
-        result!.Match.MatchId.Should().Be(matchId);
+        Assert.NotNull(result);
+        Assert.Equal(matchId, result!.Match.MatchId);
     }
 
     [Fact]
@@ -147,6 +146,6 @@ public class CompanyStatusServiceTests
         const int nonExistentCompanyId = 5, nonExistentMatchId = 999;
         var result = await service.GetApplicantByMatchIdAsync(nonExistentCompanyId, nonExistentMatchId);
 
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 }

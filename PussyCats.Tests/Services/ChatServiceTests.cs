@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using NSubstitute;
+﻿using NSubstitute;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Repositories.Chats;
@@ -45,7 +44,7 @@ namespace PussyCats.Tests.Services
             
             var createdChat = await chatService.FindOrCreateUserCompanyChatAsync(1, company);
 
-            createdChat.Should().BeSameAs(newChat);
+            Assert.Same(newChat, createdChat);
         }
 
         [Fact]
@@ -59,9 +58,9 @@ namespace PussyCats.Tests.Services
 
             var returnedChat = await chatService.FindOrCreateUserCompanyChatAsync(1, company);
 
-            returnedChat.ChatId.Should().Be(existingChat.ChatId);
-            returnedChat!.DeletedAtByUser.Should().BeNull();
-            returnedChat!.DeletedAtBySecondParty.Should().BeNull();
+            Assert.Equal(existingChat.ChatId, returnedChat.ChatId);
+            Assert.Null(returnedChat!.DeletedAtByUser);
+            Assert.Null(returnedChat!.DeletedAtBySecondParty);
         }
 
         [Fact]
@@ -82,7 +81,7 @@ namespace PussyCats.Tests.Services
             var createdChat = await chatService.FindOrCreateUserChatAsync(1, 2);
 
 
-            createdChat.Should().BeSameAs(newChat);
+            Assert.Same(newChat, createdChat);
         }
 
         [Fact]
@@ -95,9 +94,9 @@ namespace PussyCats.Tests.Services
 
             var returnedChat = await chatService.FindOrCreateUserChatAsync(1, 2);
 
-            returnedChat!.ChatId.Should().Be(existingChat.ChatId);
-            returnedChat!.DeletedAtByUser.Should().BeNull();
-            returnedChat!.DeletedAtBySecondParty.Should().BeNull();
+            Assert.Equal(existingChat.ChatId, returnedChat!.ChatId);
+            Assert.Null(returnedChat!.DeletedAtByUser);
+            Assert.Null(returnedChat!.DeletedAtBySecondParty);
         }
         #endregion
 
@@ -118,7 +117,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.GetChatsForUserAsync(userId);
 
-            result.Should().BeEmpty();
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -137,7 +136,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.GetChatsForUserAsync(userId);
 
-            result.Should().ContainSingle();
+            Assert.Single(result);
         }
 
         [Fact]
@@ -157,7 +156,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.GetChatsForUserAsync(userId);
 
-            result.Should().BeEmpty();
+            Assert.Empty(result);
         }
         [Fact]
         public async Task GetChatsForCompanyAsync_ChatDeletedByCompany_ExcludesChat()
@@ -175,7 +174,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.GetChatsForCompanyAsync(companyId);
 
-            result.Should().BeEmpty();
+            Assert.Empty(result);
         }
         #endregion
 
@@ -189,7 +188,7 @@ namespace PussyCats.Tests.Services
 
             var action = async () => await chatService.GetMessagesAsync(1, callerId: 1);
 
-            await action.Should().ThrowAsync<KeyNotFoundException>();
+            await Assert.ThrowsAsync<KeyNotFoundException>(action);
         }
 
         [Fact]
@@ -202,7 +201,7 @@ namespace PussyCats.Tests.Services
 
             var act = async () => await chatService.GetMessagesAsync(1, callerId: 99);
 
-            await act.Should().ThrowAsync<UnauthorizedAccessException>();
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(act);
         }
 
         [Fact]
@@ -220,8 +219,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.GetMessagesAsync(1, callerId);
 
-            result.Should().ContainSingle()
-                .Which.Timestamp.Should().Be(newMessage.Timestamp);
+            Assert.Equal(newMessage.Timestamp, Assert.Single(result).Timestamp);
         }
 
         [Fact]
@@ -238,10 +236,10 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.GetMessagesAsync(1, callerId);
 
-            result[0].ShowReadReceipt.Should().BeTrue();
-            result[0].SenderInitials.Should().Be("Me");
-            result[1].ShowReadReceipt.Should().BeFalse();
-            result[1].SenderInitials.Should().Be("Them");
+            Assert.True(result[0].ShowReadReceipt);
+            Assert.Equal("Me", result[0].SenderInitials);
+            Assert.False(result[1].ShowReadReceipt);
+            Assert.Equal("Them", result[1].SenderInitials);
         }
 
         #endregion GetMessagesAsync
@@ -252,7 +250,7 @@ namespace PussyCats.Tests.Services
         {
             var result = await chatService.SearchCompaniesAsync("   ");
 
-            result.Should().BeEmpty();
+            Assert.Empty(result);
             await companyService.DidNotReceive().GetAllAsync(Arg.Any<CancellationToken>());
         }
 
@@ -270,8 +268,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.SearchCompaniesAsync("acme");
 
-            result.Should().ContainSingle()
-                .Which.CompanyName.Should().Be("Acme Corp");
+            Assert.Equal("Acme Corp", Assert.Single(result).CompanyName);
         }
 
         [Fact]
@@ -286,7 +283,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.SearchCompaniesAsync("Company");
 
-            result.Should().HaveCount(10);
+            Assert.Equal(10, result.Count());
         }
 
         [Fact]
@@ -294,7 +291,7 @@ namespace PussyCats.Tests.Services
         {
             var result = await chatService.SearchUsersAsync("   ");
 
-            result.Should().BeEmpty();
+            Assert.Empty(result);
             await userService.DidNotReceive().GetAllAsync(Arg.Any<CancellationToken>());
         }
 
@@ -312,8 +309,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.SearchUsersAsync("peter");
 
-            result.Should().ContainSingle()
-                .Which.FirstName.Should().Be("Peter");
+            Assert.Equal("Peter", Assert.Single(result).FirstName);
         }
 
         [Fact]
@@ -328,7 +324,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.SearchUsersAsync("peter");
 
-            result.Should().HaveCount(10);
+            Assert.Equal(10, result.Count());
         }
         #endregion
 
@@ -337,8 +333,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task SendMessageAsync_EmptyOrNullContent_ThrowsArgumentException()
         {
-            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "   ", 1, MessageType.Text))
-                .Should().ThrowAsync<ArgumentException>();
+            await Assert.ThrowsAsync<ArgumentException>(() => chatService.SendMessageAsync(1, "   ", 1, MessageType.Text));
         }
 
         [Fact]
@@ -346,8 +341,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "hello", 1, MessageType.Text))
-                .Should().ThrowAsync<KeyNotFoundException>();
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => chatService.SendMessageAsync(1, "hello", 1, MessageType.Text));
         }
 
         [Fact]
@@ -356,8 +350,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "hello", 789, MessageType.Text))
-                .Should().ThrowAsync<UnauthorizedAccessException>();
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => chatService.SendMessageAsync(1, "hello", 789, MessageType.Text));
         }
 
         [Fact]
@@ -366,8 +359,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { IsBlocked = true, User = new User { UserId = 1 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, "hello", 1, MessageType.Text))
-                .Should().ThrowAsync<InvalidOperationException>();
+            await Assert.ThrowsAsync<InvalidOperationException>(() => chatService.SendMessageAsync(1, "hello", 1, MessageType.Text));
         }
 
         [Fact]
@@ -376,8 +368,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 1 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(chatService => chatService.SendMessageAsync(1, new string('a', 2001), 1, MessageType.Text))
-                .Should().ThrowAsync<ArgumentException>();
+            await Assert.ThrowsAsync<ArgumentException>(() => chatService.SendMessageAsync(1, new string('a', 2001), 1, MessageType.Text));
         }
 
         [Fact]
@@ -459,8 +450,7 @@ namespace PussyCats.Tests.Services
         [Fact]
         public async Task OpenMessageAttachmentAsync_EmptyPath_ThrowsArgumentException()
         {
-            await chatService.Invoking(chatService => chatService.OpenMessageAttachmentAsync("   "))
-                .Should().ThrowAsync<ArgumentException>();
+            await Assert.ThrowsAsync<ArgumentException>(() => chatService.OpenMessageAttachmentAsync("   "));
         }
 
         [Fact]
@@ -472,7 +462,7 @@ namespace PussyCats.Tests.Services
 
             var result = await chatService.OpenMessageAttachmentAsync("path/file.jpg");
 
-            result.Should().BeSameAs(stream);
+            Assert.Same(stream, result);
         }
 
         #region BlockChatAsync and UnblockChatAsync
@@ -482,8 +472,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(chatService => chatService.BlockChatAsync(1, blockerId: 1))
-                .Should().ThrowAsync<KeyNotFoundException>();
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => chatService.BlockChatAsync(1, blockerId: 1));
         }
 
         [Fact]
@@ -492,8 +481,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(chatService => chatService.BlockChatAsync(1, blockerId: 99))
-                .Should().ThrowAsync<UnauthorizedAccessException>();
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => chatService.BlockChatAsync(1, blockerId: 99));
         }
 
         [Fact]
@@ -504,8 +492,8 @@ namespace PussyCats.Tests.Services
 
             await chatService.BlockChatAsync(1, blockerId: 1);
 
-            chat.IsBlocked.Should().BeTrue();
-            chat.BlockedByUser!.UserId.Should().Be(1);
+            Assert.True(chat.IsBlocked);
+            Assert.Equal(1, chat.BlockedByUser!.UserId);
             chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
 
@@ -514,8 +502,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(chatService => chatService.UnblockChatAsync(1, unblockerId: 1))
-                .Should().ThrowAsync<KeyNotFoundException>();
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => chatService.UnblockChatAsync(1, unblockerId: 1));
         }
 
 
@@ -525,8 +512,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 1 }, SecondUser = new User { UserId = 2 }, BlockedByUser = new User { UserId = 2 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(chatService => chatService.UnblockChatAsync(1, unblockerId: 1))
-                .Should().ThrowAsync<UnauthorizedAccessException>();
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => chatService.UnblockChatAsync(1, unblockerId: 1));
         }
 
         [Fact]
@@ -537,8 +523,8 @@ namespace PussyCats.Tests.Services
 
             await chatService.UnblockChatAsync(1, unblockerId: 1);
 
-            chat.IsBlocked.Should().BeFalse();
-            chat.BlockedByUser.Should().BeNull();
+            Assert.False(chat.IsBlocked);
+            Assert.Null(chat.BlockedByUser);
             chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
 
@@ -549,8 +535,7 @@ namespace PussyCats.Tests.Services
         {
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns((Chat?)null);
 
-            await chatService.Invoking(chatService => chatService.DeleteChatAsync(1, callerId: 1))
-                .Should().ThrowAsync<KeyNotFoundException>();
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => chatService.DeleteChatAsync(1, callerId: 1));
         }
 
         [Fact]
@@ -559,8 +544,7 @@ namespace PussyCats.Tests.Services
             var chat = new Chat { User = new User { UserId = 2 }, SecondUser = new User { UserId = 3 } };
             chatRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(chat);
 
-            await chatService.Invoking(chatService => chatService.DeleteChatAsync(1, callerId: 99))
-                .Should().ThrowAsync<UnauthorizedAccessException>();
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => chatService.DeleteChatAsync(1, callerId: 99));
         }
 
         [Fact]
@@ -571,8 +555,8 @@ namespace PussyCats.Tests.Services
 
             await chatService.DeleteChatAsync(1, callerId: 1);
 
-            chat.DeletedAtByUser.Should().NotBeNull();
-            chat.DeletedAtBySecondParty.Should().BeNull();
+            Assert.NotNull(chat.DeletedAtByUser);
+            Assert.Null(chat.DeletedAtBySecondParty);
             chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
 
@@ -584,8 +568,8 @@ namespace PussyCats.Tests.Services
 
             await chatService.DeleteChatAsync(1, callerId: 2);
 
-            chat.DeletedAtBySecondParty.Should().NotBeNull();
-            chat.DeletedAtByUser.Should().BeNull();
+            Assert.NotNull(chat.DeletedAtBySecondParty);
+            Assert.Null(chat.DeletedAtByUser);
             chatRepository.Received(1).UpdateAsync(chat, Arg.Any<CancellationToken>());
         }
     }

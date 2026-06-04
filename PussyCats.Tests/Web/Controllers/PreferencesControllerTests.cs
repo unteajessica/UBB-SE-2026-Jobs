@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -38,8 +37,8 @@ public class PreferencesControllerTests
 
         var result = await controller.Index(default);
 
-        result.Should().BeOfType<ViewResult>()
-            .Which.Model.Should().BeSameAs(prefs);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Same(prefs, view.Model);
     }
 
     [Fact]
@@ -53,11 +52,10 @@ public class PreferencesControllerTests
 
         var result = await controller.Edit(default);
 
-        var model = result.Should().BeOfType<ViewResult>().Which.Model
-            .Should().BeOfType<PreferencesEditModel>().Subject;
-        model.SelectedRoles.Should().BeEquivalentTo(prefs.Roles);
-        model.WorkMode.Should().Be(WorkMode.Remote);
-        model.Location.Should().Be("Berlin, Germany");
+        var model = Assert.IsType<PreferencesEditModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal(prefs.Roles, model.SelectedRoles);
+        Assert.Equal(WorkMode.Remote, model.WorkMode);
+        Assert.Equal("Berlin, Germany", model.Location);
     }
 
     [Fact]
@@ -68,7 +66,8 @@ public class PreferencesControllerTests
 
         var result = await controller.Edit(model, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().BeSameAs(model);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Same(model, view.Model);
         await preferences.DidNotReceive().SavePreferencesAsync(
             Arg.Any<int>(),
             Arg.Any<IReadOnlyList<JobRole>>(),
@@ -95,7 +94,7 @@ public class PreferencesControllerTests
             WorkMode.OnSite,
             "Bucharest, Romania",
             Arg.Any<CancellationToken>());
-        result.Should().BeOfType<RedirectToActionResult>()
-            .Which.ActionName.Should().Be(nameof(PreferencesController.Index));
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(PreferencesController.Index), redirect.ActionName);
     }
 }

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain.Enums;
@@ -14,11 +13,11 @@ public class ShellViewModelTests
 
         viewModel.RecommendationsCommand.Execute(null);
 
-        viewModel.ActivePage.Should().Be("Recommendations");
-        viewModel.IsRecommendationsActive.Should().BeTrue();
+        Assert.Equal("Recommendations", viewModel.ActivePage);
+        Assert.True(viewModel.IsRecommendationsActive);
 
         viewModel.ChatCommand.Execute(null);
-        viewModel.IsChatActive.Should().BeTrue();
+        Assert.True(viewModel.IsChatActive);
     }
 
     [Fact]
@@ -29,9 +28,9 @@ public class ShellViewModelTests
 
         viewModel.CompanyModeCommand.Execute(null);
 
-        session.Mode.Should().Be(AppMode.Company);
-        viewModel.IsCompanyMode.Should().BeTrue();
-        viewModel.IsCandidateMode.Should().BeFalse();
+        Assert.Equal(AppMode.Company, session.Mode);
+        Assert.True(viewModel.IsCompanyMode);
+        Assert.False(viewModel.IsCandidateMode);
     }
 
     [Fact]
@@ -42,8 +41,8 @@ public class ShellViewModelTests
 
         viewModel.DeveloperModeCommand.Execute(null);
 
-        session.Mode.Should().Be(AppMode.Developer);
-        viewModel.IsDeveloperMode.Should().BeTrue();
-        viewModel.IsCompanyMode.Should().BeFalse();
+        Assert.Equal(AppMode.Developer, session.Mode);
+        Assert.True(viewModel.IsDeveloperMode);
+        Assert.False(viewModel.IsCompanyMode);
     }
 }

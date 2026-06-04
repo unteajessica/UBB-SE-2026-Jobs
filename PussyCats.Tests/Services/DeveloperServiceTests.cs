@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using PussyCats.Library.Domain;
+﻿using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.Developers;
 
@@ -19,7 +18,7 @@ namespace PussyCats.Tests.Services
             };
             string postMessage = "Hello world!";
             var exception = await Assert.ThrowsAsync<ArgumentException>(() => developerService.AddPostAsync(developer.DeveloperId, DeveloperPostParameterType.Unknown, postMessage));
-            exception.Message.Should().Contain("Choose a valid parameter.");
+            Assert.Contains("Choose a valid parameter.", exception.Message);
         }
 
         [Fact]
@@ -32,7 +31,7 @@ namespace PussyCats.Tests.Services
             };
             string postMessage = string.Empty;
             var exception = await Assert.ThrowsAsync<ArgumentException>(() => developerService.AddPostAsync(developer.DeveloperId, DeveloperPostParameterType.WeightedDistanceScoreWeight, postMessage));
-            exception.Message.Should().Contain("Value cannot be empty.");
+            Assert.Contains("Value cannot be empty.", exception.Message);
         }
 
         [Fact]
@@ -46,8 +45,8 @@ namespace PussyCats.Tests.Services
             string postMessage = "Hello world!";
             var post = await developerService.AddPostAsync(developer.DeveloperId, DeveloperPostParameterType.WeightedDistanceScoreWeight, postMessage);
 
-            post.Developer.DeveloperId.Should().Be(developer.DeveloperId);
-            post.Value.Should().Be(postMessage);
+            Assert.Equal(developer.DeveloperId, post.Developer.DeveloperId);
+            Assert.Equal(postMessage, post.Value);
         }
 
         [Fact]
@@ -62,7 +61,7 @@ namespace PussyCats.Tests.Services
 
             await developerService.AddInteractionAsync(developer.DeveloperId, post.DeveloperPostId, DeveloperInteractionType.Like);
             var interactions = await developerService.GetInteractionsAsync();
-            interactions.Should().Contain(interaction => interaction.Developer.DeveloperId == developer.DeveloperId);
+            Assert.Contains(interactions, interaction => interaction.Developer.DeveloperId == developer.DeveloperId);
         }
 
         [Fact]
@@ -79,7 +78,7 @@ namespace PussyCats.Tests.Services
             await developerService.AddInteractionAsync(developer.DeveloperId, post.DeveloperPostId, DeveloperInteractionType.Dislike);
 
             var interactions = await developerService.GetInteractionsAsync();
-            interactions.Should().Contain(interaction => interaction.Type == DeveloperInteractionType.Dislike);
+            Assert.Contains(interactions, interaction => interaction.Type == DeveloperInteractionType.Dislike);
         }
     }
 }

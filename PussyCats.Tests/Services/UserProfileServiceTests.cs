@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services;
 using PussyCats.Library.Services.UserProfileService;
@@ -48,8 +47,8 @@ public class UserProfileServiceTests
     {
         Func<Task> act = () => service.IsProfileAvailableAsync(MissingUserId);
 
-        await act.Should().ThrowAsync<Exception>()
-            .WithMessage("*No profile found*");
+        var ex = await Assert.ThrowsAsync<Exception>(act);
+        Assert.Contains("No profile found", ex.Message);
     }
 
     [Fact]
@@ -57,7 +56,7 @@ public class UserProfileServiceTests
     {
         userRepository.Seed(new UserBuilder().WithId(ExistingUserId).WithActiveAccount(false).Build());
 
-        (await service.IsProfileAvailableAsync(ExistingUserId)).Should().BeFalse();
+        Assert.False(await service.IsProfileAvailableAsync(ExistingUserId));
     }
 
     [Fact]
@@ -68,8 +67,8 @@ public class UserProfileServiceTests
         await service.UpdateAccountStatusAsync(ExistingUserId, false);
 
         var user = await userRepository.GetByIdAsync(ExistingUserId);
-        user!.ActiveAccount.Should().BeFalse();
-        user.LastUpdated.Should().BeAfter(DateTime.UtcNow.AddMinutes(-OneMinute));
+        Assert.False(user!.ActiveAccount);
+        Assert.True(user.LastUpdated > DateTime.UtcNow.AddMinutes(-OneMinute));
     }
 
     [Fact]
@@ -79,7 +78,7 @@ public class UserProfileServiceTests
 
         await service.UpdateProfilePicturePathAsync(ExistingUserId, ProfilePicturePath);
 
-        (await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().Be(ProfilePicturePath);
+        Assert.Equal(ProfilePicturePath, (await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath);
     }
 
     [Fact]
@@ -89,7 +88,7 @@ public class UserProfileServiceTests
 
         await service.UpdateProfilePicturePathAsync(ExistingUserId, null!);
 
-        (await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
+        Assert.Empty((await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath);
     }
 
     [Fact]
@@ -101,7 +100,7 @@ public class UserProfileServiceTests
 
         await service.RemoveProfilePicturePathAsync(ExistingUserId);
 
-        (await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath.Should().BeEmpty();
+        Assert.Empty((await userRepository.GetByIdAsync(ExistingUserId))!.ProfilePicturePath);
     }
 
     [Fact]
@@ -111,7 +110,7 @@ public class UserProfileServiceTests
 
         await service.SaveAsync(NewUserId, user);
 
-        (await userRepository.GetAllAsync()).Should().HaveCount(1);
+        Assert.Equal(1, (await userRepository.GetAllAsync()).Count());
     }
 
     [Fact]
@@ -122,13 +121,13 @@ public class UserProfileServiceTests
 
         await service.SaveAsync(ExistingUserId, updated);
 
-        (await userRepository.GetByIdAsync(ExistingUserId))!.Email.Should().Be(NewEmail);
+        Assert.Equal(NewEmail, (await userRepository.GetByIdAsync(ExistingUserId))!.Email);
     }
 
     [Fact]
     public void GenerateParsedCvText_UserIsNull_ReturnsEmptyString()
     {
-        PussyCats.Library.Services.Helpers.GenerateParsedCvText(null!).Should().BeEmpty();
+        Assert.Empty(PussyCats.Library.Services.Helpers.GenerateParsedCvText(null!));
     }
 
     [Fact]
@@ -144,15 +143,15 @@ public class UserProfileServiceTests
 
         var text = PussyCats.Library.Services.Helpers.GenerateParsedCvText(user);
 
-        text.Should().Contain($"{FirstName} {LastName}");
-        text.Should().Contain(UniversityName);
-        text.Should().Contain($"{PrimarySkillName}, {SecondarySkillName}");
+        Assert.Contains($"{FirstName} {LastName}", text);
+        Assert.Contains(UniversityName, text);
+        Assert.Contains($"{PrimarySkillName}, {SecondarySkillName}", text);
     }
 
     [Fact]
     public async Task RecalculateLevelAsync_UserIsNull_ReturnsZero()
     {
-        (await service.RecalculateLevelAsync(null!)).Should().Be(0);
+        Assert.Equal(0, await service.RecalculateLevelAsync(null!));
     }
 
     [Fact]
@@ -170,8 +169,8 @@ public class UserProfileServiceTests
         var expected = SimpleModelOperations.GoldExperiencePoints
             + SimpleModelOperations.SilverExperiencePoints
             + SimpleModelOperations.BronzeExperiencePoints;
-        totalXp.Should().Be(expected);
-        user.TotalExperiencePoints.Should().Be(expected);
-        user.CurrentLevel.Should().Be(SimpleModelOperations.CalculateLevelNumber(expected));
+        Assert.Equal(expected, totalXp);
+        Assert.Equal(expected, user.TotalExperiencePoints);
+        Assert.Equal(SimpleModelOperations.CalculateLevelNumber(expected), user.CurrentLevel);
     }
 }

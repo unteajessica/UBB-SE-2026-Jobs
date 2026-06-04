@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Services;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
@@ -31,7 +30,7 @@ public class SkillGapServiceTests
 
         var result = await service.GetMissingSkillsAsync(1);
 
-        result.Should().BeEmpty();
+        Assert.Empty(result);
     }
 
     [Fact]
@@ -48,11 +47,11 @@ public class SkillGapServiceTests
 
         var result = await service.GetMissingSkillsAsync(1);
 
-        result.Should().HaveCount(2);
-        result[0].SkillName.Should().Be("Docker");
-        result[0].RejectedJobCount.Should().Be(2);
-        result[1].SkillName.Should().Be("Kubernetes");
-        result[1].RejectedJobCount.Should().Be(1);
+        Assert.Equal(2, result.Count());
+        Assert.Equal("Docker", result[0].SkillName);
+        Assert.Equal(2, result[0].RejectedJobCount);
+        Assert.Equal("Kubernetes", result[1].SkillName);
+        Assert.Equal(1, result[1].RejectedJobCount);
     }
 
     [Fact]
@@ -69,7 +68,7 @@ public class SkillGapServiceTests
 
         var result = await service.GetUnderscoredSkillsAsync(1);
 
-        result.Should().BeEmpty();
+        Assert.Empty(result);
     }
 
     [Fact]
@@ -85,10 +84,10 @@ public class SkillGapServiceTests
 
         var result = await service.GetUnderscoredSkillsAsync(1);
 
-        result.Should().HaveCount(1);
-        result[0].SkillName.Should().Be("C#");
-        result[0].UserScore.Should().Be(30);
-        result[0].AverageRequiredScore.Should().Be(80);
+        Assert.Equal(1, result.Count());
+        Assert.Equal("C#", result[0].SkillName);
+        Assert.Equal(30, result[0].UserScore);
+        Assert.Equal(80, result[0].AverageRequiredScore);
     }
 
     [Fact]
@@ -96,8 +95,8 @@ public class SkillGapServiceTests
     {
         var summary = await service.GetSummaryAsync(1);
 
-        summary.HasRejections.Should().BeFalse();
-        summary.HasSkillGaps.Should().BeFalse();
+        Assert.False(summary.HasRejections);
+        Assert.False(summary.HasSkillGaps);
     }
 
     [Fact]
@@ -111,9 +110,9 @@ public class SkillGapServiceTests
 
         var summary = await service.GetSummaryAsync(1);
 
-        summary.HasRejections.Should().BeTrue();
-        summary.HasSkillGaps.Should().BeTrue();
-        summary.MissingSkillsCount.Should().Be(1);
-        summary.SkillsToImproveCount.Should().Be(1);
+        Assert.True(summary.HasRejections);
+        Assert.True(summary.HasSkillGaps);
+        Assert.Equal(1, summary.MissingSkillsCount);
+        Assert.Equal(1, summary.SkillsToImproveCount);
     }
 }

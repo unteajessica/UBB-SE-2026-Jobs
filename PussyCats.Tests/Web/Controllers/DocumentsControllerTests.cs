@@ -4,7 +4,6 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -45,10 +44,10 @@ public class DocumentsControllerTests
 
         var result = await controller.Index(1, default);
 
-        var viewResult = result.Should().BeOfType<ViewResult>().Subject;
-        viewResult.Model.Should().BeEquivalentTo(docs);
-        ((int)controller.ViewBag.SelectedUserId).Should().Be(1);
-        (controller.ViewBag.Users as List<SelectListItem>).Should().HaveCount(1);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(docs, viewResult.Model);
+        Assert.Equal(1, (int)controller.ViewBag.SelectedUserId);
+        Assert.Equal(1, (controller.ViewBag.Users as List<SelectListItem>).Count());
     }
 
     [Fact]
@@ -59,7 +58,8 @@ public class DocumentsControllerTests
 
         var result = await controller.Details(15, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(document);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(document, view.Model);
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class DocumentsControllerTests
 
         var result = await controller.Details(404, default);
 
-        result.Should().BeOfType<NotFoundResult>();
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -79,9 +79,9 @@ public class DocumentsControllerTests
 
         var result = await controller.Create((int?)null, default);
 
-        var viewResult = result.Should().BeOfType<ViewResult>().Subject;
-        viewResult.Model.Should().BeOfType<DocumentFormModel>();
-        (controller.ViewBag.Users as List<SelectListItem>).Should().HaveCount(1);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.IsType<DocumentFormModel>(viewResult.Model);
+        Assert.Equal(1, (controller.ViewBag.Users as List<SelectListItem>).Count());
     }
 
     [Fact]
@@ -114,8 +114,8 @@ public class DocumentsControllerTests
             false,
             Arg.Any<CancellationToken>());
 
-        result.Should().BeOfType<RedirectToActionResult>()
-            .Which.ActionName.Should().Be(nameof(DocumentsController.Index));
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(DocumentsController.Index), redirect.ActionName);
     }
 
     [Fact]
@@ -127,10 +127,10 @@ public class DocumentsControllerTests
 
         var result = await controller.Edit(5, default);
 
-        var model = result.Should().BeOfType<ViewResult>().Subject.Model.Should().BeOfType<DocumentFormModel>().Subject;
-        model.DocumentId.Should().Be(5);
-        model.UserId.Should().Be(1);
-        model.DocumentName.Should().Be("Resume");
+        var model = Assert.IsType<DocumentFormModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal(5, model.DocumentId);
+        Assert.Equal(1, model.UserId);
+        Assert.Equal("Resume", model.DocumentName);
     }
 
     [Fact]
@@ -149,7 +149,8 @@ public class DocumentsControllerTests
             document.DocumentName == "New Name"
         ), Arg.Any<CancellationToken>());
 
-        result.Should().BeOfType<RedirectToActionResult>().Which.ActionName.Should().Be(nameof(DocumentsController.Index));
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(DocumentsController.Index), redirect.ActionName);
     }
 
     [Fact]
@@ -160,7 +161,8 @@ public class DocumentsControllerTests
 
         var result = await controller.Delete(8, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(document);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(document, view.Model);
     }
 
     [Fact]
@@ -169,6 +171,7 @@ public class DocumentsControllerTests
         var result = await controller.DeleteConfirmed(8, 1, default);
 
         await documents.Received(1).RemoveAsync(8, Arg.Any<CancellationToken>());
-        result.Should().BeOfType<RedirectToActionResult>().Which.ActionName.Should().Be(nameof(DocumentsController.Index));
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(DocumentsController.Index), redirect.ActionName);
     }
 }

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Tests.Helpers;
 using PussyCats.Library.ServiceProxies;
@@ -25,9 +24,9 @@ public class RecommendationServiceProxyTests
 
         var result = await proxy.GetAllAsync();
 
-        result.Should().HaveCount(1);
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Get);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/recommendations");
+        Assert.Equal(1, result.Count());
+        Assert.Equal(HttpMethod.Get, handler.LastRequest!.Method);
+        Assert.Equal("/api/recommendations", handler.LastRequest.RequestUri!.AbsolutePath);
     }
 
     [Fact]
@@ -39,8 +38,8 @@ public class RecommendationServiceProxyTests
 
         var result = await proxy.GetByIdAsync(5);
 
-        result!.RecommendationId.Should().Be(5);
-        handler.LastRequest!.RequestUri!.AbsolutePath.Should().Be("/api/recommendations/5");
+        Assert.Equal(5, result!.RecommendationId);
+        Assert.Equal("/api/recommendations/5", handler.LastRequest!.RequestUri!.AbsolutePath);
     }
 
     [Fact]
@@ -51,7 +50,7 @@ public class RecommendationServiceProxyTests
 
         var result = await proxy.GetByIdAsync(404);
 
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 
     [Fact]
@@ -63,7 +62,7 @@ public class RecommendationServiceProxyTests
 
         await proxy.GetLatestForUserAndJobAsync(7, 8);
 
-        handler.LastRequest!.RequestUri!.PathAndQuery.Should().Be("/api/recommendations?userId=7&jobId=8");
+        Assert.Equal("/api/recommendations?userId=7&jobId=8", handler.LastRequest!.RequestUri!.PathAndQuery);
     }
 
     [Fact]
@@ -75,12 +74,12 @@ public class RecommendationServiceProxyTests
 
         var result = await proxy.AddAsync(1, 2, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
 
-        result.RecommendationId.Should().Be(12);
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Post);
+        Assert.Equal(12, result.RecommendationId);
+        Assert.Equal(HttpMethod.Post, handler.LastRequest!.Method);
         var bodyJson = await handler.LastRequest.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(bodyJson);
-        bodyDoc.RootElement.GetProperty("userId").GetInt32().Should().Be(1);
-        bodyDoc.RootElement.GetProperty("jobId").GetInt32().Should().Be(2);
+        Assert.Equal(1, bodyDoc.RootElement.GetProperty("userId").GetInt32());
+        Assert.Equal(2, bodyDoc.RootElement.GetProperty("jobId").GetInt32());
     }
 
     [Fact]
@@ -91,11 +90,11 @@ public class RecommendationServiceProxyTests
 
         await proxy.UpdateTimestampAsync(5, new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc));
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Put);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/recommendations/5");
+        Assert.Equal(HttpMethod.Put, handler.LastRequest!.Method);
+        Assert.Equal("/api/recommendations/5", handler.LastRequest.RequestUri!.AbsolutePath);
         var bodyJson = await handler.LastRequest.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(bodyJson);
-        bodyDoc.RootElement.TryGetProperty("timestamp", out _).Should().BeTrue();
+        Assert.True(bodyDoc.RootElement.TryGetProperty("timestamp", out _));
     }
 
     [Fact]
@@ -106,8 +105,8 @@ public class RecommendationServiceProxyTests
 
         await proxy.RemoveAsync(5);
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Delete);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/recommendations/5");
+        Assert.Equal(HttpMethod.Delete, handler.LastRequest!.Method);
+        Assert.Equal("/api/recommendations/5", handler.LastRequest.RequestUri!.AbsolutePath);
     }
 }
 

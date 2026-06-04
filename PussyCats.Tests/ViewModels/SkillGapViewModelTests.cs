@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -28,13 +27,13 @@ public class SkillGapViewModelTests
 
         await viewModel.LoadDataAsync();
 
-        viewModel.ShowContent.Should().BeTrue();
-        viewModel.HasSkillData.Should().BeTrue();
-        viewModel.HasSummaryMessage.Should().BeFalse();
-        viewModel.MissingSkills.Should().ContainSingle(skill => skill.SkillName == "Docker");
-        viewModel.SkillsToImprove.Should().ContainSingle(skill => skill.SkillName == "SQL");
-        viewModel.HasMissingSkills.Should().BeTrue();
-        viewModel.HasSkillsToImprove.Should().BeTrue();
+        Assert.True(viewModel.ShowContent);
+        Assert.True(viewModel.HasSkillData);
+        Assert.False(viewModel.HasSummaryMessage);
+        Assert.Single(viewModel.MissingSkills, skill => skill.SkillName == "Docker");
+        Assert.Single(viewModel.SkillsToImprove, skill => skill.SkillName == "SQL");
+        Assert.True(viewModel.HasMissingSkills);
+        Assert.True(viewModel.HasSkillsToImprove);
     }
 
     [Fact]
@@ -51,9 +50,9 @@ public class SkillGapViewModelTests
 
         await viewModel.LoadDataAsync();
 
-        viewModel.HasSummaryMessage.Should().BeTrue();
-        viewModel.HasSkillData.Should().BeFalse();
-        viewModel.SummaryMessage.Should().Contain("No rejections");
+        Assert.True(viewModel.HasSummaryMessage);
+        Assert.False(viewModel.HasSkillData);
+        Assert.Contains("No rejections", viewModel.SummaryMessage);
     }
 
     [Fact]
@@ -66,8 +65,8 @@ public class SkillGapViewModelTests
 
         await viewModel.LoadDataAsync();
 
-        viewModel.ShowContent.Should().BeTrue();
-        viewModel.HasSummaryMessage.Should().BeTrue();
-        viewModel.SummaryMessage.Should().Contain("Unable to load");
+        Assert.True(viewModel.ShowContent);
+        Assert.True(viewModel.HasSummaryMessage);
+        Assert.Contains("Unable to load", viewModel.SummaryMessage);
     }
 }

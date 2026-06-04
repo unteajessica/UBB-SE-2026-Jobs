@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using PussyCats.Library.Domain;
@@ -31,7 +30,8 @@ public class CompanyRecommendationsControllerTests
 
         var result = await controller.Index(default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().BeEquivalentTo(applicants);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(applicants, view.Model);
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public class CompanyRecommendationsControllerTests
 
         var result = await controller.Details(404, default);
 
-        result.Should().BeOfType<NotFoundResult>();
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -57,10 +57,9 @@ public class CompanyRecommendationsControllerTests
 
         var result = await controller.Details(7, default);
 
-        var model = result.Should().BeOfType<ViewResult>().Subject.Model.Should()
-            .BeOfType<CompanyRecommendationDetailsModel>().Subject;
-        model.Applicant.Should().Be(applicant);
-        model.Breakdown.Should().Be(breakdown);
+        var model = Assert.IsType<CompanyRecommendationDetailsModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal(applicant, model.Applicant);
+        Assert.Equal(breakdown, model.Breakdown);
     }
 
     private static UserApplicationResult BuildApplicant(int matchId)

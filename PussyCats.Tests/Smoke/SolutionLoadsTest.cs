@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
 
@@ -9,25 +8,25 @@ public class SolutionLoadsTest
     [Fact]
     public void Every_fake_and_builder_can_be_constructed()
     {
-        new FakeUserRepository().Should().NotBeNull();
-        new FakeJobRepository().Should().NotBeNull();
-        new FakeCompanyRepository().Should().NotBeNull();
-        new FakeMatchRepository().Should().NotBeNull();
-        new FakeDocumentRepository().Should().NotBeNull();
-        new FakeSkillRepository().Should().NotBeNull();
-        new FakeJobSkillRepository().Should().NotBeNull();
-        new FakeUserSkillRepository().Should().NotBeNull();
-        new FakeSkillGroupRepository().Should().NotBeNull();
-        new FakeSkillTestRepository().Should().NotBeNull();
-        new FakePersonalityTestRepository().Should().NotBeNull();
-        new FakeRecommendationRepository().Should().NotBeNull();
+        Assert.NotNull(new FakeUserRepository());
+        Assert.NotNull(new FakeJobRepository());
+        Assert.NotNull(new FakeCompanyRepository());
+        Assert.NotNull(new FakeMatchRepository());
+        Assert.NotNull(new FakeDocumentRepository());
+        Assert.NotNull(new FakeSkillRepository());
+        Assert.NotNull(new FakeJobSkillRepository());
+        Assert.NotNull(new FakeUserSkillRepository());
+        Assert.NotNull(new FakeSkillGroupRepository());
+        Assert.NotNull(new FakeSkillTestRepository());
+        Assert.NotNull(new FakePersonalityTestRepository());
+        Assert.NotNull(new FakeRecommendationRepository());
 
-        new UserBuilder().Build().Should().NotBeNull();
-        new JobBuilder().Build().Should().NotBeNull();
-        new MatchBuilder().Build().Should().NotBeNull();
-        new CompanyBuilder().Build().Should().NotBeNull();
-        new SkillBuilder().Build().Should().NotBeNull();
-        new SkillTestBuilder().Build().Should().NotBeNull();
-        new PersonalityResultBuilder().Build().Should().NotBeNull();
+        Assert.NotNull(new UserBuilder().Build());
+        Assert.NotNull(new JobBuilder().Build());
+        Assert.NotNull(new MatchBuilder().Build());
+        Assert.NotNull(new CompanyBuilder().Build());
+        Assert.NotNull(new SkillBuilder().Build());
+        Assert.NotNull(new SkillTestBuilder().Build());
+        Assert.NotNull(new PersonalityResultBuilder().Build());
     }
 }

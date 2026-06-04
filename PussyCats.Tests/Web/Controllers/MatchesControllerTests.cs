@@ -1,5 +1,4 @@
 using System.Net;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using PussyCats.Library.Domain;
@@ -32,7 +31,8 @@ public class MatchesControllerTests
 
         var result = await controller.Index(default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().BeEquivalentTo(companyMatches);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(companyMatches, view.Model);
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public class MatchesControllerTests
 
         var result = await controller.Details(404, default);
 
-        result.Should().BeOfType<NotFoundResult>();
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -53,11 +53,11 @@ public class MatchesControllerTests
 
         var result = await controller.Decision(3, default);
 
-        var model = result.Should().BeOfType<ViewResult>().Subject.Model.Should().BeOfType<MatchDecisionFormModel>().Subject;
-        model.MatchId.Should().Be(3);
-        model.CurrentStatus.Should().Be(MatchStatus.Advanced);
-        model.ApplicantName.Should().Be("Ada Lovelace");
-        model.JobTitle.Should().Be("Backend Engineer");
+        var model = Assert.IsType<MatchDecisionFormModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal(3, model.MatchId);
+        Assert.Equal(MatchStatus.Advanced, model.CurrentStatus);
+        Assert.Equal("Ada Lovelace", model.ApplicantName);
+        Assert.Equal("Backend Engineer", model.JobTitle);
     }
 
     [Fact]
@@ -77,9 +77,9 @@ public class MatchesControllerTests
             MatchStatus.Accepted,
             "Welcome aboard",
             Arg.Any<CancellationToken>());
-        var redirect = result.Should().BeOfType<RedirectToActionResult>().Subject;
-        redirect.ActionName.Should().Be(nameof(MatchesController.Details));
-        redirect.RouteValues!["id"].Should().Be(5);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(MatchesController.Details), redirect.ActionName);
+        Assert.Equal(5, redirect.RouteValues!["id"]);
     }
 
     [Fact]
@@ -98,7 +98,8 @@ public class MatchesControllerTests
         var result = await controller.Decision(5, model, default);
 
         await matches.DidNotReceiveWithAnyArgs().SubmitDecisionAsync(default, default, default!, default);
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(model);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, view.Model);
     }
 
     [Fact]
@@ -115,7 +116,7 @@ public class MatchesControllerTests
 
         var result = await controller.Decision(5, model, default);
 
-        result.Should().BeOfType<NotFoundResult>();
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -134,8 +135,9 @@ public class MatchesControllerTests
 
         var result = await controller.Decision(5, model, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(model);
-        controller.ModelState.IsValid.Should().BeFalse();
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, view.Model);
+        Assert.False(controller.ModelState.IsValid);
     }
 
     private static Match CreateMatch(int matchId = 1, MatchStatus status = MatchStatus.Applied)

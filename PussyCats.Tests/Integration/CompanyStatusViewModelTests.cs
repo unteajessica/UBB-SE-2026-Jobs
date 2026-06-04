@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.Services.TI;
@@ -57,9 +56,9 @@ public class CompanyStatusViewModelTests
 
         await viewModel.LoadApplicationsAsync();
 
-        viewModel.Applications.Should().HaveCount(1);
-        viewModel.PageMessage.Should().Be("1 applicant(s) are Accepted, Rejected, or In Review.");
-        viewModel.IsLoading.Should().BeFalse();
+        Assert.Equal(1, viewModel.Applications.Count());
+        Assert.Equal("1 applicant(s) are Accepted, Rejected, or In Review.", viewModel.PageMessage);
+        Assert.False(viewModel.IsLoading);
     }
 
     [Fact]
@@ -75,11 +74,11 @@ public class CompanyStatusViewModelTests
 
         var loaded = await viewModel.LoadEvaluationAsync(matchId);
 
-        loaded.Should().BeTrue();
-        viewModel.SelectedApplicant.Should().NotBeNull();
-        viewModel.SelectedApplicant!.Match.MatchId.Should().Be(matchId);
-        viewModel.SelectedDecision.Should().Be(MatchStatus.Accepted);
-        viewModel.FeedbackMessage.Should().Be("Good fit.");
+        Assert.True(loaded);
+        Assert.NotNull(viewModel.SelectedApplicant);
+        Assert.Equal(matchId, viewModel.SelectedApplicant!.Match.MatchId);
+        Assert.Equal(MatchStatus.Accepted, viewModel.SelectedDecision);
+        Assert.Equal("Good fit.", viewModel.FeedbackMessage);
     }
 
     [Fact]
@@ -95,9 +94,9 @@ public class CompanyStatusViewModelTests
 
         var loaded = await viewModel.LoadEvaluationAsync(matchId);
 
-        loaded.Should().BeTrue();
-        viewModel.SelectedDecision.Should().Be(MatchStatus.Rejected);
-        viewModel.CanEditDecision.Should().BeFalse();
+        Assert.True(loaded);
+        Assert.Equal(MatchStatus.Rejected, viewModel.SelectedDecision);
+        Assert.False(viewModel.CanEditDecision);
     }
 
     [Fact]
@@ -113,9 +112,9 @@ public class CompanyStatusViewModelTests
 
         var loaded = await viewModel.LoadEvaluationAsync(matchId);
 
-        loaded.Should().BeTrue();
-        viewModel.SelectedDecision.Should().Be(MatchStatus.Accepted);
-        viewModel.CanEditDecision.Should().BeFalse();
+        Assert.True(loaded);
+        Assert.Equal(MatchStatus.Accepted, viewModel.SelectedDecision);
+        Assert.False(viewModel.CanEditDecision);
     }
 
     [Fact]
@@ -123,10 +122,10 @@ public class CompanyStatusViewModelTests
     {
         var isValid = viewModel.ValidateAll();
 
-        isValid.Should().BeFalse();
-        viewModel.HasValidationErrors.Should().BeTrue();
-        viewModel.ValidationErrorDecision.Should().Contain("Select an applicant");
-        viewModel.ValidationErrorFeedback.Should().Contain("required");
+        Assert.False(isValid);
+        Assert.True(viewModel.HasValidationErrors);
+        Assert.Contains("Select an applicant", viewModel.ValidationErrorDecision);
+        Assert.Contains("required", viewModel.ValidationErrorFeedback);
     }
 
     [Fact]
@@ -146,10 +145,10 @@ public class CompanyStatusViewModelTests
 
         var saved = await viewModel.SubmitDecisionAsync();
 
-        saved.Should().BeTrue();
+        Assert.True(saved);
         var persistedMatch = await matchRepository.GetByIdAsync(matchId);
-        persistedMatch!.Status.Should().Be(MatchStatus.Rejected);
-        persistedMatch.FeedbackMessage.Should().Be("Not enough experience.");
-        viewModel.SelectedApplicant.Should().BeNull();
+        Assert.Equal(MatchStatus.Rejected, persistedMatch!.Status);
+        Assert.Equal("Not enough experience.", persistedMatch.FeedbackMessage);
+        Assert.Null(viewModel.SelectedApplicant);
     }
 }

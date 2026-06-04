@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NSubstitute;
@@ -37,7 +36,8 @@ public class RecommendationsControllerTests
 
         var result = await controller.Index(default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().BeEquivalentTo(allRecommendations);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(allRecommendations, view.Model);
     }
 
     [Fact]
@@ -48,7 +48,8 @@ public class RecommendationsControllerTests
 
         var result = await controller.Details(7, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(recommendation);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(recommendation, view.Model);
     }
 
     [Fact]
@@ -58,7 +59,7 @@ public class RecommendationsControllerTests
 
         var result = await controller.Details(404, default);
 
-        result.Should().BeOfType<NotFoundResult>();
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -69,10 +70,10 @@ public class RecommendationsControllerTests
 
         var result = await controller.Create(default);
 
-        var viewResult = result.Should().BeOfType<ViewResult>().Subject;
-        viewResult.Model.Should().BeOfType<RecommendationFormModel>();
-        (controller.ViewBag.Users as List<SelectListItem>).Should().HaveCount(1);
-        (controller.ViewBag.Jobs as List<SelectListItem>).Should().HaveCount(1);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.IsType<RecommendationFormModel>(viewResult.Model);
+        Assert.Equal(1, (controller.ViewBag.Users as List<SelectListItem>).Count());
+        Assert.Equal(1, (controller.ViewBag.Jobs as List<SelectListItem>).Count());
     }
 
     [Fact]
@@ -83,7 +84,8 @@ public class RecommendationsControllerTests
         var result = await controller.Create(model, default);
 
         await recommendations.Received(1).AddAsync(1, 2, model.Timestamp, Arg.Any<CancellationToken>());
-        result.Should().BeOfType<RedirectToActionResult>().Which.ActionName.Should().Be(nameof(RecommendationsController.Index));
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(RecommendationsController.Index), redirect.ActionName);
     }
 
     [Fact]
@@ -94,7 +96,8 @@ public class RecommendationsControllerTests
 
         var result = await controller.Create(model, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(model);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, view.Model);
         await recommendations.DidNotReceiveWithAnyArgs().AddAsync(default, default, default, default);
     }
 
@@ -107,8 +110,9 @@ public class RecommendationsControllerTests
 
         var result = await controller.Create(model, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(model);
-        controller.ModelState.IsValid.Should().BeFalse();
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, view.Model);
+        Assert.False(controller.ModelState.IsValid);
     }
 
     [Fact]
@@ -127,11 +131,12 @@ public class RecommendationsControllerTests
 
         var result = await controller.Edit(5, default);
 
-        var model = result.Should().BeOfType<ViewResult>().Subject.Model.Should().BeOfType<RecommendationFormModel>().Subject;
-        model.RecommendationId.Should().Be(5);
-        model.UserId.Should().Be(3);
-        model.JobId.Should().Be(4);
-        model.Timestamp.Should().Be(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        var view = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<RecommendationFormModel>(view.Model);
+        Assert.Equal(5, model.RecommendationId);
+        Assert.Equal(3, model.UserId);
+        Assert.Equal(4, model.JobId);
+        Assert.Equal(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), model.Timestamp);
     }
 
     [Fact]
@@ -142,7 +147,8 @@ public class RecommendationsControllerTests
         var result = await controller.Edit(5, model, default);
 
         await recommendations.Received(1).UpdateTimestampAsync(5, model.Timestamp, Arg.Any<CancellationToken>());
-        result.Should().BeOfType<RedirectToActionResult>().Which.ActionName.Should().Be(nameof(RecommendationsController.Index));
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(RecommendationsController.Index), redirect.ActionName);
     }
 
     [Fact]
@@ -152,7 +158,7 @@ public class RecommendationsControllerTests
 
         var result = await controller.Edit(5, model, default);
 
-        result.Should().BeOfType<BadRequestResult>();
+        Assert.IsType<BadRequestResult>(result);
     }
 
     [Fact]
@@ -163,7 +169,8 @@ public class RecommendationsControllerTests
 
         var result = await controller.Delete(8, default);
 
-        result.Should().BeOfType<ViewResult>().Which.Model.Should().Be(recommendation);
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Equal(recommendation, view.Model);
     }
 
     [Fact]
@@ -172,6 +179,7 @@ public class RecommendationsControllerTests
         var result = await controller.DeleteConfirmed(8, default);
 
         await recommendations.Received(1).RemoveAsync(8, Arg.Any<CancellationToken>());
-        result.Should().BeOfType<RedirectToActionResult>().Which.ActionName.Should().Be(nameof(RecommendationsController.Index));
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(RecommendationsController.Index), redirect.ActionName);
     }
 }

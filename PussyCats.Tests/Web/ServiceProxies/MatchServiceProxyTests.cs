@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Helpers;
@@ -22,9 +21,9 @@ public class MatchServiceProxyTests
 
         var result = await proxy.GetByCompanyIdAsync(42);
 
-        result.Should().HaveCount(1);
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Get);
-        handler.LastRequest.RequestUri!.PathAndQuery.Should().Be("/api/matches?companyId=42");
+        Assert.Equal(1, result.Count());
+        Assert.Equal(HttpMethod.Get, handler.LastRequest!.Method);
+        Assert.Equal("/api/matches?companyId=42", handler.LastRequest.RequestUri!.PathAndQuery);
     }
 
     [Fact]
@@ -35,12 +34,12 @@ public class MatchServiceProxyTests
 
         await proxy.SubmitDecisionAsync(5, MatchStatus.Rejected, "Lacking experience");
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Patch);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/matches/5/decision");
+        Assert.Equal(HttpMethod.Patch, handler.LastRequest!.Method);
+        Assert.Equal("/api/matches/5/decision", handler.LastRequest.RequestUri!.AbsolutePath);
         var bodyJson = await handler.LastRequest.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(bodyJson);
-        bodyDoc.RootElement.GetProperty("decision").GetString().Should().Be("Rejected");
-        bodyDoc.RootElement.GetProperty("feedback").GetString().Should().Be("Lacking experience");
+        Assert.Equal("Rejected", bodyDoc.RootElement.GetProperty("decision").GetString());
+        Assert.Equal("Lacking experience", bodyDoc.RootElement.GetProperty("feedback").GetString());
     }
 
     [Fact]
@@ -53,9 +52,9 @@ public class MatchServiceProxyTests
 
         var bodyJson = await handler.LastRequest!.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(bodyJson);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/matches/5/decision");
-        bodyDoc.RootElement.GetProperty("decision").GetString().Should().Be("Accepted");
-        bodyDoc.RootElement.GetProperty("feedback").GetString().Should().Be("Welcome");
+        Assert.Equal("/api/matches/5/decision", handler.LastRequest.RequestUri!.AbsolutePath);
+        Assert.Equal("Accepted", bodyDoc.RootElement.GetProperty("decision").GetString());
+        Assert.Equal("Welcome", bodyDoc.RootElement.GetProperty("feedback").GetString());
     }
 
     [Fact]
@@ -68,9 +67,9 @@ public class MatchServiceProxyTests
 
         var bodyJson = await handler.LastRequest!.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(bodyJson);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/matches/6/decision");
-        bodyDoc.RootElement.GetProperty("decision").GetString().Should().Be("Rejected");
-        bodyDoc.RootElement.GetProperty("feedback").GetString().Should().Be("Not a fit");
+        Assert.Equal("/api/matches/6/decision", handler.LastRequest.RequestUri!.AbsolutePath);
+        Assert.Equal("Rejected", bodyDoc.RootElement.GetProperty("decision").GetString());
+        Assert.Equal("Not a fit", bodyDoc.RootElement.GetProperty("feedback").GetString());
     }
 
     [Fact]
@@ -81,8 +80,8 @@ public class MatchServiceProxyTests
 
         var result = await proxy.GetByIdAsync(404);
 
-        result.Should().BeNull();
-        handler.LastRequest!.RequestUri!.AbsolutePath.Should().Be("/api/matches/404");
+        Assert.Null(result);
+        Assert.Equal("/api/matches/404", handler.LastRequest!.RequestUri!.AbsolutePath);
     }
 
     private static Match CreateMatch()

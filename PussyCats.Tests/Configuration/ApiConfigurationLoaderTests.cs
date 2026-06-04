@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.App.Configuration;
 
 namespace PussyCats.Tests.Configuration;
@@ -12,7 +11,7 @@ public class ApiConfigurationLoaderTests : IDisposable
     {
         var configuration = ApiConfigurationLoader.Load(tempDirectory);
 
-        configuration.BaseUrl.Should().Be("https://localhost:7134");
+        Assert.Equal("https://localhost:7134", configuration.BaseUrl);
     }
 
     [Fact]
@@ -30,7 +29,7 @@ public class ApiConfigurationLoaderTests : IDisposable
 
         var configuration = ApiConfigurationLoader.Load(tempDirectory);
 
-        configuration.BaseUrl.Should().Be("http://localhost:5000");
+        Assert.Equal("http://localhost:5000", configuration.BaseUrl);
     }
 
     [Fact]
@@ -57,7 +56,7 @@ public class ApiConfigurationLoaderTests : IDisposable
 
         var configuration = ApiConfigurationLoader.Load(tempDirectory);
 
-        configuration.BaseUrl.Should().Be("http://localhost:6000");
+        Assert.Equal("http://localhost:6000", configuration.BaseUrl);
     }
 
     public void Dispose()

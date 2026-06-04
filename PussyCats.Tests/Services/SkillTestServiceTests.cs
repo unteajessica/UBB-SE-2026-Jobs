@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.SkillTests;
@@ -31,7 +30,7 @@ public class SkillTestServiceTests
             .WithAchievedDate(fourMonthsAgo)
             .Build());
 
-        (await skillTestService.CanRetakeTestAsync(skillTestId)).Should().BeTrue();
+        Assert.True(await skillTestService.CanRetakeTestAsync(skillTestId));
     }
 
     [Fact]
@@ -40,8 +39,8 @@ public class SkillTestServiceTests
         int missingTestId = 100;
         Func<Task> act = () => skillTestService.CanRetakeTestAsync(missingTestId);
 
-        await act.Should().ThrowAsync<Exception>()
-            .WithMessage("*No test found*");
+        var ex = await Assert.ThrowsAsync<Exception>(act);
+        Assert.Contains("No test found", ex.Message);
     }
 
     [Fact]
@@ -53,7 +52,7 @@ public class SkillTestServiceTests
             .WithAchievedDate(fourMonthsAgo)
             .Build();
 
-        SkillTestService.IsRetakeEligible(testOldEnough).Should().BeTrue();
+        Assert.True(SkillTestService.IsRetakeEligible(testOldEnough));
     }
     [Fact]
     public void IsRetakeEligible_TestYoungerThanThreeMonths_ReturnsFalse()
@@ -64,7 +63,7 @@ public class SkillTestServiceTests
             .WithAchievedDate(thirtyDaysAgo)
             .Build();
 
-        SkillTestService.IsRetakeEligible(testTooRecent).Should().BeFalse();
+        Assert.False(SkillTestService.IsRetakeEligible(testTooRecent));
     }
 
     [Fact]
@@ -81,7 +80,7 @@ public class SkillTestServiceTests
             .Build());
 
         var badgeResult = await skillTestService.SubmitRetakeAsync(skillTestId, newScore);
-        badgeResult.Should().NotBeNull();
+        Assert.NotNull(badgeResult);
 
     }
 
@@ -99,8 +98,8 @@ public class SkillTestServiceTests
 
         Func<Task> act = () => skillTestService.SubmitRetakeAsync(skillTestId, newScore);
 
-        await act.Should().ThrowAsync<Exception>()
-            .WithMessage("*not yet eligible*");
+        var ex = await Assert.ThrowsAsync<Exception>(act);
+        Assert.Contains("not yet eligible", ex.Message);
     }
 
 
@@ -119,6 +118,6 @@ public class SkillTestServiceTests
 
         var result = SkillTestService.AchievedDateFormatted(skillTest);
 
-        result.Should().Be(expectedFormattedDate);
+        Assert.Equal(expectedFormattedDate, result);
     }
 }

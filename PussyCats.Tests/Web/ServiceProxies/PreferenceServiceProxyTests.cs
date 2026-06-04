@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using FluentAssertions;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.ServiceProxies;
@@ -27,11 +26,11 @@ public class PreferenceServiceProxyTests
 
         var result = await proxy.GetByUserIdAsync(7);
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Get);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/preferences/7");
-        result.Roles.Should().BeEquivalentTo(new[] { JobRole.BackendDeveloper, JobRole.DataAnalyst });
-        result.WorkMode.Should().Be(WorkMode.Hybrid);
-        result.Location.Should().Be("Cluj-Napoca, Romania");
+        Assert.Equal(HttpMethod.Get, handler.LastRequest!.Method);
+        Assert.Equal("/api/preferences/7", handler.LastRequest.RequestUri!.AbsolutePath);
+        Assert.Equal(new[] { JobRole.BackendDeveloper, JobRole.DataAnalyst }, result.Roles);
+        Assert.Equal(WorkMode.Hybrid, result.WorkMode);
+        Assert.Equal("Cluj-Napoca, Romania", result.Location);
     }
 
     [Fact]
@@ -46,13 +45,13 @@ public class PreferenceServiceProxyTests
             WorkMode.Remote,
             "Berlin, Germany");
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Put);
-        handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/api/preferences/7");
+        Assert.Equal(HttpMethod.Put, handler.LastRequest!.Method);
+        Assert.Equal("/api/preferences/7", handler.LastRequest.RequestUri!.AbsolutePath);
         var body = await handler.LastRequest.Content!.ReadAsStringAsync();
         using var bodyDoc = JsonDocument.Parse(body);
-        bodyDoc.RootElement.GetProperty("Roles")[0].GetString().Should().Be("FrontendDeveloper");
-        bodyDoc.RootElement.GetProperty("WorkMode").GetString().Should().Be("Remote");
-        bodyDoc.RootElement.GetProperty("Location").GetString().Should().Be("Berlin, Germany");
+        Assert.Equal("FrontendDeveloper", bodyDoc.RootElement.GetProperty("Roles")[0].GetString());
+        Assert.Equal("Remote", bodyDoc.RootElement.GetProperty("WorkMode").GetString());
+        Assert.Equal("Berlin, Germany", bodyDoc.RootElement.GetProperty("Location").GetString());
     }
 
     [Fact]
@@ -65,8 +64,8 @@ public class PreferenceServiceProxyTests
 
         var result = await proxy.SearchLocationsAsync("Cluj Napoca");
 
-        handler.LastRequest!.Method.Should().Be(HttpMethod.Get);
-        handler.LastRequest.RequestUri!.PathAndQuery.Should().Be("/api/preferences/locations?locationQuery=Cluj%20Napoca");
-        result.Should().ContainSingle().Which.Should().Be("Cluj-Napoca, Romania");
+        Assert.Equal(HttpMethod.Get, handler.LastRequest!.Method);
+        Assert.Equal("/api/preferences/locations?locationQuery=Cluj%20Napoca", handler.LastRequest.RequestUri!.PathAndQuery);
+        Assert.Equal("Cluj-Napoca, Romania", Assert.Single(result));
     }
 }

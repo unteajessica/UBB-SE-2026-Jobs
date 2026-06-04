@@ -1,5 +1,4 @@
 using System.ComponentModel.Design;
-using FluentAssertions;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Helpers;
@@ -34,9 +33,9 @@ public class PreferenceServiceTests
     {
         var result = await preferenceService.GetByUserIdAsync(MissingUserId);
 
-        result.Roles.Should().BeEmpty();
-        result.WorkMode.Should().Be(default);
-        result.Location.Should().BeEmpty();
+        Assert.Empty(result.Roles);
+        Assert.Equal(default, result.WorkMode);
+        Assert.Empty(result.Location);
     }
 
     [Fact]
@@ -50,9 +49,9 @@ public class PreferenceServiceTests
 
         var result = await preferenceService.GetByUserIdAsync(ExistingUserId);
 
-        result.Roles.Should().Equal(JobRole.BackendDeveloper, JobRole.FrontendDeveloper);
-        result.WorkMode.Should().Be(WorkMode.Remote);
-        result.Location.Should().Be(ExistingLocation);
+        Assert.Equal(new[] { JobRole.BackendDeveloper, JobRole.FrontendDeveloper }, result.Roles);
+        Assert.Equal(WorkMode.Remote, result.WorkMode);
+        Assert.Equal(ExistingLocation, result.Location);
     }
 
     [Fact]
@@ -66,9 +65,9 @@ public class PreferenceServiceTests
 
         var result = await preferenceService.GetByUserIdAsync(ExistingUserId);
 
-        result.Roles.Should().BeEmpty();
-        result.WorkMode.Should().Be(WorkMode.Remote);
-        result.Location.Should().BeEmpty();
+        Assert.Empty(result.Roles);
+        Assert.Equal(WorkMode.Remote, result.WorkMode);
+        Assert.Empty(result.Location);
     }
 
     [Fact]
@@ -83,9 +82,9 @@ public class PreferenceServiceTests
             SavedLocation);
 
         var user = await userRepository.GetByIdAsync(ExistingUserId);
-        user!.PreferredEmploymentType.Should().Be(SavedRoleCsv);
-        user.WorkModePreference.Should().Be("Hybrid");
-        user.LocationPreference.Should().Be(SavedLocation);
+        Assert.Equal(SavedRoleCsv, user!.PreferredEmploymentType);
+        Assert.Equal("Hybrid", user.WorkModePreference);
+        Assert.Equal(SavedLocation, user.LocationPreference);
     }
 
     [Fact]
@@ -97,7 +96,7 @@ public class PreferenceServiceTests
             WorkMode.Remote,
             AnyLocation);
 
-        await act.Should().ThrowAsync<ArgumentException>();
+        await Assert.ThrowsAsync<ArgumentException>(act);
     }
 
     [Fact]
@@ -115,7 +114,7 @@ public class PreferenceServiceTests
             WorkMode.Remote,
             AnyLocation);
 
-        await act.Should().ThrowAsync<ArgumentException>();
+        await Assert.ThrowsAsync<ArgumentException>(act);
     }
 
     [Fact]
@@ -127,14 +126,15 @@ public class PreferenceServiceTests
             WorkMode.Remote,
             AnyLocation);
 
-        await act.Should().NotThrowAsync();
+        var ex = await Record.ExceptionAsync(act);
+        Assert.Null(ex);
     }
 
     [Fact]
     public async Task SearchLocationsAsync_QueryIsBlank_ReturnsEmptyList()
     {
         var searchResultOfLocationQuery = await preferenceService.SearchLocationsAsync("");
-        searchResultOfLocationQuery.Should().BeEmpty();
+        Assert.Empty(searchResultOfLocationQuery);
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public class PreferenceServiceTests
     {
         var searchResultOfLocationQuery = await preferenceService.SearchLocationsAsync(SearchQuery);
 
-        searchResultOfLocationQuery.Should().NotBeEmpty();
-        searchResultOfLocationQuery.Should().Contain(location => location.Contains(ExpectedSearchLocation, StringComparison.Ordinal));
+        Assert.NotEmpty(searchResultOfLocationQuery);
+        Assert.Contains(searchResultOfLocationQuery, location => location.Contains(ExpectedSearchLocation, StringComparison.Ordinal));
     }
 }

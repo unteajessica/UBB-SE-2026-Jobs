@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
@@ -25,7 +24,7 @@ public class DocumentViewModelTests
 
         await viewModel.LoadDocumentsAsync();
 
-        viewModel.GetDocuments().Should().ContainSingle(document => document.DocumentName == "CV");
+        Assert.Single(viewModel.GetDocuments(), document => document.DocumentName == "CV");
     }
 
     [Fact]
@@ -64,11 +63,11 @@ public class DocumentViewModelTests
     {
         var viewModel = new UploadDocumentViewModel(localDocumentFileService, userService, session);
 
-        viewModel.ValidateDocumentInput().Should().BeFalse();
-        viewModel.GetErrorMessage().Should().Contain("Document name");
+        Assert.False(viewModel.ValidateDocumentInput());
+        Assert.Contains("Document name", viewModel.GetErrorMessage());
 
         viewModel.DocumentName = "CV";
-        viewModel.ValidateDocumentInput().Should().BeFalse();
-        viewModel.GetErrorMessage().Should().Contain("Select a file");
+        Assert.False(viewModel.ValidateDocumentInput());
+        Assert.Contains("Select a file", viewModel.GetErrorMessage());
     }
 }
