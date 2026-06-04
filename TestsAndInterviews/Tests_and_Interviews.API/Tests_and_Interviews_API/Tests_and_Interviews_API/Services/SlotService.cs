@@ -8,6 +8,7 @@
     using Tests_and_Interviews_API.Repositories;
     using Tests_and_Interviews_API.Repositories.Interfaces;
     using Tests_and_Interviews_API.Services.Interfaces;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     /// <summary>
     /// Provides operations for managing slot entities, including retrieval, creation, update, and deletion of slots
@@ -45,6 +46,12 @@
         public async Task<List<SlotDto>> GetAvailableSlotsForDateAsync(DateTime date)
         {
             List<Slot> slots = await this._slotRepository.GetAvailableByDateAsync(date);
+            return slots.Select(s => s.ToDto()).ToList();
+        }
+
+        public async Task<List<SlotDto>> GetSlotsByCandidateAsync(int candidateId)
+        {
+            List<Slot> slots = await this._slotRepository.GetByCandidateAsync(candidateId);
             return slots.Select(s => s.ToDto()).ToList();
         }
 
@@ -180,6 +187,8 @@
             var newSlot = new Slot
             {
                 RecruiterId = baseSlot.RecruiterId,
+                RecruiterUserId = baseSlot.RecruiterId,
+                RecruiterCompanyId = baseSlot.CompanyId,
                 StartTime = baseSlot.StartTime,
                 EndTime = baseSlot.StartTime.AddMinutes(duration),
                 Duration = duration,
@@ -202,12 +211,23 @@
             {
                 Id = initialSlot.Id,
                 RecruiterId = initialSlot.RecruiterId,
+                RecruiterUserId = initialSlot.RecruiterId,
+                RecruiterCompanyId = initialSlot.CompanyId,
                 StartTime = startTime,
                 EndTime = startTime.AddMinutes(duration),
                 Duration = duration,
             };
 
             await this._slotRepository.UpdateAsync(updatedSlot);
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<Slot>> GetAvailableSlotsByCompanyAsync(int companyId, DateTime slotDate)
+        {
+            List<Slot> availableSlots = await this._slotRepository.GetAvailableByDateAsync(slotDate);
+            return availableSlots
+                .Where(s => s.RecruiterCompanyId == companyId)
+                .ToList();
         }
     }
 }

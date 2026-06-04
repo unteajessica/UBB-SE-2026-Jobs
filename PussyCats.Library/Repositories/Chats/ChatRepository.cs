@@ -80,14 +80,33 @@ public class ChatRepository : IChatRepository
                         && chat.Company != null 
                         && chat.Company.CompanyId == company.CompanyId
                         && chat.Job!=null && chat.Job.JobId == jobId
-                        && chat.SecondUser.UserId == null,
+                        && chat.SecondUser == null,
                 cancellationToken)
             .ConfigureAwait(false);
     }
 
     public async Task<Chat> AddAsync(Chat chat, CancellationToken cancellationToken = default)
     {
+        databaseContext.Attach(chat.User);
+
+        if (chat.SecondUser != null)
+        {
+            databaseContext.Attach(chat.SecondUser);
+        }
+
+        if (chat.Company != null)
+        {
+            databaseContext.Attach(chat.Company);
+        }
+
         databaseContext.Chats.Add(chat);
+        /*
+        foreach (var entry in databaseContext.ChangeTracker.Entries())
+        {
+            Console.WriteLine(
+                $"{entry.Entity.GetType().Name} : {entry.State}");
+        }
+        */
         await databaseContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return await GetByIdAsync(chat.ChatId, cancellationToken).ConfigureAwait(false) ?? chat;
     }

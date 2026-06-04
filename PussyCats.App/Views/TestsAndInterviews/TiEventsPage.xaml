@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.TestsAndInterviews.TiEventsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:dtos="using:PussyCats.App.Dtos.TI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Events" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="Browse current and past events" FontSize="13"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Button Grid.Column="1" Content="+ Create Event" Click="CreateEvent_Click"
+                    Background="#8494FF" Foreground="White" Padding="14,8" CornerRadius="8"
+                    x:Name="CreateEventButton" Visibility="Collapsed"/>
+        </Grid>
+
+        <!-- Pivot: Current / Past -->
+        <Pivot Grid.Row="2">
+            <PivotItem Header="Current Events">
+                <Grid>
+                    <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                  Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.CurrentEvents, Mode=OneWay}" Margin="0,12,0,0">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Spacing="12"/>
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:TiEventDto">
+                                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1" CornerRadius="12" Padding="20">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="{x:Bind Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{x:Bind Location}" FontSize="13"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                <Run Text="{x:Bind StartDate}"/>
+                                                <Run Text=" — "/>
+                                                <Run Text="{x:Bind EndDate}"/>
+                                            </TextBlock>
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Button Content="View Details" Tag="{x:Bind}" Click="ViewEventDetails_Click"
+                                                        Background="#8494FF" Foreground="White" Padding="10,6" CornerRadius="6"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="8"
+                                                        Visibility="Collapsed">
+                                                <Button Content="Edit" Tag="{x:Bind}" Click="EditEvent_Click"
+                                                        Background="Transparent" Padding="10,6"/>
+                                                <Button Content="Delete" Tag="{x:Bind}" Click="DeleteEvent_Click"
+                                                        Background="#FFef4444" Foreground="White" Padding="10,6" CornerRadius="6"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </ScrollViewer>
+                </Grid>
+            </PivotItem>
+
+            <PivotItem Header="Past Events">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.PastEvents, Mode=OneWay}" Margin="0,12,0,0">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Spacing="12"/>
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:TiEventDto">
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1" CornerRadius="12" Padding="20">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="{x:Bind Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{x:Bind Location}" FontSize="13"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                            <Run Text="{x:Bind StartDate}"/>
+                                            <Run Text=" — "/>
+                                            <Run Text="{x:Bind EndDate}"/>
+                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="View Details" Tag="{x:Bind}" Click="ViewEventDetails_Click"
+                                                    Background="#8494FF" Foreground="White" Padding="10,6" CornerRadius="6"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </PivotItem>
+        </Pivot>
+    </Grid>
+</Page>

@@ -5,6 +5,7 @@
     using Tests_and_Interviews_API.Mappers;
     using Tests_and_Interviews_API.Models;
     using Tests_and_Interviews_API.Services.Interfaces;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -39,6 +40,13 @@
             return Ok(slots.Select(slot => slot.ToDto()).ToList());
         }
 
+        [HttpGet("candidate/{candidateId}")]
+        public async Task<ActionResult<List<SlotDto>>> GetByCandidate(int candidateId)
+        {
+            List<SlotDto> slots = await this._service.GetSlotsByCandidateAsync(candidateId);
+            return Ok(slots);
+        }
+
         [HttpGet("available")]
         public async Task<ActionResult<List<SlotDto>>> GetAvailableByDate([FromQuery] DateTime date)
         {
@@ -50,6 +58,15 @@
         public async Task<ActionResult<List<SlotDto>>> GetByRecruiter(int recruiterId, [FromQuery] DateTime date)
         {
             List<Slot> slots = await this._service.GetSlotsAsync(recruiterId, date);
+
+            return Ok(slots.Select(slot => slot.ToDto()).ToList());
+        }
+
+        [HttpGet("company/{companyId}")]
+        public async Task<ActionResult<List<SlotDto>>> GetByCompany(int companyId, [FromQuery] DateTime? date)
+        {
+            DateTime slotDate = date ?? DateTime.Today;
+            List<Slot> slots = await this._service.GetAvailableSlotsByCompanyAsync(companyId, slotDate);
 
             return Ok(slots.Select(slot => slot.ToDto()).ToList());
         }

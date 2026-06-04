@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using PussyCats.App.ViewModels;
-using PussyCats.Library.Services.SkillTests;
 
 namespace PussyCats_App.Views.Controls;
 
@@ -11,6 +10,9 @@ public sealed partial class SkillTestCardControl : UserControl
 {
     private readonly SkillTestCardViewModel viewModel;
     private const int BadgeIconRasterizeSize = 100;
+
+    /// <summary>Raised with the TI test id when the user wants to take/continue the test.</summary>
+    public event EventHandler<int>? TakeTestRequested;
 
     public SkillTestCardControl(SkillTestCardViewModel viewModel)
     {
@@ -21,9 +23,11 @@ public sealed partial class SkillTestCardControl : UserControl
 
     private void LoadCard()
     {
-        TestNameText.Text = (viewModel.SkillTest.Name?.ToUpper() ?? "UNKNOWN") + " TEST";
-        ScoreText.Text = $"SCORE: {viewModel.SkillTest.Score}%";
-        DateText.Text = SkillTestService.AchievedDateFormatted(viewModel.SkillTest);
+        TestNameText.Text = viewModel.Title.ToUpper();
+        ScoreText.Text = viewModel.ScoreText;
+        DateText.Text = string.IsNullOrEmpty(viewModel.DateText)
+            ? viewModel.Status
+            : $"{viewModel.Status} · {viewModel.DateText}";
 
         if (viewModel.Badge is not null && !string.IsNullOrEmpty(viewModel.Badge.IconPath))
         {
@@ -31,21 +35,21 @@ public sealed partial class SkillTestCardControl : UserControl
             if (!path.StartsWith("ms-appx:///", StringComparison.Ordinal))
                 path = $"ms-appx:///{path.TrimStart('/')}";
 
-            var source = new SvgImageSource(new Uri(path))
+            BadgeIcon.Source = new SvgImageSource(new Uri(path))
             {
                 RasterizePixelWidth = BadgeIconRasterizeSize,
                 RasterizePixelHeight = BadgeIconRasterizeSize,
             };
-            BadgeIcon.Source = source;
         }
 
-        RetakeButton.IsEnabled = viewModel.IsRetakeEnabled;
-        RetakeButton.Opacity = viewModel.IsRetakeEnabled ? 1.0 : 0.4;
+        ActionButton.Content = viewModel.ActionLabel;
+        ActionButton.IsEnabled = viewModel.CanTakeTest;
+        ActionButton.Opacity = viewModel.CanTakeTest ? 1.0 : 0.4;
     }
 
-    private async void RetakeButton_Click(object sender, RoutedEventArgs eventArguments)
+    private void ActionButton_Click(object sender, RoutedEventArgs eventArguments)
     {
-        await viewModel.RetakeCommand.ExecuteAsync(null);
-        LoadCard();
+        if (viewModel.CanTakeTest)
+            TakeTestRequested?.Invoke(this, viewModel.TestId);
     }
 }

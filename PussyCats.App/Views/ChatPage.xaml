@@ -268,16 +268,17 @@
                     BorderThickness="0,0,0,0.5"
                     Padding="12,10">
                 <AutoSuggestBox x:Name="SearchBox"
-                                Text="{Binding SearchQuery, Mode=TwoWay}"
-                                PlaceholderText="Search conversations..."
-                                QueryIcon="Find"
-                                TextChanged="SearchBox_TextChanged"
-                                SuggestionChosen="SearchBox_SuggestionChosen"
-                                QuerySubmitted="SearchBox_QuerySubmitted"
-                                ItemsSource="{Binding SearchResults}"
-                                CornerRadius="10"
-                                Background="{StaticResource ChatColorSurfaceAlt}"
-                                Foreground="{StaticResource ChatColorTextPrimary}">
+                Text="{Binding SearchQuery, Mode=TwoWay}"
+                PlaceholderText="Search conversations..."
+                QueryIcon="Find"
+                TextMemberPath="DisplayName"
+                TextChanged="SearchBox_TextChanged"
+                SuggestionChosen="SearchBox_SuggestionChosen"
+                QuerySubmitted="SearchBox_QuerySubmitted"
+                ItemsSource="{Binding SearchResults}"
+                CornerRadius="10"
+                Background="{StaticResource ChatColorSurfaceAlt}"
+                Foreground="{StaticResource ChatColorTextPrimary}">
                     <AutoSuggestBox.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="40,*" ColumnSpacing="10" Padding="4,6">

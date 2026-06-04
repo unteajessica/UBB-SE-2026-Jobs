@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using PussyCats.App.Configuration;
+using PussyCats.App.Services.TI;
 using PussyCats.Library.ServiceProxies;
 using PussyCats.Library.Repositories.Documents;
 using PussyCats.Library.Services.Auth;
@@ -97,6 +98,29 @@ public partial class App : Application
             client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
 
+        // TI (Tests & Interviews) API services — these live on a separate API
+        // (TiBaseUrl, :5179), NOT the PussyCats API. The PussyCats API has no
+        // applicants/tests/etc. controllers, so using BaseUrl here makes every
+        // TI write (e.g. submitting a job application) 404.
+        // The TI job catalog + skills are served by the PussyCats API (single owner),
+        // so the TI Jobs UI now uses IJobService / ISkillService (registered above on
+        // BaseUrl) instead of a dedicated TI jobs client. tiBaseUrl is reserved for the
+        // genuinely TI-only resources below.
+        var tiBaseUrl = apiConfiguration.TiBaseUrl;
+        services.AddHttpClient<ITiAuthService, TiAuthService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddHttpClient<ITiTestService, TiTestService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+    .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddHttpClient<ITiLeaderboardService, TiLeaderboardService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddHttpClient<ITiEventsService, TiEventsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddHttpClient<ITiApplicantService, TiApplicantService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddHttpClient<ITiSlotsService, TiSlotsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
+        services.AddHttpClient<ITiPaymentService, TiPaymentService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
         RegisterViewModels(services);
     }
 

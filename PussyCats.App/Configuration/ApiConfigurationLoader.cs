@@ -15,6 +15,8 @@ public static class ApiConfigurationLoader
             ?? new ApiConfiguration(DefaultBaseUrl);
     }
 
+    private const string DefaultTiBaseUrl = "http://localhost:5179/";
+
     private static ApiConfiguration? TryLoad(string path)
     {
         if (!File.Exists(path))
@@ -30,8 +32,17 @@ public static class ApiConfigurationLoader
         }
 
         var baseUrl = baseUrlProperty.GetString();
-        return string.IsNullOrWhiteSpace(baseUrl)
-            ? null
-            : new ApiConfiguration(baseUrl.Trim());
+        if (string.IsNullOrWhiteSpace(baseUrl))
+            return null;
+
+        var tiBaseUrl = DefaultTiBaseUrl;
+        if (apiSection.TryGetProperty("TiBaseUrl", out var tiBaseUrlProperty))
+        {
+            var raw = tiBaseUrlProperty.GetString();
+            if (!string.IsNullOrWhiteSpace(raw))
+                tiBaseUrl = raw.Trim();
+        }
+
+        return new ApiConfiguration(baseUrl.Trim(), tiBaseUrl);
     }
 }

@@ -21,6 +21,6 @@ namespace Tests_and_Interviews_API.Services.Interfaces
         /// <param name="slotId">The unique identifier of the slot to be booked.</param>
         /// <param name="candidateId">The unique identifier of the candidate making the booking.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task ConfirmBookingAsync(int slotId, int candidateId);
+        Task ConfirmBookingAsync(int slotId, int candidateId, int jobId);
     }
 }

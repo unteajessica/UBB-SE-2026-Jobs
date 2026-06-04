@@ -1,90 +1,65 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using PussyCats.Library.Services;
+using System;
+using PussyCats.App.Dtos.TI;
 using PussyCats.Library.Domain;
-using PussyCats.Library.Services.SkillTests;
+using PussyCats.Library.Services;
 
 namespace PussyCats.App.ViewModels;
 
-public partial class SkillTestCardViewModel : DispatchableObservableObject
+/// <summary>
+/// Display model for one TI skill test on the Skill Tests dashboard. Built from a TI test
+/// plus the current user's attempt (if any). Replaces the former PussyCats SkillTest badge
+/// card whose "retake" assigned a random score; results now come from the real TI engine.
+/// </summary>
+public class SkillTestCardViewModel
 {
-    private const int MinimumRetakeScore = 0;
-    private const int MaximumRetakeScore = 100;
-
-    private readonly ISkillTestService skillTestService;
-    private readonly UserProfileViewModel userProfileViewModel;
-    private SkillTest skillTest;
-    private Badge badge;
-    private bool isRetakeEnabled;
-
-    public SkillTestCardViewModel(ISkillTestService skillTestService, UserProfileViewModel userProfileViewModel)
-        : this(new SkillTest(), skillTestService, userProfileViewModel)
+    public SkillTestCardViewModel(TiTestDto test, TiTestAttemptDto? attempt, float maxPossibleScore)
     {
-    }
+        TestId = test.Id;
+        Title = test.Title;
+        Category = test.Category;
 
-    public SkillTestCardViewModel(
-        SkillTest skillTest,
-        ISkillTestService skillTestService,
-        UserProfileViewModel userProfileViewModel)
-    {
-        this.skillTest = skillTest;
-        this.skillTestService = skillTestService;
-        this.userProfileViewModel = userProfileViewModel;
-        badge = SimpleModelOperations.AssignTier(skillTest.Score);
-    }
+        bool isCompleted = ViewModelSupport.IsTiAttemptCompleted(attempt);
+        bool isInProgress = !isCompleted && attempt is not null &&
+            (Mentions(attempt.Status, "progress") || attempt.StartedAt is not null);
 
-    public SkillTest SkillTest
-    {
-        get => skillTest;
-        private set => SetProperty(ref skillTest, value);
-    }
-
-    public Badge Badge
-    {
-        get => badge;
-        private set => SetProperty(ref badge, value);
-    }
-
-    public bool IsRetakeEnabled
-    {
-        get => isRetakeEnabled;
-        private set => SetProperty(ref isRetakeEnabled, value);
-    }
-
-    public async Task LoadCardAsync(CancellationToken cancellationToken = default)
-    {
-        await CheckRetakeEligibleAsync(cancellationToken);
-        UpdateBadge();
-    }
-
-    public async Task CheckRetakeEligibleAsync(CancellationToken cancellationToken = default)
-    {
-        IsRetakeEnabled = SkillTest.SkillTestId > 0 &&
-            await skillTestService.CanRetakeTestAsync(SkillTest.SkillTestId, cancellationToken);
-    }
-
-    [RelayCommand]
-    private async Task RetakeAsync(CancellationToken cancellationToken)
-    {
-        if (!IsRetakeEnabled)
+        if (isCompleted)
         {
-            return;
+            int percentage = ViewModelSupport.TiPercentage(attempt!.Score, maxPossibleScore);
+            Status = "Completed";
+            ScoreText = $"SCORE: {percentage}%";
+            DateText = attempt.CompletedAt is { } completed ? completed.ToString("dd.MM.yyyy") : string.Empty;
+            Badge = SimpleModelOperations.AssignTier(percentage);
+            CanTakeTest = false; // TI tests are once-only
+            ActionLabel = "COMPLETED";
         }
-
-        var newTestScore = Random.Shared.Next(MinimumRetakeScore, MaximumRetakeScore + 1);
-        Badge = await skillTestService.SubmitRetakeAsync(SkillTest.SkillTestId, newTestScore, cancellationToken);
-
-        SkillTest.AchievedDate = DateOnly.FromDateTime(DateTime.Now);
-        SkillTest.Score = newTestScore;
-        OnPropertyChanged(nameof(SkillTest));
-
-        await CheckRetakeEligibleAsync(cancellationToken);
-        UpdateBadge();
-        await userProfileViewModel.RecalculateLevelAsync(cancellationToken);
+        else if (isInProgress)
+        {
+            Status = "In progress";
+            ScoreText = "Not scored yet";
+            DateText = attempt!.StartedAt is { } started ? $"Started {started:dd.MM.yyyy}" : string.Empty;
+            CanTakeTest = true;
+            ActionLabel = "CONTINUE";
+        }
+        else
+        {
+            Status = "Available";
+            ScoreText = "Not taken yet";
+            DateText = string.Empty;
+            CanTakeTest = true;
+            ActionLabel = "TAKE TEST";
+        }
     }
 
-    public void UpdateBadge()
-    {
-        Badge = SimpleModelOperations.AssignTier(SkillTest.Score);
-    }
+    public int TestId { get; }
+    public string Title { get; }
+    public string Category { get; }
+    public string Status { get; }
+    public string ScoreText { get; }
+    public string DateText { get; }
+    public Badge? Badge { get; }
+    public bool CanTakeTest { get; }
+    public string ActionLabel { get; }
+
+    private static bool Mentions(string? status, string token) =>
+        status is not null && status.Contains(token, StringComparison.OrdinalIgnoreCase);
 }

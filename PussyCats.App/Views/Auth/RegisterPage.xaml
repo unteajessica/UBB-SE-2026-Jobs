@@ -18,6 +18,21 @@
             <PasswordBox x:Name="PasswordBox" Header="Password" PasswordChanged="PasswordBox_PasswordChanged"/>
             <PasswordBox x:Name="ConfirmPasswordBox" Header="Confirm password" PasswordChanged="ConfirmPasswordBox_PasswordChanged"/>
 
+            <ComboBox
+                Header="Account type"
+                HorizontalAlignment="Stretch"
+                ItemsSource="{Binding Roles}"
+                SelectedItem="{Binding SelectedRole, Mode=TwoWay}"/>
+
+            <ComboBox
+                Header="Company"
+                PlaceholderText="-- Select company --"
+                HorizontalAlignment="Stretch"
+                ItemsSource="{Binding Companies}"
+                DisplayMemberPath="Name"
+                SelectedItem="{Binding SelectedCompany, Mode=TwoWay}"
+                Visibility="{Binding IsRecruiter, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
             <InfoBar
                 IsOpen="True"
                 Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.TestsAndInterviews.TiTestDetailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="← Back" Click="Back_Click" Margin="0,0,16,0"
+                    Background="Transparent" BorderThickness="0"/>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+                           FontSize="24" FontWeight="Bold" TextWrapping="Wrap"/>
+                <TextBlock Text="{x:Bind ViewModel.Category, Mode=OneWay}" FontSize="14"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="24">
+                <StackPanel Spacing="20">
+
+                    <!-- Test details -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Test Details" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock>
+                            <Run Text="Title: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind ViewModel.Title, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Category: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind ViewModel.Category, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Question Type: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind ViewModel.QuestionTypeLabel, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Created At: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind FormatDate(ViewModel.CreatedAt), Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Duration: " FontWeight="SemiBold"/>
+                            <Run Text="30 minutes"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Actions -->
+                    <StackPanel Spacing="8">
+                        <Button x:Name="StartTestButton" Content="Start Test" Click="StartTest_Click"
+                                Background="#22c55e" Foreground="White" Padding="16,8" CornerRadius="8"
+                                HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</Page>

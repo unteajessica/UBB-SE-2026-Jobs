@@ -151,15 +151,36 @@
                             </Grid>
                         </StackPanel>
                     </Border>
-
-                    <!-- Testing module mocked per §8 -->
                     <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
-                            CornerRadius="8" Padding="22">
-                        <StackPanel Spacing="8">
+        CornerRadius="8" Padding="22">
+                        <StackPanel Spacing="14">
                             <TextBlock Text="TECHNICAL TEST RESULTS" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="#9CA3AF" CharacterSpacing="100"/>
-                            <TextBlock Text="Testing module integration pending — see MergePlan.md §8."
-                                       FontSize="13" Foreground="#9CA3AF" FontStyle="Italic"/>
+                   Foreground="#9CA3AF" CharacterSpacing="100"/>
+
+                            <!-- când nu există attempt sau a picat -->
+                            <TextBlock Text="{Binding LastTestResult.ValidationErrors[0]}"
+                   FontSize="13" Foreground="#9CA3AF" FontStyle="Italic"/>
+
+                            <!-- când IsValid = true, astea se văd -->
+                            <Grid ColumnSpacing="48">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="TEST" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding LastTestResult.Test.Title}" FontSize="13" Foreground="#374151"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Spacing="3">
+                                    <TextBlock Text="SCORE" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding LastTestResult.Attempt.Score}" FontSize="13" Foreground="#374151"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Spacing="3">
+                                    <TextBlock Text="STATUS" FontSize="10" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding LastTestResult.Attempt.Status}" FontSize="13" Foreground="#374151"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 

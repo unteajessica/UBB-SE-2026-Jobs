@@ -1,5 +1,7 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PussyCats.App.Configuration;
+using PussyCats.App.Dtos.TI;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 
@@ -12,6 +14,34 @@ internal static class ViewModelSupport
     public static int ResolveUserId(SessionContext session)
     {
         return session.UserId > 0 ? session.UserId : DefaultUserId;
+    }
+
+    /// <summary>
+    /// A TI attempt counts as completed if its status mentions "complete", or it has a
+    /// completion time / percentage score. TI status strings are inconsistent
+    /// ("Completed"/"COMPLETED"), so match loosely and fall back to the other fields.
+    /// </summary>
+    public static bool IsTiAttemptCompleted(TiTestAttemptDto? attempt)
+    {
+        return attempt is not null &&
+            ((attempt.Status?.Contains("complete", StringComparison.OrdinalIgnoreCase) ?? false) ||
+             attempt.CompletedAt is not null ||
+             attempt.PercentageScore is not null);
+    }
+
+    /// <summary>
+    /// Converts a TI attempt's raw earned score into a percentage using the test's max
+    /// possible score (sum of question scores). The stored PercentageScore is unreliable
+    /// (server conversion is a no-op and it's nulled on rejected/expired attempts), so the
+    /// percentage is always computed from the raw Score here. Result is clamped to 0–100.
+    /// </summary>
+    public static int TiPercentage(decimal? rawScore, float maxPossibleScore)
+    {
+        double raw = (double)(rawScore ?? 0m);
+        int percentage = maxPossibleScore > 0f
+            ? (int)Math.Round(raw / maxPossibleScore * 100.0)
+            : (int)Math.Round(raw);
+        return Math.Clamp(percentage, 0, 100);
     }
 
     public static string FormatJobRole(JobRole role)

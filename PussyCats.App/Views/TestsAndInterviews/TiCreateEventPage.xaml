@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.TestsAndInterviews.TiCreateEventPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="32">
+        <StackPanel MaxWidth="640" HorizontalAlignment="Center" Spacing="16">
+            <TextBlock Text="Create Event" FontSize="24" FontWeight="Bold" Margin="0,0,0,8"/>
+
+            <TextBox Header="Title *" Text="{x:Bind ViewModel.Title, Mode=TwoWay}" PlaceholderText="Event title"/>
+            <TextBlock Text="{x:Bind ViewModel.TitleError, Mode=OneWay}" Foreground="Red" FontSize="12"/>
+
+            <TextBox Header="Description *" Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
+                     PlaceholderText="Describe the event..." AcceptsReturn="True" Height="100"
+                     TextWrapping="Wrap"/>
+            <TextBlock Text="{x:Bind ViewModel.DescriptionError, Mode=OneWay}" Foreground="Red" FontSize="12"/>
+
+            <TextBox Header="Location *" Text="{x:Bind ViewModel.Location, Mode=TwoWay}"
+                     PlaceholderText="Event location"/>
+            <TextBlock Text="{x:Bind ViewModel.LocationError, Mode=OneWay}" Foreground="Red" FontSize="12"/>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CalendarDatePicker Grid.Column="0" Header="Start Date *"
+                                    Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"
+                                    HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker Grid.Column="1" Header="End Date *"
+                                    Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"
+                                    HorizontalAlignment="Stretch"/>
+            </Grid>
+            <TextBlock Text="{x:Bind ViewModel.DateError, Mode=OneWay}" Foreground="Red" FontSize="12"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,8,0,0">
+                <Button Content="Cancel" Click="Cancel_Click" Padding="16,8"/>
+                <Button Content="Create Event" Click="Create_Click"
+                        Background="#8494FF" Foreground="White" Padding="20,8" CornerRadius="8"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

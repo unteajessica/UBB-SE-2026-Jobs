@@ -32,15 +32,21 @@ public sealed partial class CompatibilityOverviewPage : Page
         var error = viewModel.GetErrorMessage();
         if (!string.IsNullOrEmpty(error))
         {
-            var dialog = new ContentDialog { Title = "Error", Content = error, CloseButtonText = "OK", XamlRoot = XamlRoot };
+            var dialog = new ContentDialog
+            {
+                Title = "Error",
+                Content = error,
+                CloseButtonText = "OK",
+                XamlRoot = XamlRoot,
+            };
             await dialog.ShowAsync();
             return;
         }
 
-        var displayItems = new List<object>();
+        var displayItems = new List<CompatibilityDisplayItem>();
         foreach (var result in viewModel.GetRoleResults())
         {
-            displayItems.Add(new
+            displayItems.Add(new CompatibilityDisplayItem
             {
                 Result = result,
                 DisplayName = ViewModelSupport.FormatJobRole(result.JobRole),
@@ -56,11 +62,8 @@ public sealed partial class CompatibilityOverviewPage : Page
 
     private void RolesList_SelectionChanged(object sender, SelectionChangedEventArgs eventArguments)
     {
-        if (rolesList.SelectedItem is null) return;
-        dynamic selected = rolesList.SelectedItem;
-        RoleResult result = selected.Result;
-        viewModel.GetResultForRole(result.JobRole);
-        Frame.Navigate(typeof(CompatibilityDetailPage), result);
+        if (rolesList.SelectedItem is not CompatibilityDisplayItem selected) return;
+        Frame.Navigate(typeof(CompatibilityDetailPage), selected.Result);
     }
 
     private void ButtonBack_Click(object sender, RoutedEventArgs eventArguments)

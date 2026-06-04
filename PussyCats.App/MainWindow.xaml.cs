@@ -8,6 +8,7 @@ using PussyCats.App.Configuration;
 using PussyCats.Library.Domain.Enums;
 using PussyCats_App.Views.Auth;
 using PussyCats_App.Views.Candidate;
+using PussyCats_App.Views.TestsAndInterviews;
 
 namespace PussyCats_App;
 
@@ -20,20 +21,19 @@ public sealed partial class MainWindow : Window
         "UserRecommendationPage",
         "UserStatusPage",
         "UserProfilePage",
-        "ProfileFormPage",
         "TestDashboardPage",
         "PersonalityTestPage",
         "CompatibilityOverviewPage",
         "DocumentsPage",
-        "ExportCVPage",
-        "ChatPage",
+        "PreferencesPage",
+        "TiInterviewSlotsPage",
     ];
 
     private static readonly HashSet<string> CompanyPages =
     [
         "CompanyRecommendationPage",
         "CompanyStatusPage",
-        "ChatPage",
+        "TiRecruiterInterviewsPage",
     ];
 
     private static readonly HashSet<string> DeveloperPages =
@@ -41,26 +41,39 @@ public sealed partial class MainWindow : Window
         "DeveloperPage",
     ];
 
-    private static readonly HashSet<string> SharedPages = [];
+    private static readonly HashSet<string> SharedPages =
+    [
+        "ChatPage",
+        "TiJobsPage",
+        "TiMainTestPage",
+        "TiEventsPage",
+    ];
 
     private static readonly Dictionary<string, Type> PageMap = new()
     {
-        ["UserRecommendationPage"]    = typeof(UserRecommendationPage),
-        ["UserStatusPage"]            = typeof(UserStatusPage),
-        ["UserProfilePage"]           = typeof(UserProfilePage),
-        ["ProfileFormPage"]           = typeof(ProfileFormPage),
-        ["TestDashboardPage"]         = typeof(TestDashboardPage),
-        ["PersonalityTestPage"]       = typeof(PersonalityTestPage),
-        ["CompatibilityOverviewPage"] = typeof(CompatibilityOverviewPage),
-        ["DocumentsPage"]             = typeof(DocumentsPage),
-        ["ExportCVPage"]              = typeof(ExportCVPage),
-        ["PreferencesPage"]           = typeof(PreferencesPage),
-        ["CompanyRecommendationPage"] = typeof(Views.Company.CompanyRecommendationPage),
-        ["CompanyStatusPage"]         = typeof(Views.Company.CompanyStatusPage),
-        ["DeveloperPage"]             = typeof(Views.Developer.DeveloperPage),
-        ["ChatPage"]                  = typeof(Views.ChatPage),
-        ["LoginPage"]                 = typeof(LoginPage),
-        ["RegisterPage"]              = typeof(RegisterPage),
+        ["UserRecommendationPage"]      = typeof(UserRecommendationPage),
+        ["UserStatusPage"]              = typeof(UserStatusPage),
+        ["UserProfilePage"]             = typeof(UserProfilePage),
+        ["ProfileFormPage"]             = typeof(ProfileFormPage),
+        ["TestDashboardPage"]           = typeof(TestDashboardPage),
+        ["PersonalityTestPage"]         = typeof(PersonalityTestPage),
+        ["CompatibilityOverviewPage"]   = typeof(CompatibilityOverviewPage),
+        ["DocumentsPage"]               = typeof(DocumentsPage),
+        ["ExportCVPage"]                = typeof(ExportCVPage),
+        ["PreferencesPage"]             = typeof(PreferencesPage),
+        ["CompanyRecommendationPage"]   = typeof(Views.Company.CompanyRecommendationPage),
+        ["CompanyStatusPage"]           = typeof(Views.Company.CompanyStatusPage),
+        ["DeveloperPage"]               = typeof(Views.Developer.DeveloperPage),
+        ["ChatPage"]                    = typeof(Views.ChatPage),
+        ["LoginPage"]                   = typeof(LoginPage),
+        ["RegisterPage"]                = typeof(RegisterPage),
+        // TI (Tests & Interviews) pages
+        ["TiMainTestPage"]              = typeof(TiMainTestPage),
+        ["TiEventsPage"]                = typeof(TiEventsPage),
+        ["TiJobsPage"]                  = typeof(TiJobsPage),
+        ["TiInterviewSlotsPage"]        = typeof(TiInterviewSlotsPage),
+        ["TiRecruiterInterviewsPage"]   = typeof(TiRecruiterInterviewsPage),
+        ["TiLeaderboardPage"]           = typeof(TiLeaderboardPage),
     };
 
     public Frame NavigationFrame => contentFrame;
