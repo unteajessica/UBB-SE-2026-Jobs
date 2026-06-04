@@ -74,12 +74,21 @@
 
                         @if (User.IsInRole("Candidate"))
                         {
-                            <a asp-controller="Tests"
-                               asp-action="Start"
-                               asp-route-id="@test.TestId"
-                               class="btn btn-primary w-100 mb-2">
-                                Start Test
-                            </a>
+                            @if (test.HasBeenTaken)
+                            {
+                                <button class="btn btn-secondary w-100 mb-2" disabled>
+                                    Already Completed
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Tests"
+                                   asp-action="Start"
+                                   asp-route-id="@test.TestId"
+                                   class="btn btn-primary w-100 mb-2">
+                                    Start Test
+                                </a>
+                            }
                         }
 
                         @if (User.IsInRole("Admin") || User.IsInRole("Recruiter"))

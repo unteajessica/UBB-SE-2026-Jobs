@@ -6,6 +6,8 @@
         public string Title { get; set; } = "";
         public string Category { get; set; } = "";
         public string QuestionTypeLabel { get; set; } = "";
+
+        public bool HasBeenTaken { get; set; } = false;
     }
 }
 
