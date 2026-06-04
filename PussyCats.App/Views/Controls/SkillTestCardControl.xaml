@@ -27,12 +27,12 @@
                            Foreground="#BDA4CC" FontSize="12"/>
             </StackPanel>
 
-            <Button x:Name="RetakeButton" Grid.Column="2"
-                    Content="RETAKE"
+            <Button x:Name="ActionButton" Grid.Column="2"
+                    Content="TAKE TEST"
                     Background="#9A74B3" Foreground="White"
                     BorderThickness="0" CornerRadius="6"
                     VerticalAlignment="Center"
-                    Click="RetakeButton_Click"/>
+                    Click="ActionButton_Click"/>
         </Grid>
     </Border>
 </UserControl>

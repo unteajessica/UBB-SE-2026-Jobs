@@ -33,6 +33,12 @@ public sealed partial class TiEventsPage : Page
         Frame.Navigate(typeof(TiCreateEventPage));
     }
 
+    private void ViewEventDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: TiEventDto dto })
+            Frame.Navigate(typeof(TiEventDetailsPage), dto);
+    }
+
     private void EditEvent_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: TiEventDto dto })

@@ -5,12 +5,15 @@ using PussyCats.App.Configuration;
 using PussyCats.App.Dtos.TI;
 using PussyCats.App.Services.TI;
 using PussyCats.Library.Domain;
+using PussyCats.Library.Services.Jobs;
+using PussyCats.Library.Services.Skills;
 
 namespace PussyCats.App.ViewModels.TI;
 
 public partial class TiCreateJobViewModel : DispatchableObservableObject
 {
-    private readonly ITiJobsService jobsService;
+    private readonly IJobService jobService;
+    private readonly ISkillService skillService;
     private readonly SessionContext session;
 
     [ObservableProperty] private string jobTitle = string.Empty;
@@ -30,18 +33,19 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
 
     public ObservableCollection<TiSkillPickItem> SkillRows { get; } = new();
 
-    public TiCreateJobViewModel(ITiJobsService jobsService, SessionContext session)
+    public TiCreateJobViewModel(IJobService jobService, ISkillService skillService, SessionContext session)
     {
-        this.jobsService = jobsService;
+        this.jobService = jobService;
+        this.skillService = skillService;
         this.session = session;
     }
 
     public async Task InitializeAsync()
     {
-        var skills = await jobsService.GetAllSkillsAsync();
+        var skills = await skillService.GetAllAsync();
         SkillRows.Clear();
         foreach (var skill in skills)
-            SkillRows.Add(new TiSkillPickItem { Skill = skill });
+            SkillRows.Add(new TiSkillPickItem { Skill = TiJobMapper.ToDto(skill) });
     }
 
     [RelayCommand]
@@ -80,7 +84,7 @@ public partial class TiCreateJobViewModel : DispatchableObservableObject
             AmountPayed = 0,
         };
 
-        await jobsService.AddJobAsync(job);
+        await jobService.AddAsync(job);
         IsSaving = false;
         SavedSuccessfully = true;
     }

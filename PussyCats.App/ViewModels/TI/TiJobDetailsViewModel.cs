@@ -3,12 +3,14 @@ using PussyCats.App.Configuration;
 using PussyCats.App.Dtos.TI;
 using PussyCats.App.Services.TI;
 using PussyCats.Library.Domain.Enums;
+using PussyCats.Library.Services.Jobs;
 
 namespace PussyCats.App.ViewModels.TI;
 
 public partial class TiJobDetailsViewModel : DispatchableObservableObject
 {
     private readonly ITiApplicantService applicantService;
+    private readonly IJobService jobService;
     private readonly SessionContext session;
 
     [ObservableProperty] private TiJobPostingDto? currentJob;
@@ -16,16 +18,21 @@ public partial class TiJobDetailsViewModel : DispatchableObservableObject
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private bool hasApplied;
 
-    public TiJobDetailsViewModel(ITiApplicantService applicantService, SessionContext session)
+    public TiJobDetailsViewModel(ITiApplicantService applicantService, IJobService jobService, SessionContext session)
     {
         this.applicantService = applicantService;
+        this.jobService = jobService;
         this.session = session;
     }
 
-    public void Load(TiJobPostingDto job)
+    public async Task LoadAsync(TiJobPostingDto job)
     {
-        CurrentJob = job;
         IsCompanyMode = session.Mode == AppMode.Company;
+
+        // The Jobs listing (IJobService.GetAllAsync) omits required skills; fetch the full job by
+        // id so the details view can render them. Fall back to the passed-in object if not found.
+        var full = await jobService.GetByIdAsync(job.JobId);
+        CurrentJob = full is null ? job : TiJobMapper.ToDto(full);
     }
 
     public async Task RefreshHasAppliedAsync()

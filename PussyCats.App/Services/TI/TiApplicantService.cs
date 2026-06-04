@@ -15,6 +15,7 @@ public class TiApplicantService : ITiApplicantService
     private readonly HttpClient http;
 
     public TiApplicantService(HttpClient http) => this.http = http;
+    
 
     public async Task<List<TiApplicantDto>> GetByJobAsync(int jobId)
     {

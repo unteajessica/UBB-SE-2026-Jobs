@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="PussyCats_App.Views.TestsAndInterviews.TiEventDetailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:PussyCats_App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="← Back" Click="Back_Click" Margin="0,0,16,0"
+                    Background="Transparent" BorderThickness="0"/>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="{x:Bind ViewModel.CurrentEvent.Title, Mode=OneWay}"
+                           FontSize="24" FontWeight="Bold" TextWrapping="Wrap"/>
+                <TextBlock Text="{x:Bind ViewModel.CurrentEvent.Location, Mode=OneWay}" FontSize="14"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="24">
+                <StackPanel Spacing="20">
+
+                    <!-- Event details -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Event Details" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock>
+                            <Run Text="Location: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind FormatText(ViewModel.CurrentEvent.Location), Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Start Date: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind FormatDate(ViewModel.CurrentEvent.StartDate), Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="End Date: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind FormatDate(ViewModel.CurrentEvent.EndDate), Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Posted At: " FontWeight="SemiBold"/>
+                            <Run Text="{x:Bind FormatDate(ViewModel.CurrentEvent.PostedAt), Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Description -->
+                    <StackPanel Spacing="6"
+                                Visibility="{x:Bind ViewModel.CurrentEvent.Description, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}">
+                        <TextBlock Text="Description" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.CurrentEvent.Description, Mode=OneWay}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Company actions -->
+                    <StackPanel x:Name="CompanyActions" Orientation="Horizontal" Spacing="12"
+                                Margin="0,8,0,0" Visibility="Collapsed">
+                        <Button Content="Edit Event" Click="EditEvent_Click"
+                                Background="#8494FF" Foreground="White" Padding="16,8" CornerRadius="8"/>
+                        <Button Content="Delete Event" Click="DeleteEvent_Click"
+                                Background="#FFef4444" Foreground="White" Padding="16,8" CornerRadius="6"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</Page>

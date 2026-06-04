@@ -3,9 +3,11 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PussyCats.App.Configuration;
+using PussyCats.App.Services.TI;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
+using PussyCats.Library.DTOs.TestingModule;
 using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.Matches;
 
@@ -30,17 +32,31 @@ public class CompanyStatusViewModel : DispatchableObservableObject
     private bool hasValidationErrors;
     private TestResult? lastTestResult;
     private string pageMessage = string.Empty;
+    private readonly ITiTestService tiTestService;
 
     public CompanyStatusViewModel(
         ICompanyStatusService companyStatusService,
         IMatchService matchService,
+        ITiTestService tiTestService,
         SessionContext session)
     {
         this.companyStatusService = companyStatusService;
         this.matchService = matchService;
+        this.tiTestService = tiTestService;
         this.session = session;
         refreshCommand = new RelayCommand(ExecuteRefreshCommand, CanExecuteRefreshCommand);
     }
+
+    /* public CompanyStatusViewModel(
+         ICompanyStatusService companyStatusService,
+         IMatchService matchService,
+         SessionContext session)
+     {
+         this.companyStatusService = companyStatusService;
+         this.matchService = matchService;
+         this.session = session;
+         refreshCommand = new RelayCommand(ExecuteRefreshCommand, CanExecuteRefreshCommand);
+     }*/
 
     public event Action<string>? ErrorOccurred;
 
@@ -210,6 +226,68 @@ public class CompanyStatusViewModel : DispatchableObservableObject
 
         RaiseCommandStates();
     }
+    private async Task<TestResult?> LoadLatestTestResultAsync(UserApplicationResult applicant)
+    {
+        try
+        {
+            var attempt = await tiTestService.GetAttemptByUserAndTestAsync(
+                applicant.User.UserId,
+                applicant.Job.JobId  // sau un testId relevant — depinde cum e legat jobul de test
+            );
+
+            if (attempt is null)
+                return new TestResult
+                {
+                    MatchId = applicant.Match.MatchId,
+                    UserId = applicant.User.UserId,
+                    JobId = applicant.Job.JobId,
+                    ExternalUserId = applicant.User.UserId,
+                    PositionId = applicant.Job.JobId,
+                    IsValid = false,
+                    ValidationErrors = ["No test attempt found for this applicant."],
+                };
+
+            var test = await tiTestService.GetByIdAsync(attempt.TestId);
+
+            return new TestResult
+            {
+                MatchId = applicant.Match.MatchId,
+                UserId = applicant.User.UserId,
+                JobId = applicant.Job.JobId,
+                ExternalUserId = applicant.User.UserId,
+                PositionId = applicant.Job.JobId,
+                Decision = applicant.Match.Status,
+                FeedbackMessage = applicant.Match.FeedbackMessage,
+                Test = test is null ? null : new TestDefinitionRecord
+                {
+                    TestId = test.Id,
+                    Title = test.Title,
+                    Category = test.Category,
+                    CreatedAt = test.CreatedAt,
+                },
+                Attempt = new TestAttemptRecord
+                {
+                    UserTestId = attempt.Id,
+                    TestId = attempt.TestId,
+                    ExternalUserId = attempt.ExternalUserId ?? applicant.User.UserId,
+                    Score = attempt.Score ?? 0,
+                    Status = attempt.Status,
+                    StartedAt = attempt.StartedAt ?? DateTime.MinValue,
+                    CompletedAt = attempt.CompletedAt,
+                    AnswersFilePath = attempt.AnswersFilePath,
+                },
+                IsValid = true,
+            };
+        }
+        catch
+        {
+            return new TestResult
+            {
+                IsValid = false,
+                ValidationErrors = ["Failed to load test results."],
+            };
+        }
+    }
 
     public async Task<bool> LoadEvaluationAsync(int matchId, CancellationToken cancellationToken = default)
     {
@@ -239,7 +317,7 @@ public class CompanyStatusViewModel : DispatchableObservableObject
             FeedbackMessage = result.Match.FeedbackMessage;
 
             ValidateAll();
-            LastTestResult = LoadLatestTestResult(result);
+            LastTestResult = await LoadLatestTestResultAsync(result);
             PageMessage = string.Empty;
             RaiseCommandStates();
             return true;

@@ -102,22 +102,16 @@ public partial class App : Application
         // (TiBaseUrl, :5179), NOT the PussyCats API. The PussyCats API has no
         // applicants/tests/etc. controllers, so using BaseUrl here makes every
         // TI write (e.g. submitting a job application) 404.
+        // The TI job catalog + skills are served by the PussyCats API (single owner),
+        // so the TI Jobs UI now uses IJobService / ISkillService (registered above on
+        // BaseUrl) instead of a dedicated TI jobs client. tiBaseUrl is reserved for the
+        // genuinely TI-only resources below.
         var tiBaseUrl = apiConfiguration.TiBaseUrl;
-        /*
-        services.AddHttpClient<ITiTestService, TiTestService>(c => c.BaseAddress = new Uri(tiBaseUrl));
-        services.AddHttpClient<ITiLeaderboardService, TiLeaderboardService>(c => c.BaseAddress = new Uri(tiBaseUrl));
-        services.AddHttpClient<ITiEventsService, TiEventsService>(c => c.BaseAddress = new Uri(tiBaseUrl));
-        services.AddHttpClient<ITiJobsService, TiJobsService>(c => c.BaseAddress = new Uri(tiBaseUrl));
-        services.AddHttpClient<ITiApplicantService, TiApplicantService>(c => c.BaseAddress = new Uri(tiBaseUrl));
-        services.AddHttpClient<ITiSlotsService, TiSlotsService>(c => c.BaseAddress = new Uri(tiBaseUrl));
-        services.AddHttpClient<ITiPaymentService, TiPaymentService>(c => c.BaseAddress = new Uri(tiBaseUrl));*/
         services.AddHttpClient<ITiTestService, TiTestService>(client => client.BaseAddress = new Uri(tiBaseUrl))
     .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiLeaderboardService, TiLeaderboardService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiEventsService, TiEventsService>(client => client.BaseAddress = new Uri(tiBaseUrl))
-            .AddHttpMessageHandler<JwtForwardingHandler>();
-        services.AddHttpClient<ITiJobsService, TiJobsService>(client => client.BaseAddress = new Uri(apiConfiguration.BaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiApplicantService, TiApplicantService>(client => client.BaseAddress = new Uri(tiBaseUrl))
             .AddHttpMessageHandler<JwtForwardingHandler>();
