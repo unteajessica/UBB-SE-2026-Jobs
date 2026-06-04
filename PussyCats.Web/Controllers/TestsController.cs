@@ -35,6 +35,9 @@
         /// <returns>An asynchronous task returning the Index view with the TestsViewModel.</returns>
         public async Task<IActionResult> Index()
         {
+            string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int userId = int.TryParse(userIdClaim, out int parsedId) ? parsedId : -1;
+
             List<string> categories = await this._api.GetCategories();
             TestsViewModel viewModel = new TestsViewModel();
 
@@ -44,19 +47,36 @@
 
                 foreach (TestDto test in tests)
                 {
+                    bool hasFinished = false;
+
+                    if (userId != -1 && User.IsInRole("Candidate"))
+                    {
+                        var existingAttempt = await this._api.GetAttemptByUserAndTestAsync(userId, test.Id);
+
+                        if (existingAttempt != null)
+                        {
+                            var savedAnswers = await this._api.GetAnswersByAttemptIdAsync(existingAttempt.Id);
+
+                            if (savedAnswers != null && savedAnswers.Any())
+                            {
+                                hasFinished = true;
+                            }
+                        }
+                    }
+
                     viewModel.Tests.Add(new TestCardViewModel
                     {
                         TestId = test.Id,
                         Title = test.Title,
                         Category = test.Category,
-                        QuestionTypeLabel = test.QuestionTypeLabel
+                        QuestionTypeLabel = test.QuestionTypeLabel,
+                        HasBeenTaken = hasFinished
                     });
                 }
             }
 
             return View(viewModel);
         }
-
         /// <summary>
         /// Retrieves and displays the details of a specific test.
         /// </summary>
