@@ -72,10 +72,11 @@ public class CompatibilityService : ICompatibilityService
 
     private async Task<List<UserSkill>> GetUserSkillsAsync(int userId, CancellationToken cancellationToken)
     {
-        var verifiedSkills = await userSkillRepository.GetVerifiedByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        
+        var userDeclaredSkills = await userSkillRepository.GetByUserIdAsync(userId, cancellationToken).ConfigureAwait(false);
         var user = await userRepository.GetByIdAsync(userId, cancellationToken).ConfigureAwait(false);
         var cvSkills = ExtractSkillsFromParsedCv(user?.ParsedCv ?? string.Empty);
-        return MergeVerifiedAndUnverifiedSkills(verifiedSkills, cvSkills);
+        return MergeVerifiedAndUnverifiedSkills(userDeclaredSkills, cvSkills);
     }
 
     private static List<string> ExtractSkillsFromParsedCv(string parsedCv)
