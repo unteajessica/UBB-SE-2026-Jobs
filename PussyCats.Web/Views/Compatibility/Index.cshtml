@@ -34,7 +34,7 @@ else
                         <div class="progress mb-3" style="height: 8px;">
                             <div class="progress-bar @(result.MatchScore >= 70 ? "bg-success" : result.MatchScore >= 40 ? "bg-warning" : "bg-danger")"
                                  role="progressbar"
-                                 style="width: @(Math.Max(0, result.MatchScore))%">
+                                 style="width:@(Math.Max(0, Math.Min(100, result.MatchScore)).ToString(System.Globalization.CultureInfo.InvariantCulture))%">
                             </div>
                         </div>
                         <a asp-action="Detail" asp-route-role="@result.JobRole" class="btn btn-outline-primary btn-sm">View Details</a>

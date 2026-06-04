@@ -23,7 +23,7 @@
         <div class="progress mb-3" style="height: 12px; max-width: 400px;">
             <div class="progress-bar @(Model.MatchScore >= 70 ? "bg-success" : Model.MatchScore >= 40 ? "bg-warning" : "bg-danger")"
                  role="progressbar"
-                 style="width: @Model.MatchScore%">
+                 style="width:@(Math.Max(0, Math.Min(100, Model.MatchScore)).ToString(System.Globalization.CultureInfo.InvariantCulture))%">
             </div>
         </div>
     }
