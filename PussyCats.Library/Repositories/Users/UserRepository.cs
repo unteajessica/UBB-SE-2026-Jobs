@@ -124,10 +124,12 @@ public class UserRepository : IUserRepository
 
     private void ReplaceWorkExperiences(User target, IEnumerable<WorkExperience> incoming)
     {
+        var snapshot = incoming.ToList();
+
         databaseContext.Set<WorkExperience>().RemoveRange(target.WorkExperiences);
         target.WorkExperiences.Clear();
 
-        foreach (var workExperience in incoming)
+        foreach (var workExperience in snapshot)
         {
             target.WorkExperiences.Add(new WorkExperience
             {
@@ -144,10 +146,11 @@ public class UserRepository : IUserRepository
 
     private void ReplaceProjects(User target, IEnumerable<Project> incoming)
     {
+        var snapshot = incoming.ToList();
         databaseContext.Set<Project>().RemoveRange(target.Projects);
         target.Projects.Clear();
 
-        foreach (var project in incoming)
+        foreach (var project in snapshot)
         {
             target.Projects.Add(new Project
             {
@@ -162,10 +165,11 @@ public class UserRepository : IUserRepository
 
     private void ReplaceExtraCurricularActivities(User target, IEnumerable<ExtraCurricularActivity> incoming)
     {
+        var snapshot = incoming.ToList();
         databaseContext.Set<ExtraCurricularActivity>().RemoveRange(target.ExtraCurricularActivities);
         target.ExtraCurricularActivities.Clear();
 
-        foreach (var activity in incoming)
+        foreach (var activity in snapshot)
         {
             target.ExtraCurricularActivities.Add(new ExtraCurricularActivity
             {
