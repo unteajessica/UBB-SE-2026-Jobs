@@ -1,6 +1,7 @@
-using System.Reflection;
 using Microsoft.UI.Xaml.Data;
+using PussyCats.App.ViewModels;
 using PussyCats.Library.Domain;
+using System.Reflection;
 
 namespace PussyCats_App.Converters;
 
@@ -8,6 +9,11 @@ public class ChatNameConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, string language)
     {
+        if (value is ContactSearchResultViewModel vm)
+        {
+            return vm.DisplayName;
+        }
+
         if (value is null)
         {
             return string.Empty;
