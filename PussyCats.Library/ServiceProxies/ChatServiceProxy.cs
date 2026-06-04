@@ -27,13 +27,13 @@ public class ChatServiceProxy : IChatService
         => await http.GetFromJsonAsync<List<Chat>>($"api/chats?companyId={companyId}&callerId={companyId}", JsonOptions, cancellationToken)
            ?? new List<Chat>();
 
-    public async Task<IReadOnlyList<Message>> GetMessagesAsync(int chatId, int callerId, CancellationToken cancellationToken = default)
-        => await http.GetFromJsonAsync<List<Message>>($"api/chats/{chatId}/messages?callerId={callerId}", JsonOptions, cancellationToken)
+    public async Task<IReadOnlyList<Message>> GetMessagesAsync(int chatId, int callerId, int? companyId = null, CancellationToken cancellationToken = default)
+        => await http.GetFromJsonAsync<List<Message>>($"api/chats/{chatId}/messages?callerId={callerId}{(companyId.HasValue ? $"&companyId={companyId.Value}" : "")}", JsonOptions, cancellationToken)
            ?? new List<Message>();
 
-    public async Task SendMessageAsync(int chatId, string content, int senderId, MessageType type, CancellationToken cancellationToken = default)
+    public async Task SendMessageAsync(int chatId, string content, int senderId, MessageType type, int? companyId = null, CancellationToken cancellationToken = default)
     {
-        var response = await http.PostAsJsonAsync($"api/chats/{chatId}/messages",
+        var response = await http.PostAsJsonAsync($"api/chats/{chatId}/messages{(companyId.HasValue ? $"?companyId={companyId.Value}" : "")}",
             new { senderId, content, type }, JsonOptions, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
@@ -44,21 +44,21 @@ public class ChatServiceProxy : IChatService
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task BlockChatAsync(int chatId, int blockerId, CancellationToken cancellationToken = default)
+    public async Task BlockChatAsync(int chatId, int blockerId, int? companyId = null, CancellationToken cancellationToken = default)
     {
-        var response = await http.PatchAsJsonAsync($"api/chats/{chatId}/block", new { callerId = blockerId }, JsonOptions, cancellationToken);
+        var response = await http.PatchAsJsonAsync($"api/chats/{chatId}/block{(companyId.HasValue ? $"?companyId={companyId.Value}" : "")}", new { callerId = blockerId }, JsonOptions, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task UnblockChatAsync(int chatId, int unblockerId, CancellationToken cancellationToken = default)
+    public async Task UnblockChatAsync(int chatId, int unblockerId, int? companyId = null, CancellationToken cancellationToken = default)
     {
-        var response = await http.PatchAsJsonAsync($"api/chats/{chatId}/unblock", new { callerId = unblockerId }, JsonOptions, cancellationToken);
+        var response = await http.PatchAsJsonAsync($"api/chats/{chatId}/unblock{(companyId.HasValue ? $"?companyId={companyId.Value}" : "")}", new { callerId = unblockerId }, JsonOptions, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task DeleteChatAsync(int chatId, int callerId, CancellationToken cancellationToken = default)
+    public async Task DeleteChatAsync(int chatId, int callerId, int? companyId = null, CancellationToken cancellationToken = default)
     {
-        var response = await http.DeleteAsync($"api/chats/{chatId}?callerId={callerId}", cancellationToken);
+        var response = await http.DeleteAsync($"api/chats/{chatId}?callerId={callerId}{(companyId.HasValue ? $"&companyId={companyId.Value}" : "")}", cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
@@ -84,9 +84,9 @@ public class ChatServiceProxy : IChatService
         => await http.GetFromJsonAsync<List<Company>>($"api/chats/search/companies?companyQuery={Uri.EscapeDataString(query)}", JsonOptions, cancellationToken)
            ?? new List<Company>();
 
-    public async Task SendStoredAttachmentAsync(int chatId, string storedPath, string originalFileName, int senderId, MessageType type, CancellationToken cancellationToken = default)
+    public async Task SendStoredAttachmentAsync(int chatId, string storedPath, string originalFileName, int senderId, MessageType type, int? companyId = null, CancellationToken cancellationToken = default)
     {
-        var response = await http.PostAsJsonAsync($"api/chats/{chatId}/attachments",
+        var response = await http.PostAsJsonAsync($"api/chats/{chatId}/attachments{(companyId.HasValue ? $"?companyId={companyId.Value}" : "")}",
             new { senderId, storedPath, originalFileName, type }, JsonOptions, cancellationToken);
         response.EnsureSuccessStatusCode();
     }

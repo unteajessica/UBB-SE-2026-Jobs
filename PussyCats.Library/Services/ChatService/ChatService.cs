@@ -90,11 +90,11 @@ public class ChatService : IChatService
         return chats.Where(chat => ShouldIncludeChat(chat, companyId)).ToList();
     }
 
-    public async Task<IReadOnlyList<Message>> GetMessagesAsync(int chatId, int callerId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Message>> GetMessagesAsync(int chatId, int callerId, int? companyId = null, CancellationToken cancellationToken = default)
     {
         var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
-        EnsureParticipant(chat, callerId);
+        EnsureParticipant(chat, callerId, companyId);
 
         var deletedAt = chat.User.UserId == callerId ? chat.DeletedAtByUser : chat.DeletedAtBySecondParty;
         var messages = await messageRepository.GetForChatAsync(chatId, cancellationToken).ConfigureAwait(false);
@@ -133,7 +133,7 @@ public class ChatService : IChatService
             .ToList();
     }
 
-    public async Task SendMessageAsync(int chatId, string content, int senderId, MessageType typeOfMessage, CancellationToken cancellationToken = default)
+    public async Task SendMessageAsync(int chatId, string content, int senderId, MessageType typeOfMessage, int? companyId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
@@ -142,7 +142,7 @@ public class ChatService : IChatService
 
         var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
-        EnsureParticipant(chat, senderId);
+        EnsureParticipant(chat, senderId, companyId);
 
         if (chat.IsBlocked)
         {
@@ -172,11 +172,11 @@ public class ChatService : IChatService
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task SendStoredAttachmentAsync(int chatId, string storedPath, string originalFileName, int senderId, MessageType type, CancellationToken cancellationToken = default)
+    public async Task SendStoredAttachmentAsync(int chatId, string storedPath, string originalFileName, int senderId, MessageType type, int? companyId = null, CancellationToken cancellationToken = default)
     {
         var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
-        EnsureParticipant(chat, senderId);
+        EnsureParticipant(chat, senderId, companyId);
         if (chat.IsBlocked)
             throw new InvalidOperationException("Cannot send a message in a blocked chat.");
 
@@ -206,21 +206,21 @@ public class ChatService : IChatService
         await messageRepository.MarkAsReadAsync(chatId, readerId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task BlockChatAsync(int chatId, int blockerId, CancellationToken cancellationToken = default)
+    public async Task BlockChatAsync(int chatId, int blockerId, int? companyId = null, CancellationToken cancellationToken = default)
     {
         var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
-        EnsureParticipant(chat, blockerId);
+        EnsureParticipant(chat, blockerId, companyId);
         chat.IsBlocked = true;
         chat.BlockedByUser = new User { UserId = blockerId };
         await chatRepository.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UnblockChatAsync(int chatId, int unblockerId, CancellationToken cancellationToken = default)
+    public async Task UnblockChatAsync(int chatId, int unblockerId, int? companyId = null, CancellationToken cancellationToken = default)
     {
         var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
-        EnsureParticipant(chat, unblockerId);
+        EnsureParticipant(chat, unblockerId, companyId);
         if (chat.BlockedByUser?.UserId != unblockerId)
         {
             throw new UnauthorizedAccessException("Only the blocker can unblock this chat.");
@@ -231,11 +231,11 @@ public class ChatService : IChatService
         await chatRepository.UpdateAsync(chat, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task DeleteChatAsync(int chatId, int callerId, CancellationToken cancellationToken = default)
+    public async Task DeleteChatAsync(int chatId, int callerId, int? companyId = null, CancellationToken cancellationToken = default)
     {
         var chat = await chatRepository.GetByIdAsync(chatId, cancellationToken).ConfigureAwait(false)
             ?? throw new KeyNotFoundException($"Chat {chatId} not found.");
-        EnsureParticipant(chat, callerId);
+        EnsureParticipant(chat, callerId, companyId);
 
         if (chat.User.UserId == callerId)
         {
@@ -260,9 +260,34 @@ public class ChatService : IChatService
         return deletedAt is null;
     }
 
-    private static void EnsureParticipant(Chat chat, int callerId)
+    private static void EnsureParticipant(Chat chat, int callerId, int? companyId = null)
     {
-        if (chat.User.UserId != callerId && chat.SecondUser?.UserId != callerId && chat.Company?.CompanyId != callerId)
+        // For user-to-user chats: check if caller is one of the two users
+        if (chat.SecondUser != null)
+        {
+            if (chat.User.UserId != callerId && chat.SecondUser.UserId != callerId)
+            {
+                throw new UnauthorizedAccessException("Only chat participants can access this chat.");
+            }
+            return;
+        }
+
+        // For user-to-company chats: the caller must be the user OR a representative of the company
+        if (chat.Company != null)
+        {
+            if (chat.User.UserId == callerId)
+            {
+                return;
+            }
+            if (companyId.HasValue && chat.Company.CompanyId == companyId.Value)
+            {
+                return;
+            }
+            throw new UnauthorizedAccessException("Only chat participants or company representatives can access this chat.");
+        }
+
+        // Fallback for other chat types
+        if (chat.User.UserId != callerId)
         {
             throw new UnauthorizedAccessException("Only chat participants can access this chat.");
         }

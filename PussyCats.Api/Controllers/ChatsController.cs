@@ -53,11 +53,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpGet("{id}/messages")]
-    public async Task<IActionResult> GetMessages(int id, [FromQuery] int callerId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetMessages(int id, [FromQuery] int callerId, [FromQuery] int? companyId, CancellationToken cancellationToken)
     {
         try
         {
-            var messages = await chat.GetMessagesAsync(id, callerId, cancellationToken);
+            var messages = await chat.GetMessagesAsync(id, callerId, companyId, cancellationToken);
             return Ok(messages);
         }
         catch (KeyNotFoundException)
@@ -71,11 +71,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpPost("{id}/messages")]
-    public async Task<IActionResult> SendMessage(int id, [FromBody] SendMessageRequest body, CancellationToken cancellationToken)
+    public async Task<IActionResult> SendMessage(int id, [FromBody] SendMessageRequest body, [FromQuery] int? companyId, CancellationToken cancellationToken)
     {
         try
         {
-            await chat.SendMessageAsync(id, body.Content, body.SenderId, body.Type, cancellationToken);
+            await chat.SendMessageAsync(id, body.Content, body.SenderId, body.Type, companyId, cancellationToken);
             return NoContent();
         }
         catch (KeyNotFoundException)
@@ -93,11 +93,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpPost("{id}/attachments")]
-    public async Task<IActionResult> SendStoredAttachment(int id, [FromBody] SendStoredAttachmentRequest body, CancellationToken cancellationToken)
+    public async Task<IActionResult> SendStoredAttachment(int id, [FromBody] SendStoredAttachmentRequest body, [FromQuery] int? companyId, CancellationToken cancellationToken)
     {
         try
         {
-            await chat.SendStoredAttachmentAsync(id, body.StoredPath, body.OriginalFileName, body.SenderId, body.Type, cancellationToken);
+            await chat.SendStoredAttachmentAsync(id, body.StoredPath, body.OriginalFileName, body.SenderId, body.Type, companyId, cancellationToken);
             return NoContent();
         }
         catch (KeyNotFoundException)
@@ -118,11 +118,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpPatch("{id}/block")]
-    public async Task<IActionResult> Block(int id, [FromBody] CallerRequest body, CancellationToken cancellationToken)
+    public async Task<IActionResult> Block(int id, [FromBody] CallerRequest body, [FromQuery] int? companyId, CancellationToken cancellationToken)
     {
         try
         {
-            await chat.BlockChatAsync(id, body.CallerId, cancellationToken);
+            await chat.BlockChatAsync(id, body.CallerId, companyId, cancellationToken);
             return NoContent();
         }
         catch (KeyNotFoundException)
@@ -132,11 +132,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpPatch("{id}/unblock")]
-    public async Task<IActionResult> Unblock(int id, [FromBody] CallerRequest body, CancellationToken cancellationToken)
+    public async Task<IActionResult> Unblock(int id, [FromBody] CallerRequest body, [FromQuery] int? companyId, CancellationToken cancellationToken)
     {
         try
         {
-            await chat.UnblockChatAsync(id, body.CallerId, cancellationToken);
+            await chat.UnblockChatAsync(id, body.CallerId, companyId, cancellationToken);
             return NoContent();
         }
         catch (KeyNotFoundException)
@@ -150,11 +150,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id, [FromQuery] int callerId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(int id, [FromQuery] int callerId, [FromQuery] int? companyId, CancellationToken cancellationToken)
     {
         try
         {
-            await chat.DeleteChatAsync(id, callerId, cancellationToken);
+            await chat.DeleteChatAsync(id, callerId, companyId, cancellationToken);
             return NoContent();
         }
         catch (KeyNotFoundException)
