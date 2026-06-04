@@ -15,6 +15,12 @@ public sealed partial class RegisterPage : Page
         viewModel = App.Services.GetRequiredService<RegisterViewModel>();
         viewModel.RegisterSucceeded += OnRegisterSucceeded;
         DataContext = viewModel;
+        Loaded += OnLoaded;
+    }
+
+    private async void OnLoaded(object sender, RoutedEventArgs eventArguments)
+    {
+        await viewModel.LoadCompaniesCommand.ExecuteAsync(null);
     }
 
     private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs eventArguments)

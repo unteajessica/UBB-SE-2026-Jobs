@@ -107,6 +107,8 @@ public partial class App : Application
         // BaseUrl) instead of a dedicated TI jobs client. tiBaseUrl is reserved for the
         // genuinely TI-only resources below.
         var tiBaseUrl = apiConfiguration.TiBaseUrl;
+        services.AddHttpClient<ITiAuthService, TiAuthService>(client => client.BaseAddress = new Uri(tiBaseUrl))
+            .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiTestService, TiTestService>(client => client.BaseAddress = new Uri(tiBaseUrl))
     .AddHttpMessageHandler<JwtForwardingHandler>();
         services.AddHttpClient<ITiLeaderboardService, TiLeaderboardService>(client => client.BaseAddress = new Uri(tiBaseUrl))
