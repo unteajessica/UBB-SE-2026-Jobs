@@ -1,4 +1,3 @@
-using FluentAssertions;
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
@@ -48,61 +47,113 @@ public class UserStatusServiceTests
     {
         var result = await service.GetApplicationsForUserAsync(UserId);
 
-        result.Should().BeEmpty();
+        Assert.Empty(result);
     }
 
     [Fact]
     public async Task GetApplicationsForUserAsync_MatchHasMissingJob_SkipsInvalidMatches()
     {
-        matchRepository.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, MissingJobId).Build());
+        matchRepository.Seed(
+            new MatchBuilder()
+                .WithId(MatchId)
+                .AppliedFor(UserId, MissingJobId)
+                .Build());
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
-        result.Should().BeEmpty();
+        Assert.Empty(result);
     }
 
     [Fact]
     public async Task GetApplicationsForUserAsync_ValidMatchExists_ReturnsApplicationCardWithCorrectCompanyAndScore()
     {
-        companyRepository.Seed(new CompanyBuilder().WithId(CompanyId).WithName(KnownCompanyName).Build());
-        jobRepository.Seed(new JobBuilder().WithId(JobId).WithCompanyId(CompanyId).Build());
-        matchRepository.Seed(new MatchBuilder()
-            .WithId(MatchId)
-            .AppliedFor(UserId, JobId)
-            .WithStatus(MatchStatus.Applied)
-            .Build());
-        userSkillRepository.Seed(new UserSkill { User = new User { UserId = UserId }, Skill = new Skill { SkillId = SkillId }, Score = SkillScore });
-        jobSkillRepository.Seed(new JobSkill { Job = new Job { JobId = JobId }, Skill = new Skill { SkillId = SkillId }, RequiredLevel = RequiredSkillLevel });
+        companyRepository.Seed(
+            new CompanyBuilder()
+                .WithId(CompanyId)
+                .WithName(KnownCompanyName)
+                .Build());
+
+        jobRepository.Seed(
+            new JobBuilder()
+                .WithId(JobId)
+                .WithCompanyId(CompanyId)
+                .Build());
+
+        matchRepository.Seed(
+            new MatchBuilder()
+                .WithId(MatchId)
+                .AppliedFor(UserId, JobId)
+                .WithStatus(MatchStatus.Applied)
+                .Build());
+
+        userSkillRepository.Seed(
+            new UserSkill
+            {
+                User = new User { UserId = UserId },
+                Skill = new Skill { SkillId = SkillId },
+                Score = SkillScore
+            });
+
+        jobSkillRepository.Seed(
+            new JobSkill
+            {
+                Job = new Job { JobId = JobId },
+                Skill = new Skill { SkillId = SkillId },
+                RequiredLevel = RequiredSkillLevel
+            });
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
-        result.Should().HaveCount(1);
-        result[0].MatchId.Should().Be(MatchId);
-        result[0].JobId.Should().Be(JobId);
-        result[0].CompanyName.Should().Be(KnownCompanyName);
-        result[0].CompatibilityScore.Should().Be(FullCompatibilityScore);
+        Assert.Single(result);
+
+        Assert.Equal(MatchId, result[0].MatchId);
+        Assert.Equal(JobId, result[0].JobId);
+        Assert.Equal(KnownCompanyName, result[0].CompanyName);
+        Assert.Equal(FullCompatibilityScore, result[0].CompatibilityScore);
     }
 
     [Fact]
     public async Task GetApplicationsForUserAsync_JobHasNoRequiredSkills_ReturnsFullCompatibilityScore()
     {
-        companyRepository.Seed(new CompanyBuilder().WithId(CompanyId).Build());
-        jobRepository.Seed(new JobBuilder().WithId(JobId).WithCompanyId(CompanyId).Build());
-        matchRepository.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, JobId).Build());
+        companyRepository.Seed(
+            new CompanyBuilder()
+                .WithId(CompanyId)
+                .Build());
+
+        jobRepository.Seed(
+            new JobBuilder()
+                .WithId(JobId)
+                .WithCompanyId(CompanyId)
+                .Build());
+
+        matchRepository.Seed(
+            new MatchBuilder()
+                .WithId(MatchId)
+                .AppliedFor(UserId, JobId)
+                .Build());
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
-        result[0].CompatibilityScore.Should().Be(FullCompatibilityScore);
+        Assert.Equal(FullCompatibilityScore, result[0].CompatibilityScore);
     }
 
     [Fact]
     public async Task GetApplicationsForUserAsync_CompanyIsMissing_FallsBackToUnknownCompanyName()
     {
-        jobRepository.Seed(new JobBuilder().WithId(JobId).WithCompanyId(MissingCompanyId).Build());
-        matchRepository.Seed(new MatchBuilder().WithId(MatchId).AppliedFor(UserId, JobId).Build());
+        jobRepository.Seed(
+            new JobBuilder()
+                .WithId(JobId)
+                .WithCompanyId(MissingCompanyId)
+                .Build());
+
+        matchRepository.Seed(
+            new MatchBuilder()
+                .WithId(MatchId)
+                .AppliedFor(UserId, JobId)
+                .Build());
 
         var result = await service.GetApplicationsForUserAsync(UserId);
 
-        result[0].CompanyName.Should().Be(UnknownCompanyName);
+        Assert.Equal(UnknownCompanyName, result[0].CompanyName);
     }
 }
