@@ -1,9 +1,7 @@
-﻿namespace Tests_and_Interviews.Tests.ViewModels
+﻿using Tests_and_Interviews.ViewModels;
+
+namespace PussyCats.Tests.ViewModels
 {
-    using Xunit;
-
-    using Tests_and_Interviews.ViewModels;
-
     public class OptionViewModelTests
     {
         [Fact]

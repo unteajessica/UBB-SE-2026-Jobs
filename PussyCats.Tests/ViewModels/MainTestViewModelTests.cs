@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace TestsAndInterviews.Tests.ViewModels
+namespace PussyCats.Tests.ViewModels
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

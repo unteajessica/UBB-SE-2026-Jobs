@@ -8,7 +8,7 @@ using Tests_and_Interviews.Services.Interfaces;
 using Tests_and_Interviews.ViewModels;
 using Xunit;
 
-namespace TestsAndInterviews.Tests.ViewModels
+namespace PussyCats.Tests.ViewModels
 {
     public class InterviewCandidateViewModelTests
     {

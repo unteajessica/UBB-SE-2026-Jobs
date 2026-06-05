@@ -4,7 +4,7 @@ using Tests_and_Interviews.Models;
 using Tests_and_Interviews.Repositories;
 using Tests_and_Interviews.Repositories.Interfaces;
 
-namespace TestsAndInterviews.Tests.Helpers
+namespace PussyCats.Tests.Helpers
 {
     public class FakeCompanyRepository : ICompanyRepo
     {

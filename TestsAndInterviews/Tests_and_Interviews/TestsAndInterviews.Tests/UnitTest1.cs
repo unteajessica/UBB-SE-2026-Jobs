@@ -1,4 +1,4 @@
-﻿namespace TestsAndInterviews.Tests
+﻿namespace PussyCats.Tests
 {
     public class UnitTest1
     {

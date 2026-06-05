@@ -1,7 +1,7 @@
 ﻿using Tests_and_Interviews.Models;
 using Tests_and_Interviews.Models.Enums;
 
-namespace TestsAndInterviews.Tests.Models
+namespace PussyCats.Tests.Models
 {
 	public class SlotTests
 	{

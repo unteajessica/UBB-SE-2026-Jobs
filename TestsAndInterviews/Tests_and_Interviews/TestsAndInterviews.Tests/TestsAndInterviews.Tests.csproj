@@ -35,5 +35,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="TestResults\" />
+	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 </Project>

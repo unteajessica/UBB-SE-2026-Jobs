@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Moq;
 
-namespace TestsAndInterviews.Tests.Repositories
+namespace PussyCats.Tests.Repositories
 {
     public class InterviewSessionRepositoryTests
     {

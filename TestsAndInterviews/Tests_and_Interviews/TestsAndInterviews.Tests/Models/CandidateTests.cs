@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace TestsAndInterviews.Tests.Models
+namespace PussyCats.Tests.Models
 {
     using System;
     using System.Collections.Generic;

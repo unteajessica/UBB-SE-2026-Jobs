@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TestsAndInterviews.Tests.Repositories
+namespace PussyCats.Tests.Repositories
 {
     public class QuestionRepositoryTests
     {

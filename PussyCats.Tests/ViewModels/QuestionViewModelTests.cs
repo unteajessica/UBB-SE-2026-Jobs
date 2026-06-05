@@ -1,15 +1,9 @@
-﻿namespace Tests_and_Interviews.Tests.ViewModels
+﻿using Microsoft.UI.Xaml;
+using Tests_and_Interviews.Models.Enums;
+using Tests_and_Interviews.ViewModels;
+
+namespace PussyCats.Tests.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-
-    using Microsoft.UI.Xaml;
-    using Xunit;
-
-    using Tests_and_Interviews.Models.Enums;
-    using Tests_and_Interviews.ViewModels;
-
     public class QuestionViewModelTests
     {
         private static OptionViewModel MakeOption(int index, bool isSelected = false) =>

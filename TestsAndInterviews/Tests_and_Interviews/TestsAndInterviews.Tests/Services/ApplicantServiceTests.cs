@@ -4,7 +4,7 @@
 
 using Tests_and_Interviews.Dtos;
 
-namespace TestsAndInterviews.Tests.Services
+namespace PussyCats.Tests.Services
 {
     using System;
     using System.Collections.Generic;

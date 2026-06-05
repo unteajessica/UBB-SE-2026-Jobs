@@ -1,4 +1,4 @@
-﻿namespace TestsAndInterviews.Tests.Services
+﻿namespace PussyCats.Tests.Services
 {
     using System;
     using System.Collections.Generic;

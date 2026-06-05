@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PussyCats.Tests.Helpers;
 using Tests_and_Interviews.Models;
 using Tests_and_Interviews.Models.Core;
 using Tests_and_Interviews.Services;
-using TestsAndInterviews.Tests.Helpers;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace TestsAndInterviews.Tests.Services
+namespace PussyCats.Tests.Services
 {
     [TestClass]
     public class ProfileCompletionCalculatorTests

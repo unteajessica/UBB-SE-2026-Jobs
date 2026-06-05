@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace TestsAndInterviews.Tests.Services
+namespace PussyCats.Tests.Services
 {
     using Tests_and_Interviews.Models.Core;
     using Tests_and_Interviews.Models.Enums;

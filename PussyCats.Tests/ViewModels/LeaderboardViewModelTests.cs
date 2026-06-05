@@ -1,15 +1,10 @@
-﻿namespace Tests_and_Interviews.Tests.ViewModels
+﻿using Moq;
+using Tests_and_Interviews.Models.Core;
+using Tests_and_Interviews.Services.Interfaces;
+using Tests_and_Interviews.ViewModels;
+
+namespace PussyCats.Tests.ViewModels
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
-    using Moq;
-    using Xunit;
-
-    using Tests_and_Interviews.Models.Core;
-    using Tests_and_Interviews.Services.Interfaces;
-    using Tests_and_Interviews.ViewModels;
-
     public class LeaderboardViewModelTests
     {
         private readonly Mock<ILeaderboardService> leaderboardServiceMock;

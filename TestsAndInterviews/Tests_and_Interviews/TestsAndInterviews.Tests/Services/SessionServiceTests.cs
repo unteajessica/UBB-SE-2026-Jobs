@@ -3,7 +3,7 @@ using Tests_and_Interviews.Models;
 using Tests_and_Interviews.Services;
 using Xunit;
 
-namespace TestsAndInterviews.Tests.Services
+namespace PussyCats.Tests.Services
 {
     public class SessionServiceTests
     {

@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace TestsAndInterviews.Tests.Services
+namespace PussyCats.Tests.Services
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;

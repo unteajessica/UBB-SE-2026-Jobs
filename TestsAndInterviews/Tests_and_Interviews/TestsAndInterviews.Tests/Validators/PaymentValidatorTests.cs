@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Tests_and_Interviews.Validators;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace TestsAndInterviews.Tests.Validators
+namespace PussyCats.Tests.Validators
 {
     [TestClass]
     public class PaymentValidatorTests

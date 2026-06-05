@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestsAndInterviews.Tests.Models
+namespace PussyCats.Tests.Models
 {
     using System.Collections.Generic;
     using Tests_and_Interviews.Models.Core;
