@@ -3,7 +3,7 @@ using PussyCats.App.Configuration;
 using PussyCats.App.ViewModels;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.SkillGapService;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using PussyCats.Tests.Integration;
 
 namespace PussyCats.Tests.ViewModels;

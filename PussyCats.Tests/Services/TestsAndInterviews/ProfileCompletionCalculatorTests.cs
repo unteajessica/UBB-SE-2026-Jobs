@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using Tests_and_Interviews.Models;
 using Tests_and_Interviews.Models.Core;
 using Tests_and_Interviews.Services;

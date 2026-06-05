@@ -5,7 +5,7 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Services.Jobs;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Library.Services.Users;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using PussyCats.Web.Controllers;
 using PussyCats.Web.Models;
 

@@ -3,7 +3,7 @@ using NSubstitute;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.CompanyRecommendationService;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.Controllers;
 using PussyCats.Web.Models;

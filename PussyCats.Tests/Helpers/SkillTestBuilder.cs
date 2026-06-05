@@ -1,6 +1,6 @@
 using PussyCats.Library.Domain;
 
-namespace PussyCats.Tests.Helpers;
+namespace PussyCats.Tests.Fakes;
 
 public class SkillTestBuilder
 {

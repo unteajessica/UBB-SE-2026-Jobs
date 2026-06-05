@@ -1,5 +1,4 @@
 using PussyCats.Tests.Fakes;
-using PussyCats.Tests.Helpers;
 
 namespace PussyCats.Tests.Smoke;
 

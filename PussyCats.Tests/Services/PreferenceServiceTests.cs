@@ -1,7 +1,6 @@
 using System.ComponentModel.Design;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Tests.Fakes;
-using PussyCats.Tests.Helpers;
 using PussyCats.Library.Services.Preferences;
 
 namespace PussyCats.Tests.Services;

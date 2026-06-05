@@ -1,7 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.CompletenessService;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 
 
 namespace PussyCats.Tests.Services;

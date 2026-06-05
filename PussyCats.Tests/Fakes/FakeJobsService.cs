@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Tests_and_Interviews.Models;
 using Tests_and_Interviews.Services.Interfaces;
 
-namespace PussyCats.Tests.Helpers
+namespace PussyCats.Tests.Fakes
 {
     public class FakeJobsService : IJobsService
     {

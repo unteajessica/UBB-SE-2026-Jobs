@@ -5,7 +5,7 @@ using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.DTOs;
 using PussyCats.Library.Services.CompanyStatusService;
 using PussyCats.Library.Services.Matches;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using PussyCats.Web.Configuration;
 using PussyCats.Web.Controllers;
 using PussyCats.Web.Models;

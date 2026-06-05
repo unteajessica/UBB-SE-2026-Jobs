@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace PussyCats.Tests.Services
+namespace PussyCats.Tests.Services.TestsAndInterviews
 {
     using System;
     using System.Collections.Generic;

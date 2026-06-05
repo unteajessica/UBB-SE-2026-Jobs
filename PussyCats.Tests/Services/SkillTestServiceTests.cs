@@ -2,7 +2,6 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 using PussyCats.Library.Services.SkillTests;
 using PussyCats.Tests.Fakes;
-using PussyCats.Tests.Helpers;
 
 
 namespace PussyCats.Tests.Services;

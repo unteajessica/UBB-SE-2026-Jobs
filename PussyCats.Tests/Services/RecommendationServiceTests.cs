@@ -1,7 +1,6 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Services.Recommendations;
 using PussyCats.Tests.Fakes;
-using PussyCats.Tests.Helpers;
 
 namespace PussyCats.Tests.Services;
 

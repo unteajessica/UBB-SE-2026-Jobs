@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using PussyCats.Library.Domain;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using PussyCats.Library.ServiceProxies;
 using Xunit;
 

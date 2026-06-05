@@ -2,7 +2,7 @@
 using Tests_and_Interviews.Repositories;
 using Tests_and_Interviews.Repositories.Interfaces;
 
-namespace PussyCats.Tests.Helpers
+namespace PussyCats.Tests.Fakes
 {
     internal class FakeJobsRepository : IJobsRepository
     {

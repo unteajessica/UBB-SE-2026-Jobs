@@ -1,7 +1,7 @@
 using PussyCats.Library.Domain;
 using PussyCats.Library.Domain.Enums;
 
-namespace PussyCats.Tests.Helpers;
+namespace PussyCats.Tests.Fakes;
 
 public class PersonalityResultBuilder
 {

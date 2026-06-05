@@ -2,7 +2,6 @@ using PussyCats.Library.Domain;
 using PussyCats.Library.Services;
 using PussyCats.Library.Services.UserProfileService;
 using PussyCats.Tests.Fakes;
-using PussyCats.Tests.Helpers;
 
 namespace PussyCats.Tests.Services;
 

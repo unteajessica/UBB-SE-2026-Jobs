@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using PussyCats.Library.Domain;
 using PussyCats.Library.DTOs;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using PussyCats.Library.ServiceProxies;
 
 namespace PussyCats.Tests.Web.ServiceProxies;

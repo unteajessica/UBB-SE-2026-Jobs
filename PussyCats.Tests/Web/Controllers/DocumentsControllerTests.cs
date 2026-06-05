@@ -13,7 +13,7 @@ using PussyCats.Library.Services.Documents;
 using PussyCats.Library.Services.Users;
 using PussyCats.Web.Controllers;
 using PussyCats.Web.Models;
-using PussyCats.Tests.Helpers;
+using PussyCats.Tests.Fakes;
 using Xunit;
 
 namespace PussyCats.Tests.Web.Controllers;
