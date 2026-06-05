@@ -16,7 +16,7 @@ using Tests_and_Interviews.Models.Core;
 using Tests_and_Interviews.Services;
 using Xunit; // Crucial: Native xUnit assertions come from here
 
-namespace TestsAndInterviews.Tests.Services
+namespace PussyCats.Tests.Services
 {
     public class ApplicantServiceAdditionalTests
     {
