@@ -2,16 +2,15 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace TestsAndInterviews.Tests.Services
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Tests_and_Interviews.Services;
+using Xunit;
+namespace PussyCats.Tests.Services.TestsAndInterviews
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Tests_and_Interviews.Services;
-    using Xunit;
-
     public class BuddyImageProviderTests
     {
         [Theory]

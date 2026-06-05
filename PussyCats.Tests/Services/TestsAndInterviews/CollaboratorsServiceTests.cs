@@ -2,25 +2,22 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace TestsAndInterviews.Tests.Services
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Moq;
+using Moq.Protected;
+using Tests_and_Interviews.Dtos;
+using Tests_and_Interviews.Models;
+using Tests_and_Interviews.Services;
+using Xunit;
+namespace PussyCats.Tests.Services.TestsAndInterviews
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Net.Http.Json;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
-    using Moq.Protected;
-    using Tests_and_Interviews.Dtos;
-    using Tests_and_Interviews.Models;
-    using Tests_and_Interviews.Services;
-    using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
-
-    [TestClass]
     public class CollaboratorsServiceTests
     {
         private const string EventPhotoPath = "photo.jpg";
@@ -58,8 +55,7 @@ namespace TestsAndInterviews.Tests.Services
         private CollaboratorDto? _lastPostedDto;
         private string? _lastPostUri;
 
-        [TestInitialize]
-        public void Setup()
+        public CollaboratorsServiceTests()
         {
             _lastPostedDto = null;
             _lastPostUri = null;
@@ -128,7 +124,7 @@ namespace TestsAndInterviews.Tests.Services
                 });
         }
 
-        [TestMethod]
+        [Fact]
         public async Task AddCollaborator_ValidInputs_SendsPostRequest()
         {
             Event eventToCollaborateOn = MakeEvent();
@@ -136,11 +132,11 @@ namespace TestsAndInterviews.Tests.Services
 
             await collaboratorsService.AddCollaborator(eventToCollaborateOn, companyToAdd, DefaultId);
 
-            Assert.IsNotNull(_lastPostedDto);
-            Assert.IsTrue(_lastPostUri!.Contains("collaborators"));
+            Assert.NotNull(_lastPostedDto);
+            Assert.Contains("collaborators", _lastPostUri);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task AddCollaborator_ValidInputs_SendsCorrectEventId()
         {
             Event eventToCollaborateOn = MakeEvent();
@@ -149,10 +145,10 @@ namespace TestsAndInterviews.Tests.Services
 
             await collaboratorsService.AddCollaborator(eventToCollaborateOn, companyToAdd, DefaultId);
 
-            Assert.AreEqual(AltEventId, _lastPostedDto?.EventId);
+            Assert.Equal(AltEventId, _lastPostedDto?.EventId);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task AddCollaborator_ValidInputs_SendsCorrectCompanyId()
         {
             Event eventToCollaborateOn = MakeEvent();
@@ -160,10 +156,10 @@ namespace TestsAndInterviews.Tests.Services
 
             await collaboratorsService.AddCollaborator(eventToCollaborateOn, companyToAdd, DefaultId);
 
-            Assert.AreEqual(AltCompanyId, _lastPostedDto?.CompanyId);
+            Assert.Equal(AltCompanyId, _lastPostedDto?.CompanyId);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task AddCollaborator_ValidInputs_SendsCorrectLoggedInUserIdInUri()
         {
             Event eventToCollaborateOn = MakeEvent();
@@ -171,10 +167,10 @@ namespace TestsAndInterviews.Tests.Services
 
             await collaboratorsService.AddCollaborator(eventToCollaborateOn, companyToAdd, ExpectedUserId);
 
-            Assert.IsTrue(_lastPostUri!.Contains($"loggedInUserID={ExpectedUserId}"));
+            Assert.Contains($"loggedInUserID={ExpectedUserId}", _lastPostUri);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetAllCollaborators_ApiReturnsTwoCompanies_ServiceReturnsTwoCompanies()
         {
             var dtos = new List<CompanyDto>
@@ -186,10 +182,10 @@ namespace TestsAndInterviews.Tests.Services
 
             List<Company> result = await collaboratorsService.GetAllCollaborators(DefaultId);
 
-            Assert.AreEqual(CountTwo, result.Count);
+            Assert.Equal(CountTwo, result.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetAllCollaborators_ApiReturnsEmptyList_ServiceReturnsEmptyList()
         {
             var dtos = new List<CompanyDto>();
@@ -197,10 +193,10 @@ namespace TestsAndInterviews.Tests.Services
 
             List<Company> result = await collaboratorsService.GetAllCollaborators(DefaultId);
 
-            Assert.AreEqual(CountZero, result.Count);
+            Assert.Equal(CountZero, result.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetAllCollaborators_ApiReturnsOneCompany_ServiceReturnsCorrectCompanyName()
         {
             var dtos = new List<CompanyDto>
@@ -211,10 +207,10 @@ namespace TestsAndInterviews.Tests.Services
 
             List<Company> result = await collaboratorsService.GetAllCollaborators(DefaultId);
 
-            Assert.AreEqual(SingleCompanyName, result[0].Name);
+            Assert.Equal(SingleCompanyName, result[0].Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void DefaultConstructor_InitializesHttpClient()
         {
             // Act
@@ -222,8 +218,8 @@ namespace TestsAndInterviews.Tests.Services
 
             // Assert
             var httpField = typeof(CollaboratorsService).GetField("http", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            Assert.IsNotNull(httpField, "Field 'http' not found");
-            Assert.AreSame(Tests_and_Interviews.Api.ApiClient.Http, httpField.GetValue(service));
+            Assert.NotNull(httpField);
+            Assert.Equal(Tests_and_Interviews.Api.ApiClient.Http, httpField.GetValue(service));
         }
     }
 }

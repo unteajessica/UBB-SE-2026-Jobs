@@ -2,23 +2,23 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace TestsAndInterviews.Tests.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Http;
-    using System.Net.Http.Json;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Moq;
-    using Moq.Protected;
-    using Tests_and_Interviews.Dtos;
-    using Tests_and_Interviews.Models;
-    using Tests_and_Interviews.Models.Enums;
-    using Tests_and_Interviews.Services;
-    using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Moq;
+using Moq.Protected;
+using Tests_and_Interviews.Dtos;
+using Tests_and_Interviews.Models;
+using Tests_and_Interviews.Models.Enums;
+using Tests_and_Interviews.Services;
+using Xunit;
 
+namespace PussyCats.Tests.Services.TestsAndInterviews
+{
     public class BookingServiceTests
     {
         private Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpResponseMessage responseMessage)

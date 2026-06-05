@@ -7,6 +7,7 @@ using PussyCats.Library.Services.ChatService;
 using PussyCats.Library.Services.FileStorage;
 using PussyCats.Library.Services.Users;
 using PussyCats.Library.Services.CompanyService;
+using Assert = Xunit.Assert;
 
 namespace PussyCats.Tests.Services
 {
